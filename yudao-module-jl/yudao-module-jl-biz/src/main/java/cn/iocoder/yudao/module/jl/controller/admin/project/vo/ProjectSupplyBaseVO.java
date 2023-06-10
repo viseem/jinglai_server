@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -48,5 +49,15 @@ public class ProjectSupplyBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+
+    @Schema(description = "物品来源")
+    private String source;
+
+    @Schema(description = "采购总量")
+    private Integer procurementQuantity;
+
+    @Schema(description = "库存总量")
+    private Integer inventoryQuantity;
 
 }

@@ -81,6 +81,24 @@ public class ProjectSupply extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 物品来源
+     */
+    @Column(name = "source")
+    private String source;
+
+    /**
+     * 采购总量
+     */
+    @Column(name = "procurement_quantity")
+    private Integer procurementQuantity;
+
+    /**
+     * 库存总量
+     */
+    @Column(name = "inventory_quantity")
+    private Integer inventoryQuantity;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
@@ -91,5 +109,7 @@ public class ProjectSupply extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     private ProjectCategory category;
+
+
 
 }
