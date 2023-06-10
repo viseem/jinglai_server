@@ -1,28 +1,27 @@
-package cn.iocoder.yudao.module.jl.entity.project;
+package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
- * 项目中的实验名目的物资项 Entity
+ * 出库申请明细 Entity
  *
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProjectSupply")
-@Table(name = "jl_project_supply")
-public class ProjectSupply extends BaseEntity {
+@Entity(name = "SupplyOutItem")
+@Table(name = "jl_inventory_supply_out_item")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class SupplyOutItem extends BaseEntity {
 
     /**
      * 岗位ID
@@ -33,19 +32,19 @@ public class ProjectSupply extends BaseEntity {
     private Long id;
 
     /**
-     * 选中的实验名目 id
+     * 出库申请表 id
      */
-    @Column(name = "project_category_id", nullable = false )
-    private Long projectCategoryId;
-
-    /**
-     * 原始的实验名目 id
-     */
-    @Column(name = "category_id", nullable = false )
-    private Long categoryId;
+    @Column(name = "supply_out_id", nullable = false )
+    private Long supplyOutId;
 
     /**
      * 物资 id
+     */
+    @Column(name = "project_supply_id", nullable = false )
+    private Long projectSupplyId;
+
+    /**
+     * 物资库的物资 id
      */
     @Column(name = "supply_id", nullable = false )
     private Long supplyId;
@@ -81,35 +80,15 @@ public class ProjectSupply extends BaseEntity {
     private Integer quantity;
 
     /**
-     * 物品来源
+     * 状态
      */
-    @Column(name = "source")
-    private String source;
-
-    /**
-     * 采购总量
-     */
-    @Column(name = "procurement_quantity")
-    private Integer procurementQuantity;
-
-    /**
-     * 库存总量
-     */
-    @Column(name = "inventory_quantity")
-    private Integer inventoryQuantity;
+    @Column(name = "status")
+    private String status;
 
     /**
      * 备注
      */
     @Column(name = "mark")
     private String mark;
-
-    @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectCategory category;
-
-
 
 }

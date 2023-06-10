@@ -44,4 +44,12 @@ public class ProjectSupplySubClass {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "物品来源")
+    private String source;
+
+    @Schema(description = "采购总量")
+    private Integer procurementQuantity;
+
+    @Schema(description = "库存总量")
+    private Integer inventoryQuantity;
 }

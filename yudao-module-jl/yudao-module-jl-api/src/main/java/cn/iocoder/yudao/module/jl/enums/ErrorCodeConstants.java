@@ -65,4 +65,18 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_CONSTRACT_NOT_EXISTS = new ErrorCode(2031000001, "项目合同不存在");
 
+    ErrorCode COMPANY_SUPPLY_NOT_EXISTS = new ErrorCode(2032000001, "公司实验物资不存在");
+
+    ErrorCode SUPPLY_OUT_NOT_EXISTS = new ErrorCode(2033000001, "出库申请不存在");
+
+    ErrorCode SUPPLY_OUT_ITEM_NOT_EXISTS = new ErrorCode(2034000001, "出库申请的明细项不存在");
+
+    ErrorCode PRODUCT_IN_NOT_EXISTS = new ErrorCode(2038000001, "试验产品入库记录不存在");
+
+    ErrorCode PRODUCT_IN_ITEM_NOT_EXISTS = new ErrorCode(2035000001, "试验产品入库明细不存在");
+
+    ErrorCode PRODUCT_SEND_NOT_EXISTS = new ErrorCode(2037000001, "试验产品寄送单不存在");
+
+    ErrorCode PRODUCT_SEND_ITEM_NOT_EXISTS = new ErrorCode(2036000001, "试验产品寄送单明细不存在");
+
 }
