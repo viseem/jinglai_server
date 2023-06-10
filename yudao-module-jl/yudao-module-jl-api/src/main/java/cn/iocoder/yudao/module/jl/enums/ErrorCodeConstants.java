@@ -79,4 +79,32 @@ public interface ErrorCodeConstants {
 
     ErrorCode PRODUCT_SEND_ITEM_NOT_EXISTS = new ErrorCode(2036000001, "试验产品寄送单明细不存在");
 
+    ErrorCode INVENTORY_CONTAINER_NOT_EXISTS = new ErrorCode(2037000001, "储存器具不存在");
+
+    ErrorCode INVENTORY_CONTAINER_PLACE_NOT_EXISTS = new ErrorCode(2038000001, "储存器具的位置编号不存在");
+
+    ErrorCode INVENTORY_ROOM_NOT_EXISTS = new ErrorCode(2039000001, "库管房间不存在");
+
+    ErrorCode PROCUREMENT_NOT_EXISTS = new ErrorCode(2040000001, "采购不存在");
+
+    ErrorCode PROCUREMENT_ITEM_NOT_EXISTS = new ErrorCode(2041000001, "采购明细条目不存在");
+
+    ErrorCode PROCUREMENT_PAYMENT_NOT_EXISTS = new ErrorCode(2042000001, "采购支付不存在");
+
+    ErrorCode PROCUREMENT_SHIPMENT_NOT_EXISTS = new ErrorCode(2043000001, "采购物流不存在");
+
+    ErrorCode SUPPLIER_NOT_EXISTS = new ErrorCode(2044000001, "供应商不存在");
+
+    ErrorCode SUPPLY_LOG_ATTACHMENT_NOT_EXISTS = new ErrorCode(2045000001, "物资变更记录的附件不存在");
+
+    ErrorCode SUPPLY_LOG_NOT_EXISTS = new ErrorCode(2046000001, "物资变更记录不存在");
+
+    ErrorCode SUPPLY_PICKUP_NOT_EXISTS = new ErrorCode(2047000001, "物资自取单不存在");
+
+    ErrorCode SUPPLY_PICKUP_ITEM_NOT_EXISTS = new ErrorCode(2048000001, "物资自取单明细条目不存在");
+
+    ErrorCode SUPPLY_SEND_IN_NOT_EXISTS = new ErrorCode(2049000001, "物资寄来单不存在");
+
+    ErrorCode SUPPLY_SEND_IN_ITEM_NOT_EXISTS = new ErrorCode(2050000001, "物资寄来单明细条目不存在");
+
 }
