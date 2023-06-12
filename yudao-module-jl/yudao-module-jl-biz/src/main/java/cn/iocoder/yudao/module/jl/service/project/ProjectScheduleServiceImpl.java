@@ -142,6 +142,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
                     List<ProjectSupplySubClass> projectSupplyList = supplyList.stream().map(supply -> {
                         supply.setProjectCategoryId(categoryDo.getId());
                         supply.setCategoryId(categoryDo.getCategoryId());
+                        supply.setProjectId(saveReqVO.getProjectId());
+                        supply.setScheduleId(scheduleId);
                         return supply;
                     }).collect(Collectors.toList());
 

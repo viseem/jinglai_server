@@ -86,6 +86,7 @@ public class ProjectScheduleController {
     @Operation(summary = "(分页)获得项目安排单列表")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:query')")
     public CommonResult<PageResult<ProjectScheduleRespVO>> getProjectSchedulePage(@Valid ProjectSchedulePageReqVO pageVO, @Valid ProjectSchedulePageOrder orderV0) {
+
         PageResult<ProjectSchedule> pageResult = projectScheduleService.getProjectSchedulePage(pageVO, orderV0);
         return success(projectScheduleMapper.toPage(pageResult));
     }

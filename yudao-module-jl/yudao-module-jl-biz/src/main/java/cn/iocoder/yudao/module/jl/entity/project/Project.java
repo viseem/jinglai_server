@@ -128,5 +128,6 @@ public class Project extends BaseEntity {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "current_schedule_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     private ProjectSchedule currentSchedule;
 }

@@ -22,6 +22,10 @@ public class ProjectSupplyPageReqVO extends PageParam {
     @Schema(description = "选中的实验名目 id", example = "6131")
     private Long projectCategoryId;
 
+    private Long projectId;
+
+    private Long scheduleId;
+
     @Schema(description = "原始的实验名目 id", example = "18163")
     private Long categoryId;
 
@@ -36,6 +40,9 @@ public class ProjectSupplyPageReqVO extends PageParam {
 
     @Schema(description = "单价")
     private String unitFee;
+
+    @Schema(description = "来源渠道")
+    private String source;
 
     @Schema(description = "单量")
     private Integer unitAmount;

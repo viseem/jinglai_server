@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
@@ -43,6 +44,12 @@ public class ProjectSupply extends BaseEntity {
      */
     @Column(name = "category_id", nullable = false )
     private Long categoryId;
+
+    @Column(name = "project_id", nullable = false )
+    private Long projectId;
+
+    @Column(name = "schedule_id", nullable = false )
+    private Long scheduleId;
 
     /**
      * 物资 id
@@ -110,6 +117,10 @@ public class ProjectSupply extends BaseEntity {
     @JsonBackReference
     private ProjectCategory category;
 
-
+    @OneToOne
+    @JoinColumn(name = "id", referencedColumnName = "project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProcurementItem procurementItem;
 
 }
