@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,5 +19,7 @@ public class ProcurementRespVO extends ProcurementBaseVO {
     private LocalDateTime createTime;
 
     private List<ProcurementItemRespVO> items;
+
+    private UserRespVO applyUser;
 
 }

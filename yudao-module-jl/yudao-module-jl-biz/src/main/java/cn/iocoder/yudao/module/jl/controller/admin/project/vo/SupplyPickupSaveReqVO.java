@@ -14,8 +14,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class SupplyPickupSaveReqVO extends SupplyPickupBaseVO {
 
-    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "25390")
-    @NotNull(message = "ID不能为空")
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "25390")
     private Long id;
 
     private List<SupplyPickupItemCreateReqVO> items;

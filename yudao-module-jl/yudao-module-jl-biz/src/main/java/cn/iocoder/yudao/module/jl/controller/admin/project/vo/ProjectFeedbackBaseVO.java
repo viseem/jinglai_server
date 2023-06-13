@@ -46,4 +46,9 @@ public class ProjectFeedbackBaseVO {
     @Schema(description = "处理结果")
     private String result;
 
+    @Schema(description = "处理时间")
+    private LocalDateTime resultTime;
+
+    @Schema(description = "处理人 id")
+    private Long resultUserId;
 }

@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -85,4 +89,25 @@ public class ProjectFeedback extends BaseEntity {
     @Column(name = "result")
     private String result;
 
+    /**
+     * 处理时间
+     */
+    @Column(name = "result_time")
+    private LocalDateTime resultTime;
+
+    /**
+     * 处理人
+     */
+    @Column(name = "result_user_id")
+    private Long resultUserId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User feedbackUser;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "result_user_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User resultUser;
 }

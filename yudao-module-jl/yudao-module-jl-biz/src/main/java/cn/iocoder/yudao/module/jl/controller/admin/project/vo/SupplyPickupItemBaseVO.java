@@ -50,7 +50,6 @@ public class SupplyPickupItemBaseVO {
     private String validDate;
 
     @Schema(description = "存储温度", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "存储温度不能为空")
     private String temperature;
 
     @Schema(description = "状态", example = "2")

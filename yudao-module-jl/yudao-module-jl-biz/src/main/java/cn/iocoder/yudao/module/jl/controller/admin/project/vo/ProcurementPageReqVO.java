@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;

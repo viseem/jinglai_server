@@ -17,6 +17,7 @@ import java.io.IOException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -54,6 +55,16 @@ public class ProjectFeedbackController {
     @PreAuthorize("@ss.hasPermission('jl:project-feedback:update')")
     public CommonResult<Boolean> updateProjectFeedback(@Valid @RequestBody ProjectFeedbackUpdateReqVO updateReqVO) {
         projectFeedbackService.updateProjectFeedback(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/reply")
+    @Operation(summary = "处理项目反馈")
+    @PreAuthorize("@ss.hasPermission('jl:project-feedback:update')")
+    public CommonResult<Boolean> updateProjectFeedback(@Valid @RequestBody ProjectFeedbackReplyReqVO replyReqVO) {
+        Long userId = getLoginUserId();
+        replyReqVO.setResultUserId(userId);
+        projectFeedbackService.replyFeedback(replyReqVO);
         return success(true);
     }
 

@@ -1,18 +1,15 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProcurementItemRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目采购单申请 Entity
@@ -100,5 +97,15 @@ public class Procurement extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<ProcurementItem> items;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User applyUser;
+
+//    @OneToOne(fetch = FetchType.EAGER)
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private Project project;
 
 }

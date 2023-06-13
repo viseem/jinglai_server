@@ -66,4 +66,5 @@ public interface ProjectFeedbackService {
      */
     List<ProjectFeedback> getProjectFeedbackList(ProjectFeedbackExportReqVO exportReqVO);
 
+    void replyFeedback(ProjectFeedbackReplyReqVO replyReqVO);
 }

@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.project;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -181,6 +183,17 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
         // 执行查询
         return projectFeedbackRepository.findAll(spec);
+    }
+
+    /**
+     * @param replyReqVO
+     */
+    @Override
+    public void replyFeedback(ProjectFeedbackReplyReqVO replyReqVO) {
+        // 校验存在
+        validateProjectFeedbackExists(replyReqVO.getId());
+        // 更新
+        projectFeedbackRepository.replyFeedback(replyReqVO.getResult(), replyReqVO.getResultUserId(), LocalDateTime.now(), replyReqVO.getId());
     }
 
     private Sort createSort(ProjectFeedbackPageOrder order) {
