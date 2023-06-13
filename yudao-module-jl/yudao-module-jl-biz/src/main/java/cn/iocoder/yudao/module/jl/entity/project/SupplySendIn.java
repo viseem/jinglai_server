@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplySendInItemCreateReqVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
 import java.util.*;
@@ -91,4 +92,7 @@ public class SupplySendIn extends BaseEntity {
     @Column(name = "receiver_phone")
     private String receiverPhone;
 
+    @OneToMany
+    @JoinColumn(name = "supply_send_in_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<SupplySendInItem> items;
 }

@@ -30,7 +30,7 @@ import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 import cn.iocoder.yudao.module.jl.service.project.ProcurementService;
 
-@Tag(name = "管理后台 - 项目采购单申请")
+@Tag(name = "管理后台 - 项目采购")
 @RestController
 @RequestMapping("/jl/procurement")
 @Validated
@@ -60,8 +60,8 @@ public class ProcurementController {
     @PutMapping("/save")
     @Operation(summary = "全量保存项目采购单申请")
     @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
-    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
-        procurementService.updateProcurement(updateReqVO);
+    public CommonResult<Boolean> saveProcurement(@Valid @RequestBody ProcurementSaveReqVO saveReqVO) {
+        procurementService.saveProcurement(saveReqVO);
         return success(true);
     }
 

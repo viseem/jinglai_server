@@ -66,4 +66,5 @@ public interface SupplyPickupService {
      */
     List<SupplyPickup> getSupplyPickupList(SupplyPickupExportReqVO exportReqVO);
 
+    void saveSupplyPickup(SupplyPickupSaveReqVO saveReqVO);
 }

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProcurementItemRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
 import java.util.*;
@@ -7,6 +8,9 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -62,6 +66,12 @@ public class Procurement extends BaseEntity {
     private String mark;
 
     /**
+     * 采购人员回复
+     */
+    @Column(name = "reply")
+    private String reply;
+
+    /**
      * 采购发起时间
      */
     @Column(name = "start_date")
@@ -70,7 +80,7 @@ public class Procurement extends BaseEntity {
     /**
      * 签收陪审人
      */
-    @Column(name = "check_user_id", nullable = false )
+    @Column(name = "check_user_id")
     private Long checkUserId;
 
     /**
@@ -84,5 +94,11 @@ public class Procurement extends BaseEntity {
      */
     @Column(name = "receiver_user_id")
     private String receiverUserId;
+
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<ProcurementItem> items;
 
 }

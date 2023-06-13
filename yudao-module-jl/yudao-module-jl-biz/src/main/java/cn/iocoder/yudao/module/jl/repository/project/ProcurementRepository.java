@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Query("select count(p) from Procurement p where p.projectId = ?1")
+    long countByProjectId(Long projectId);
 
 }

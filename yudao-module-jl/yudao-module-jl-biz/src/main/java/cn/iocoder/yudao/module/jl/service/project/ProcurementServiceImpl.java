@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.hutool.core.date.DateUtil;
+import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +44,12 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private ProcurementMapper procurementMapper;
 
+    @Resource
+    private ProcurementItemRepository procurementItemRepository;
+
+    @Resource
+    private ProcurementItemMapper procurementItemMapper;
+
     @Override
     public Long createProcurement(ProcurementCreateReqVO createReqVO) {
         // 插入
@@ -52,18 +61,44 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     @Override
     public void updateProcurement(ProcurementUpdateReqVO updateReqVO) {
-        if(updateReqVO.getId() != null) {
-            // 存在 id，更新操作
-            Long id = updateReqVO.getId();
-            // 校验存在
-            validateProcurementExists(id);
-        } else {
-            // 不存在 id，创新新的数据
-        }
+        // 校验存在
+        validateProcurementExists(updateReqVO.getId());
 
         // 更新
         Procurement updateObj = procurementMapper.toEntity(updateReqVO);
         updateObj = procurementRepository.save(updateObj);
+    }
+
+    /**
+     * 全量更新采购单
+     * @param saveReqVO
+     */
+    @Override
+    public void saveProcurement(ProcurementSaveReqVO saveReqVO) {
+        if(saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateProcurementExists(id);
+        }
+
+        // 更新或者创建
+        Procurement updateObj = procurementMapper.toEntity(saveReqVO);
+        String dateStr = DateUtil.format(new Date(), "yyyyMMdd");
+        long count = procurementRepository.countByProjectId(saveReqVO.getProjectId());
+        updateObj.setCode(dateStr + "-" + updateObj.getProjectId() + "-" + count);
+        updateObj = procurementRepository.save(updateObj);
+        Long procurementId = updateObj.getId();
+
+        // 删除原有的采购单明细
+        procurementItemRepository.deleteByProcurementId(procurementId);
+
+        // 创建采购单明细
+        procurementItemMapper.toEntityList(saveReqVO.getItems()).forEach(procurementItem -> {
+            procurementItem.setProcurementId(procurementId);
+            procurementItemRepository.save(procurementItem);
+        });
+
     }
 
     @Override

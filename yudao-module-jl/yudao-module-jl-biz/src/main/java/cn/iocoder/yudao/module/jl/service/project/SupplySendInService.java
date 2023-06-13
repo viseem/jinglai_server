@@ -27,6 +27,8 @@ public interface SupplySendInService {
      */
     void updateSupplySendIn(@Valid SupplySendInUpdateReqVO updateReqVO);
 
+    void saveSupplySendIn(@Valid SupplySendInSaveReqVO updateReqVO);
+
     /**
      * 删除物资寄来单申请
      *

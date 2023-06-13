@@ -123,7 +123,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
             }
 
             if(pageReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), pageReqVO.getUnitFee()));
+                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
             }
 
             if(pageReqVO.getUnitAmount() != null) {

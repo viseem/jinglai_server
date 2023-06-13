@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.SupplySendIn;
+import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupItemMapper;
+import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +43,12 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
 
     @Resource
     private SupplyPickupMapper supplyPickupMapper;
+
+    @Resource
+    private SupplyPickupItemRepository supplyPickupItemRepository;
+
+    @Resource
+    private SupplyPickupItemMapper supplyPickupItemMapper;
 
     @Override
     public Long createSupplyPickup(SupplyPickupCreateReqVO createReqVO) {
@@ -195,6 +204,34 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
 
         // 执行查询
         return supplyPickupRepository.findAll(spec);
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void saveSupplyPickup(SupplyPickupSaveReqVO saveReqVO) {
+        if(saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateSupplyPickupExists(id);
+        }
+
+        // 更新或新建
+        SupplyPickup supplyPickup = supplyPickupMapper.toEntity(saveReqVO);
+        supplyPickupRepository.save(supplyPickup);
+        Long pickupId = supplyPickup.getId();
+
+        // 删除原有的
+        supplyPickupItemRepository.deleteBySupplyPickupId(pickupId);
+
+        // 更新 items
+        supplyPickupItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setSupplyPickupId(pickupId);
+            return supplyPickupItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
     }
 
     private Sort createSort(SupplyPickupPageOrder order) {

@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.mapper.project.SupplySendInItemMapper;
+import cn.iocoder.yudao.module.jl.repository.project.SupplySendInItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +43,12 @@ public class SupplySendInServiceImpl implements SupplySendInService {
     @Resource
     private SupplySendInMapper supplySendInMapper;
 
+    @Resource
+    private SupplySendInItemRepository supplySendInItemRepository;
+
+    @Resource
+    private SupplySendInItemMapper supplySendInItemMapper;
+
     @Override
     public Long createSupplySendIn(SupplySendInCreateReqVO createReqVO) {
         // 插入
@@ -57,6 +65,35 @@ public class SupplySendInServiceImpl implements SupplySendInService {
         // 更新
         SupplySendIn updateObj = supplySendInMapper.toEntity(updateReqVO);
         supplySendInRepository.save(updateObj);
+    }
+
+    /**
+     * 全量更新
+     * @param saveReqVO
+     */
+    @Override
+    public void saveSupplySendIn(SupplySendInSaveReqVO saveReqVO) {
+        if(saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateSupplySendInExists(id);
+        }
+
+        // 更新或新建
+        SupplySendIn updateObj = supplySendInMapper.toEntity(saveReqVO);
+        updateObj = supplySendInRepository.save(updateObj);
+        Long sendInId = updateObj.getId();
+
+        // 删除原有的
+        supplySendInItemRepository.deleteBySupplySendInId(sendInId);
+
+        // 更新 items
+        supplySendInItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setSupplySendInId(sendInId);
+            return supplySendInItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
     }
 
     @Override

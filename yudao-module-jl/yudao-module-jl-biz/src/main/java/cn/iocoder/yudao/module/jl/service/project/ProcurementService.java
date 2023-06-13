@@ -27,6 +27,8 @@ public interface ProcurementService {
      */
     void updateProcurement(@Valid ProcurementUpdateReqVO updateReqVO);
 
+    void saveProcurement(@Valid ProcurementSaveReqVO updateReqVO);
+
     /**
      * 删除项目采购单申请
      *

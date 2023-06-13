@@ -14,6 +14,8 @@ public interface ProcurementMapper {
 
     Procurement toEntity(ProcurementUpdateReqVO dto);
 
+    Procurement toEntity(ProcurementSaveReqVO dto);
+
     ProcurementRespVO toDto(Procurement entity);
 
 

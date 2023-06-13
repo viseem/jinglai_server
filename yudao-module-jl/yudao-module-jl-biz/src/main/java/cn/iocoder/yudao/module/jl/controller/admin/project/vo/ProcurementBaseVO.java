@@ -30,11 +30,12 @@ public class ProcurementBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private String reply;
+
     @Schema(description = "采购发起时间")
     private String startDate;
 
-    @Schema(description = "签收陪审人", requiredMode = Schema.RequiredMode.REQUIRED, example = "20159")
-    @NotNull(message = "签收陪审人不能为空")
+    @Schema(description = "签收陪审人", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
     private Long checkUserId;
 
     @Schema(description = "收货地址")
