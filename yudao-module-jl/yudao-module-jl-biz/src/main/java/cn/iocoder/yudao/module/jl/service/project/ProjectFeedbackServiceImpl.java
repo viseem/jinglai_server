@@ -47,7 +47,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
+        projectFeedback.setStatus("2");
         projectFeedbackRepository.save(projectFeedback);
+
         // 返回
         return projectFeedback.getId();
     }
@@ -192,8 +194,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public void replyFeedback(ProjectFeedbackReplyReqVO replyReqVO) {
         // 校验存在
         validateProjectFeedbackExists(replyReqVO.getId());
+        replyReqVO.setStatus("1");
         // 更新
-        projectFeedbackRepository.replyFeedback(replyReqVO.getResult(), replyReqVO.getResultUserId(), LocalDateTime.now(), replyReqVO.getId());
+        projectFeedbackRepository.replyFeedback(replyReqVO.getResult(), replyReqVO.getResultUserId(), LocalDateTime.now(), replyReqVO.getStatus(), replyReqVO.getId());
     }
 
     private Sort createSort(ProjectFeedbackPageOrder order) {

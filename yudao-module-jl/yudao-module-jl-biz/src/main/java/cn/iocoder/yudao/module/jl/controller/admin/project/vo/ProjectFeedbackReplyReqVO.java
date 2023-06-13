@@ -22,4 +22,7 @@ public class ProjectFeedbackReplyReqVO {
 
     @Schema(description = "处理人ID", hidden = true)
     private Long resultUserId;
+
+    @Schema(description = "状态", hidden = true)
+    private String status;
 }
