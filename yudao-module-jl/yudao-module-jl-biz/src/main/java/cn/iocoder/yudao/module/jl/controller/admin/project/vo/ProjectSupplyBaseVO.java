@@ -57,6 +57,9 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private String brand;
+
+    private String type;
 
     @Schema(description = "物品来源")
     private String source;
@@ -66,8 +69,5 @@ public class ProjectSupplyBaseVO {
 
     @Schema(description = "库存总量")
     private Integer inventoryQuantity;
-
-   
-
 
 }

@@ -106,6 +106,18 @@ public class ProjectSupply extends BaseEntity {
     private Integer inventoryQuantity;
 
     /**
+     * 品牌
+     */
+    @Column(name = "brand")
+    private String brand;
+
+    /**
+     * 类型
+     */
+    @Column(name = "type")
+    private String type;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
