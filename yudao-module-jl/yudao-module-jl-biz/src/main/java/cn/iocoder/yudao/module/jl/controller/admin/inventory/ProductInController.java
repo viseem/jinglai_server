@@ -49,11 +49,11 @@ public class ProductInController {
         return success(productInService.createProductIn(createReqVO));
     }
 
-    @PutMapping("/update")
+    @PutMapping("/save")
     @Operation(summary = "更新实验产品入库")
     @PreAuthorize("@ss.hasPermission('jl:product-in:update')")
-    public CommonResult<Boolean> updateProductIn(@Valid @RequestBody ProductInUpdateReqVO updateReqVO) {
-        productInService.updateProductIn(updateReqVO);
+    public CommonResult<Boolean> saveProductIn(@Valid @RequestBody ProductInSaveReqVO saveReqVO) {
+        productInService.saveProductIn(saveReqVO);
         return success(true);
     }
 

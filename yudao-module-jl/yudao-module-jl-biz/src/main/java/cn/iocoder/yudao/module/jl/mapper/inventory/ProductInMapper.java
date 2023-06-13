@@ -14,6 +14,8 @@ public interface ProductInMapper {
 
     ProductIn toEntity(ProductInUpdateReqVO dto);
 
+    ProductIn toEntity(ProductInSaveReqVO dto);
+
     ProductInRespVO toDto(ProductIn entity);
 
 

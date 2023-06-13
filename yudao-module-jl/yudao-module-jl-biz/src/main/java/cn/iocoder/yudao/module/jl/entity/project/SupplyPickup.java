@@ -91,4 +91,8 @@ public class SupplyPickup extends BaseEntity {
     @Column(name = "contact_phone")
     private String contactPhone;
 
+    @OneToMany
+    @JoinColumn(name = "supply_pickup_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<SupplyPickupItem> items;
+
 }

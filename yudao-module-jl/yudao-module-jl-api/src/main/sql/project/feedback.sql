@@ -12,7 +12,7 @@ CREATE TABLE `jl_project_feedback`
     `project_id`          bigint(20) NOT NULL COMMENT '项目 id',
     `project_category_id` bigint(20) NOT NULL COMMENT '实验名目 id',
     `userId`              bigint(20) COMMENT '内部人员 id',
-    `customerId`          bigint(20) COMMENT '客户 id',
+    `customer_id`          bigint(20) COMMENT '客户 id',
     `type`                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '字典：内部反馈/客户反馈',
     `status`              varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '状态',
     `content`             text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '反馈的内容',

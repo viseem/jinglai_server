@@ -40,19 +40,25 @@ public class ProjectFeedback extends BaseEntity {
     /**
      * 实验名目 id
      */
-    @Column(name = "project_category_id", nullable = false )
+    @Column(name = "project_category_id")
     private Long projectCategoryId;
 
     /**
      * 内部人员 id
      */
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
+
+    @Column(name = "project_stage")
+    private String projectStage;
+
+    @Column(name = "feed_type")
+    private String feedType;
 
     /**
      * 客户 id
      */
-    @Column(name = "customerId")
+    @Column(name = "customer_id")
     private Long customerId;
 
     /**

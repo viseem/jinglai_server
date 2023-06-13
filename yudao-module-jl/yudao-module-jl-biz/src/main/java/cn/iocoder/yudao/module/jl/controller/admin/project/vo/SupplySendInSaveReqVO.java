@@ -14,8 +14,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class SupplySendInSaveReqVO extends SupplySendInBaseVO {
 
-    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "10832")
-    @NotNull(message = "ID不能为空")
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10832")
     private Long id;
 
     private List<SupplySendInItemCreateReqVO> items;
