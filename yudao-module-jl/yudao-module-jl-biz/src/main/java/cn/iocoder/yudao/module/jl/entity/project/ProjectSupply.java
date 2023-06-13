@@ -117,10 +117,5 @@ public class ProjectSupply extends BaseEntity {
     @JsonBackReference
     private ProjectCategory category;
 
-    @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "project_supply_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProcurementItem procurementItem;
 
 }

@@ -42,15 +42,23 @@ public class ProcurementController {
     @Resource
     private ProcurementMapper procurementMapper;
 
-    @PostMapping("/create")
-    @Operation(summary = "创建项目采购单申请")
-    @PreAuthorize("@ss.hasPermission('jl:procurement:create')")
-    public CommonResult<Long> createProcurement(@Valid @RequestBody ProcurementCreateReqVO createReqVO) {
-        return success(procurementService.createProcurement(createReqVO));
-    }
+//    @PostMapping("/create")
+//    @Operation(summary = "创建项目采购单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:procurement:create')")
+//    public CommonResult<Long> createProcurement(@Valid @RequestBody ProcurementCreateReqVO createReqVO) {
+//        return success(procurementService.createProcurement(createReqVO));
+//    }
+//
+//    @PutMapping("/update")
+//    @Operation(summary = "更新项目采购单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+//    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
+//        procurementService.updateProcurement(updateReqVO);
+//        return success(true);
+//    }
 
-    @PutMapping("/update")
-    @Operation(summary = "更新项目采购单申请")
+    @PutMapping("/save")
+    @Operation(summary = "全量保存项目采购单申请")
     @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
     public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
         procurementService.updateProcurement(updateReqVO);

@@ -67,9 +67,7 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "库存总量")
     private Integer inventoryQuantity;
 
-    private ProcurementItem procurementItem;
-
-    private ProjectCategory category;
+   
 
 
 }

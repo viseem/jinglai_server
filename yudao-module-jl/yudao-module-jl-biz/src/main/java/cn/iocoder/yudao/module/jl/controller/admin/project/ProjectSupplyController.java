@@ -30,7 +30,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.service.project.ProjectSupplyService;
 
-@Tag(name = "管理后台 - 项目中的实验名目的物资项")
+@Tag(name = "管理后台 - 实验名目的物资项")
 @RestController
 @RequestMapping("/jl/project-supply")
 @Validated

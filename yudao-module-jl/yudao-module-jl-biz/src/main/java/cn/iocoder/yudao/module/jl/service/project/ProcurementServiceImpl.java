@@ -52,11 +52,18 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     @Override
     public void updateProcurement(ProcurementUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProcurementExists(updateReqVO.getId());
+        if(updateReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = updateReqVO.getId();
+            // 校验存在
+            validateProcurementExists(id);
+        } else {
+            // 不存在 id，创新新的数据
+        }
+
         // 更新
         Procurement updateObj = procurementMapper.toEntity(updateReqVO);
-        procurementRepository.save(updateObj);
+        updateObj = procurementRepository.save(updateObj);
     }
 
     @Override
