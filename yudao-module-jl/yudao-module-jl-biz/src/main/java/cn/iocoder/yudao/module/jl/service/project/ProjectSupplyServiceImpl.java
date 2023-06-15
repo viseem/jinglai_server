@@ -138,6 +138,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

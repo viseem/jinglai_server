@@ -140,9 +140,11 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
             projectRepository.save(project);
 
-            // 2. 保存合同
-            ProjectConstract contract = new ProjectConstract();
+            // 销售线索中保存项目 id
+            updateObj.setProjectId(project.getId());
+            salesleadRepository.save(updateObj);
 
+            // 2. 保存合同
             // 遍历 updateReqVO.getProjectConstracts(), 创建合同
             List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
             if(projectConstracts != null && projectConstracts.size() > 0) {
@@ -166,6 +168,10 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setType(ProjectTypeEnums.EmergencyProject.getStatus());
             project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
             projectRepository.save(project);
+
+            // 销售线索中保存项目 id
+            updateObj.setProjectId(project.getId());
+            salesleadRepository.save(updateObj);
         }
 
     }

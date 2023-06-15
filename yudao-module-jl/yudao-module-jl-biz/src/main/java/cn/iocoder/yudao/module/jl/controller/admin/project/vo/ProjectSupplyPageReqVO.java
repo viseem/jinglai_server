@@ -53,4 +53,7 @@ public class ProjectSupplyPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "类型")
+    private String type;
+
 }

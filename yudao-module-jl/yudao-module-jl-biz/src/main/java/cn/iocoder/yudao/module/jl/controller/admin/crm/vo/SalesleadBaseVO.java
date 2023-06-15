@@ -26,7 +26,7 @@ public class SalesleadBaseVO {
     @Schema(description = "预算(元)")
     private Long budget;
 
-    @Schema(description = "报价")
+    @Schema(description = "报价 id")
     private Long quotation;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -54,4 +54,7 @@ public class SalesleadBaseVO {
 
     @Schema(description = "最近的跟进记录", example = "")
     private Followup lastFollowup;
+
+    @Schema(description = "报价")
+    private Long quotationPrice;
 }

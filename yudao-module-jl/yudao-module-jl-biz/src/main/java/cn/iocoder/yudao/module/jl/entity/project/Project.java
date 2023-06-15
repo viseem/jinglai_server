@@ -130,4 +130,10 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "current_schedule_id", referencedColumnName = "id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private ProjectSchedule currentSchedule;
+
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectConstract> constracts = new ArrayList<>();
 }

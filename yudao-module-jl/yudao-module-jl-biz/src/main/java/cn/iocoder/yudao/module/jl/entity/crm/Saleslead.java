@@ -66,6 +66,9 @@ public class Saleslead extends BaseEntity {
     @Column(name = "quotation")
     private Long quotation;
 
+    @Column(name = "quotation_price")
+    private Long quotationPrice;
+
     /**
      * 状态
      *
