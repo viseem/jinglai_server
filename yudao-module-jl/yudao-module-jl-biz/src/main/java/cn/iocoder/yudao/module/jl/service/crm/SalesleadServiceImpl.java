@@ -134,7 +134,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setSalesleadId(salesleadId);
             project.setCustomerId(updateReqVO.getCustomerId());
             project.setName(updateReqVO.getProjectName());
-            project.setStage("0");
+            project.setStage("1");
             project.setStatus("0");
             project.setType(ProjectTypeEnums.NormalProject.getStatus());
             project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
@@ -161,7 +161,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setSalesleadId(salesleadId);
             project.setCustomerId(updateReqVO.getCustomerId());
             project.setName(updateReqVO.getProjectName());
-            project.setStage("0");
+            project.setStage("1");
             project.setStatus("0");
             project.setType(ProjectTypeEnums.EmergencyProject.getStatus());
             project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id

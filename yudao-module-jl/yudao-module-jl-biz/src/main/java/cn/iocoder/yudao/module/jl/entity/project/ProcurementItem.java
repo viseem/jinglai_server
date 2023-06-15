@@ -79,13 +79,13 @@ public class ProcurementItem extends BaseEntity {
      * 签收的数量
      */
     @Column(name = "chenck_in_quantity")
-    private Integer checkInQuantity;
+    private Integer checkInQuantity = 0;
 
     /**
      * 入库的数量
      */
     @Column(name = "in_quantity")
-    private Integer inQuantity;
+    private Integer inQuantity = 0;
 
     /**
      * 供货商id
