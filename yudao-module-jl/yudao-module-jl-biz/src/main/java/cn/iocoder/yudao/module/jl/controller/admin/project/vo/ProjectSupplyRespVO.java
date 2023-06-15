@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 项目中的实验名目的物资项 Response VO")
 @Data
@@ -16,4 +18,7 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    private List<ProcurementItem> procurements;
+
+//    private ProcurementItem procurement;
 }

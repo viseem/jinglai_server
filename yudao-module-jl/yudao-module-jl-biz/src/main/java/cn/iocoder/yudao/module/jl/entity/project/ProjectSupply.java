@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -130,4 +132,15 @@ public class ProjectSupply extends BaseEntity {
     private ProjectCategory category;
 
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_supply_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.SELECT)
+    private List<ProcurementItem> procurements;
+
+//    @OneToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "project_supply_id")
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @Fetch(FetchMode.SELECT)
+//    private ProcurementItem procurement;
 }
