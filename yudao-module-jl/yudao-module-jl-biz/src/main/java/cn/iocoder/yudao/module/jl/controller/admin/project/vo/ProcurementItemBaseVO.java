@@ -42,6 +42,9 @@ public class ProcurementItemBaseVO {
     @NotNull(message = "采购数量不能为空")
     private Integer quantity;
 
+    private Integer inQuantity;
+    private Integer checkInQuantity;
+
     @Schema(description = "供货商id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6961")
     @NotNull(message = "供货商id不能为空")
     private Long supplierId;
@@ -57,9 +60,8 @@ public class ProcurementItemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    @Schema(description = "有效期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "有效期不能为空")
-    private String validDate;
+    @Schema(description = "有效期", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private LocalDateTime validDate;
 
     @Schema(description = "品牌")
     private String brand;
@@ -73,4 +75,11 @@ public class ProcurementItemBaseVO {
     @Schema(description = "状态:等待采购信息、等待打款、等待采购、等待签收、等待入库", example = "2")
     private String status;
 
+    private Long roomId;
+
+    private Long placeId;
+
+    private Long containerId;
+
+    private String temperature;
 }

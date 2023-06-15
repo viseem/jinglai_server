@@ -1,25 +1,36 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.date.DateUtil;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
+import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementPaymentRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementShipmentRepository;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -32,7 +43,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目采购单申请 Service 实现类
- *
  */
 @Service
 @Validated
@@ -49,6 +59,18 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     @Resource
     private ProcurementItemMapper procurementItemMapper;
+
+    @Resource
+    private ProcurementShipmentRepository procurementShipmentRepository;
+
+    @Resource
+    private ProcurementShipmentMapper procurementShipmentMapper;
+
+    @Resource
+    private ProcurementPaymentRepository procurementPaymentRepository;
+
+    @Resource
+    private ProcurementPaymentMapper procurementPaymentMapper;
 
     @Override
     public Long createProcurement(ProcurementCreateReqVO createReqVO) {
@@ -71,11 +93,12 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     /**
      * 全量更新采购单
+     *
      * @param saveReqVO
      */
     @Override
     public void saveProcurement(ProcurementSaveReqVO saveReqVO) {
-        if(saveReqVO.getId() != null) {
+        if (saveReqVO.getId() != null) {
             // 存在 id，更新操作
             Long id = saveReqVO.getId();
             // 校验存在
@@ -136,38 +159,46 @@ public class ProcurementServiceImpl implements ProcurementService {
         Specification<Procurement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getCode() != null) {
+            if (pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitCheckIn"), true));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitStoreIn"), true));
+            }
+
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getStartDate() != null) {
+            if (pageReqVO.getStartDate() != null) {
                 predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
-            } 
-            if(pageReqVO.getCheckUserId() != null) {
+            }
+            if (pageReqVO.getCheckUserId() != null) {
                 predicates.add(cb.equal(root.get("checkUserId"), pageReqVO.getCheckUserId()));
             }
 
-            if(pageReqVO.getAddress() != null) {
+            if (pageReqVO.getAddress() != null) {
                 predicates.add(cb.equal(root.get("address"), pageReqVO.getAddress()));
             }
 
-            if(pageReqVO.getReceiverUserId() != null) {
+            if (pageReqVO.getReceiverUserId() != null) {
                 predicates.add(cb.equal(root.get("receiverUserId"), pageReqVO.getReceiverUserId()));
             }
 
@@ -188,38 +219,38 @@ public class ProcurementServiceImpl implements ProcurementService {
         Specification<Procurement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getCode() != null) {
+            if (exportReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), exportReqVO.getCode()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getStartDate() != null) {
+            if (exportReqVO.getStartDate() != null) {
                 predicates.add(cb.between(root.get("startDate"), exportReqVO.getStartDate()[0], exportReqVO.getStartDate()[1]));
-            } 
-            if(exportReqVO.getCheckUserId() != null) {
+            }
+            if (exportReqVO.getCheckUserId() != null) {
                 predicates.add(cb.equal(root.get("checkUserId"), exportReqVO.getCheckUserId()));
             }
 
-            if(exportReqVO.getAddress() != null) {
+            if (exportReqVO.getAddress() != null) {
                 predicates.add(cb.equal(root.get("address"), exportReqVO.getAddress()));
             }
 
-            if(exportReqVO.getReceiverUserId() != null) {
+            if (exportReqVO.getReceiverUserId() != null) {
                 predicates.add(cb.equal(root.get("receiverUserId"), exportReqVO.getReceiverUserId()));
             }
 
@@ -229,6 +260,154 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 执行查询
         return procurementRepository.findAll(spec);
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void saveShipments(ProcurementUpdateShipmentsReqVO saveReqVO) {
+        // 校验存在
+        validateProcurementExists(saveReqVO.getProcurementId());
+
+        // 删除先前的物流信息
+        procurementShipmentRepository.deleteByProcurementId(saveReqVO.getProcurementId());
+
+        // 写入新的物流信息
+        if (saveReqVO.getShipments() != null && saveReqVO.getShipments().size() > 0) {
+            List<ProcurementShipment> shipments = saveReqVO.getShipments().stream().map(shipment -> {
+                shipment.setProcurementId(saveReqVO.getProcurementId());
+                return procurementShipmentMapper.toEntity(shipment);
+            }).collect(Collectors.toList());
+
+            procurementShipmentRepository.saveAll(shipments);
+        }
+
+        // 更新状态
+        procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_CHECK_IN.toString());
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO) {
+        // 校验存在
+        validateProcurementExists(saveReqVO.getProcurementId());
+
+        // 删除先前的付款信息
+        procurementPaymentRepository.deleteByProcurementId(saveReqVO.getProcurementId());
+
+        // 写入新的物流信息
+        if (saveReqVO.getPayments() != null && saveReqVO.getPayments().size() > 0) {
+            List<ProcurementPayment> payments = saveReqVO.getPayments().stream().map(payment -> {
+                payment.setProcurementId(saveReqVO.getProcurementId());
+                return procurementPaymentMapper.toEntity(payment);
+            }).collect(Collectors.toList());
+
+            procurementPaymentRepository.saveAll(payments);
+        }
+
+        // 更新状态
+        procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString());
+    }
+
+    /**
+     * 签收
+     *
+     * @param saveReqVO
+     */
+    @Override
+    public void checkIn(ProcurementShipmentCheckInReqVO saveReqVO) {
+        // 校验存在
+        validateProcurementExists(saveReqVO.getProcurementId());
+
+        // 更新采购单项的状态
+        // 根据 saveReqVo 的 list ，遍历每一项，去更新采购单项的状态
+        if (saveReqVO.getList() != null && saveReqVO.getList().size() > 0) {
+            AtomicBoolean allCheckIn = new AtomicBoolean(true);
+
+            saveReqVO.getList().forEach(checkIn -> {
+                Long projectSupplyId = checkIn.getProjectSupplyId();
+                String status = checkIn.getStatus();
+                Integer checkInQuantity = checkIn.getCheckInNum();
+                ProcurementItem item = procurementItemRepository.findByProcurementIdAndProjectSupplyId(saveReqVO.getProcurementId(), projectSupplyId);
+                if (item != null) {
+                    checkInQuantity += item.getCheckInQuantity();
+
+
+                    if(checkInQuantity < item.getQuantity()) {
+                        // 还有需要签收的子项
+                        allCheckIn.set(false);
+                    }
+
+                    item.setCheckInQuantity(checkInQuantity);
+                    item.setStatus(status);
+                    procurementItemRepository.save(item);
+                }
+            });
+
+            // 更新采购单的待签收转态
+            procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(), !allCheckIn.get());
+            procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), true);
+        }
+
+        // 保存签收日志
+        // TODO
+    }
+
+    /**
+     * @param saveReqVO
+     */
+
+    /**
+     * 入库
+     *
+     * @param saveReqVO
+     */
+    @Override
+    public void storeIn(StoreInProcurementItemReqVO saveReqVO) {
+        // 校验存在
+        validateProcurementExists(saveReqVO.getProcurementId());
+
+        // 更新采购单项的状态
+        // 根据 saveReqVo 的 list ，遍历每一项，去更新采购单项的状态
+        if (saveReqVO.getList() != null && saveReqVO.getList().size() > 0) {
+            AtomicBoolean allStoreIn = new AtomicBoolean(true);
+
+            saveReqVO.getList().forEach(storeIn -> {
+                Long projectSupplyId = storeIn.getProjectSupplyId();
+                String status = storeIn.getStatus();
+                Integer storeInQuantity = storeIn.getInNum();
+                ProcurementItem item = procurementItemRepository.findByProcurementIdAndProjectSupplyId(saveReqVO.getProcurementId(), projectSupplyId);
+                if (item != null) {
+                    storeInQuantity += item.getInQuantity();
+
+                    if(storeInQuantity < item.getCheckInQuantity()) {
+                        // 还有需要入库的子项
+                        allStoreIn.set(false);
+                    }
+
+                    item.setInQuantity(storeInQuantity);
+                    item.setStatus(status);
+                    item.setRoomId(storeIn.getRoomId());
+                    item.setContainerId(storeIn.getContainerId());
+                    item.setPlaceId(storeIn.getPlaceId());
+                    item.setTemperature(storeIn.getTemperature());
+                    item.setValidDate(storeIn.getValidDate());
+
+                    procurementItemRepository.save(item);
+                }
+
+            });
+
+            // 更新采购单的待入库状态
+            procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), !allStoreIn.get());
+
+
+        }
+        // 保存入库日志
+
     }
 
     private Sort createSort(ProcurementPageOrder order) {

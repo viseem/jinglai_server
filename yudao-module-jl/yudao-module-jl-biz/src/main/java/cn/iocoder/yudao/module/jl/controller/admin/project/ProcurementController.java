@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -62,6 +61,38 @@ public class ProcurementController {
     @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
     public CommonResult<Boolean> saveProcurement(@Valid @RequestBody ProcurementSaveReqVO saveReqVO) {
         procurementService.saveProcurement(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-shipment")
+    @Operation(summary = "更新物流信息")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> updateShipmentOfProcurement(@Valid @RequestBody ProcurementUpdateShipmentsReqVO saveReqVO) {
+        procurementService.saveShipments(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-payment")
+    @Operation(summary = "更新打款信息")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> updatePaymentOfProcurement(@Valid @RequestBody ProcurementUpdatePaymentsReqVO saveReqVO) {
+        procurementService.savePayments(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/check-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody ProcurementShipmentCheckInReqVO saveReqVO) {
+        procurementService.checkIn(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/store-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInProcurementItemReqVO saveReqVO) {
+        procurementService.storeIn(saveReqVO);
         return success(true);
     }
 

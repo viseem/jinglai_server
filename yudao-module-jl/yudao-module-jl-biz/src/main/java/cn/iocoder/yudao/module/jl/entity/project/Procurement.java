@@ -5,11 +5,12 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.*;
 
 /**
  * 项目采购单申请 Entity
@@ -87,6 +88,18 @@ public class Procurement extends BaseEntity {
     private String address;
 
     /**
+     * 是否有要签收的
+     */
+    @Column(name = "wait_check_in")
+    private Boolean waitCheckIn;
+
+    /**
+     * 是否有要入库的
+     */
+    @Column(name = "wait_store_in")
+    private Boolean waitStoreIn;
+
+    /**
      * 收货人id
      */
     @Column(name = "receiver_user_id")
@@ -95,6 +108,7 @@ public class Procurement extends BaseEntity {
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<ProcurementItem> items;
 
@@ -108,4 +122,15 @@ public class Procurement extends BaseEntity {
 //    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
 //    private Project project;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "procurement_id")
+    @Fetch(FetchMode.SELECT)
+    private List<ProcurementShipment> shipments = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "procurement_id")
+    @Fetch(FetchMode.SELECT)
+    private List<ProcurementPayment> payments = new ArrayList<>();
 }

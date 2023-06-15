@@ -33,6 +33,9 @@ public class ProcurementPageReqVO extends PageParam {
     @Schema(description = "状态", example = "2")
     private String status;
 
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
+
     @Schema(description = "备注")
     private String mark;
 

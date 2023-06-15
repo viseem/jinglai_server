@@ -76,6 +76,18 @@ public class ProcurementItem extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 签收的数量
+     */
+    @Column(name = "chenck_in_quantity")
+    private Integer checkInQuantity;
+
+    /**
+     * 入库的数量
+     */
+    @Column(name = "in_quantity")
+    private Integer inQuantity;
+
+    /**
      * 供货商id
      */
     @Column(name = "supplier_id")
@@ -103,7 +115,7 @@ public class ProcurementItem extends BaseEntity {
      * 有效期
      */
     @Column(name = "valid_date")
-    private String validDate;
+    private LocalDateTime validDate;
 
     /**
      * 品牌
@@ -129,4 +141,15 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "room_id")
+    private Long roomId;
+
+    @Column(name = "place_id")
+    private Long placeId;
+
+    @Column(name = "container_id")
+    private Long containerId;
+
+    @Column(name = "temperature")
+    private String temperature;
 }

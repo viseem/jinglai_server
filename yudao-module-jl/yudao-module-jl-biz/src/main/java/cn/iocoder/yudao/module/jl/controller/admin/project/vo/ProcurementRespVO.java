@@ -1,9 +1,12 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Schema(description = "管理后台 - 项目采购单申请 Response VO")
@@ -22,4 +25,7 @@ public class ProcurementRespVO extends ProcurementBaseVO {
 
     private UserRespVO applyUser;
 
+    private List<ProcurementShipmentRespVO> shipments;
+
+    private List<ProcurementPaymentRespVO> payments;
 }

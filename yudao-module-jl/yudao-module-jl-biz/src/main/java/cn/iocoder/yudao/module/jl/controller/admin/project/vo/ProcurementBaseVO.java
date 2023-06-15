@@ -27,6 +27,12 @@ public class ProcurementBaseVO {
     @Schema(description = "状态", example = "2")
     private String status;
 
+    @Schema(description = "是否需要签收")
+    private Boolean waitCheckIn;
+
+    @Schema(description = "是否需要入库")
+    private Boolean waitStoreIn;
+
     @Schema(description = "备注")
     private String mark;
 

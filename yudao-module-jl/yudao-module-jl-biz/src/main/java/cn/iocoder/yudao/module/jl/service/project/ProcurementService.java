@@ -68,4 +68,11 @@ public interface ProcurementService {
      */
     List<Procurement> getProcurementList(ProcurementExportReqVO exportReqVO);
 
+    void saveShipments(ProcurementUpdateShipmentsReqVO saveReqVO);
+
+    void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO);
+
+    void checkIn(ProcurementShipmentCheckInReqVO saveReqVO);
+
+    void storeIn(StoreInProcurementItemReqVO saveReqVO);
 }
