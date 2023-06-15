@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +19,7 @@ import java.io.IOException;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -24,6 +27,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
+
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
@@ -79,7 +83,7 @@ public class SalesleadController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
     public CommonResult<SalesleadRespVO> getSaleslead(@RequestParam("id") Long id) {
-            Optional<Saleslead> saleslead = salesleadService.getSaleslead(id);
+        Optional<Saleslead> saleslead = salesleadService.getSaleslead(id);
         return success(saleslead.map(salesleadMapper::toDto).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS)));
     }
 
@@ -88,7 +92,24 @@ public class SalesleadController {
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
     public CommonResult<PageResult<SalesleadRespVO>> getSalesleadPage(@Valid SalesleadPageReqVO pageVO, @Valid SalesleadPageOrder orderV0) {
         PageResult<Saleslead> pageResult = salesleadService.getSalesleadPage(pageVO, orderV0);
-        return success(salesleadMapper.toPage(pageResult));
+        // 遍历计算quote字段里的categoryList字段的里的chargeList 和 supplyList的总价
+
+        PageResult<SalesleadRespVO> resp = salesleadMapper.toPage(pageResult);
+
+        resp.getList().forEach(saleslead -> {
+            if (saleslead != null && saleslead.getQuote() != null) {
+                if (saleslead.getQuote().getCategoryList() != null) {
+                    saleslead.getQuote().getCategoryList().forEach(category -> {
+                        Long chargeTotalPrice = category.getChargeList().stream().mapToLong(charge -> charge.getQuantity() * Long.parseLong(charge.getUnitFee())).sum();
+                        Long supplyTotalPrice = category.getSupplyList().stream().mapToLong(supply -> supply.getQuantity() * Long.parseLong(supply.getUnitFee())).sum();
+                        saleslead.setTotalPrice(chargeTotalPrice + supplyTotalPrice);
+                    });
+                }
+            }
+
+        });
+
+        return success(resp);
     }
 
     @GetMapping("/export-excel")

@@ -82,13 +82,13 @@ public class SupplyPickupItem extends BaseEntity {
     /**
      * 有效期
      */
-    @Column(name = "valid_date", nullable = false )
+    @Column(name = "valid_date")
     private String validDate;
 
     /**
      * 存储温度
      */
-    @Column(name = "temperature", nullable = false )
+    @Column(name = "temperature" )
     private String temperature;
 
     /**

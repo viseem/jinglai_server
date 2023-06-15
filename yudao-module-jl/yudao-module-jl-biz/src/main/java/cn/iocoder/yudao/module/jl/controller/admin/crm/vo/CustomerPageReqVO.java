@@ -92,6 +92,9 @@ public class CustomerPageReqVO extends PageParam {
     @Schema(description = "最后一次的跟进 id", example = "5860")
     private Long lastFollowupId;
 
+    @Schema(description = "最后一次的跟进", example = "5860")
+    private FollowupRespVO lastFollowup;
+
     @Schema(description = "最后一次销售线索", example = "17776")
     private Long lastSalesleadId;
 

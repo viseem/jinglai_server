@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -43,6 +44,9 @@ public class FollowupServiceImpl implements FollowupService {
     private SalesleadRepository salesleadRepository;
 
     @Resource
+    private CustomerRepository customerRepository;
+
+    @Resource
     private FollowupMapper followupMapper;
 
     @Override
@@ -53,6 +57,9 @@ public class FollowupServiceImpl implements FollowupService {
 
         // 更新销售线索
         salesleadRepository.updateLastFollowUpIdById(createReqVO.getRefId(), followup.getId());
+
+        // 更新客户最近的线索
+        customerRepository.updateLastFollowupIdById(followup.getId(), createReqVO.getCustomerId());
 
         // 返回
         return followup.getId();

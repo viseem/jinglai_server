@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.entity.crm;
 
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.FollowupRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
