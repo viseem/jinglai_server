@@ -234,6 +234,14 @@ public class SupplySendInServiceImpl implements SupplySendInService {
         return supplySendInRepository.findAll(spec);
     }
 
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void checkIn(SendInCheckInReqVO saveReqVO) {
+
+    }
+
     private Sort createSort(SupplySendInPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 

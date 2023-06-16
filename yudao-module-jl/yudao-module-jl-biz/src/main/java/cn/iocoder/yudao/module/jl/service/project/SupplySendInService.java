@@ -68,4 +68,5 @@ public interface SupplySendInService {
      */
     List<SupplySendIn> getSupplySendInList(SupplySendInExportReqVO exportReqVO);
 
+    void checkIn(SendInCheckInReqVO saveReqVO);
 }

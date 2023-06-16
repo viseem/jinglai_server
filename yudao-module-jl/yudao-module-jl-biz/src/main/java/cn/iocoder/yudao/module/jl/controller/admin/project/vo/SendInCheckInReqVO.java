@@ -9,11 +9,10 @@ import java.util.List;
 @Schema(description = "管理后台 - 采购签收 Request VO")
 @Data
 @ToString(callSuper = true)
-public class CheckInProcurementItemReqVO {
+public class SendInCheckInReqVO {
 
-    @Schema(description = "采购单号 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
-    private Long procurementId;
-
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
+    private Long sendInId;
 
     private List<CheckInItem> list;
 

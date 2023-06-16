@@ -15,9 +15,9 @@ public class ProcurementShipmentCheckInReqVO {
     private Long procurementId;
 
 
-    private List<ProcurementShipmentCheckIn> list;
+    private List<CheckInItem> list;
 
-    private List<ProcurementOptAttachment> attachments;
+    private List<CheckInAttachment> attachments;
 
     private String mark;
 

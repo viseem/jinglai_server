@@ -16,7 +16,7 @@ public class StoreInProcurementItemReqVO {
 
     private List<ProcurementItemIn> list;
 
-    private List<ProcurementOptAttachment> attachments;
+    private List<CheckInAttachment> attachments;
 
     private String mark;
 

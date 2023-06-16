@@ -7,7 +7,7 @@ import lombok.ToString;
 @Schema(description = "管理后台 - 库管操作的文件 item Request VO")
 @Data
 @ToString(callSuper = true)
-public class ProcurementOptAttachment {
+public class CheckInAttachment {
 
 
     private String fileName;
