@@ -108,4 +108,8 @@ public interface ErrorCodeConstants {
     ErrorCode SUPPLY_SEND_IN_ITEM_NOT_EXISTS = new ErrorCode(2050000001, "物资寄来单明细条目不存在");
 
     ErrorCode PROJECT_FEEDBACK_NOT_EXISTS = new ErrorCode(2051000001, "项目反馈不存在");
+
+    ErrorCode INVENTORY_STORE_IN_NOT_EXISTS = new ErrorCode(2052000001, "入库记录不存在");
+
+    ErrorCode INVENTORY_CHECK_IN_NOT_EXISTS = new ErrorCode(2053000001, "签收记录不存在");
 }
