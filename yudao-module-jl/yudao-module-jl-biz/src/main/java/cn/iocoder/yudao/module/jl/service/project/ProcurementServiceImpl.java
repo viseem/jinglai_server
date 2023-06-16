@@ -1,13 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.date.DateUtil;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
+import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementPaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementShipmentRepository;
@@ -68,6 +74,13 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     @Resource
     private ProcurementPaymentRepository procurementPaymentRepository;
+
+    @Resource
+    private InventoryCheckInRepository inventoryCheckInRepository;
+
+    @Resource
+    private InventoryStoreInRepository inventoryStoreInRepository;
+
 
     @Resource
     private ProcurementPaymentMapper procurementPaymentMapper;
@@ -358,6 +371,17 @@ public class ProcurementServiceImpl implements ProcurementService {
                     item.setCheckInQuantity(checkInQuantity);
                     item.setStatus(status);
                     procurementItemRepository.save(item);
+
+                    // 保存签收日志
+                    InventoryCheckIn checkInLog = new InventoryCheckIn();
+                    checkInLog.setProjectSupplyId(item.getProjectSupplyId());
+                    checkInLog.setInQuantity(checkIn.getCheckInNum());
+                    checkInLog.setType(InventoryCheckInTypeEnums.PROCUREMENT.toString());
+                    checkInLog.setMark(checkIn.getMark());
+                    checkInLog.setStatus(checkIn.getStatus());
+                    checkInLog.setRefId(saveReqVO.getProcurementId());
+                    checkInLog.setRefItemId(item.getId());
+                    inventoryCheckInRepository.save(checkInLog);
                 }
             });
 
@@ -366,8 +390,7 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), true);
         }
 
-        // 保存签收日志
-        // TODO
+
     }
 
     /**
@@ -411,6 +434,23 @@ public class ProcurementServiceImpl implements ProcurementService {
                     item.setValidDate(storeIn.getValidDate());
 
                     procurementItemRepository.save(item);
+
+                    // 保存入库日志
+                    InventoryStoreIn storeInLog = new InventoryStoreIn();
+                    storeInLog.setProjectSupplyId(item.getProjectSupplyId());
+                    storeInLog.setInQuantity(storeIn.getInNum());
+                    storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
+                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setStatus(storeIn.getStatus());
+                    storeInLog.setRefId(saveReqVO.getProcurementId());
+                    storeInLog.setRefItemId(item.getId());
+                    storeInLog.setRoomId(storeIn.getRoomId());
+                    storeInLog.setContainerId(storeIn.getContainerId());
+                    storeInLog.setPlaceId(storeIn.getPlaceId());
+                    storeInLog.setTemperature(storeIn.getTemperature());
+                    storeInLog.setValidDate(storeIn.getValidDate());
+                    inventoryStoreInRepository.save(storeInLog);
+
                 }
 
             });
@@ -420,7 +460,6 @@ public class ProcurementServiceImpl implements ProcurementService {
 
 
         }
-        // 保存入库日志
 
     }
 

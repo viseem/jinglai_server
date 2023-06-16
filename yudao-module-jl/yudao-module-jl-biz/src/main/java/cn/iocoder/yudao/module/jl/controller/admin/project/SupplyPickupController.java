@@ -57,6 +57,22 @@ public class SupplyPickupController {
         return success(true);
     }
 
+    @PutMapping("/check-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:supply-pickup:update')")
+    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody PickupCheckInReqVO saveReqVO) {
+        supplyPickupService.checkIn(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/store-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:supply-pickup:update')")
+    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInPickupItemReqVO saveReqVO) {
+        supplyPickupService.storeIn(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除取货单申请")
     @Parameter(name = "id", description = "编号", required = true)

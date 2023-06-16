@@ -69,21 +69,21 @@ public class SupplySendInController {
         return success(true);
     }
 
-//    @PutMapping("/check-in")
-//    @Operation(summary = "签收物品")
-//    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
-//    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody SendInCheckInReqVO saveReqVO) {
-//        supplySendInService.checkIn(saveReqVO);
-//        return success(true);
-//    }
-//
-//    @PutMapping("/store-in")
-//    @Operation(summary = "签收物品")
-//    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
-//    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInProcurementItemReqVO saveReqVO) {
-//        procurementService.storeIn(saveReqVO);
-//        return success(true);
-//    }
+    @PutMapping("/check-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody SendInCheckInReqVO saveReqVO) {
+        supplySendInService.checkIn(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/store-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInSendInItemReqVO saveReqVO) {
+        supplySendInService.storeIn(saveReqVO);
+        return success(true);
+    }
 
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除物资寄来单申请")

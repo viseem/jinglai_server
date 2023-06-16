@@ -112,4 +112,8 @@ public interface ErrorCodeConstants {
     ErrorCode INVENTORY_STORE_IN_NOT_EXISTS = new ErrorCode(2052000001, "入库记录不存在");
 
     ErrorCode INVENTORY_CHECK_IN_NOT_EXISTS = new ErrorCode(2053000001, "签收记录不存在");
+
+    ErrorCode INVENTORY_OPT_ATTACHMENT_NOT_EXISTS = new ErrorCode(2053400001, "库管操作附近记录不存在");
+
+
 }

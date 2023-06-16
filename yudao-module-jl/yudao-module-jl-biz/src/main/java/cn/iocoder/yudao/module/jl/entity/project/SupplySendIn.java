@@ -95,4 +95,20 @@ public class SupplySendIn extends BaseEntity {
     @OneToMany
     @JoinColumn(name = "supply_send_in_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<SupplySendInItem> items;
+
+
+    /**
+     * 是否有要签收的
+     */
+    @Column(name = "wait_check_in")
+    private Boolean waitCheckIn;
+
+    /**
+     * 是否有要入库的
+     */
+    @Column(name = "wait_store_in")
+    private Boolean waitStoreIn;
+
+    @Column(name = "shipment_codes")
+    private String shipmentCodes;
 }

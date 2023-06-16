@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplyPickupItemRepository extends JpaRepository<SupplyPickupItem, Long>, JpaSpecificationExecutor<SupplyPickupItem> {
+    @Query("select s from SupplyPickupItem s where s.supplyPickupId = ?1 and s.projectSupplyId = ?2")
+    SupplyPickupItem findBySupplyPickupIdAndProjectSupplyId(Long supplyPickupId, Long projectSupplyId);
     @Transactional
     @Modifying
     @Query("delete from SupplyPickupItem s where s.supplyPickupId = ?1")

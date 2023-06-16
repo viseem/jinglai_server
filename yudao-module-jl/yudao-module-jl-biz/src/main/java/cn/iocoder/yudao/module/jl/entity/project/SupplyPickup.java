@@ -95,4 +95,19 @@ public class SupplyPickup extends BaseEntity {
     @JoinColumn(name = "supply_pickup_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<SupplyPickupItem> items;
 
+
+    /**
+     * 是否有要签收的
+     */
+    @Column(name = "wait_check_in")
+    private Boolean waitCheckIn;
+
+    /**
+     * 是否有要入库的
+     */
+    @Column(name = "wait_store_in")
+    private Boolean waitStoreIn;
+
+    @Column(name = "shipment_codes")
+    private String shipmentCodes;
 }

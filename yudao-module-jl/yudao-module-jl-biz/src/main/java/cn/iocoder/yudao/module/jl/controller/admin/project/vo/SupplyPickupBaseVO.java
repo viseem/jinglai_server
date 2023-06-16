@@ -46,4 +46,12 @@ public class SupplyPickupBaseVO {
     @Schema(description = "联系人电话")
     private String contactPhone;
 
+    @Schema(description = "是否需要签收")
+    private Boolean waitCheckIn;
+
+    @Schema(description = "是否需要入库")
+    private Boolean waitStoreIn;
+
+    private String shipmentCodes;
+
 }

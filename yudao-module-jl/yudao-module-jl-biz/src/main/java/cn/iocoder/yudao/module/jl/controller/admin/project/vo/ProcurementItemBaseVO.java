@@ -42,8 +42,7 @@ public class ProcurementItemBaseVO {
     @NotNull(message = "采购数量不能为空")
     private Integer quantity = 0;
 
-    private Integer inQuantity = 0;
-    private Integer checkInQuantity = 0;
+
 
     @Schema(description = "供货商id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6961")
     @NotNull(message = "供货商id不能为空")
@@ -76,10 +75,9 @@ public class ProcurementItemBaseVO {
     private String status;
 
     private Long roomId;
-
     private Long placeId;
-
     private Long containerId;
-
     private String temperature;
+    private Integer inQuantity = 0;
+    private Integer checkInQuantity = 0;
 }

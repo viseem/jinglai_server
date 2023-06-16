@@ -63,4 +63,9 @@ public class SupplySendInItemBaseVO {
     @Schema(description = "状态", example = "2")
     private String status;
 
+    private Long roomId;
+    private Long placeId;
+    private Long containerId;
+    private Integer inQuantity = 0;
+    private Integer checkInQuantity = 0;
 }

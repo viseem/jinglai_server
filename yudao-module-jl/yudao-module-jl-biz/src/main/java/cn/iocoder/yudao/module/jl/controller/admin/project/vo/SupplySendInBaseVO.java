@@ -45,4 +45,12 @@ public class SupplySendInBaseVO {
     @Schema(description = "收货人电话")
     private String receiverPhone;
 
+    @Schema(description = "是否需要签收")
+    private Boolean waitCheckIn;
+
+    @Schema(description = "是否需要入库")
+    private Boolean waitStoreIn;
+
+    private String shipmentCodes;
+
 }

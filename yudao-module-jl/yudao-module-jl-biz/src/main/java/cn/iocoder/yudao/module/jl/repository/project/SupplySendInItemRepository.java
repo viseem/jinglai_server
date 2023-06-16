@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplySendInItemRepository extends JpaRepository<SupplySendInItem, Long>, JpaSpecificationExecutor<SupplySendInItem> {
+    @Query("select s from SupplySendInItem s where s.supplySendInId = ?1 and s.projectSupplyId = ?2")
+    SupplySendInItem findBySupplySendInIdAndProjectSupplyId(Long supplySendInId, Long projectSupplyId);
+
     @Transactional
     @Modifying
     @Query("delete from SupplySendInItem s where s.supplySendInId = ?1")
