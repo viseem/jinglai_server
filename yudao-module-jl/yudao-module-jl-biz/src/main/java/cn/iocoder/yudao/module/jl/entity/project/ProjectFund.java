@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectBaseVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
 
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目款项 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,26 +28,30 @@ public class ProjectFund extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 名称
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
      * 资金额度
      */
-    @Column(name = "price", nullable = false )
+    @Column(name = "price", nullable = false)
     private Long price;
 
     /**
      * 项目 id
      */
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Project project;
 
     /**
      * 支付状态(未支付，部分支付，完全支付)

@@ -39,6 +39,12 @@ public class Procurement extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Project project;
+
     /**
      * 实验名目库的名目 id
      */
@@ -99,6 +105,9 @@ public class Procurement extends BaseEntity {
     @Column(name = "wait_store_in")
     private Boolean waitStoreIn;
 
+    @Column(name = "shipment_codes")
+    private String shipmentCodes;
+
     /**
      * 收货人id
      */
@@ -117,10 +126,11 @@ public class Procurement extends BaseEntity {
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User applyUser;
 
-//    @OneToOne(fetch = FetchType.EAGER)
-//    @NotFound(action = NotFoundAction.IGNORE)
-//    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private Project project;
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "check_user_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User checkUser;
+
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

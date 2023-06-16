@@ -30,6 +30,8 @@ public class ProcurementPageReqVO extends PageParam {
     @Schema(description = "采购单号")
     private String code;
 
+    private String shipmentCodes;
+
     @Schema(description = "状态", example = "2")
     private String status;
 

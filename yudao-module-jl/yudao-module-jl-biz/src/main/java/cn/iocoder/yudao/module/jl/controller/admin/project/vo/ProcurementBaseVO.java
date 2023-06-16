@@ -33,6 +33,8 @@ public class ProcurementBaseVO {
     @Schema(description = "是否需要入库")
     private Boolean waitStoreIn;
 
+    private String shipmentCodes;
+
     @Schema(description = "备注")
     private String mark;
 

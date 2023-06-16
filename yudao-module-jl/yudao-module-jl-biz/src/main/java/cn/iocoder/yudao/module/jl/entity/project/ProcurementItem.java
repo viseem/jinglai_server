@@ -9,6 +9,8 @@ import javax.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -152,4 +154,9 @@ public class ProcurementItem extends BaseEntity {
 
     @Column(name = "temperature")
     private String temperature;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Supplier supplier;
 }

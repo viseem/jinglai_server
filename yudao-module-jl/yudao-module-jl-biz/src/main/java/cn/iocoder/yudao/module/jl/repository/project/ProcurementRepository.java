@@ -11,6 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
     @Transactional
     @Modifying
+    @Query("update Procurement p set p.shipmentCodes = ?1 where p.id = ?2")
+    int updateShipmentCodesById(Long id, String shipmentCodes);
+
+    @Transactional
+    @Modifying
     @Query("update Procurement p set p.waitStoreIn = ?2 where p.id = ?1")
     void updateWaitStoreInById(Long id, Boolean waitStoreIn);
 

@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
+import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -25,7 +28,11 @@ public class ProcurementRespVO extends ProcurementBaseVO {
 
     private UserRespVO applyUser;
 
+    private UserRespVO checkUser;
+
     private List<ProcurementShipmentRespVO> shipments;
 
     private List<ProcurementPaymentRespVO> payments;
+
+    private ProjectRespVO project;
 }

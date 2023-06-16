@@ -19,9 +19,14 @@ spring:
       matching-strategy: ANT_PATH_MATCHER # 解决 SpringFox 与 SpringBoot 2.6.x 不兼容的问题，参见 SpringFoxHandlerProviderBeanPostProcessor 类
 #    throw-exception-if-no-handler-found: true # 404 错误时抛出异常，方便统一处理
 #    static-path-pattern: /static/** # 静态资源路径; 注意：如果不配置，则 throw-exception-if-no-handler-found 不生效！！！ TODO 芋艿：不能配置，会导致 swagger 不生效
-
+#    format:
+#      date: yyyy-MM-dd
+#      date-time: yyyy-MM-dd HH:mm:ss
+#      time: HH:mm:ss
   # Jackson 配置项
   jackson:
+    time-zone: "GMT+8"
+    date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
       write-dates-as-timestamps: true # 设置 Date 的格式，使用时间戳
       write-date-timestamps-as-nanoseconds: false # 设置不使用 nanoseconds 的格式。例如说 1611460870.401，而是直接 1611460870401
@@ -205,3 +210,5 @@ debug: false
 minidao :
   base-package: org.jeecg.modules.jmreport.desreport.dao*
   db-type: mysql
+
+

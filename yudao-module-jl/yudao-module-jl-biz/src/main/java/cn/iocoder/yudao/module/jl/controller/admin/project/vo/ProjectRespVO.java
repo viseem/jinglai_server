@@ -31,5 +31,7 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private User sales;
 
+    private User manager;
+
     private List<ProjectConstract> constracts = new ArrayList<>();
 }

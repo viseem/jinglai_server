@@ -169,8 +169,13 @@ public class ProcurementServiceImpl implements ProcurementService {
             }
 
             if (pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
+
+            if (pageReqVO.getShipmentCodes() != null) {
+                predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
+            }
+
 
             if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
@@ -278,14 +283,22 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (saveReqVO.getShipments() != null && saveReqVO.getShipments().size() > 0) {
             List<ProcurementShipment> shipments = saveReqVO.getShipments().stream().map(shipment -> {
                 shipment.setProcurementId(saveReqVO.getProcurementId());
+
                 return procurementShipmentMapper.toEntity(shipment);
             }).collect(Collectors.toList());
 
-            procurementShipmentRepository.saveAll(shipments);
-        }
 
-        // 更新状态
-        procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_CHECK_IN.toString());
+            procurementShipmentRepository.saveAll(shipments);
+
+            // 遍历 shipments 中的 getShipmentNumber()，并且拼成字符串
+            String shipmentNumbers = shipments.stream().map(ProcurementShipment::getShipmentNumber).collect(Collectors.joining(","));
+            // 更新采购单的物流信息
+            procurementRepository.findById(saveReqVO.getProcurementId()).ifPresent(procurement -> {
+                procurement.setShipmentCodes(procurement.getShipmentCodes() + "," + shipmentNumbers);
+                procurement.setStatus(ProcurementStatusEnums.WAITING_CHECK_IN.toString());
+                procurementRepository.save(procurement);
+            });
+        }
     }
 
     /**
@@ -337,7 +350,7 @@ public class ProcurementServiceImpl implements ProcurementService {
                     checkInQuantity += item.getCheckInQuantity();
 
 
-                    if(checkInQuantity < item.getQuantity()) {
+                    if (checkInQuantity < item.getQuantity()) {
                         // 还有需要签收的子项
                         allCheckIn.set(false);
                     }
@@ -384,7 +397,7 @@ public class ProcurementServiceImpl implements ProcurementService {
                 if (item != null) {
                     storeInQuantity += item.getInQuantity();
 
-                    if(storeInQuantity < item.getCheckInQuantity()) {
+                    if (storeInQuantity < item.getCheckInQuantity()) {
                         // 还有需要入库的子项
                         allStoreIn.set(false);
                     }

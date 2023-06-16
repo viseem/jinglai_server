@@ -36,14 +36,14 @@ public class ProcurementItemBaseVO {
 
     @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单量不能为空")
-    private Integer unitAmount;
+    private Integer unitAmount = 0;
 
     @Schema(description = "采购数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "采购数量不能为空")
-    private Integer quantity;
+    private Integer quantity = 0;
 
-    private Integer inQuantity;
-    private Integer checkInQuantity;
+    private Integer inQuantity = 0;
+    private Integer checkInQuantity = 0;
 
     @Schema(description = "供货商id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6961")
     @NotNull(message = "供货商id不能为空")
@@ -51,11 +51,11 @@ public class ProcurementItemBaseVO {
 
     @Schema(description = "原价", requiredMode = Schema.RequiredMode.REQUIRED, example = "31202")
     @NotNull(message = "原价不能为空")
-    private Integer buyPrice;
+    private Integer buyPrice = 0;
 
     @Schema(description = "销售价", requiredMode = Schema.RequiredMode.REQUIRED, example = "22107")
     @NotNull(message = "销售价不能为空")
-    private Integer salePrice;
+    private Integer salePrice = 0;
 
     @Schema(description = "备注")
     private String mark;

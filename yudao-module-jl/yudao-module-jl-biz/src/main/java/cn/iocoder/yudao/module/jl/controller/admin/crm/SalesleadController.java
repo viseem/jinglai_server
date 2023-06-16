@@ -90,7 +90,7 @@ public class SalesleadController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得销售线索列表")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
-    public CommonResult<PageResult<SalesleadRespVO>> getSalesleadPage(@Valid SalesleadPageReqVO pageVO, @Valid SalesleadPageOrder orderV0) {
+    public CommonResult<PageResult<SalesleadRespVO>> getSalesleadPage(SalesleadPageReqVO pageVO, @Valid SalesleadPageOrder orderV0) {
         PageResult<Saleslead> pageResult = salesleadService.getSalesleadPage(pageVO, orderV0);
         // 遍历计算quote字段里的categoryList字段的里的chargeList 和 supplyList的总价
 

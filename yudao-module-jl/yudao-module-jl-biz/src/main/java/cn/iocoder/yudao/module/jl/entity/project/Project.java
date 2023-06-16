@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -102,6 +104,11 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User sales;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User manager;
+
     /**
      * 客户 id
      */
@@ -111,8 +118,9 @@ public class Project extends BaseEntity {
     /**
      * 级联出客户信息
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Customer customer;
 
