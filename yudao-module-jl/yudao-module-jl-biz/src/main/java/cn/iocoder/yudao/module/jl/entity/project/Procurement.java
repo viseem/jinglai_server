@@ -117,7 +117,7 @@ public class Procurement extends BaseEntity {
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SELECT)
+    @Fetch(FetchMode.SUBSELECT)
     @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<ProcurementItem> items;
 
@@ -135,12 +135,12 @@ public class Procurement extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
-    @Fetch(FetchMode.SELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private List<ProcurementShipment> shipments = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
-    @Fetch(FetchMode.SELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private List<ProcurementPayment> payments = new ArrayList<>();
 }

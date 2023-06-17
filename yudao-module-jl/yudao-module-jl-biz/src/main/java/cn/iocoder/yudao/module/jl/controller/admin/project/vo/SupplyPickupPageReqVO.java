@@ -31,6 +31,11 @@ public class SupplyPickupPageReqVO extends PageParam {
     @Schema(description = "状态", example = "1")
     private String status;
 
+    private String shipmentCodes;
+
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
+
     @Schema(description = "备注")
     private String mark;
 

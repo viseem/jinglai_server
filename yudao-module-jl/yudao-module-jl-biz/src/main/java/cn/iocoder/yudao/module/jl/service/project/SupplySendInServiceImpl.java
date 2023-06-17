@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
 import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
 import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.SupplySendInItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
@@ -170,6 +171,10 @@ public class SupplySendInServiceImpl implements SupplySendInService {
 
             if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitCheckIn"), true));
             }
 
             if (pageReqVO.getMark() != null) {

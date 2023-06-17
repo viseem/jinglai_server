@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
@@ -135,6 +136,15 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitCheckIn"), true));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitStoreIn"), true));
+            }
+
+
             if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
@@ -190,6 +200,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
             if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
+
 
             if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
