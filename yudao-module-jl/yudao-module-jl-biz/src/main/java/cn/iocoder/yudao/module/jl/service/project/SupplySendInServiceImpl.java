@@ -12,12 +12,14 @@ import cn.iocoder.yudao.module.jl.mapper.project.SupplySendInItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.SupplySendInItemRepository;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -104,6 +106,8 @@ public class SupplySendInServiceImpl implements SupplySendInService {
 
         // 更新或新建
         SupplySendIn updateObj = supplySendInMapper.toEntity(saveReqVO);
+        updateObj.setWaitCheckIn(true); // 代签收
+        updateObj.setCode(String.valueOf(Instant.now().toEpochMilli())); //TODO 生成单号
         updateObj = supplySendInRepository.save(updateObj);
         Long sendInId = updateObj.getId();
 
@@ -162,7 +166,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
             }
 
             if (pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
 
             if (pageReqVO.getShipmentNumber() != null) {
@@ -173,8 +177,16 @@ public class SupplySendInServiceImpl implements SupplySendInService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
+            if (pageReqVO.getShipmentCodes() != null) {
+                predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
+            }
+
             if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitCheckIn"), true));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitStoreIn"), true));
             }
 
             if (pageReqVO.getMark() != null) {

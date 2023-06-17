@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -129,11 +130,15 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
             }
 
             if (pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
 
             if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
+
+            if (pageReqVO.getShipmentCodes() != null) {
+                predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
             }
 
             if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
@@ -247,6 +252,8 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
 
         // 更新或新建
         SupplyPickup supplyPickup = supplyPickupMapper.toEntity(saveReqVO);
+        supplyPickup.setWaitCheckIn(true); // 代签收
+        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
         supplyPickupRepository.save(supplyPickup);
         Long pickupId = supplyPickup.getId();
 

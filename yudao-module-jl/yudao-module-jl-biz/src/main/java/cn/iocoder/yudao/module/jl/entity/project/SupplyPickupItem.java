@@ -49,6 +49,9 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "name", nullable = false )
     private String name;
 
+    @Column(name = "brand")
+    private String brand;
+
     /**
      * 规则/单位
      */

@@ -38,6 +38,8 @@ public class SupplyPickupItemBaseVO {
     @NotNull(message = "单量不能为空")
     private Integer unitAmount;
 
+    private String brand;
+
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "数量不能为空")
     private Integer quantity;
@@ -47,7 +49,7 @@ public class SupplyPickupItemBaseVO {
 
     @Schema(description = "有效期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "有效期不能为空")
-    private String validDate;
+    private LocalDateTime validDate;
 
     @Schema(description = "存储温度", requiredMode = Schema.RequiredMode.REQUIRED)
     private String temperature;

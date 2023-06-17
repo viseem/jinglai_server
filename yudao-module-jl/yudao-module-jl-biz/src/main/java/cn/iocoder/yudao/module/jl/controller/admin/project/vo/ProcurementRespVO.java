@@ -26,7 +26,7 @@ public class ProcurementRespVO extends ProcurementBaseVO {
 
     private List<ProcurementItemRespVO> items;
 
-    private UserRespVO applyUser;
+    private UserRespVO user;
 
     private UserRespVO checkUser;
 

@@ -2,12 +2,16 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplySendInItemCreateReqVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -38,6 +42,16 @@ public class SupplySendIn extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
+
     /**
      * 实验名目库的名目 id
      */
@@ -50,11 +64,6 @@ public class SupplySendIn extends BaseEntity {
     @Column(name = "code")
     private String code;
 
-    /**
-     * 寄来物流单号
-     */
-    @Column(name = "shipment_number")
-    private String shipmentNumber;
 
     /**
      * 状态
@@ -72,7 +81,7 @@ public class SupplySendIn extends BaseEntity {
      * 寄来时间
      */
     @Column(name = "send_date")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     /**
      * 收货地址
@@ -93,6 +102,7 @@ public class SupplySendIn extends BaseEntity {
     private String receiverPhone;
 
     @OneToMany
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "supply_send_in_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<SupplySendInItem> items;
 
