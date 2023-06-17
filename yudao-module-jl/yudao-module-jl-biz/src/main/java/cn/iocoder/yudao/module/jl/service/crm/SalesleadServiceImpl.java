@@ -151,6 +151,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
                 projectConstracts.forEach(projectConstract -> {
                     projectConstract.setProjectId(project.getId());
+                    projectConstract.setCustomerId(updateReqVO.getCustomerId());
+                    projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
                     projectConstract.setName(project.getName());
                 });
                 List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
@@ -229,6 +231,10 @@ public class SalesleadServiceImpl implements SalesleadService {
             } else if (Objects.equals(pageReqVO.getQuotationStatus(), "2")) {
                 // 已报价的
                 predicates.add(cb.isNotNull(root.get("quotation")));
+            }
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getQuotation() != null) {

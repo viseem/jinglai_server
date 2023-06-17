@@ -50,6 +50,12 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
+    //    TODO 很大的问题
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private Project project;
+
     @Column(name = "schedule_id", nullable = false )
     private Long scheduleId;
 
@@ -138,9 +144,4 @@ public class ProjectSupply extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
 
-//    @OneToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "project_supply_id")
-//    @NotFound(action = NotFoundAction.IGNORE)
-//    @Fetch(FetchMode.SELECT)
-//    private ProcurementItem procurement;
 }

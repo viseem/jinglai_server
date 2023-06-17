@@ -25,6 +25,12 @@ public class ProjectFeedbackPageReqVO extends PageParam {
     @Schema(description = "实验名目 id", example = "5559")
     private Long projectCategoryId;
 
+    @Schema(description = "售前/售中/售后")
+    private String projectStage;
+
+    @Schema(description = "具体的反馈内容")
+    private String feedType;
+
     @Schema(description = "内部人员 id", example = "5172")
     private Long userId;
 

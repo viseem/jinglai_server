@@ -25,6 +25,8 @@ public class ProjectSupplySubClass {
     @NotNull(message = "物资 id不能为空")
     private Long supplyId;
 
+    private String type;
+
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "名称不能为空")
     private String name;

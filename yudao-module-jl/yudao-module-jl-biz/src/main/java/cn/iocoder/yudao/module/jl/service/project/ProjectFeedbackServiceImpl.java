@@ -106,6 +106,14 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
+            if(pageReqVO.getProjectStage() != null) {
+                predicates.add(cb.equal(root.get("getProjectStage"), pageReqVO.getProjectStage()));
+            }
+
+            if(pageReqVO.getFeedType() != null) {
+                predicates.add(cb.equal(root.get("feedType"), pageReqVO.getFeedType()));
+            }
+
             if(pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
             }

@@ -35,6 +35,8 @@ public class ProjectSupplyPageReqVO extends PageParam {
     @Schema(description = "名称", example = "赵六")
     private String name;
 
+    private String brand;
+
     @Schema(description = "规则/单位")
     private String feeStandard;
 

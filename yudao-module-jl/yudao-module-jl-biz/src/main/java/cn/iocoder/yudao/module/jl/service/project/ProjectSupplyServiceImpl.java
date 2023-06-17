@@ -102,12 +102,20 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
             }
 
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getSupplyId() != null) {
                 predicates.add(cb.equal(root.get("supplyId"), pageReqVO.getSupplyId()));
             }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getBrand() != null) {
+                predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
             }
 
             if(pageReqVO.getScheduleId() != null) {
