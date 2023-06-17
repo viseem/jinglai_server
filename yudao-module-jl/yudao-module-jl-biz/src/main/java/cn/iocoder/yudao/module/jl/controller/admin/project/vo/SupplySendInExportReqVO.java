@@ -37,7 +37,7 @@ public class SupplySendInExportReqVO {
 
     @Schema(description = "寄来时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String[] sendDate;
+    private LocalDateTime[] sendDate;
 
     @Schema(description = "收货地址")
     private String address;

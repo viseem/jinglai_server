@@ -35,7 +35,7 @@ public class ProductSendPageOrder {
     private String mark;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String address;

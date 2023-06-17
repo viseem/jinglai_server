@@ -38,7 +38,7 @@ public class SupplyPickupExcelVO {
     private String mark;
 
     @ExcelProperty("取货时间")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @ExcelProperty("取货人")
     private Long userId;

@@ -41,7 +41,7 @@ public class SupplySendInExcelVO {
     private String mark;
 
     @ExcelProperty("寄来时间")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @ExcelProperty("收货地址")
     private String address;

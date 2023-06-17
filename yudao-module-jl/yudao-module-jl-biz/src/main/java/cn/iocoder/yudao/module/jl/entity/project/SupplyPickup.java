@@ -84,7 +84,7 @@ public class SupplyPickup extends BaseEntity {
      * 取货时间
      */
     @Column(name = "send_date")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     /**
      * 取货人

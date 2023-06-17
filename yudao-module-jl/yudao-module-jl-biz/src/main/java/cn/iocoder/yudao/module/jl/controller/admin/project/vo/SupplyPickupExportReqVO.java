@@ -34,7 +34,7 @@ public class SupplyPickupExportReqVO {
 
     @Schema(description = "取货时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String[] sendDate;
+    private LocalDateTime[] sendDate;
 
     @Schema(description = "取货人", example = "24449")
     private Long userId;
