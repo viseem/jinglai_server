@@ -19,6 +19,8 @@ public class CategorySupplyBaseWithoutIDVO {
     @NotNull(message = "规则/单位不能为空")
     private String feeStandard;
 
+    private String type;
+
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
     private String unitFee;

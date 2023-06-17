@@ -107,6 +107,10 @@ public class CategorySupplyServiceImpl implements CategorySupplyService {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
             }
 
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
             if(pageReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
             }
@@ -196,6 +200,7 @@ public class CategorySupplyServiceImpl implements CategorySupplyService {
             categorySupply.setName(supply.getName());
             categorySupply.setFeeStandard(supply.getFeeStandard());
             categorySupply.setUnitFee(supply.getUnitFee());
+            categorySupply.setType(supply.getType());
             categorySupply.setQuantity(supply.getQuantity());
             categorySupply.setMark(supply.getMark());
             categorySupply.setSupplyId(supply.getSupplyId());
