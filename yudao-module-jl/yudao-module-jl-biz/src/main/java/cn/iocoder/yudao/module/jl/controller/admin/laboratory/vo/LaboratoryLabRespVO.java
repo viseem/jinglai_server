@@ -17,7 +17,7 @@ public class LaboratoryLabRespVO extends LaboratoryLabBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
-    @Schema(description = "负责人对象")
+    @Schema(description = "负责人实体")
     private User user;
 
 }
