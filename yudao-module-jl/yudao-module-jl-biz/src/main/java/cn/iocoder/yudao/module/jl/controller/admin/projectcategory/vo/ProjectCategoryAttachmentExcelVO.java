@@ -32,6 +32,6 @@ public class ProjectCategoryAttachmentExcelVO {
     private String fileUrl;
 
     @ExcelProperty("文件类型")
-    private byte[] type;
+    private String type;
 
 }

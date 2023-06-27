@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -34,7 +36,7 @@ public class ProjectCategory extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -52,7 +54,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 类型，报价/安排单
      */
-    @Column(name = "type", nullable = false )
+    @Column(name = "type", nullable = false)
     private String type;
 
     /**
@@ -60,6 +62,14 @@ public class ProjectCategory extends BaseEntity {
      */
     @Column(name = "lab_id")
     private Long labId;
+
+    /**
+     * JPA 级联出 lab
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private LaboratoryLab lab;
 
     /**
      * 名目的实验类型，动物/细胞/分子等
@@ -70,7 +80,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目库的名目 id
      */
-    @Column(name = "category_id", nullable = false )
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
     /**
@@ -100,7 +110,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目名字
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
@@ -110,7 +120,7 @@ public class ProjectCategory extends BaseEntity {
     private String mark;
 
     @ManyToOne
-    @JoinColumn(name="schedule_id", insertable = false, updatable = false)
+    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     private ProjectSchedule schedule;
@@ -118,13 +128,13 @@ public class ProjectCategory extends BaseEntity {
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
-    @JoinColumn(name="quote_id", insertable = false, updatable = false)
+    @JoinColumn(name = "quote_id", insertable = false, updatable = false)
     private ProjectQuote quote;
 
     /**
      * 实验物资
      */
-    @OneToMany(mappedBy="category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
@@ -133,7 +143,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验收费项
      */
-    @OneToMany(mappedBy="category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference
@@ -142,11 +152,18 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验SOP
      */
-    @OneToMany(mappedBy="category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectSop> sopList;
 
-
+    /**
+     * 实验名目的附件
+     */
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectCategoryAttachment> attachmentList;
 }

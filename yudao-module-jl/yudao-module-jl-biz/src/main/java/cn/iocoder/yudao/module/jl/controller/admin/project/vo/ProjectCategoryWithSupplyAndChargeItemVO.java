@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -22,4 +23,7 @@ public class ProjectCategoryWithSupplyAndChargeItemVO extends ProjectCategoryBas
 
     @Schema(description = "SOP步骤", example = "[]")
     private List<ProjectSopBaseVO> sopList;
+
+    @Schema(description = "需求要求附件", example = "[]")
+    private List<ProjectCategoryAttachmentBaseVO> attachmentList;
 }
