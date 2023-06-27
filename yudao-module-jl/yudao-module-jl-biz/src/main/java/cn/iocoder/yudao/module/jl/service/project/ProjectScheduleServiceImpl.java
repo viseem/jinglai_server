@@ -1,9 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
+import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -70,6 +74,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectSupplyRepository projectSupplyRepository;
 
     @Resource
+    private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
+
+    @Resource
+    private ProjectCategoryAttachmentMapper projectCategoryAttachmentMapper;
+
+    @Resource
     private ProjectSupplyMapper projectSupplyMapper;
 
     @Resource
@@ -129,6 +139,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectSopRepository.deleteByProjectCategoryIdIn(categoryIds);
+            projectCategoryAttachmentRepository.deleteByProjectCategoryIdIn(categoryIds);
 
             // 保存新的
             for (int i = 0; i < categoryList.size(); i++) {
@@ -178,6 +189,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
                     List<ProjectSop> projectSupplies = projectSopMapper.toEntity(projectSopList);
                     projectSopRepository.saveAll(projectSupplies);
+                }
+
+                // 保存 附件attachment
+                List<ProjectCategoryAttachmentBaseVO> attachmentList = category.getAttachmentList();
+                if (attachmentList != null && attachmentList.size() >= 1) {
+                    List<ProjectCategoryAttachmentBaseVO> projectAttachmentList = attachmentList.stream().map(attachment -> {
+                        attachment.setProjectCategoryId(categoryDo.getId());
+                        return attachment;
+                    }).collect(Collectors.toList());
+
+                    List<ProjectCategoryAttachment> projectCategoryAttachments = projectCategoryAttachmentMapper.toEntity(projectAttachmentList);
+                    projectCategoryAttachmentRepository.saveAll(projectCategoryAttachments);
                 }
             }
         }

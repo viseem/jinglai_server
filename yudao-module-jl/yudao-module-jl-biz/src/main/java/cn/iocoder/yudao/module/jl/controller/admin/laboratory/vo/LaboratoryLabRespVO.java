@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -15,5 +16,8 @@ public class LaboratoryLabRespVO extends LaboratoryLabBaseVO {
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
+
+    @Schema(description = "负责人实体")
+    private User user;
 
 }

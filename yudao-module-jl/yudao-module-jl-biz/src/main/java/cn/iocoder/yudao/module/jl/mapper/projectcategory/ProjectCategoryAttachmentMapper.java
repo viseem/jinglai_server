@@ -10,6 +10,8 @@ import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProjectCategoryAttachmentMapper {
+    List<ProjectCategoryAttachment> toEntity(List<ProjectCategoryAttachmentBaseVO> dto);
+
     ProjectCategoryAttachment toEntity(ProjectCategoryAttachmentCreateReqVO dto);
 
     ProjectCategoryAttachment toEntity(ProjectCategoryAttachmentUpdateReqVO dto);

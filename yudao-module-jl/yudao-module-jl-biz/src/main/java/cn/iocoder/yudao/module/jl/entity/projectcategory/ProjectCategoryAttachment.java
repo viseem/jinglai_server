@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -37,6 +42,12 @@ public class ProjectCategoryAttachment extends BaseEntity {
     @Column(name = "project_category_id", nullable = false )
     private Long projectCategoryId;
 
+    @ManyToOne
+    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectCategory category;
+
     /**
      * 文件名
      */
@@ -53,6 +64,6 @@ public class ProjectCategoryAttachment extends BaseEntity {
      * 文件类型
      */
     @Column(name = "type")
-    private byte[] type;
+    private String type;
 
 }

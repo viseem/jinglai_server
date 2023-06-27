@@ -25,6 +25,7 @@ import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryLogMappe
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -43,6 +44,9 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
 
     @Override
     public Long createProjectCategoryLog(ProjectCategoryLogCreateReqVO createReqVO) {
+
+        createReqVO.setOperatorId(getLoginUserId());
+
         // 插入
         ProjectCategoryLog projectCategoryLog = projectCategoryLogMapper.toEntity(createReqVO);
         projectCategoryLogRepository.save(projectCategoryLog);
@@ -52,6 +56,9 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
 
     @Override
     public void updateProjectCategoryLog(ProjectCategoryLogUpdateReqVO updateReqVO) {
+
+        updateReqVO.setOperatorId(getLoginUserId());
+
         // 校验存在
         validateProjectCategoryLogExists(updateReqVO.getId());
         // 更新
