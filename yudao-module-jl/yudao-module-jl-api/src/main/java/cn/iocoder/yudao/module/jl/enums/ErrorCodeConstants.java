@@ -118,4 +118,6 @@ public interface ErrorCodeConstants {
     ErrorCode LABORATORY_USER_NOT_EXISTS = new ErrorCode(2053500002, "实验室人员不存在");
 
     ErrorCode PROJECT_CATEGORY_LOG_NOT_EXISTS = new ErrorCode(2053600001, "项目实验名目的操作日志不存在");
+
+    ErrorCode PROJECT_CATEGORY_ATTACHMENT_NOT_EXISTS = new ErrorCode(2053600002, "项目实验名目的附件不存在");
 }
