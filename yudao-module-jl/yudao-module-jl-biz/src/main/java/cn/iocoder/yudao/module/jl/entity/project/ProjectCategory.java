@@ -56,6 +56,12 @@ public class ProjectCategory extends BaseEntity {
     private String type;
 
     /**
+     * 所属实验室id
+     */
+    @Column(name = "lab_id")
+    private Long labId;
+
+    /**
      * 名目的实验类型，动物/细胞/分子等
      */
     @Column(name = "category_type")

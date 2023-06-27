@@ -24,6 +24,10 @@ public class ProjectCategoryBaseVO {
     @NotNull(message = "类型，报价/安排单不能为空")
     private String type = "schedule";
 
+    @Schema(description = "所属实验室id，动物/细胞/分子等", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "所属实验室不能为空")
+    private Long labId;
+
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")
     private String categoryType;
 
