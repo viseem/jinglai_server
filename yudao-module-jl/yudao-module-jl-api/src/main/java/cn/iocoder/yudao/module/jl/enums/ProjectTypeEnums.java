@@ -18,8 +18,8 @@ import java.util.Objects;
 @AllArgsConstructor
 public enum ProjectTypeEnums implements StringArrayValuable {
 
-    NormalProject("0", "常规项目"),
-    EmergencyProject("1", "临时应急项目"),
+    NormalProject("1", "常规项目"),
+    EmergencyProject("2", "临时应急项目"),
     ;
 
     private final String status;

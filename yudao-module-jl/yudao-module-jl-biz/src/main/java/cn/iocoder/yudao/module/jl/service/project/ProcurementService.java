@@ -27,6 +27,8 @@ public interface ProcurementService {
      */
     void updateProcurement(@Valid ProcurementUpdateReqVO updateReqVO);
 
+    void saveProcurement(@Valid ProcurementSaveReqVO updateReqVO);
+
     /**
      * 删除项目采购单申请
      *
@@ -66,4 +68,11 @@ public interface ProcurementService {
      */
     List<Procurement> getProcurementList(ProcurementExportReqVO exportReqVO);
 
+    void saveShipments(ProcurementUpdateShipmentsReqVO saveReqVO);
+
+    void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO);
+
+    void checkIn(ProcurementShipmentCheckInReqVO saveReqVO);
+
+    void storeIn(StoreInProcurementItemReqVO saveReqVO);
 }

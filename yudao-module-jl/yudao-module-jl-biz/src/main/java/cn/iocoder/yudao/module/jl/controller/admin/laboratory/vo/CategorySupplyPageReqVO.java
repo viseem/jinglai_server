@@ -31,6 +31,8 @@ public class CategorySupplyPageReqVO extends PageParam {
     @Schema(description = "单价")
     private String unitFee;
 
+    private String type;
+
     @Schema(description = "数量")
     private Integer quantity;
 

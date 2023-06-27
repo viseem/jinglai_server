@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -37,11 +42,25 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Project project;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User sales;
+
     /**
      * 合同名字
      */
     @Column(name = "name")
     private String name;
+
+    @Column(name = "customer_id")
+    private Long customerId;
 
     /**
      * 合同文件 URL

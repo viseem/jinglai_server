@@ -28,6 +28,8 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "合同文件 URL", example = "https://www.iocoder.cn")
     private String fileUrl;
 
+    private Long customerId;
+
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
     private String status;
 

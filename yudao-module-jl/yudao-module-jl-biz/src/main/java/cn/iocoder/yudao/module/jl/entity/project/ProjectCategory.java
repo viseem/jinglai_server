@@ -139,6 +139,8 @@ public class ProjectCategory extends BaseEntity {
     @OneToMany(mappedBy="category", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectSop> sopList;
+
 
 }

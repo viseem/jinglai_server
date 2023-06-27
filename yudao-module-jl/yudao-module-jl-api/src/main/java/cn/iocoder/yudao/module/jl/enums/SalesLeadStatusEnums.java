@@ -18,12 +18,12 @@ import java.util.Objects;
 @AllArgsConstructor
 public enum SalesLeadStatusEnums implements StringArrayValuable {
 
-    PotentialConsultation("0", "潜在咨询"),
-    KeyFocus("1", "重点关注"),
-    PendingDeal("2", "待成交"),
-    CompletedTransaction("3", "已成交"),
-    EmergencyProject("4", "临时应急项目"),
-    LostDeal("5", "丢单"),
+    PotentialConsultation("1", "潜在咨询"),
+    KeyFocus("2", "重点关注"),
+    PendingDeal("3", "待成交"),
+    CompletedTransaction("4", "已成交"),
+    EmergencyProject("5", "临时应急项目"),
+    LostDeal("6", "丢单"),
     ;
 
     private final String status;

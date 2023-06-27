@@ -58,7 +58,11 @@ public class CategorySupply extends BaseEntity {
     @Column(name = "quantity", nullable = false )
     private Integer quantity;
 
+    @Column(name = "type", nullable = false )
+    private String type;
+
     /**
+     *
      * 备注
      */
     @Column(name = "mark")

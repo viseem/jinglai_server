@@ -31,7 +31,7 @@ public class ProductSendBaseVO {
     private String mark;
 
     @Schema(description = "寄送时间")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @Schema(description = "收货地址")
     private String address;

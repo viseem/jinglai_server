@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -27,6 +30,10 @@ public class ProjectSupplyBaseVO {
     @NotNull(message = "物资 id不能为空")
     private Long supplyId;
 
+    private Long projectId;
+
+    private Long scheduleId;
+
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "名称不能为空")
     private String name;
@@ -50,6 +57,9 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private String brand;
+
+    private String type;
 
     @Schema(description = "物品来源")
     private String source;

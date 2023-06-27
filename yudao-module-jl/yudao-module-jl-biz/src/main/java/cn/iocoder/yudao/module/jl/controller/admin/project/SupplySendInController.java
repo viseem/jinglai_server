@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +18,7 @@ import java.io.IOException;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -23,6 +26,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
+
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -42,18 +46,42 @@ public class SupplySendInController {
     @Resource
     private SupplySendInMapper supplySendInMapper;
 
-    @PostMapping("/create")
-    @Operation(summary = "创建物资寄来单申请")
-    @PreAuthorize("@ss.hasPermission('jl:supply-send-in:create')")
-    public CommonResult<Long> createSupplySendIn(@Valid @RequestBody SupplySendInCreateReqVO createReqVO) {
-        return success(supplySendInService.createSupplySendIn(createReqVO));
+//    @PostMapping("/create")
+//    @Operation(summary = "创建物资寄来单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:supply-send-in:create')")
+//    public CommonResult<Long> createSupplySendIn(@Valid @RequestBody SupplySendInCreateReqVO createReqVO) {
+//        return success(supplySendInService.createSupplySendIn(createReqVO));
+//    }
+//
+//    @PutMapping("/update")
+//    @Operation(summary = "更新物资寄来单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:supply-send-in:update')")
+//    public CommonResult<Boolean> updateSupplySendIn(@Valid @RequestBody SupplySendInUpdateReqVO updateReqVO) {
+//        supplySendInService.updateSupplySendIn(updateReqVO);
+//        return success(true);
+//    }
+
+    @PutMapping("/save")
+    @Operation(summary = "全量更新物资寄来单申请")
+    @PreAuthorize("@ss.hasPermission('jl:supply-send-in:update')")
+    public CommonResult<Boolean> updateSupplySendIn(@Valid @RequestBody SupplySendInSaveReqVO saveReqVO) {
+        supplySendInService.saveSupplySendIn(saveReqVO);
+        return success(true);
     }
 
-    @PutMapping("/update")
-    @Operation(summary = "更新物资寄来单申请")
-    @PreAuthorize("@ss.hasPermission('jl:supply-send-in:update')")
-    public CommonResult<Boolean> updateSupplySendIn(@Valid @RequestBody SupplySendInUpdateReqVO updateReqVO) {
-        supplySendInService.updateSupplySendIn(updateReqVO);
+    @PutMapping("/check-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody SendInCheckInReqVO saveReqVO) {
+        supplySendInService.checkIn(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/store-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInSendInItemReqVO saveReqVO) {
+        supplySendInService.storeIn(saveReqVO);
         return success(true);
     }
 
@@ -71,7 +99,7 @@ public class SupplySendInController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:supply-send-in:query')")
     public CommonResult<SupplySendInRespVO> getSupplySendIn(@RequestParam("id") Long id) {
-            Optional<SupplySendIn> supplySendIn = supplySendInService.getSupplySendIn(id);
+        Optional<SupplySendIn> supplySendIn = supplySendInService.getSupplySendIn(id);
         return success(supplySendIn.map(supplySendInMapper::toDto).orElseThrow(() -> exception(SUPPLY_SEND_IN_NOT_EXISTS)));
     }
 

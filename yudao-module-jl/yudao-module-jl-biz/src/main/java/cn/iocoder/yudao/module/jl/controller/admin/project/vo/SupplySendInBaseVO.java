@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -34,7 +35,9 @@ public class SupplySendInBaseVO {
     private String mark;
 
     @Schema(description = "寄来时间")
-    private String sendDate;
+    private LocalDateTime sendDate;
+
+    private String brand;
 
     @Schema(description = "收货地址")
     private String address;
@@ -44,5 +47,13 @@ public class SupplySendInBaseVO {
 
     @Schema(description = "收货人电话")
     private String receiverPhone;
+
+    @Schema(description = "是否需要签收")
+    private Boolean waitCheckIn;
+
+    @Schema(description = "是否需要入库")
+    private Boolean waitStoreIn;
+
+    private String shipmentCodes;
 
 }

@@ -102,6 +102,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
             }
 
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getSupplyId() != null) {
                 predicates.add(cb.equal(root.get("supplyId"), pageReqVO.getSupplyId()));
             }
@@ -110,12 +114,24 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
+            if(pageReqVO.getBrand() != null) {
+                predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
+            }
+
+            if(pageReqVO.getScheduleId() != null) {
+                predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
+            }
+
             if(pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
             }
 
             if(pageReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
+            }
+
+            if(pageReqVO.getSource() != null) {
+                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
             }
 
             if(pageReqVO.getUnitAmount() != null) {
@@ -128,6 +144,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
             if(pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
 

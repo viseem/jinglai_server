@@ -1,10 +1,26 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
+import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
+import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupItemRepository;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
+
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,8 +33,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.SupplyPickup;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupMapper;
@@ -29,7 +45,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 取货单申请 Service 实现类
- *
  */
 @Service
 @Validated
@@ -39,7 +54,19 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
     private SupplyPickupRepository supplyPickupRepository;
 
     @Resource
+    private InventoryStoreInRepository inventoryStoreInRepository;
+
+    @Resource
+    private InventoryCheckInRepository inventoryCheckInRepository;
+
+    @Resource
     private SupplyPickupMapper supplyPickupMapper;
+
+    @Resource
+    private SupplyPickupItemRepository supplyPickupItemRepository;
+
+    @Resource
+    private SupplyPickupItemMapper supplyPickupItemMapper;
 
     @Override
     public Long createSupplyPickup(SupplyPickupCreateReqVO createReqVO) {
@@ -94,42 +121,55 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
         Specification<SupplyPickup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+            if (pageReqVO.getCode() != null) {
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getShipmentCodes() != null) {
+                predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitCheckIn"), true));
+            }
+
+            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
+                predicates.add(cb.equal(root.get("waitStoreIn"), true));
+            }
+
+
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getSendDate() != null) {
+            if (pageReqVO.getSendDate() != null) {
                 predicates.add(cb.between(root.get("sendDate"), pageReqVO.getSendDate()[0], pageReqVO.getSendDate()[1]));
-            } 
-            if(pageReqVO.getUserId() != null) {
+            }
+            if (pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
             }
 
-            if(pageReqVO.getAddress() != null) {
+            if (pageReqVO.getAddress() != null) {
                 predicates.add(cb.equal(root.get("address"), pageReqVO.getAddress()));
             }
 
-            if(pageReqVO.getContactName() != null) {
+            if (pageReqVO.getContactName() != null) {
                 predicates.add(cb.like(root.get("contactName"), "%" + pageReqVO.getContactName() + "%"));
             }
 
-            if(pageReqVO.getContactPhone() != null) {
+            if (pageReqVO.getContactPhone() != null) {
                 predicates.add(cb.equal(root.get("contactPhone"), pageReqVO.getContactPhone()));
             }
 
@@ -150,42 +190,43 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
         Specification<SupplyPickup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getCode() != null) {
+            if (exportReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), exportReqVO.getCode()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
-            if(exportReqVO.getMark() != null) {
+
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getSendDate() != null) {
+            if (exportReqVO.getSendDate() != null) {
                 predicates.add(cb.between(root.get("sendDate"), exportReqVO.getSendDate()[0], exportReqVO.getSendDate()[1]));
-            } 
-            if(exportReqVO.getUserId() != null) {
+            }
+            if (exportReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), exportReqVO.getUserId()));
             }
 
-            if(exportReqVO.getAddress() != null) {
+            if (exportReqVO.getAddress() != null) {
                 predicates.add(cb.equal(root.get("address"), exportReqVO.getAddress()));
             }
 
-            if(exportReqVO.getContactName() != null) {
+            if (exportReqVO.getContactName() != null) {
                 predicates.add(cb.like(root.get("contactName"), "%" + exportReqVO.getContactName() + "%"));
             }
 
-            if(exportReqVO.getContactPhone() != null) {
+            if (exportReqVO.getContactPhone() != null) {
                 predicates.add(cb.equal(root.get("contactPhone"), exportReqVO.getContactPhone()));
             }
 
@@ -195,6 +236,148 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
 
         // 执行查询
         return supplyPickupRepository.findAll(spec);
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void saveSupplyPickup(SupplyPickupSaveReqVO saveReqVO) {
+        if (saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateSupplyPickupExists(id);
+        }
+
+        // 更新或新建
+        SupplyPickup supplyPickup = supplyPickupMapper.toEntity(saveReqVO);
+        supplyPickup.setWaitCheckIn(true); // 代签收
+        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
+        supplyPickupRepository.save(supplyPickup);
+        Long pickupId = supplyPickup.getId();
+
+        // 删除原有的
+        supplyPickupItemRepository.deleteBySupplyPickupId(pickupId);
+
+        // 更新 items
+        supplyPickupItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setSupplyPickupId(pickupId);
+            return supplyPickupItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void checkIn(PickupCheckInReqVO saveReqVO) {
+        // 校验存在
+        validateSupplyPickupExists(saveReqVO.getPickUpId());
+
+        // 根据 saveReqVo 的 list ，遍历每一项
+        if (saveReqVO.getList() != null && saveReqVO.getList().size() > 0) {
+            AtomicBoolean allCheckIn = new AtomicBoolean(true);
+
+            saveReqVO.getList().forEach(checkIn -> {
+                Long projectSupplyId = checkIn.getProjectSupplyId();
+                String status = checkIn.getStatus();
+                Integer checkInQuantity = checkIn.getCheckInNum();
+                SupplyPickupItem item = supplyPickupItemRepository.findBySupplyPickupIdAndProjectSupplyId(saveReqVO.getPickUpId(), projectSupplyId);
+                if (item != null) {
+                    checkInQuantity += item.getCheckInQuantity();
+
+                    if (checkInQuantity < item.getQuantity()) {
+                        // 还有需要签收的子项
+                        allCheckIn.set(false);
+                    }
+
+                    item.setCheckInQuantity(checkInQuantity);
+                    item.setStatus(status);
+                    supplyPickupItemRepository.save(item);
+
+                    // 保存签收日志
+                    InventoryCheckIn checkInLog = new InventoryCheckIn();
+                    checkInLog.setProjectSupplyId(item.getProjectSupplyId());
+                    checkInLog.setInQuantity(checkIn.getCheckInNum());
+                    checkInLog.setType(InventoryCheckInTypeEnums.PROCUREMENT.toString());
+                    checkInLog.setMark(checkIn.getMark());
+                    checkInLog.setStatus(checkIn.getStatus());
+                    checkInLog.setRefId(saveReqVO.getPickUpId());
+                    checkInLog.setRefItemId(item.getId());
+                    inventoryCheckInRepository.save(checkInLog);
+                }
+            });
+
+            supplyPickupRepository.findById(saveReqVO.getPickUpId()).ifPresent(pickup -> {
+                pickup.setWaitCheckIn(!allCheckIn.get());
+                pickup.setWaitStoreIn(true);
+                supplyPickupRepository.save(pickup);
+            });
+        }
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void storeIn(StoreInPickupItemReqVO saveReqVO) {
+        // 校验存在
+        validateSupplyPickupExists(saveReqVO.getPickupId());
+
+        // 更新采购单项的状态
+        // 根据 saveReqVo 的 list，遍历每一项，去更新采购单项的状态
+        if (saveReqVO.getList() != null && saveReqVO.getList().size() > 0) {
+            AtomicBoolean allStoreIn = new AtomicBoolean(true);
+
+            saveReqVO.getList().forEach(storeIn -> {
+                Long projectSupplyId = storeIn.getProjectSupplyId();
+                String status = storeIn.getStatus();
+                Integer storeInQuantity = storeIn.getInNum();
+                SupplyPickupItem item = supplyPickupItemRepository.findBySupplyPickupIdAndProjectSupplyId(saveReqVO.getPickupId(), projectSupplyId);
+                if (item != null) {
+                    storeInQuantity += item.getInQuantity();
+
+                    if (storeInQuantity < item.getCheckInQuantity()) {
+                        // 还有需要入库的子项
+                        allStoreIn.set(false);
+                    }
+
+                    item.setInQuantity(storeInQuantity);
+                    item.setStatus(status);
+                    item.setRoomId(storeIn.getRoomId());
+                    item.setContainerId(storeIn.getContainerId());
+                    item.setPlaceId(storeIn.getPlaceId());
+                    item.setTemperature(storeIn.getTemperature());
+                    item.setValidDate(storeIn.getValidDate());
+
+                    supplyPickupItemRepository.save(item);
+
+                    // 保存入库日志
+                    InventoryStoreIn storeInLog = new InventoryStoreIn();
+                    storeInLog.setProjectSupplyId(item.getProjectSupplyId());
+                    storeInLog.setInQuantity(storeIn.getInNum());
+                    storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
+                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setStatus(storeIn.getStatus());
+                    storeInLog.setRefId(saveReqVO.getPickupId());
+                    storeInLog.setRefItemId(item.getId());
+                    storeInLog.setRoomId(storeIn.getRoomId());
+                    storeInLog.setContainerId(storeIn.getContainerId());
+                    storeInLog.setPlaceId(storeIn.getPlaceId());
+                    storeInLog.setTemperature(storeIn.getTemperature());
+                    storeInLog.setValidDate(storeIn.getValidDate());
+                    inventoryStoreInRepository.save(storeInLog);
+
+                }
+
+            });
+
+            // 更新采购单的待入库状态
+            supplyPickupRepository.updateWaitStoreInById(saveReqVO.getPickupId(), !allStoreIn.get());
+        }
+
     }
 
     private Sort createSort(SupplyPickupPageOrder order) {

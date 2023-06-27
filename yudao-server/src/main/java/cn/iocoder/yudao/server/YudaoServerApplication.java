@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @author 芋道源码
  */
 @SuppressWarnings("SpringComponentScan") // 忽略 IDEA 无法识别 ${yudao.info.base-package}
-@SpringBootApplication(scanBasePackages = {"${yudao.info.base-package}.server", "${yudao.info.base-package}.module"})
+@SpringBootApplication(scanBasePackages = {"${yudao.info.base-package}.server", "${yudao.info.base-package}.module", "yudao-module-jl/yudao-module-jl-biz/src/main/java/cn/iocoder/yudao/module/jl/config"})
 @EntityScan("cn.iocoder.yudao.module.jl.entity")
 @EnableJpaRepositories("cn.iocoder.yudao.module.jl.repository")
 public class YudaoServerApplication {

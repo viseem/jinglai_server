@@ -34,12 +34,17 @@ public class SupplySendInPageReqVO extends PageParam {
     @Schema(description = "状态", example = "2")
     private String status;
 
+    private String shipmentCodes;
+
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
+
     @Schema(description = "备注")
     private String mark;
 
     @Schema(description = "寄来时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String[] sendDate;
+    private LocalDateTime[] sendDate;
 
     @Schema(description = "收货地址")
     private String address;

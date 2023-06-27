@@ -5,10 +5,14 @@ import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
+
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +25,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
@@ -29,7 +34,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目安排单 Service 实现类
- *
  */
 @Service
 @Validated
@@ -37,6 +41,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectScheduleRepository projectScheduleRepository;
+
+    @Resource
+    private ProjectRepository projectRepository;
 
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
@@ -51,7 +58,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectSopRepository projectSopRepository;
 
     @Resource
-    private ProjectSopMapper projectSopMapper ;
+    private ProjectSopMapper projectSopMapper;
 
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
@@ -99,12 +106,21 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             // 创建
             ProjectSchedule projectSchedule = projectScheduleMapper.toEntity(saveReqVO);
             projectScheduleRepository.save(projectSchedule);
-
             scheduleId = projectSchedule.getId();
+
+            projectRepository.findById(saveReqVO.getProjectId()).ifPresent(project -> {
+                // 如果只有一条数据，则设置为主安排单
+                long scheduleCnt = projectScheduleRepository.countByProjectId(saveReqVO.getProjectId());
+                boolean isMainSchedule = scheduleCnt == 1;
+                if (isMainSchedule) {
+                    project.setCurrentScheduleId(scheduleId);
+                    projectRepository.save(project);
+                }
+            });
         }
 
         List<ProjectCategoryWithSupplyAndChargeItemVO> categoryList = saveReqVO.getCategoryList();
-        if(categoryList != null && categoryList.size() >= 1) {
+        if (categoryList != null && categoryList.size() >= 1) {
             List<ProjectCategory> categories = projectCategoryRepository.findByScheduleIdOrderByIdAsc(scheduleId);
             // 获取 categories 里的 id
             List<Long> categoryIds = categories.stream().map(ProjectCategory::getId).collect(Collectors.toList());
@@ -125,7 +141,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
                 // 保存收费项
                 List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();
-                if(chargetItemList != null && chargetItemList.size() >= 1) {
+                if (chargetItemList != null && chargetItemList.size() >= 1) {
                     List<ProjectChargeitemSubClass> projectChargeitemList = chargetItemList.stream().map(chargeItem -> {
                         chargeItem.setProjectCategoryId(categoryDo.getId());
                         chargeItem.setCategoryId(categoryDo.getCategoryId());
@@ -138,10 +154,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
                 // 保存物资项
                 List<ProjectSupplySubClass> supplyList = category.getSupplyList();
-                if(supplyList != null && supplyList.size() >= 1) {
+                if (supplyList != null && supplyList.size() >= 1) {
                     List<ProjectSupplySubClass> projectSupplyList = supplyList.stream().map(supply -> {
                         supply.setProjectCategoryId(categoryDo.getId());
                         supply.setCategoryId(categoryDo.getCategoryId());
+                        supply.setProjectId(saveReqVO.getProjectId());
+                        supply.setScheduleId(scheduleId);
                         return supply;
                     }).collect(Collectors.toList());
 
@@ -151,7 +169,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
                 // 保存 SOP
                 List<ProjectSopBaseVO> sopList = category.getSopList();
-                if(sopList != null && sopList.size() >= 1) {
+                if (sopList != null && sopList.size() >= 1) {
                     List<ProjectSopBaseVO> projectSopList = sopList.stream().map(sop -> {
                         sop.setProjectCategoryId(categoryDo.getId());
                         sop.setCategoryId(categoryDo.getCategoryId());
@@ -210,15 +228,15 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         Specification<ProjectSchedule> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
@@ -239,15 +257,15 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         Specification<ProjectSchedule> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 

@@ -1,12 +1,13 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import javax.validation.constraints.*;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
@@ -35,7 +36,6 @@ public class ProcurementShipmentBaseVO {
     private String mark;
 
     @Schema(description = "预计送达日期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime expectArrivalTime;
 
 }

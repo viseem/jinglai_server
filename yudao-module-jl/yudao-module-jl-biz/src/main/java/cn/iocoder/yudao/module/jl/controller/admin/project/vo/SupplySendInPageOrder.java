@@ -28,6 +28,11 @@ public class SupplySendInPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String code;
 
+    private String shipmentCodes;
+
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
+
     @Schema(allowableValues = {"desc", "asc"})
     private String shipmentNumber;
 
@@ -38,7 +43,7 @@ public class SupplySendInPageOrder {
     private String mark;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String address;

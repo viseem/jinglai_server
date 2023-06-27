@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface ProjectScheduleRepository extends JpaRepository<ProjectSchedule, Long>, JpaSpecificationExecutor<ProjectSchedule> {
+    @Query("select count(p) from ProjectSchedule p where p.projectId = ?1")
+    long countByProjectId(Long projectId);
 
 }

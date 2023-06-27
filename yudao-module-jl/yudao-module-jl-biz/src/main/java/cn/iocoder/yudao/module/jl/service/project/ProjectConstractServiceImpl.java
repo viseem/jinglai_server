@@ -106,6 +106,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
+
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }

@@ -28,7 +28,7 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     private ProjectQuoteRespVO quote;
 
     @Schema(description = "折扣前总价", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Long totalPrice = 10000L;
+    private Long totalPrice = 0L;
 
     @Schema(description = "项目信息", example = "{}")
     private Project project;

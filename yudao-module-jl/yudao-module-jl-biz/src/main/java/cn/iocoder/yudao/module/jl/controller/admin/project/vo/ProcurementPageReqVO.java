@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,6 +29,11 @@ public class ProcurementPageReqVO extends PageParam {
 
     @Schema(description = "采购单号")
     private String code;
+
+    private String shipmentCodes;
+
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
 
     @Schema(description = "状态", example = "2")
     private String status;

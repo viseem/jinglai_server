@@ -49,6 +49,9 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "name", nullable = false )
     private String name;
 
+    @Column(name = "brand")
+    private String brand;
+
     /**
      * 规则/单位
      */
@@ -82,14 +85,8 @@ public class SupplyPickupItem extends BaseEntity {
     /**
      * 有效期
      */
-    @Column(name = "valid_date", nullable = false )
-    private String validDate;
-
-    /**
-     * 存储温度
-     */
-    @Column(name = "temperature", nullable = false )
-    private String temperature;
+    @Column(name = "valid_date")
+    private LocalDateTime validDate;
 
     /**
      * 状态
@@ -97,4 +94,28 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "status")
     private String status;
 
+
+    /**
+     * 签收的数量
+     */
+    @Column(name = "chenck_in_quantity")
+    private Integer checkInQuantity = 0;
+
+    /**
+     * 入库的数量
+     */
+    @Column(name = "in_quantity")
+    private Integer inQuantity = 0;
+
+    @Column(name = "room_id")
+    private Long roomId;
+
+    @Column(name = "place_id")
+    private Long placeId;
+
+    @Column(name = "container_id")
+    private Long containerId;
+
+    @Column(name = "temperature")
+    private String temperature;
 }

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -30,7 +29,7 @@ import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 import cn.iocoder.yudao.module.jl.service.project.ProcurementService;
 
-@Tag(name = "管理后台 - 项目采购单申请")
+@Tag(name = "管理后台 - 项目采购")
 @RestController
 @RequestMapping("/jl/procurement")
 @Validated
@@ -42,18 +41,58 @@ public class ProcurementController {
     @Resource
     private ProcurementMapper procurementMapper;
 
-    @PostMapping("/create")
-    @Operation(summary = "创建项目采购单申请")
-    @PreAuthorize("@ss.hasPermission('jl:procurement:create')")
-    public CommonResult<Long> createProcurement(@Valid @RequestBody ProcurementCreateReqVO createReqVO) {
-        return success(procurementService.createProcurement(createReqVO));
+//    @PostMapping("/create")
+//    @Operation(summary = "创建项目采购单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:procurement:create')")
+//    public CommonResult<Long> createProcurement(@Valid @RequestBody ProcurementCreateReqVO createReqVO) {
+//        return success(procurementService.createProcurement(createReqVO));
+//    }
+//
+//    @PutMapping("/update")
+//    @Operation(summary = "更新项目采购单申请")
+//    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+//    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
+//        procurementService.updateProcurement(updateReqVO);
+//        return success(true);
+//    }
+
+    @PutMapping("/save")
+    @Operation(summary = "全量保存项目采购单申请")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> saveProcurement(@Valid @RequestBody ProcurementSaveReqVO saveReqVO) {
+        procurementService.saveProcurement(saveReqVO);
+        return success(true);
     }
 
-    @PutMapping("/update")
-    @Operation(summary = "更新项目采购单申请")
+    @PutMapping("/update-shipment")
+    @Operation(summary = "更新物流信息")
     @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
-    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
-        procurementService.updateProcurement(updateReqVO);
+    public CommonResult<Boolean> updateShipmentOfProcurement(@RequestBody ProcurementUpdateShipmentsReqVO saveReqVO) {
+        procurementService.saveShipments(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-payment")
+    @Operation(summary = "更新打款信息")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> updatePaymentOfProcurement(@Valid @RequestBody ProcurementUpdatePaymentsReqVO saveReqVO) {
+        procurementService.savePayments(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/check-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> checkInShipmentProcurement(@Valid @RequestBody ProcurementShipmentCheckInReqVO saveReqVO) {
+        procurementService.checkIn(saveReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/store-in")
+    @Operation(summary = "签收物品")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> storeProcurementItem(@Valid @RequestBody StoreInProcurementItemReqVO saveReqVO) {
+        procurementService.storeIn(saveReqVO);
         return success(true);
     }
 
@@ -80,6 +119,7 @@ public class ProcurementController {
     @PreAuthorize("@ss.hasPermission('jl:procurement:query')")
     public CommonResult<PageResult<ProcurementRespVO>> getProcurementPage(@Valid ProcurementPageReqVO pageVO, @Valid ProcurementPageOrder orderV0) {
         PageResult<Procurement> pageResult = procurementService.getProcurementPage(pageVO, orderV0);
+        // 转换格式
         return success(procurementMapper.toPage(pageResult));
     }
 

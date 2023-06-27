@@ -31,7 +31,7 @@ public class SupplyPickupBaseVO {
     private String mark;
 
     @Schema(description = "取货时间")
-    private String sendDate;
+    private LocalDateTime sendDate;
 
     @Schema(description = "取货人", requiredMode = Schema.RequiredMode.REQUIRED, example = "24449")
     @NotNull(message = "取货人不能为空")
@@ -45,5 +45,13 @@ public class SupplyPickupBaseVO {
 
     @Schema(description = "联系人电话")
     private String contactPhone;
+
+    @Schema(description = "是否需要签收")
+    private Boolean waitCheckIn;
+
+    @Schema(description = "是否需要入库")
+    private Boolean waitStoreIn;
+
+    private String shipmentCodes;
 
 }

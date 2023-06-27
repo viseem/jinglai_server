@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -43,6 +46,18 @@ public class ProjectSupply extends BaseEntity {
      */
     @Column(name = "category_id", nullable = false )
     private Long categoryId;
+
+    @Column(name = "project_id", nullable = false )
+    private Long projectId;
+
+    //    TODO 很大的问题
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private Project project;
+
+    @Column(name = "schedule_id", nullable = false )
+    private Long scheduleId;
 
     /**
      * 物资 id
@@ -99,6 +114,18 @@ public class ProjectSupply extends BaseEntity {
     private Integer inventoryQuantity;
 
     /**
+     * 品牌
+     */
+    @Column(name = "brand")
+    private String brand;
+
+    /**
+     * 类型
+     */
+    @Column(name = "type")
+    private String type;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
@@ -111,5 +138,10 @@ public class ProjectSupply extends BaseEntity {
     private ProjectCategory category;
 
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_supply_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.SELECT)
+    private List<ProcurementItem> procurements;
 
 }

@@ -14,6 +14,8 @@ public interface SupplySendInMapper {
 
     SupplySendIn toEntity(SupplySendInUpdateReqVO dto);
 
+    SupplySendIn toEntity(SupplySendInSaveReqVO dto);
+
     SupplySendInRespVO toDto(SupplySendIn entity);
 
 

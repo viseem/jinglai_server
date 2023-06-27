@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.project.SupplySendIn;
+import cn.iocoder.yudao.module.jl.mapper.inventory.ProductInItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.ProductInItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +43,12 @@ public class ProductInServiceImpl implements ProductInService {
 
     @Resource
     private ProductInMapper productInMapper;
+
+    @Resource
+    private ProductInItemRepository productInItemRepository;
+
+    @Resource
+    private ProductInItemMapper productInItemMapper;
 
     @Override
     public Long createProductIn(ProductInCreateReqVO createReqVO) {
@@ -157,6 +166,34 @@ public class ProductInServiceImpl implements ProductInService {
 
         // 执行查询
         return productInRepository.findAll(spec);
+    }
+
+    /**
+     * @param saveReqVO
+     */
+    @Override
+    public void saveProductIn(ProductInSaveReqVO saveReqVO) {
+        if(saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateProductInExists(saveReqVO.getId());
+        }
+
+        // 更新
+        ProductIn updateObj = productInMapper.toEntity(saveReqVO);
+        updateObj = productInRepository.save(updateObj);
+        Long productInId = updateObj.getId();
+
+        // 删除原有的
+        productInItemRepository.deleteByProductInId(productInId);
+
+        // 更新 items
+        productInItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setProductInId(productInId);
+            return productInItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
     }
 
     private Sort createSort(ProductInPageOrder order) {

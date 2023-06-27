@@ -14,6 +14,8 @@ public interface ProcurementItemMapper {
 
     ProcurementItem toEntity(ProcurementItemUpdateReqVO dto);
 
+    List<ProcurementItem> toEntityList(List<ProcurementItemCreateReqVO> dto);
+
     ProcurementItemRespVO toDto(ProcurementItem entity);
 
 

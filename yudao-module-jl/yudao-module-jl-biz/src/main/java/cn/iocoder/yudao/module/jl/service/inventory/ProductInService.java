@@ -66,4 +66,5 @@ public interface ProductInService {
      */
     List<ProductIn> getProductInList(ProductInExportReqVO exportReqVO);
 
+    void saveProductIn(ProductInSaveReqVO saveReqVO);
 }

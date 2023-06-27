@@ -31,12 +31,17 @@ public class SupplyPickupPageReqVO extends PageParam {
     @Schema(description = "状态", example = "1")
     private String status;
 
+    private String shipmentCodes;
+
+    @Schema(description = "根据状态查询", example = "2")
+    private String queryStatus;
+
     @Schema(description = "备注")
     private String mark;
 
     @Schema(description = "取货时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String[] sendDate;
+    private LocalDateTime[] sendDate;
 
     @Schema(description = "取货人", example = "24449")
     private Long userId;

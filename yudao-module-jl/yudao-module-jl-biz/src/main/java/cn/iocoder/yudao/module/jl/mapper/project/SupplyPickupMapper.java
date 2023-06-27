@@ -14,6 +14,8 @@ public interface SupplyPickupMapper {
 
     SupplyPickup toEntity(SupplyPickupUpdateReqVO dto);
 
+    SupplyPickup toEntity(SupplyPickupSaveReqVO dto);
+
     SupplyPickupRespVO toDto(SupplyPickup entity);
 
 

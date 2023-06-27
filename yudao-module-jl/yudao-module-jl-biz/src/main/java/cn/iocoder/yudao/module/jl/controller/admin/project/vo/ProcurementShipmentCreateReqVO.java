@@ -11,4 +11,6 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProcurementShipmentCreateReqVO extends ProcurementShipmentBaseVO {
 
+    @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "31877")
+    private Long procurementId;
 }

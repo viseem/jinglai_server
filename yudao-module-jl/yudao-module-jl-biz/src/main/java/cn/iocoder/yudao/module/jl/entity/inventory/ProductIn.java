@@ -61,4 +61,9 @@ public class ProductIn extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+
+    @OneToMany
+    @JoinColumn(name = "product_in_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<ProductInItem> items;
+
 }

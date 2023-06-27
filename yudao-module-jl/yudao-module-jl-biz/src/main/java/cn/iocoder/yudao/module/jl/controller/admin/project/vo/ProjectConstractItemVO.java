@@ -18,6 +18,10 @@ public class ProjectConstractItemVO {
     @Schema(description = "项目id", example = "1")
     private Long projectId;
 
+    private Long customerId;
+
+    private Long salesId;
+
     @Schema(description = "合同文件 URL", requiredMode = Schema.RequiredMode.REQUIRED, example = "")
     @NotNull(message = "合同文件 URL不能为空")
     private String fileUrl;
