@@ -114,8 +114,10 @@ public interface ErrorCodeConstants {
     ErrorCode INVENTORY_CHECK_IN_NOT_EXISTS = new ErrorCode(2053000001, "签收记录不存在");
 
     ErrorCode INVENTORY_OPT_ATTACHMENT_NOT_EXISTS = new ErrorCode(2053400001, "库管操作附近记录不存在");
+
     ErrorCode LABORATORY_LAB_NOT_EXISTS = new ErrorCode(2053500001, "实验室不存在");
     ErrorCode LABORATORY_USER_NOT_EXISTS = new ErrorCode(2053500002, "实验室人员不存在");
 
     ErrorCode PROJECT_CATEGORY_LOG_NOT_EXISTS = new ErrorCode(2053600001, "项目实验名目的操作日志不存在");
+
 }
