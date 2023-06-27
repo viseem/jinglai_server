@@ -407,7 +407,7 @@ CREATE TABLE `jl_project_supply_log_attachment`
 #     `project_supply_id`     bigint(20)                                                    NOT NULL COMMENT '项目物资表id',
 #     `name`                  varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '名称',
 #     `change_num`            int(10)                                                       NOT NULL COMMENT '变更数量',
-#     `location`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '所在位置',
+#     `place`                 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '所在位置',
 #     `status`                varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '状态',
 #     `mark`                  text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         NULL COMMENT '备注',
 #     `valid_date`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '有效期',
@@ -416,7 +416,7 @@ CREATE TABLE `jl_project_supply_log_attachment`
 #     `catalog_no`            varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '目录号',
 #     `room_id`               bigint(20) COMMENT '房间 id',
 #     `container_id`          bigint(20) COMMENT '储存器材 id',
-#     `place_id`               bigint(20) COMMENT '区域位置 id',
+#     `zoom_id`               bigint(20) COMMENT '区域位置 id',
 #     PRIMARY KEY (`id`) USING BTREE
 # ) ENGINE = InnoDB
 #   AUTO_INCREMENT = 1
