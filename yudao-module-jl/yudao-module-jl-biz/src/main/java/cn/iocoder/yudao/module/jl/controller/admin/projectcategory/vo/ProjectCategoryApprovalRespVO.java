@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -16,4 +18,7 @@ public class ProjectCategoryApprovalRespVO extends ProjectCategoryApprovalBaseVO
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+
+    @Schema(description = "申请人")
+    private User user;
 }

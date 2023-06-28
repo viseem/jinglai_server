@@ -182,4 +182,5 @@ public class ProjectCategory extends BaseEntity {
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
     private ProjectCategoryApproval approval;
+
 }
