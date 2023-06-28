@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
@@ -45,6 +46,8 @@ public class ProjectCategoryBaseVO {
 
     @Schema(description = "实验人员", example = "17520")
     private Long operatorId;
+
+    private User operator;
 
     @Schema(description = "客户需求")
     private String demand;

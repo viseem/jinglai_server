@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -89,6 +90,14 @@ public class ProjectCategory extends BaseEntity {
      */
     @Column(name = "operator_id")
     private Long operatorId;
+
+    /**
+     * JPA 级联出 user 实验人员
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User operator;
 
     /**
      * 客户需求
