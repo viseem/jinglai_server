@@ -120,4 +120,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_CATEGORY_LOG_NOT_EXISTS = new ErrorCode(2053600001, "项目实验名目的操作日志不存在");
     ErrorCode PROJECT_CATEGORY_ATTACHMENT_NOT_EXISTS = new ErrorCode(2053600002, "项目实验名目的附件不存在");
+
+    ErrorCode PROJECT_CATEGORY_APPROVAL_NOT_EXISTS = new ErrorCode(2053700001, "项目实验名目的状态变更审批不存在");
 }

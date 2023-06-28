@@ -1,10 +1,18 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 
 /**
@@ -54,4 +62,17 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    /**
+     * 当前实验的状态，未开展、开展中、数据审核、已完成
+     */
+    @Schema(description = "当前实验的状态")
+    private String stage;
+
+    /**
+     * JPA 级联出 approval
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "id", referencedColumnName = "project_category_id", insertable = false, updatable = false)
+    private ProjectCategoryApproval approval1;
 }

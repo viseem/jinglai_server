@@ -137,7 +137,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if(pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
-
+            if(pageReqVO.getLabId() != null) {
+                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

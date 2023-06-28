@@ -13,6 +13,10 @@ import java.util.Collection;
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
     @Transactional
     @Modifying
+    @Query("update ProjectSop p set p.status = ?1 where p.id in ?2")
+    int updateStatusByIdIn(String status, Collection<Long> ids);
+    @Transactional
+    @Modifying
     @Query("delete from ProjectSop p where p.projectCategoryId in ?1")
     void deleteByProjectCategoryIdIn(Collection<Long> projectCategoryIds);
 

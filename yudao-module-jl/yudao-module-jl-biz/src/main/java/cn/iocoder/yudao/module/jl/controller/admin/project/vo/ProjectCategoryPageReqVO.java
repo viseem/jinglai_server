@@ -52,4 +52,7 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "实验室id", example = "17935")
+    private Long labId;
+
 }

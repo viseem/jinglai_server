@@ -422,3 +422,4 @@ CREATE TABLE `jl_project_supply_log_attachment`
 #   AUTO_INCREMENT = 1
 #   DEFAULT CHARSET = utf8mb4
 #   COLLATE = utf8mb4_unicode_ci COMMENT ='库管项目物资库存变更日志明细表';
+

@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +37,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectSopServiceImpl implements ProjectSopService {
 
+    private ProjectCategoryRepository projectCategoryRepository;
+
     @Resource
     private ProjectSopRepository projectSopRepository;
 
@@ -57,6 +61,28 @@ public class ProjectSopServiceImpl implements ProjectSopService {
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
         projectSopRepository.save(updateObj);
+    }
+
+
+    @Override
+    public void saveProjectSop(List<ProjectSopBaseVO> sopList) {
+        // 校验存在
+//        validateProjectSopExists(updateReqVO.getId());
+        // 更新
+        List<Long> projectCategoryIds = sopList.stream().map(ProjectSopBaseVO::getProjectCategoryId).collect(Collectors.toList());
+        projectSopRepository.deleteByProjectCategoryIdIn(projectCategoryIds);
+        List<ProjectSop> sops = projectSopMapper.toEntity(sopList);
+        projectSopRepository.saveAll(sops);
+    }
+
+    public void batchUpdateSopStatus(List<ProjectSopBaseVO> sopList) {
+        // 校验存在
+//        validateProjectSopExists(updateReqVO.getId());
+        // 更新
+        List<Long> projectCategoryIds = sopList.stream().map(ProjectSopBaseVO::getProjectCategoryId).collect(Collectors.toList());
+        projectSopRepository.deleteByProjectCategoryIdIn(projectCategoryIds);
+        List<ProjectSop> sops = projectSopMapper.toEntity(sopList);
+        projectSopRepository.saveAll(sops);
     }
 
     @Override
