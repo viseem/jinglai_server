@@ -68,6 +68,12 @@ public class ProjectSop extends BaseEntity {
     @Column(name = "depend_ids")
     private String dependIds;
 
+    /**
+     * 注意事项
+     */
+    @Column(name = "status")
+    private String status;
+
     @ManyToOne
     @JoinColumn(name="project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)

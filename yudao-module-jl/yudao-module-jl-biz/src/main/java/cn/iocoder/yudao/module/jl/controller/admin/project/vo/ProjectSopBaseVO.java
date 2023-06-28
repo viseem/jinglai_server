@@ -33,6 +33,9 @@ public class ProjectSopBaseVO {
     @Schema(description = "注意事项")
     private String mark;
 
+    @Schema(description = "状态")
+    private String status;
+
     @Schema(description = "依赖项(json数组多个)")
     private String dependIds;
 

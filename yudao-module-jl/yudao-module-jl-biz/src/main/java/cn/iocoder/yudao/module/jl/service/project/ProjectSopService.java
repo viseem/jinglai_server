@@ -28,6 +28,20 @@ public interface ProjectSopService {
     void updateProjectSop(@Valid ProjectSopUpdateReqVO updateReqVO);
 
     /**
+     * 批量   更新项目中的实验名目的操作SOP
+     *
+     * @param sopList 更新信息
+     */
+    void saveProjectSop(@Valid List<ProjectSopBaseVO> sopList);
+
+    /**
+     * 批量   更新项目中的实验名目的操作SOP的状态
+     *
+     * @param sopList 更新信息
+     */
+    void batchUpdateSopStatus(@Valid List<ProjectSopBaseVO> sopList);
+
+    /**
      * 删除项目中的实验名目的操作SOP
      *
      * @param id 编号

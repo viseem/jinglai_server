@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -47,6 +46,24 @@ public class ProjectSopController {
     @PreAuthorize("@ss.hasPermission('jl:project-sop:create')")
     public CommonResult<Long> createProjectSop(@Valid @RequestBody ProjectSopCreateReqVO createReqVO) {
         return success(projectSopService.createProjectSop(createReqVO));
+    }
+
+    //TODO 变更状态时候用，写个batch update最好，根据id更新status
+    @PutMapping("/save")
+    @Operation(summary = "批量更新sop")
+    @PreAuthorize("@ss.hasPermission('jl:project-sop:update')")
+    public CommonResult<Boolean> saveProjectSop(@Valid @RequestBody List<ProjectSopBaseVO> sopList) {
+        projectSopService.saveProjectSop(sopList);
+        return success(true);
+    }
+
+    // todo 未完
+    @PutMapping("/batch-update-status")
+    @Operation(summary = "批量更新sop status")
+    @PreAuthorize("@ss.hasPermission('jl:project-sop:update')")
+    public CommonResult<Boolean> batchUpdateSopStatus(@Valid @RequestBody List<ProjectSopBaseVO> sopList) {
+        projectSopService.batchUpdateSopStatus(sopList);
+        return success(true);
     }
 
     @PutMapping("/update")
