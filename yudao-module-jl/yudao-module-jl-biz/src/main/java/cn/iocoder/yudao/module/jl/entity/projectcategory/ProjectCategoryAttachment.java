@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategoryAttachment")
 @Table(name = "jl_project_category_attachment")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectCategoryAttachment extends BaseEntity {
 
     /**
@@ -66,4 +66,9 @@ public class ProjectCategoryAttachment extends BaseEntity {
     @Column(name = "type")
     private String type;
 
+    /**
+     * 备注
+     */
+    @Column(name = "mark")
+    private String mark;
 }

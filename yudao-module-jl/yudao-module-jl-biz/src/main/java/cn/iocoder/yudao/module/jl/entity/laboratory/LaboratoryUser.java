@@ -56,6 +56,15 @@ public class LaboratoryUser extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
+    //TODO lab还会查出来 user 蛋疼
+    /**
+     * JPA 级联出 lab
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private LaboratoryLab lab;
+
     /**
      * 备注描述
      */

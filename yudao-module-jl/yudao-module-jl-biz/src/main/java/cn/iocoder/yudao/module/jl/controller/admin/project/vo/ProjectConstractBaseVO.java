@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -17,7 +18,7 @@ public class ProjectConstractBaseVO {
     @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
-
+    private ProjectOnly project;
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 

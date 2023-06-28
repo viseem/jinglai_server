@@ -29,4 +29,6 @@ public class ProjectCategoryAttachmentBaseVO {
     @Schema(description = "文件类型", example = "1")
     private String type;
 
+    @Schema(description = "备注", example = "我是备注")
+    private String  mark;
 }

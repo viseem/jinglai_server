@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -19,4 +20,7 @@ public class LaboratoryUserRespVO extends LaboratoryUserBaseVO {
 
     @Schema(description = "人员实体")
     private User user;
+
+    @Schema(description = "实验室")
+    private LaboratoryLab lab;
 }

@@ -1,10 +1,18 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 
 /**
@@ -34,8 +42,11 @@ public class ProjectCategoryApprovalBaseVO {
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;
 
+    private ProjectCategoryOnly projectCategory;
+
     @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23230")
     @NotNull(message = "安排单id不能为空")
     private Long scheduleId;
+
 
 }

@@ -29,6 +29,6 @@ public class ProjectCategoryAttachmentPageReqVO extends PageParam {
     private String fileUrl;
 
     @Schema(description = "文件类型", example = "1")
-    private byte[] type;
+    private String type;
 
 }
