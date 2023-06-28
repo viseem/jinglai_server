@@ -18,22 +18,21 @@ import java.time.LocalDateTime;
 
 /**
  * 项目管理 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "Project")
+@Entity(name = "ProjectOnly")
 @Table(name = "jl_project_base")
-public class Project extends BaseEntity {
+public class ProjectOnly extends BaseEntity {
 
     /**
      * ID
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -45,7 +44,7 @@ public class Project extends BaseEntity {
     /**
      * 项目名字
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
@@ -63,7 +62,7 @@ public class Project extends BaseEntity {
     /**
      * 项目类型
      */
-    @Column(name = "type", nullable = false )
+    @Column(name = "type", nullable = false)
     private String type;
 
     /**
@@ -96,32 +95,12 @@ public class Project extends BaseEntity {
     @Column(name = "sales_id")
     private Long salesId;
 
-    /**
-     * JPA 级联出 sales
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User sales;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User manager;
 
     /**
      * 客户 id
      */
     @Column(name = "customer_id")
     private Long customerId;
-
-    /**
-     * 级联出客户信息
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Customer customer;
 
 
     /**
@@ -131,16 +110,11 @@ public class Project extends BaseEntity {
     private Long currentScheduleId;
 
     /**
-     * 当前安排单
+     * 级联出客户信息
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "current_schedule_id", referencedColumnName = "id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private ProjectSchedule currentSchedule;
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Customer customer;
 
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_id")
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstract> constracts = new ArrayList<>();
 }
