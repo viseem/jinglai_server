@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
@@ -40,6 +41,8 @@ public class ProjectCategoryApprovalBaseVO {
     @Schema(description = "项目的实验名目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "24706")
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;
+
+    private ProjectCategoryOnly projectCategory;
 
     @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23230")
     @NotNull(message = "安排单id不能为空")

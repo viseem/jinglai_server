@@ -2,24 +2,21 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 项目的实验名目 Entity
@@ -29,9 +26,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProjectCategory")
+@Entity(name = "ProjectCategoryOnly")
 @Table(name = "jl_project_category")
-public class ProjectCategory extends BaseEntity {
+public class ProjectCategoryOnly extends BaseEntity {
 
     /**
      * 岗位ID
@@ -65,13 +62,6 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "lab_id")
     private Long labId;
 
-    /**
-     * JPA 级联出 lab
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private LaboratoryLab lab;
 
     /**
      * 名目的实验类型，动物/细胞/分子等
@@ -90,14 +80,6 @@ public class ProjectCategory extends BaseEntity {
      */
     @Column(name = "operator_id")
     private Long operatorId;
-
-    /**
-     * JPA 级联出 user 实验人员
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User operator;
 
     /**
      * 客户需求
@@ -134,53 +116,5 @@ public class ProjectCategory extends BaseEntity {
      */
     @Column(name = "stage")
     private String stage;
-
-    @ManyToOne
-    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectSchedule schedule;
-
-    @ManyToOne
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    @JoinColumn(name = "quote_id", insertable = false, updatable = false)
-    private ProjectQuote quote;
-
-    /**
-     * 实验物资
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    private List<ProjectSupply> supplyList;
-
-    /**
-     * 实验收费项
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.JOIN)
-    @JsonManagedReference
-    private List<ProjectChargeitem> chargeList;
-
-    /**
-     * 实验SOP
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectSop> sopList;
-
-    /**
-     * 实验名目的附件
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryAttachment> attachmentList;
 
 }

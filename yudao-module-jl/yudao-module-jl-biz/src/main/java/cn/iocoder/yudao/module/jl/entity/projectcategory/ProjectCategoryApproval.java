@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
@@ -84,7 +85,7 @@ public class ProjectCategoryApproval extends BaseEntity {
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
-    private ProjectCategory category;
+    private ProjectCategoryOnly projectCategory;
 
     /**
      * JPA 级联出 user
