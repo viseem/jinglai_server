@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -53,5 +54,11 @@ public class ProjectCategoryBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    /**
+     * 当前实验的状态，未开展、开展中、数据审核、已完成
+     */
+    @Schema(description = "当前实验的状态")
+    private String stage;
 
 }

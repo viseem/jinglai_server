@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -25,4 +26,5 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private List<ProjectSop> sopList;
 
+    private ProjectCategoryApproval approval;
 }

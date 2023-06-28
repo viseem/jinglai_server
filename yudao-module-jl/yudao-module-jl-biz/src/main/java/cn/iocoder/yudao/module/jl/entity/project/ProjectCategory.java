@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -119,6 +120,12 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 当前实验的状态，未开展、开展中、数据审核、已完成
+     */
+    @Column(name = "stage")
+    private String stage;
+
     @ManyToOne
     @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -166,4 +173,13 @@ public class ProjectCategory extends BaseEntity {
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryAttachment> attachmentList;
+
+    /**
+     * 实验名目的状态审核进度
+     */
+    @OneToOne(mappedBy = "category", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private ProjectCategoryApproval approval;
 }
