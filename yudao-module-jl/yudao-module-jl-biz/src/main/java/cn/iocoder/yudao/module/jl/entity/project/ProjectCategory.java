@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目的实验名目 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -182,5 +181,14 @@ public class ProjectCategory extends BaseEntity {
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryAttachment> attachmentList;
+
+    /**
+     * 实验名目的审批状态
+     */
+    @OneToOne(mappedBy = "category", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private ProjectCategoryApproval approval;
 
 }

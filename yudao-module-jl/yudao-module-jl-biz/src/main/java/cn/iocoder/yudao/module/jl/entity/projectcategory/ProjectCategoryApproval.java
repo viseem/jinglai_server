@@ -75,17 +75,18 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
+    @OneToOne
+    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectCategory category;
+
     /**
      * 安排单id
      */
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 
-    @OneToOne
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectCategoryOnly projectCategory;
 
     /**
      * JPA 级联出 user

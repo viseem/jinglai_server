@@ -71,11 +71,4 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "当前实验的状态")
     private String stage;
 
-    /**
-     * JPA 级联出 approval
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "id", referencedColumnName = "project_category_id", insertable = false, updatable = false)
-    private ProjectCategoryApproval approval1;
 }
