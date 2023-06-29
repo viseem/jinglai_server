@@ -42,7 +42,6 @@ public class ProjectCategoryApprovalBaseVO {
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;
 
-    private ProjectCategoryOnly projectCategory;
 
     @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23230")
     @NotNull(message = "安排单id不能为空")

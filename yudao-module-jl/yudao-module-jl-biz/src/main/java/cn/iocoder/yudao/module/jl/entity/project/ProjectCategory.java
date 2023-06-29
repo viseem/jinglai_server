@@ -200,7 +200,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目的审批状态
      */
-    @OneToOne(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "projectCategory", fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)

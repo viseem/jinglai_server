@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,4 +22,6 @@ public class ProjectCategoryApprovalRespVO extends ProjectCategoryApprovalBaseVO
 
     @Schema(description = "申请人")
     private User user;
+
+    private ProjectCategoryOnly projectCategory;
 }

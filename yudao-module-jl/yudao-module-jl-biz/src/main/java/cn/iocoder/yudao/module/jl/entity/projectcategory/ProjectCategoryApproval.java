@@ -79,7 +79,7 @@ public class ProjectCategoryApproval extends BaseEntity {
     @JoinColumn(name="project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
-    private ProjectCategory category;
+    private ProjectCategoryOnly projectCategory;
 
     /**
      * 安排单id
