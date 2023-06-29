@@ -105,6 +105,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     public Long saveProjectSchedule(ProjectScheduleSaveReqVO saveReqVO) {
         // 如果提供了 scheduleId ，则更新。否则，创建
         Long scheduleId;
+        Long projectId = saveReqVO.getProjectId();
+        System.out.println(projectId);
         if (saveReqVO.getId() != null) {
             scheduleId = saveReqVO.getId();
             // 校验存在
@@ -147,6 +149,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
                 ProjectCategoryWithSupplyAndChargeItemVO category = categoryList.get(i);
                 category.setType("schedule");
                 category.setScheduleId(scheduleId);
+                category.setProjectId(projectId);
                 ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
                 projectCategoryRepository.save(categoryDo);
 

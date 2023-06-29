@@ -16,7 +16,6 @@ public class ProjectScheduleSaveReqVO {
     private Long id;
 
     @Schema(description = "项目 id", example = "1", nullable = false, requiredMode = Schema.RequiredMode.REQUIRED)
-    @Min(1)
     private Long projectId;
 
     @Schema(description = "安排单名字", requiredMode = Schema.RequiredMode.REQUIRED, example = "项目名字")
