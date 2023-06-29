@@ -106,7 +106,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 如果提供了 scheduleId ，则更新。否则，创建
         Long scheduleId;
         Long projectId = saveReqVO.getProjectId();
-        System.out.println(projectId);
         if (saveReqVO.getId() != null) {
             scheduleId = saveReqVO.getId();
             // 校验存在
@@ -137,7 +136,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             // 获取 categories 里的 id
             List<Long> categoryIds = categories.stream().map(ProjectCategory::getId).collect(Collectors.toList());
             // 删除原来的
-            projectCategoryRepository.deleteByScheduleId(scheduleId);
+//            projectCategoryRepository.deleteByScheduleId(scheduleId);
             projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectSopRepository.deleteByProjectCategoryIdIn(categoryIds);
@@ -148,6 +147,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
                 // 保存实验名目
                 ProjectCategoryWithSupplyAndChargeItemVO category = categoryList.get(i);
                 category.setType("schedule");
+                if(category.getStage()==null){
+                    category.setStage("0");
+                }
                 category.setScheduleId(scheduleId);
                 category.setProjectId(projectId);
                 ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
@@ -205,6 +207,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
                     List<ProjectCategoryAttachment> projectCategoryAttachments = projectCategoryAttachmentMapper.toEntity(projectAttachmentList);
                     projectCategoryAttachmentRepository.saveAll(projectCategoryAttachments);
                 }
+
+
             }
         }
         return scheduleId;
