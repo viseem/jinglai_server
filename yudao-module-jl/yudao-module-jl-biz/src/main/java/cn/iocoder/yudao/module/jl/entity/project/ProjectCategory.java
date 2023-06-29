@@ -200,10 +200,10 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目的审批状态
      */
-    @OneToOne(mappedBy = "projectCategory", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.JOIN)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
-    private ProjectCategoryApproval approval;
+    private List<ProjectCategoryApproval> approvalList;
 
 }

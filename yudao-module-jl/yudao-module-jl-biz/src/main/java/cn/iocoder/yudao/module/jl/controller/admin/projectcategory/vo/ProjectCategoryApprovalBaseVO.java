@@ -36,7 +36,7 @@ public class ProjectCategoryApprovalBaseVO {
     private String approvalMark;
 
     @Schema(description = "审批状态：等待审批、已审批")
-    private String approvalStage;
+    private String approvalStage = "0";
 
     @Schema(description = "项目的实验名目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "24706")
     @NotNull(message = "项目的实验名目id不能为空")

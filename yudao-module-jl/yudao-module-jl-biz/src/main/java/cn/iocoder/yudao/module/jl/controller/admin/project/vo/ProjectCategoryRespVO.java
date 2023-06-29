@@ -30,7 +30,8 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private List<ProjectCategoryAttachment> attachmentList;
 
-    private ProjectCategoryApproval approval;
+//    private ProjectCategoryApproval approval;
 
+    private List<ProjectCategoryApproval> approvalList;
     private ProjectOnly project;
 }
