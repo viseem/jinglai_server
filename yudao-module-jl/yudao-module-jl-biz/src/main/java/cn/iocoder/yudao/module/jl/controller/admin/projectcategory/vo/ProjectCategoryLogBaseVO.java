@@ -14,15 +14,26 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectCategoryLogBaseVO {
 
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
+    @NotNull(message = "项目id不能为空")
+    private Long projectId;
+
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
     @NotNull(message = "实验名目 id不能为空")
     private Long projectCategoryId;
+
+    @Schema(description = "原实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
+    @NotNull(message = "原实验名目 id不能为空")
+    private Long categoryId;
 
     @Schema(description = "实验人员")
     private Long operatorId;
 
     @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "备注不能为空")
+    @NotNull(message = "内容不能为空")
     private String mark;
+
+    @Schema(description = "评分")
+    private String score;
 
 }
