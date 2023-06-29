@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目中的实验名目的物资项 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,22 +31,22 @@ public class ProjectSupply extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 选中的实验名目 id
      */
-    @Column(name = "project_category_id", nullable = false )
+    @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
     /**
      * 原始的实验名目 id
      */
-    @Column(name = "category_id", nullable = false )
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
 
     //    TODO 很大的问题
@@ -56,43 +55,51 @@ public class ProjectSupply extends BaseEntity {
 //    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
 //    private Project project;
 
-    @Column(name = "schedule_id", nullable = false )
+    /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
+
+    @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 
     /**
      * 物资 id
      */
-    @Column(name = "supply_id", nullable = false )
+    @Column(name = "supply_id", nullable = false)
     private Long supplyId;
 
     /**
      * 名称
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
      * 规则/单位
      */
-    @Column(name = "fee_standard", nullable = false )
+    @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
 
     /**
      * 单价
      */
-    @Column(name = "unit_fee", nullable = false )
+    @Column(name = "unit_fee", nullable = false)
     private String unitFee;
 
     /**
      * 单量
      */
-    @Column(name = "unit_amount", nullable = false )
+    @Column(name = "unit_amount", nullable = false)
     private Integer unitAmount;
 
     /**
      * 数量
      */
-    @Column(name = "quantity", nullable = false )
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     /**
@@ -132,7 +139,7 @@ public class ProjectSupply extends BaseEntity {
     private String mark;
 
     @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     private ProjectCategory category;

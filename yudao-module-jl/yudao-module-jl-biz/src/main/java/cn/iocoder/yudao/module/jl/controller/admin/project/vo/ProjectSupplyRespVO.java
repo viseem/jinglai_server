@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -21,6 +22,6 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
 
     private List<ProcurementItem> procurements;
 
-    private Project project;
+    private ProjectOnly project;
 
 }
