@@ -1,9 +1,13 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -25,6 +29,11 @@ public class ProjectCategoryBaseVO {
 
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
+
+    @Schema(description = "项目id", example = "14245")
+    private Long projectId;
+
+    private ProjectOnly project;
 
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;

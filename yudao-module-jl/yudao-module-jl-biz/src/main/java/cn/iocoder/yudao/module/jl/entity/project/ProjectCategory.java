@@ -47,10 +47,30 @@ public class ProjectCategory extends BaseEntity {
     private Long quoteId;
 
     /**
+     * 项目 id
+     */
+    @Column(name = "project_id")
+    private Long projectId;
+
+    /**
+     * JPA 级联出 project
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
+
+    /**
      * 安排单 id
      */
     @Column(name = "schedule_id")
     private Long scheduleId;
+
+    @ManyToOne
+    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectSchedule schedule;
 
     /**
      * 类型，报价/安排单
@@ -134,11 +154,6 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "stage")
     private String stage;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectSchedule schedule;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
