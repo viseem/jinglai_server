@@ -53,7 +53,13 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
     @Override
     public Long createProjectCategoryApproval(ProjectCategoryApprovalCreateReqVO createReqVO) {
-
+        //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
+        if (Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
+            projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
+                category.setStage(createReqVO.getStage());
+                projectCategoryRepository.save(category);
+            });
+        }
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         projectCategoryApprovalRepository.save(projectCategoryApproval);
@@ -130,14 +136,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
                 projectCategoryRepository.save(category);
             });
 
-        }
-
-        //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
-        if (Objects.equals(updateReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-            projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresent(category -> {
-                category.setStage(updateReqVO.getStage());
-                projectCategoryRepository.save(category);
-            });
         }
 
         // 更新
