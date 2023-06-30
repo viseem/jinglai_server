@@ -60,7 +60,7 @@ public class ProcurementItemBaseVO {
     private String mark;
 
     @Schema(description = "有效期", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private LocalDateTime validDate;
+    private String validDate;
 
     @Schema(description = "品牌")
     private String brand;

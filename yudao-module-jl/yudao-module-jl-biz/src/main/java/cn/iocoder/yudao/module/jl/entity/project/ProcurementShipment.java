@@ -64,6 +64,6 @@ public class ProcurementShipment extends BaseEntity {
      * 预计送达日期
      */
     @Column(name = "expect_arrival_time")
-    private LocalDateTime expectArrivalTime;
+    private String expectArrivalTime;
 
 }
