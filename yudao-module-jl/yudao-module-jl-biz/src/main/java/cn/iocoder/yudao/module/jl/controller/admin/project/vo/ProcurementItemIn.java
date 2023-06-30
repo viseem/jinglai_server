@@ -28,5 +28,5 @@ public class ProcurementItemIn {
 
     private String temperature;
 
-    private LocalDateTime validDate;
+    private String validDate;
 }

@@ -56,7 +56,7 @@ public class SupplySendInItemBaseVO {
 
     @Schema(description = "有效期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "有效期不能为空")
-    private LocalDateTime validDate;
+    private String validDate;
 
     @Schema(description = "存储温度", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "存储温度不能为空")

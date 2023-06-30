@@ -35,7 +35,7 @@ public class SupplySendInBaseVO {
     private String mark;
 
     @Schema(description = "寄来时间")
-    private LocalDateTime sendDate;
+    private String sendDate;
 
     private String brand;
 
