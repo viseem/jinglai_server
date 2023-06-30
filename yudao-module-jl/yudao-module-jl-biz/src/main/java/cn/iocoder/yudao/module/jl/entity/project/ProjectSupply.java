@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -121,6 +123,18 @@ public class ProjectSupply extends BaseEntity {
     private Integer inventoryQuantity;
 
     /**
+     * 入库总量
+     */
+    @Column(name = "in_quantity")
+    private Integer inQuantity;
+
+    /**
+     * 出库总量
+     */
+    @Column(name = "out_quantity")
+    private Integer outQuantity;
+
+    /**
      * 品牌
      */
     @Column(name = "brand")
@@ -144,6 +158,15 @@ public class ProjectSupply extends BaseEntity {
     @JsonBackReference
     private ProjectCategory category;
 
+
+    /**
+     * 出库items
+     */
+    @OneToMany(mappedBy = "projectSupply", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<SupplyOutItem> supplyOutItems;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id")

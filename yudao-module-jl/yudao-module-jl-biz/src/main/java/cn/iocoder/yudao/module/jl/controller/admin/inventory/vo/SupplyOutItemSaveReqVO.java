@@ -5,15 +5,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
-@Schema(description = "管理后台 - 出库申请save Request VO")
+@Schema(description = "管理后台 - 出库申请明细创建 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class SupplyOutSaveReqVO extends SupplyOutBaseVO {
-    @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10832")
+public class SupplyOutItemSaveReqVO extends SupplyOutItemBaseVO {
+    @Schema(description = "ID")
     private Long id;
-    List<SupplyOutItemSaveReqVO> items;
-
 }

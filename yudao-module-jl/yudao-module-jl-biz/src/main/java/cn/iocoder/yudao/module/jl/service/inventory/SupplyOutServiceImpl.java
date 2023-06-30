@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.enums.InventorySupplyOutApprovalEnums;
 import cn.iocoder.yudao.module.jl.mapper.inventory.SupplyOutItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -52,6 +55,11 @@ public class SupplyOutServiceImpl implements SupplyOutService {
 
     @Resource
     private SupplyOutItemMapper supplyOutItemMapper;
+    private final ProjectSupplyRepository projectSupplyRepository;
+
+    public SupplyOutServiceImpl(ProjectSupplyRepository projectSupplyRepository) {
+        this.projectSupplyRepository = projectSupplyRepository;
+    }
 
     @Override
     public Long createSupplyOut(SupplyOutCreateReqVO createReqVO) {
@@ -77,13 +85,26 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         supplyOut = supplyOutRepository.save(supplyOut);
         Long saveSupplyId = supplyOut.getId();
         //删除原来的items
-        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
+//        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
 
         //保存新的items
         supplyOutItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
             item.setSupplyOutId(saveSupplyId);
             return supplyOutItemMapper.toEntity(item);
         }).collect(Collectors.toList()));
+
+        //同意出库 更新projectSupply库存
+        if(saveReqVO.getStatus() == InventorySupplyOutApprovalEnums.ACCEPT.getStatus()){
+            saveReqVO.getItems().forEach(item->{
+                if(item.getProjectSupplyId()!=null){
+                    Optional<ProjectSupply> projectSupply = projectSupplyRepository.findById(item.getProjectSupplyId());
+                    projectSupply.ifPresent(supply->{
+                        supply.setInQuantity(supply.getInQuantity() + item.getStoreOut());
+                        projectSupplyRepository.save(supply);
+                    });
+                }
+            });
+        }
 
         // 返回
         return supplyOut.getId();

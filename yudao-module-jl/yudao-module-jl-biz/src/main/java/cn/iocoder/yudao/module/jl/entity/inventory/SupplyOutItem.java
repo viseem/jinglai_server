@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import java.util.*;
@@ -52,6 +54,12 @@ public class SupplyOutItem extends BaseEntity {
      */
     @Column(name = "project_supply_id", nullable = false )
     private Long projectSupplyId;
+
+    @ManyToOne
+    @JoinColumn(name="project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectSupply projectSupply;
 
     /**
      * 物资库的物资 id

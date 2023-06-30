@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
@@ -21,6 +22,10 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
     private LocalDateTime createTime;
 
     private List<ProcurementItem> procurements;
+    private List<SupplyOutItem> supplyOutItems;
+
+    private List<SupplyOutItem> supplyOutItems2;
+
 
     private ProjectOnly project;
 
