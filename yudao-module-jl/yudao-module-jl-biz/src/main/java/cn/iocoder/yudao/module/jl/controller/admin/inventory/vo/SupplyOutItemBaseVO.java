@@ -52,5 +52,5 @@ public class SupplyOutItemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    private Integer outQuantity;
+    private Integer outQuantity = 0;
 }

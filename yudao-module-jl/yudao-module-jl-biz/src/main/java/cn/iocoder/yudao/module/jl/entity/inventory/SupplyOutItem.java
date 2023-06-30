@@ -90,6 +90,12 @@ public class SupplyOutItem extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 出库数量
+     */
+    @Column(name = "out_quantity", nullable = false )
+    private Integer outQuantity;
+
+    /**
      * 状态
      */
     @Column(name = "status")
