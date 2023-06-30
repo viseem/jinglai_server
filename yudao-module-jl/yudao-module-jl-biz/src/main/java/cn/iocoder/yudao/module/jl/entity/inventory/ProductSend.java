@@ -65,7 +65,7 @@ public class ProductSend extends BaseEntity {
      * 寄送时间
      */
     @Column(name = "send_date")
-    private LocalDateTime sendDate;
+    private String sendDate;
 
     /**
      * 收货地址
