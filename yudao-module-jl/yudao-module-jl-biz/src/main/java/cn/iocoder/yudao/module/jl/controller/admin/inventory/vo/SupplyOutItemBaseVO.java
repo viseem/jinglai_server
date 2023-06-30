@@ -53,4 +53,5 @@ public class SupplyOutItemBaseVO {
     private String mark;
 
     private Integer outQuantity = 0;
+    private Integer storeOut = 0;
 }
