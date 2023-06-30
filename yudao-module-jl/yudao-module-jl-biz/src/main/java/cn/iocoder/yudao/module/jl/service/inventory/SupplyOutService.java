@@ -21,6 +21,14 @@ public interface SupplyOutService {
     Long createSupplyOut(@Valid SupplyOutCreateReqVO createReqVO);
 
     /**
+     * 批量创建出库申请
+     *
+     * @param saveReqVO 创建信息
+     * @return 编号
+     */
+    Long saveSupplyOut(@Valid SupplyOutSaveReqVO saveReqVO);
+
+    /**
      * 更新出库申请
      *
      * @param updateReqVO 更新信息

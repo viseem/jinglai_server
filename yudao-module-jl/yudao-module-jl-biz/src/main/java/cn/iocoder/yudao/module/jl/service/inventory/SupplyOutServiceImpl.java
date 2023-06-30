@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.mapper.inventory.SupplyOutItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -38,14 +40,45 @@ public class SupplyOutServiceImpl implements SupplyOutService {
     @Resource
     private SupplyOutRepository supplyOutRepository;
 
+    private SupplyOutItemRepository supplyOutItemRepository;
+
     @Resource
     private SupplyOutMapper supplyOutMapper;
+
+    private SupplyOutItemMapper supplyOutItemMapper;
 
     @Override
     public Long createSupplyOut(SupplyOutCreateReqVO createReqVO) {
         // 插入
         SupplyOut supplyOut = supplyOutMapper.toEntity(createReqVO);
         supplyOutRepository.save(supplyOut);
+        // 返回
+        return supplyOut.getId();
+    }
+
+    @Override
+    public Long saveSupplyOut(SupplyOutSaveReqVO saveReqVO) {
+
+        Long supplyOutId = saveReqVO.getId();
+
+        //存在 id，校验存在
+        if ( supplyOutId!= null) {
+            validateSupplyOutExists(supplyOutId);
+        }
+
+        // 创建、或更新主表
+        SupplyOut supplyOut = supplyOutMapper.toEntity(saveReqVO);
+        supplyOutRepository.save(supplyOut);
+
+        //删除原来的items
+        supplyOutItemRepository.deleteBySupplyOutId(supplyOutId);
+
+        //保存新的items
+        supplyOutItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setSupplyOutId(supplyOutId);
+            return supplyOutItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
         // 返回
         return supplyOut.getId();
     }

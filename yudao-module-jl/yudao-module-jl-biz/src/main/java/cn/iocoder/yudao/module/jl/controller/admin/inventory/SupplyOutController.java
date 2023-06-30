@@ -42,6 +42,14 @@ public class SupplyOutController {
     @Resource
     private SupplyOutMapper supplyOutMapper;
 
+
+    @PostMapping("/save")
+    @Operation(summary = "创建出库申请")
+    @PreAuthorize("@ss.hasPermission('jl:supply-out:create')")
+    public CommonResult<Long> saveSupplyOut(@Valid @RequestBody SupplyOutSaveReqVO saveReqVO) {
+        return success(supplyOutService.saveSupplyOut(saveReqVO));
+    }
+
     @PostMapping("/create")
     @Operation(summary = "创建出库申请")
     @PreAuthorize("@ss.hasPermission('jl:supply-out:create')")

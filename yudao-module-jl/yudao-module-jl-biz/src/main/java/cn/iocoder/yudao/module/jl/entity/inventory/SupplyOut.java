@@ -1,12 +1,19 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
+import cn.iocoder.yudao.module.jl.controller.admin.inventory.vo.SupplyOutItemRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -55,4 +62,13 @@ public class SupplyOut extends BaseEntity {
     @Column(name = "status")
     private String status;
 
+
+    /**
+     * 实验名目的审批状态
+     */
+    @OneToMany(mappedBy = "supplyOut", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<SupplyOutItem> items;
 }

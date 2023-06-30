@@ -22,9 +22,9 @@ public class SupplyOutItemBaseVO {
     @NotNull(message = "物资 id不能为空")
     private Long projectSupplyId;
 
-    @Schema(description = "物资库的物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8449")
+/*    @Schema(description = "物资库的物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8449")
     @NotNull(message = "物资库的物资 id不能为空")
-    private Long supplyId;
+    private Long supplyId;*/
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名称不能为空")
@@ -52,4 +52,5 @@ public class SupplyOutItemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private Integer outQuantity;
 }
