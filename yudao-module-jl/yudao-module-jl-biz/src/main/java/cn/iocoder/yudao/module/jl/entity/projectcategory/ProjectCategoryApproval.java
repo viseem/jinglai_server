@@ -75,7 +75,7 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference

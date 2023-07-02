@@ -30,10 +30,10 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
-    @Schema(description = "项目id", example = "14245")
+    @Schema(description = "项目id", example = "1")
     private Long projectId;
 
-    private ProjectOnly project;
+//    private ProjectOnly project;
 
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
@@ -60,6 +60,9 @@ public class ProjectCategoryBaseVO {
 
     @Schema(description = "客户需求")
     private String demand;
+
+    @Schema(description = "截止日期")
+    private String deadline;
 
     @Schema(description = "干扰项")
     private String interference;

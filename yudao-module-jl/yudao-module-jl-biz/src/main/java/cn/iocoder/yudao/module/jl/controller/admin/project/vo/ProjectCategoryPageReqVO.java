@@ -40,6 +40,9 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "客户需求")
     private String demand;
 
+    @Schema(description = "截止日期")
+    private String deadline;
+
     @Schema(description = "干扰项")
     private String interference;
 

@@ -125,6 +125,12 @@ public class ProjectCategory extends BaseEntity {
     private String demand;
 
     /**
+     * 截止日期
+     */
+    @Column(name = "deadline")
+    private String deadline;
+
+    /**
      * 干扰项
      */
     @Column(name = "interference")
@@ -200,10 +206,10 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目的审批状态
      */
-    @OneToOne(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.JOIN)
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
-    private ProjectCategoryApproval approval;
+    private List<ProjectCategoryApproval> approvalList;
 
 }

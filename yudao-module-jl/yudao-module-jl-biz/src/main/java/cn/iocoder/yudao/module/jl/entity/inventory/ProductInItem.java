@@ -74,6 +74,12 @@ public class ProductInItem extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 入库数量
+     */
+    @Column(name = "in_quantity", nullable = false )
+    private Integer inQuantity;
+
+    /**
      * 备注
      */
     @Column(name = "mark")

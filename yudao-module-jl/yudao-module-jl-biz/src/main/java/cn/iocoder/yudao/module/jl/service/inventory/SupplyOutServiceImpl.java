@@ -1,10 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.enums.InventorySupplyOutApprovalEnums;
+import cn.iocoder.yudao.module.jl.mapper.inventory.SupplyOutItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
+
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +26,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.inventory.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOut;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -29,7 +39,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 出库申请 Service 实现类
- *
  */
 @Service
 @Validated
@@ -39,13 +48,64 @@ public class SupplyOutServiceImpl implements SupplyOutService {
     private SupplyOutRepository supplyOutRepository;
 
     @Resource
+    private SupplyOutItemRepository supplyOutItemRepository;
+
+    @Resource
     private SupplyOutMapper supplyOutMapper;
+
+    @Resource
+    private SupplyOutItemMapper supplyOutItemMapper;
+    private final ProjectSupplyRepository projectSupplyRepository;
+
+    public SupplyOutServiceImpl(ProjectSupplyRepository projectSupplyRepository) {
+        this.projectSupplyRepository = projectSupplyRepository;
+    }
 
     @Override
     public Long createSupplyOut(SupplyOutCreateReqVO createReqVO) {
         // 插入
         SupplyOut supplyOut = supplyOutMapper.toEntity(createReqVO);
         supplyOutRepository.save(supplyOut);
+        // 返回
+        return supplyOut.getId();
+    }
+
+    @Override
+    public Long saveSupplyOut(SupplyOutSaveReqVO saveReqVO) {
+
+        Long supplyOutId = saveReqVO.getId();
+
+        //存在 id，校验存在
+        if (supplyOutId != null) {
+            validateSupplyOutExists(supplyOutId);
+        }
+
+        // 创建、或更新主表
+        SupplyOut supplyOut = supplyOutMapper.toEntity(saveReqVO);
+        supplyOut = supplyOutRepository.save(supplyOut);
+        Long saveSupplyId = supplyOut.getId();
+        //删除原来的items
+//        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
+
+        //保存新的items
+        supplyOutItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+            item.setSupplyOutId(saveSupplyId);
+            return supplyOutItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
+        //同意出库 更新projectSupply库存
+        if(saveReqVO.getStatus() == InventorySupplyOutApprovalEnums.ACCEPT.getStatus()){
+            saveReqVO.getItems().forEach(item->{
+                if(item.getProjectSupplyId()!=null){
+                    Optional<ProjectSupply> projectSupply = projectSupplyRepository.findById(item.getProjectSupplyId());
+                    projectSupply.ifPresent(supply->{
+                        supply.setInQuantity(supply.getInQuantity() + item.getStoreOut());
+                        projectSupplyRepository.save(supply);
+                    });
+                }
+            });
+        }
+
         // 返回
         return supplyOut.getId();
     }
@@ -94,19 +154,19 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         Specification<SupplyOut> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
@@ -127,19 +187,19 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         Specification<SupplyOut> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 

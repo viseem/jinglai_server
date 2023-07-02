@@ -36,6 +36,6 @@ public class ProcurementShipmentBaseVO {
     private String mark;
 
     @Schema(description = "预计送达日期")
-    private LocalDateTime expectArrivalTime;
+    private String expectArrivalTime;
 
 }

@@ -59,4 +59,6 @@ public class ProductInItemBaseVO {
     @Schema(description = "存储温度")
     private String temperature;
 
+    private Integer inQuantity = 0;
+
 }

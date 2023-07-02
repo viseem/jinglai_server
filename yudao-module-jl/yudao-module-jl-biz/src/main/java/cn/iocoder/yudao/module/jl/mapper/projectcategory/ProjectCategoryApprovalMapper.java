@@ -17,6 +17,7 @@ public interface ProjectCategoryApprovalMapper {
     ProjectCategoryApproval toEntity(ProjectCategoryApprovalUpdateReqVO dto);
 
     ProjectCategoryApprovalRespVO toDto(ProjectCategoryApproval entity);
+    ProjectCategoryApprovalDetailRespVO toDetailDto(ProjectCategoryApproval entity);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

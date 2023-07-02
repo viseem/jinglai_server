@@ -78,9 +78,9 @@ public class ProjectCategoryApprovalController {
     @Operation(summary = "通过 ID 获得项目实验名目的状态变更审批")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:project-category-approval:query')")
-    public CommonResult<ProjectCategoryApprovalRespVO> getProjectCategoryApproval(@RequestParam("id") Long id) {
+    public CommonResult<ProjectCategoryApprovalDetailRespVO> getProjectCategoryApproval(@RequestParam("id") Long id) {
             Optional<ProjectCategoryApproval> projectCategoryApproval = projectCategoryApprovalService.getProjectCategoryApproval(id);
-        return success(projectCategoryApproval.map(projectCategoryApprovalMapper::toDto).orElseThrow(() -> exception(PROJECT_CATEGORY_APPROVAL_NOT_EXISTS)));
+        return success(projectCategoryApproval.map(projectCategoryApprovalMapper::toDetailDto).orElseThrow(() -> exception(PROJECT_CATEGORY_APPROVAL_NOT_EXISTS)));
     }
 
     @GetMapping("/page")

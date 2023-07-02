@@ -86,7 +86,7 @@ public class SupplyPickupItem extends BaseEntity {
      * 有效期
      */
     @Column(name = "valid_date")
-    private LocalDateTime validDate;
+    private String validDate;
 
     /**
      * 状态

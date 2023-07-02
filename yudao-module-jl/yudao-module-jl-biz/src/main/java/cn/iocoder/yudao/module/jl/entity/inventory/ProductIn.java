@@ -1,18 +1,24 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
  * 实验产品入库 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,25 +34,41 @@ public class ProductIn extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 项目 id
      */
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
+
+    /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
+
+    /**
+     * JPA 级联出 project
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
 
     /**
      * 实验名目库的名目 id
      */
-    @Column(name = "category_id", nullable = false )
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
     /**
      * 实验名目 id
      */
-    @Column(name = "project_category_id", nullable = false )
+    @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
     /**

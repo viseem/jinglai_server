@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -17,7 +19,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目中的实验名目的物资项 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,22 +33,22 @@ public class ProjectSupply extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 选中的实验名目 id
      */
-    @Column(name = "project_category_id", nullable = false )
+    @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
     /**
      * 原始的实验名目 id
      */
-    @Column(name = "category_id", nullable = false )
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
 
     //    TODO 很大的问题
@@ -56,43 +57,51 @@ public class ProjectSupply extends BaseEntity {
 //    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
 //    private Project project;
 
-    @Column(name = "schedule_id", nullable = false )
+    /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
+
+    @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 
     /**
      * 物资 id
      */
-    @Column(name = "supply_id", nullable = false )
+    @Column(name = "supply_id", nullable = false)
     private Long supplyId;
 
     /**
      * 名称
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
      * 规则/单位
      */
-    @Column(name = "fee_standard", nullable = false )
+    @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
 
     /**
      * 单价
      */
-    @Column(name = "unit_fee", nullable = false )
+    @Column(name = "unit_fee", nullable = false)
     private String unitFee;
 
     /**
      * 单量
      */
-    @Column(name = "unit_amount", nullable = false )
+    @Column(name = "unit_amount", nullable = false)
     private Integer unitAmount;
 
     /**
      * 数量
      */
-    @Column(name = "quantity", nullable = false )
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     /**
@@ -114,6 +123,18 @@ public class ProjectSupply extends BaseEntity {
     private Integer inventoryQuantity;
 
     /**
+     * 入库总量
+     */
+    @Column(name = "in_quantity")
+    private Integer inQuantity;
+
+    /**
+     * 出库总量
+     */
+    @Column(name = "out_quantity")
+    private Integer outQuantity;
+
+    /**
      * 品牌
      */
     @Column(name = "brand")
@@ -132,11 +153,20 @@ public class ProjectSupply extends BaseEntity {
     private String mark;
 
     @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     private ProjectCategory category;
 
+
+    /**
+     * 出库items
+     */
+    @OneToMany(mappedBy = "projectSupply", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<SupplyOutItem> supplyOutItems;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id")

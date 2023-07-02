@@ -1,12 +1,18 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -37,11 +43,23 @@ public class SupplyOutItem extends BaseEntity {
     @Column(name = "supply_out_id", nullable = false )
     private Long supplyOutId;
 
+    @ManyToOne
+    @JoinColumn(name="supply_out_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private SupplyOut supplyOut;
+
     /**
      * 物资 id
      */
     @Column(name = "project_supply_id", nullable = false )
     private Long projectSupplyId;
+
+    @ManyToOne
+    @JoinColumn(name="project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectSupply projectSupply;
 
     /**
      * 物资库的物资 id
@@ -78,6 +96,18 @@ public class SupplyOutItem extends BaseEntity {
      */
     @Column(name = "quantity", nullable = false )
     private Integer quantity;
+
+    /**
+     * 申请出库数量
+     */
+    @Column(name = "out_quantity", nullable = false )
+    private Integer outQuantity;
+
+    /**
+     * 已出库数量
+     */
+    @Column(name = "store_out", nullable = false )
+    private Integer storeOut;
 
     /**
      * 状态

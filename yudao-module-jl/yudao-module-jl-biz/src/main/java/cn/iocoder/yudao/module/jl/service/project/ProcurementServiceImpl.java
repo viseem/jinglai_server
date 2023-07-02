@@ -14,9 +14,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProcurementPaymentRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProcurementShipmentRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,7 +40,6 @@ import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
@@ -53,6 +50,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProcurementServiceImpl implements ProcurementService {
+
+    @Resource
+    private ProjectSupplyRepository projectSupplyRepository;
 
     @Resource
     private ProcurementRepository procurementRepository;
@@ -414,6 +414,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             saveReqVO.getList().forEach(storeIn -> {
                 Long projectSupplyId = storeIn.getProjectSupplyId();
+
+                //统计
+
                 String status = storeIn.getStatus();
                 Integer storeInQuantity = storeIn.getInNum();
                 ProcurementItem item = procurementItemRepository.findByProcurementIdAndProjectSupplyId(saveReqVO.getProcurementId(), projectSupplyId);

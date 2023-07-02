@@ -56,7 +56,6 @@ public class InventoryStoreInBaseVO {
     private String temperature;
 
     @Schema(description = "有效截止期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime validDate;
+    private String validDate;
 
 }

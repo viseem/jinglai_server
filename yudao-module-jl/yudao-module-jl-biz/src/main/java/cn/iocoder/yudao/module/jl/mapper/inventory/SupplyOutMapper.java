@@ -11,7 +11,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface SupplyOutMapper {
     SupplyOut toEntity(SupplyOutCreateReqVO dto);
-
+    SupplyOut toEntity(SupplyOutSaveReqVO dto);
     SupplyOut toEntity(SupplyOutUpdateReqVO dto);
 
     SupplyOutRespVO toDto(SupplyOut entity);

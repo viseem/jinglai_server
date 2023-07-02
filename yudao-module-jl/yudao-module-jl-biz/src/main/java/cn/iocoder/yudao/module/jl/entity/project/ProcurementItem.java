@@ -105,7 +105,7 @@ public class ProcurementItem extends BaseEntity {
      * 有效期
      */
     @Column(name = "valid_date")
-    private LocalDateTime validDate;
+    private String validDate;
 
     /**
      * 品牌

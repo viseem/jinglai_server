@@ -108,6 +108,6 @@ public class InventoryStoreIn extends BaseEntity {
      * 有效截止期
      */
     @Column(name = "valid_date")
-    private LocalDateTime validDate;
+    private String validDate;
 
 }
