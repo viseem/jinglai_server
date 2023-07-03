@@ -84,6 +84,13 @@ public class ProductIn extends BaseEntity {
     private String mark;
 
 
+    /**
+     * 库管的备注
+     */
+    @Column(name = "reply_mark")
+    private String replyMark;
+
+
     @OneToMany
     @JoinColumn(name = "product_in_id", referencedColumnName = "id", insertable = false, updatable = false)
     private List<ProductInItem> items;
