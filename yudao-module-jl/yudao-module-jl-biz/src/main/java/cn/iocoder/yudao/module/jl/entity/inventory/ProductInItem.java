@@ -1,18 +1,23 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
  * 实验产品入库明细 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,14 +33,23 @@ public class ProductInItem extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 实验产品入库表 id
      */
-    @Column(name = "product_in_id", nullable = false )
+    @Column(name = "product_in_id", nullable = false)
     private Long productInId;
+
+
+    /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "product_in_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProductInOnly productIn;
 
     /**
      * 产自实验物资的 id
@@ -46,37 +60,37 @@ public class ProductInItem extends BaseEntity {
     /**
      * 名称
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
      * 规则/单位
      */
-    @Column(name = "fee_standard", nullable = false )
+    @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
 
     /**
      * 单价
      */
-    @Column(name = "unit_fee", nullable = false )
+    @Column(name = "unit_fee", nullable = false)
     private String unitFee;
 
     /**
      * 单量
      */
-    @Column(name = "unit_amount", nullable = false )
+    @Column(name = "unit_amount", nullable = false)
     private Integer unitAmount;
 
     /**
      * 数量
      */
-    @Column(name = "quantity", nullable = false )
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     /**
      * 入库数量
      */
-    @Column(name = "in_quantity", nullable = false )
+    @Column(name = "in_quantity", nullable = false)
     private Integer inQuantity;
 
     /**

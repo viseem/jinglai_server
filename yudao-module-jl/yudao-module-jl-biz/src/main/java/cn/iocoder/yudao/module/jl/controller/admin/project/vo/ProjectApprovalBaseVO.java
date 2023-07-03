@@ -22,7 +22,6 @@ public class ProjectApprovalBaseVO {
     private String stageMark;
 
 
-
     @Schema(description = "项目的id", requiredMode = Schema.RequiredMode.REQUIRED, example = "9195")
     @NotNull(message = "项目的id不能为空")
     private Long projectId;
