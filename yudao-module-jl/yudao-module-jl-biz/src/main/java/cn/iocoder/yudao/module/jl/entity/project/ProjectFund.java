@@ -89,4 +89,22 @@ public class ProjectFund extends BaseEntity {
     @Column(name = "sort")
     private Integer sort;
 
+    /**
+     * 付款方
+     */
+    @Column(name = "payer")
+    private String payer;
+
+    /**
+     * 收款方
+     */
+    @Column(name = "payee")
+    private String payee;
+
+    /**
+     * 收款备注
+     */
+    @Column(name = "pay_mark")
+    private String payMark;
+
 }

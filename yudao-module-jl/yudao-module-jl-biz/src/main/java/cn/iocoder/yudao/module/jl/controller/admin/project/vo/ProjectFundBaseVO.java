@@ -35,20 +35,12 @@ public class ProjectFundBaseVO {
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
     private String status;
 
-    @Schema(description = "支付时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime paidTime;
+    @Schema(description = "排序")
+    private Integer sort;
 
     @Schema(description = "支付的截止时间")
     private LocalDate deadline;
 
-    @Schema(description = "支付凭证上传地址", example = "https://www.iocoder.cn")
-    private String receiptUrl;
 
-    @Schema(description = "支付凭证文件名称", example = "芋艿")
-    private String receiptName;
-
-    @Schema(description = "排序")
-    private Integer sort;
 
 }

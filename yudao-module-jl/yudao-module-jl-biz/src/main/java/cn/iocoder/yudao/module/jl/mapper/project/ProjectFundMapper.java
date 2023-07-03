@@ -14,6 +14,8 @@ public interface ProjectFundMapper {
 
     ProjectFund toEntity(ProjectFundUpdateReqVO dto);
 
+    ProjectFund toEntity(ProjectFundPaymentUpdateReqVO dto);
+
     ProjectFundRespVO toDto(ProjectFund entity);
 
 

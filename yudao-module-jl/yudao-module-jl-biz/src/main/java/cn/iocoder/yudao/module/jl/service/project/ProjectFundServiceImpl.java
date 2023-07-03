@@ -59,6 +59,15 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.save(updateObj);
     }
 
+    public void updateProjectFundPayment(ProjectFundPaymentUpdateReqVO updateReqVO) {
+        // 校验存在
+        validateProjectFundExists(updateReqVO.getId());
+        // 更新
+        ProjectFund updateObj = projectFundMapper.toEntity(updateReqVO);
+        projectFundRepository.save(updateObj);
+    }
+
+
     @Override
     public void deleteProjectFund(Long id) {
         // 校验存在

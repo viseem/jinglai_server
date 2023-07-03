@@ -57,6 +57,14 @@ public class ProjectFundController {
         return success(true);
     }
 
+    @PutMapping("/update-payment")
+    @Operation(summary = "更新项目款项 支付信息")
+    @PreAuthorize("@ss.hasPermission('jl:project-fund:update')")
+    public CommonResult<Boolean> updateProjectFundPayment(@Valid @RequestBody ProjectFundPaymentUpdateReqVO updateReqVO) {
+        projectFundService.updateProjectFundPayment(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目款项")
     @Parameter(name = "id", description = "编号", required = true)

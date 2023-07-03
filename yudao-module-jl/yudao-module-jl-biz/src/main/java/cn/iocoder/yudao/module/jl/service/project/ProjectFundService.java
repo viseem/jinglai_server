@@ -28,6 +28,13 @@ public interface ProjectFundService {
     void updateProjectFund(@Valid ProjectFundUpdateReqVO updateReqVO);
 
     /**
+     * 更新项目款项的支付信息
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateProjectFundPayment(@Valid ProjectFundPaymentUpdateReqVO updateReqVO);
+
+    /**
      * 删除项目款项
      *
      * @param id 编号
