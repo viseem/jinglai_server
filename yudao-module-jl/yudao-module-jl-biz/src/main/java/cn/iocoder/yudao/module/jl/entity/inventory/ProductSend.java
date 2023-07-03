@@ -38,6 +38,12 @@ public class ProductSend extends BaseEntity {
     private Long projectId;
 
     /**
+     * 项目 id
+     */
+    @Column(name = "schedule_id", nullable = false )
+    private Long scheduleId;
+
+    /**
      * 实验名目库的名目 id
      */
     @Column(name = "project_category_id")

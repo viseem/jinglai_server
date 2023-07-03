@@ -15,4 +15,13 @@ public class ProjectApprovalUpdateReqVO extends ProjectApprovalBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    @Schema(description = "审批人id", example = "378")
+    private Long approvalUserId;
+
+    @Schema(description = "审批备注")
+    private String approvalMark;
+
+    @Schema(description = "审批状态：等待审批、批准、拒绝", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "审批状态：等待审批、批准、拒绝不能为空")
+    private String approvalStage;
 }
