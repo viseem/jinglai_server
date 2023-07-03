@@ -31,8 +31,7 @@ public class ProjectFundLogBaseVO {
     private String receiptUrl;
 
     @Schema(description = "支付时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime paidTime;
+    private String paidTime;
 
     @Schema(description = "支付凭证文件名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @NotNull(message = "支付凭证文件名称不能为空")

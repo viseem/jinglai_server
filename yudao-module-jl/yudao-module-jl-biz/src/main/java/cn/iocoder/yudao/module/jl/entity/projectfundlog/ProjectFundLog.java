@@ -59,7 +59,7 @@ public class ProjectFundLog extends BaseEntity {
      * 支付时间
      */
     @Column(name = "paid_time")
-    private LocalDateTime paidTime;
+    private String paidTime;
 
     /**
      * 支付凭证文件名称
