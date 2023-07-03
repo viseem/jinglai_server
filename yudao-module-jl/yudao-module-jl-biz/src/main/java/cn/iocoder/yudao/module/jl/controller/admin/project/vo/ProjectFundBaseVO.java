@@ -20,6 +20,10 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProjectFundBaseVO {
 
+    @Schema(description = "合同 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "111")
+    @NotNull(message = "合同 id不能为空")
+    private Long contractId;
+
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @NotNull(message = "名称不能为空")
     private String name;

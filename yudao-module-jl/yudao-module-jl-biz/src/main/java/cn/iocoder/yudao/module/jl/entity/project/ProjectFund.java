@@ -24,6 +24,12 @@ import java.time.LocalDateTime;
 public class ProjectFund extends BaseEntity {
 
     /**
+     * 项目 id
+     */
+    @Column(name = "contract_id", nullable = false)
+    private Long contractId;
+
+    /**
      * ID
      */
     @Id
