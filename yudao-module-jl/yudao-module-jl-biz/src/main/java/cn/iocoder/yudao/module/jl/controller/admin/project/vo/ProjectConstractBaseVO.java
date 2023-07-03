@@ -18,7 +18,6 @@ public class ProjectConstractBaseVO {
     @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
-    private ProjectOnly project;
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 

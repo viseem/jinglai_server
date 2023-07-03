@@ -18,6 +18,7 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
+    private ProjectOnly project;
 
 
     private User sales;
