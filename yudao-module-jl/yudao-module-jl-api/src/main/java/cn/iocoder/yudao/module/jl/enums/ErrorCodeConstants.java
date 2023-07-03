@@ -126,4 +126,6 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_APPROVAL_NOT_EXISTS = new ErrorCode(2053800001, "项目的状态变更记录不存在");
 
     ErrorCode ASSET_DEVICE_NOT_EXISTS = new ErrorCode(2053900001, "公司资产（设备）不存在");
+
+    ErrorCode PROJECT_FUND_LOG_NOT_EXISTS = new ErrorCode(2054000001, "项目款项不存在");
 }

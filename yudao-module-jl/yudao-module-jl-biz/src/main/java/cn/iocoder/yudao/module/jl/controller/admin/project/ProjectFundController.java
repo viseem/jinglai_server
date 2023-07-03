@@ -57,6 +57,14 @@ public class ProjectFundController {
         return success(true);
     }
 
+    @PutMapping("/save")
+    @Operation(summary = "更新项目款项")
+    @PreAuthorize("@ss.hasPermission('jl:project-fund:update')")
+    public CommonResult<Boolean> saveProjectFund(@Valid @RequestBody ProjectFundSaveReqVO saveReqVO) {
+        projectFundService.saveProjectFund(saveReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update-payment")
     @Operation(summary = "更新项目款项 支付信息")
     @PreAuthorize("@ss.hasPermission('jl:project-fund:update')")

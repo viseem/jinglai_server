@@ -2,7 +2,13 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectBaseVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -113,4 +119,12 @@ public class ProjectFund extends BaseEntity {
     @Column(name = "pay_mark")
     private String payMark;
 
+    /**
+     * 打款明细
+     */
+    @OneToMany(mappedBy = "projectFund", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectFundLog> items;
 }

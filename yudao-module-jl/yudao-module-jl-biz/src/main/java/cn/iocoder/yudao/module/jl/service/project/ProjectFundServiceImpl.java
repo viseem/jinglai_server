@@ -1,5 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
+import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +43,13 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private ProjectFundRepository projectFundRepository;
 
     @Resource
+    private ProjectFundLogRepository projectFundLogRepository;
+
+    @Resource
     private ProjectFundMapper projectFundMapper;
+
+    @Resource
+    private ProjectFundLogMapper projectFundLogMapper;
 
     @Override
     public Long createProjectFund(ProjectFundCreateReqVO createReqVO) {
@@ -56,6 +66,25 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         validateProjectFundExists(updateReqVO.getId());
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(updateReqVO);
+        projectFundRepository.save(updateObj);
+    }
+
+    @Override
+    public void saveProjectFund(ProjectFundSaveReqVO saveReqVO) {
+        // 校验存在
+        validateProjectFundExists(saveReqVO.getId());
+
+        //创建items明细 ProjectFundLog
+/*        List<ProjectFundLog> sops = projectFundLogMapper.toEntity(saveReqVO.getItems());
+        projectFundLogRepository.saveAll(sops);*/
+        projectFundLogMapper.toEntity(saveReqVO.getItems()).forEach(item -> {
+            item.setProjectId(saveReqVO.getProjectId());
+            item.setProjectFundId(saveReqVO.getId());
+            projectFundLogRepository.save(item);
+        });
+
+        // 更新
+        ProjectFund updateObj = projectFundMapper.toEntity(saveReqVO);
         projectFundRepository.save(updateObj);
     }
 

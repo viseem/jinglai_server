@@ -12,6 +12,7 @@ import org.mapstruct.*;
 public interface ProjectFundMapper {
     ProjectFund toEntity(ProjectFundCreateReqVO dto);
 
+    ProjectFund toEntity(ProjectFundSaveReqVO dto);
     ProjectFund toEntity(ProjectFundUpdateReqVO dto);
 
     ProjectFund toEntity(ProjectFundPaymentUpdateReqVO dto);
