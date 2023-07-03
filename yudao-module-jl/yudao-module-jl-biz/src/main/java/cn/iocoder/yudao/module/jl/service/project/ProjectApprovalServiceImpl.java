@@ -1,17 +1,14 @@
-package cn.iocoder.yudao.module.jl.service.projectcategory;
+package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.framework.common.exception.ErrorCode;
+import cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import lombok.val;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
-
 import org.springframework.validation.annotation.Validated;
-
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,110 +21,91 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
-
-import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.*;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
-import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryApprovalMapper;
-import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryApprovalRepository;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectApprovalMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectApprovalRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
- * 项目实验名目的状态变更审批 Service 实现类
+ * 项目的状态变更记录 Service 实现类
+ *
  */
 @Service
 @Validated
-public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprovalService {
+public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
     @Resource
-    private ProjectCategoryRepository projectCategoryRepository;
+    private ProjectRepository projectRepository;
 
     @Resource
-    private ProjectCategoryApprovalRepository projectCategoryApprovalRepository;
+    private ProjectApprovalRepository projectApprovalRepository;
 
     @Resource
-    private ProjectCategoryApprovalMapper projectCategoryApprovalMapper;
+    private ProjectApprovalMapper projectApprovalMapper;
 
     @Override
-    public Long createProjectCategoryApproval(ProjectCategoryApprovalCreateReqVO createReqVO) {
-        //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
-        if (Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-            projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
-                category.setStage(createReqVO.getStage());
-                projectCategoryRepository.save(category);
-            });
-        }
+    public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
         // 插入
-        ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
-        projectCategoryApprovalRepository.save(projectCategoryApproval);
+        ProjectApproval projectApproval = projectApprovalMapper.toEntity(createReqVO);
+        projectApprovalRepository.save(projectApproval);
         // 返回
-        return projectCategoryApproval.getId();
+        return projectApproval.getId();
     }
 
     @Override
-    public Long saveProjectCategoryApproval(ProjectCategoryApprovalSaveReqVO saveReqVO) {
-
-        ProjectCategoryApproval projectCategoryApprovalCreate = projectCategoryApprovalMapper.toEntity(saveReqVO);
-        projectCategoryApprovalRepository.save(projectCategoryApprovalCreate);
-
-        // 插入
-
-        // 返回
-        return saveReqVO.getId();
-    }
-
-    @Override
-    public void updateProjectCategoryApproval(ProjectCategoryApprovalUpdateReqVO updateReqVO) {
+    public void updateProjectApproval(ProjectApprovalUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectCategoryApprovalExists(updateReqVO.getId());
+        validateProjectApprovalExists(updateReqVO.getId());
 
         // 批准该条申请
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
             // 校验projectCategory是否存在,并修改状态
-            projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresentOrElse(category -> {
-                category.setStage(updateReqVO.getStage());
-                projectCategoryRepository.save(category);
+            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
+                project.setStage(updateReqVO.getStage());
+                projectRepository.save(project);
             },()->{
-                throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+                throw exception(PROJECT_NOT_EXISTS);
             });
 
         }
 
+
         // 更新
-        ProjectCategoryApproval updateObj = projectCategoryApprovalMapper.toEntity(updateReqVO);
-        projectCategoryApprovalRepository.save(updateObj);
+        ProjectApproval updateObj = projectApprovalMapper.toEntity(updateReqVO);
+        projectApprovalRepository.save(updateObj);
     }
 
-
     @Override
-    public void deleteProjectCategoryApproval(Long id) {
+    public void deleteProjectApproval(Long id) {
         // 校验存在
-        validateProjectCategoryApprovalExists(id);
+        validateProjectApprovalExists(id);
         // 删除
-        projectCategoryApprovalRepository.deleteById(id);
+        projectApprovalRepository.deleteById(id);
     }
 
-    private void validateProjectCategoryApprovalExists(Long id) {
-        projectCategoryApprovalRepository.findById(id).orElseThrow(() -> exception(PROJECT_CATEGORY_APPROVAL_NOT_EXISTS));
-    }
-
-    @Override
-    public Optional<ProjectCategoryApproval> getProjectCategoryApproval(Long id) {
-        return projectCategoryApprovalRepository.findById(id);
+    private void validateProjectApprovalExists(Long id) {
+        projectApprovalRepository.findById(id).orElseThrow(() -> exception(PROJECT_APPROVAL_NOT_EXISTS));
     }
 
     @Override
-    public List<ProjectCategoryApproval> getProjectCategoryApprovalList(Collection<Long> ids) {
-        return StreamSupport.stream(projectCategoryApprovalRepository.findAllById(ids).spliterator(), false)
+    public Optional<ProjectApproval> getProjectApproval(Long id) {
+        return projectApprovalRepository.findById(id);
+    }
+
+    @Override
+    public List<ProjectApproval> getProjectApprovalList(Collection<Long> ids) {
+        return StreamSupport.stream(projectApprovalRepository.findAllById(ids).spliterator(), false)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PageResult<ProjectCategoryApproval> getProjectCategoryApprovalPage(ProjectCategoryApprovalPageReqVO pageReqVO, ProjectCategoryApprovalPageOrder orderV0) {
+    public PageResult<ProjectApproval> getProjectApprovalPage(ProjectApprovalPageReqVO pageReqVO, ProjectApprovalPageOrder orderV0) {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -135,34 +113,34 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategoryApproval> spec = (root, query, cb) -> {
+        Specification<ProjectApproval> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (pageReqVO.getStage() != null) {
+            if(pageReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
             }
 
-            if (pageReqVO.getStageMark() != null) {
+            if(pageReqVO.getStageMark() != null) {
                 predicates.add(cb.equal(root.get("stageMark"), pageReqVO.getStageMark()));
             }
 
-            if (pageReqVO.getApprovalUserId() != null) {
+            if(pageReqVO.getApprovalUserId() != null) {
                 predicates.add(cb.equal(root.get("approvalUserId"), pageReqVO.getApprovalUserId()));
             }
 
-            if (pageReqVO.getApprovalMark() != null) {
+            if(pageReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), pageReqVO.getApprovalMark()));
             }
 
-            if (pageReqVO.getApprovalStage() != null) {
+            if(pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
             }
 
-            if (pageReqVO.getProjectCategoryId() != null) {
-                predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if (pageReqVO.getScheduleId() != null) {
+            if(pageReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
 
@@ -171,43 +149,43 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         };
 
         // 执行查询
-        Page<ProjectCategoryApproval> page = projectCategoryApprovalRepository.findAll(spec, pageable);
+        Page<ProjectApproval> page = projectApprovalRepository.findAll(spec, pageable);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
     @Override
-    public List<ProjectCategoryApproval> getProjectCategoryApprovalList(ProjectCategoryApprovalExportReqVO exportReqVO) {
+    public List<ProjectApproval> getProjectApprovalList(ProjectApprovalExportReqVO exportReqVO) {
         // 创建 Specification
-        Specification<ProjectCategoryApproval> spec = (root, query, cb) -> {
+        Specification<ProjectApproval> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (exportReqVO.getStage() != null) {
+            if(exportReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), exportReqVO.getStage()));
             }
 
-            if (exportReqVO.getStageMark() != null) {
+            if(exportReqVO.getStageMark() != null) {
                 predicates.add(cb.equal(root.get("stageMark"), exportReqVO.getStageMark()));
             }
 
-            if (exportReqVO.getApprovalUserId() != null) {
+            if(exportReqVO.getApprovalUserId() != null) {
                 predicates.add(cb.equal(root.get("approvalUserId"), exportReqVO.getApprovalUserId()));
             }
 
-            if (exportReqVO.getApprovalMark() != null) {
+            if(exportReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), exportReqVO.getApprovalMark()));
             }
 
-            if (exportReqVO.getApprovalStage() != null) {
+            if(exportReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), exportReqVO.getApprovalStage()));
             }
 
-            if (exportReqVO.getProjectCategoryId() != null) {
-                predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
+            if(exportReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if (exportReqVO.getScheduleId() != null) {
+            if(exportReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), exportReqVO.getScheduleId()));
             }
 
@@ -216,10 +194,10 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         };
 
         // 执行查询
-        return projectCategoryApprovalRepository.findAll(spec);
+        return projectApprovalRepository.findAll(spec);
     }
 
-    private Sort createSort(ProjectCategoryApprovalPageOrder order) {
+    private Sort createSort(ProjectApprovalPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 
         // 根据 order 中的每个属性创建一个排序规则
@@ -250,8 +228,8 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             orders.add(new Sort.Order(order.getApprovalStage().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "approvalStage"));
         }
 
-        if (order.getProjectCategoryId() != null) {
-            orders.add(new Sort.Order(order.getProjectCategoryId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "projectCategoryId"));
+        if (order.getProjectId() != null) {
+            orders.add(new Sort.Order(order.getProjectId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "projectId"));
         }
 
         if (order.getScheduleId() != null) {
