@@ -38,6 +38,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -137,7 +138,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setStage("1");
             project.setStatus("0");
             project.setType(ProjectTypeEnums.NormalProject.getStatus());
-            project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
             projectRepository.save(project);
 
             // 销售线索中保存项目 id
@@ -168,7 +169,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setStage("1");
             project.setStatus("0");
             project.setType(ProjectTypeEnums.EmergencyProject.getStatus());
-            project.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
             projectRepository.save(project);
 
             // 销售线索中保存项目 id
