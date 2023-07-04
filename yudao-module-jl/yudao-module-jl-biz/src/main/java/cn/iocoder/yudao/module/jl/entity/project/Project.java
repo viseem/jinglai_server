@@ -139,8 +139,8 @@ public class Project extends BaseEntity {
     private ProjectSchedule currentSchedule;
 
 
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstract> constracts = new ArrayList<>();
+    private List<ProjectConstract> constracts = new ArrayList<>();*/
 }
