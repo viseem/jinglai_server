@@ -103,19 +103,21 @@ public class SupplierServiceImpl implements SupplierService {
             }
 
             if(pageReqVO.getContactPhone() != null) {
-                predicates.add(cb.equal(root.get("contactPhone"), pageReqVO.getContactPhone()));
+                predicates.add(cb.like(root.get("contactPhone"), "%" + pageReqVO.getContactPhone() + "%"));
             }
 
             if(pageReqVO.getPaymentCycle() != null) {
-                predicates.add(cb.equal(root.get("paymentCycle"), pageReqVO.getPaymentCycle()));
+//                predicates.add(cb.equal(root.get("paymentCycle"), pageReqVO.getPaymentCycle()));
+                predicates.add(cb.like(root.get("paymentCycle"), "%" + pageReqVO.getPaymentCycle() + "%"));
             }
 
             if(pageReqVO.getBankAccount() != null) {
-                predicates.add(cb.equal(root.get("bankAccount"), pageReqVO.getBankAccount()));
+                predicates.add(cb.like(root.get("bankAccount"), "%" + pageReqVO.getBankAccount() + "%"));
             }
 
             if(pageReqVO.getTaxNumber() != null) {
-                predicates.add(cb.equal(root.get("taxNumber"), pageReqVO.getTaxNumber()));
+//                predicates.add(cb.equal(root.get("taxNumber"), pageReqVO.getTaxNumber()));
+                predicates.add(cb.like(root.get("taxNumber"), "%" + pageReqVO.getTaxNumber() + "%"));
             }
 
             if(pageReqVO.getMark() != null) {
