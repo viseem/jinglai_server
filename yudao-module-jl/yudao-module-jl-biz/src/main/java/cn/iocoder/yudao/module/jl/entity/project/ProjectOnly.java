@@ -41,6 +41,8 @@ public class ProjectOnly extends BaseEntity {
     @Column(name = "saleslead_id")
     private Long salesleadId;
 
+
+
     /**
      * 项目名字
      */
@@ -84,6 +86,14 @@ public class ProjectOnly extends BaseEntity {
     private Long managerId;
 
     /**
+     * JPA 级联出 项目负责人
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User manager;
+
+    /**
      * 参与者 ids，数组
      */
     @Column(name = "participants")
@@ -95,6 +105,13 @@ public class ProjectOnly extends BaseEntity {
     @Column(name = "sales_id")
     private Long salesId;
 
+    /**
+     * JPA 级联出 销售
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User sales;
 
     /**
      * 客户 id
