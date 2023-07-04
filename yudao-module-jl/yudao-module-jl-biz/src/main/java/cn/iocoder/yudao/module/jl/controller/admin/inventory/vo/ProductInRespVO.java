@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.ProductInItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +22,9 @@ public class ProductInRespVO extends ProductInBaseVO {
     private LocalDateTime createTime;
 
     private ProjectOnly project;
+
+    private ProjectCategoryOnly projectCategory;
+
     private User user;
     private List<ProductInItemRespVO> items;
 }
