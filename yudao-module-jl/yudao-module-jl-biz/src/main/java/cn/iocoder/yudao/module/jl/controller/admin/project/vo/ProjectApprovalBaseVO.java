@@ -26,8 +26,7 @@ public class ProjectApprovalBaseVO {
     @NotNull(message = "项目的id不能为空")
     private Long projectId;
 
-    @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "31892")
-    @NotNull(message = "安排单id不能为空")
+    @Schema(description = "安排单id")
     private Long scheduleId;
 
 }
