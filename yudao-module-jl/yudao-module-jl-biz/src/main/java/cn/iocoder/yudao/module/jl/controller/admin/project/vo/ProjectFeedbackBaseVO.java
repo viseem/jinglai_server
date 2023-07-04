@@ -19,6 +19,7 @@ public class ProjectFeedbackBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "5559")
     private Long projectCategoryId;
 

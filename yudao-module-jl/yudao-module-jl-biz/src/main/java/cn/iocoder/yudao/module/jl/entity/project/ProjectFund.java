@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectBaseVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -61,7 +62,8 @@ public class ProjectFund extends BaseEntity {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
 
