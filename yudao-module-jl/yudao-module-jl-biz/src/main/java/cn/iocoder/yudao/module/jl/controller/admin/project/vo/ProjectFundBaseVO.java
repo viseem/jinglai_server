@@ -36,6 +36,9 @@ public class ProjectFundBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+    @Schema(description = "客户 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "27211")
+    @NotNull(message = "客户 id不能为空")
+    private Long customerId;
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
     private String status;
 
