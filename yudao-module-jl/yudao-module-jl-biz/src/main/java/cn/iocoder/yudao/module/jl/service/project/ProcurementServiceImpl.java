@@ -173,6 +173,10 @@ public class ProcurementServiceImpl implements ProcurementService {
         Specification<Procurement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (pageReqVO.getCreateTime() != null) {
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0],pageReqVO.getCreateTime()[1]));
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }

@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -153,6 +154,7 @@ public class ProjectSupply extends BaseEntity {
     private String mark;
 
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
@@ -165,13 +167,23 @@ public class ProjectSupply extends BaseEntity {
     @OneToMany(mappedBy = "projectSupply", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<SupplyOutItem> supplyOutItems;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
+
+    /**
+     * 查询ProcurementItem
+     */
+/*    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_supply_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProcurementItem> procurements;*/
 
 }
