@@ -63,7 +63,7 @@ public class ProjectFund extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Project project;
+    private ProjectOnly project;
 
     /**
      * 支付状态(未支付，部分支付，完全支付)

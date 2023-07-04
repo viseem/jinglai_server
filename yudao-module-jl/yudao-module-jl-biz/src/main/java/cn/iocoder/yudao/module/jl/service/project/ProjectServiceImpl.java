@@ -150,6 +150,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
+        page.forEach(project->{
+        });
+
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
