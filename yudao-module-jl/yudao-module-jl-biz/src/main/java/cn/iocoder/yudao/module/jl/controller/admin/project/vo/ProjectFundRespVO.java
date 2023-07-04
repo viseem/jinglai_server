@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.projectfundlog.vo.ProjectFundLogRespVO;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +23,8 @@ public class ProjectFundRespVO extends ProjectFundBaseVO {
     private LocalDateTime createTime;
 
     private ProjectOnly project;
+
+    private ProjectConstractOnly contract;
 
     private List<ProjectFundLog> items;
 }

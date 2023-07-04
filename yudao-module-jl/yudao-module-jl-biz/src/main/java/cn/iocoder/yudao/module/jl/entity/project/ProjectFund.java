@@ -36,6 +36,12 @@ public class ProjectFund extends BaseEntity {
     @Column(name = "contract_id", nullable = false)
     private Long contractId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectConstractOnly contract;
+
     /**
      * ID
      */
@@ -129,4 +135,5 @@ public class ProjectFund extends BaseEntity {
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectFundLog> items;
+
 }
