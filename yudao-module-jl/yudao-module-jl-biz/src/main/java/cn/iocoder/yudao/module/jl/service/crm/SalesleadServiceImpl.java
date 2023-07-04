@@ -11,9 +11,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.CompetitorRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.SalesleadCompetitorRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.SalesleadCustomerPlanRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,6 @@ import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
@@ -53,6 +50,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private SalesleadRepository salesleadRepository;
+
+    @Resource
+    private CustomerRepository customerRepository;
 
     @Resource
     private SalesleadMapper salesleadMapper;
@@ -175,6 +175,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             updateObj.setProjectId(project.getId());
             salesleadRepository.save(updateObj);
         }
+
+        //设置customer updateLastSalesleadIdById
+        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
 
     }
 
