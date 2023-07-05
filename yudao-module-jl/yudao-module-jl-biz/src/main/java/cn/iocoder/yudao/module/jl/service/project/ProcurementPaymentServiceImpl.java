@@ -94,6 +94,10 @@ public class ProcurementPaymentServiceImpl implements ProcurementPaymentService 
         Specification<ProcurementPayment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
             }
