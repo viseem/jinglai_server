@@ -12,7 +12,7 @@ import java.util.List;
 public class PickupCheckInReqVO {
 
     @Schema(description = "单号 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
-    private Long pickUpId;
+    private Long pickupId;
 
 
     private List<CheckInItem> list;

@@ -274,7 +274,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
     @Override
     public void checkIn(PickupCheckInReqVO saveReqVO) {
         // 校验存在
-        validateSupplyPickupExists(saveReqVO.getPickUpId());
+        validateSupplyPickupExists(saveReqVO.getPickupId());
 
         // 根据 saveReqVo 的 list ，遍历每一项
         if (saveReqVO.getList() != null && saveReqVO.getList().size() > 0) {
@@ -284,7 +284,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                 Long projectSupplyId = checkIn.getProjectSupplyId();
                 String status = checkIn.getStatus();
                 Integer checkInQuantity = checkIn.getCheckInNum();
-                SupplyPickupItem item = supplyPickupItemRepository.findBySupplyPickupIdAndProjectSupplyId(saveReqVO.getPickUpId(), projectSupplyId);
+                SupplyPickupItem item = supplyPickupItemRepository.findBySupplyPickupIdAndProjectSupplyId(saveReqVO.getPickupId(), projectSupplyId);
                 if (item != null) {
                     checkInQuantity += item.getCheckInQuantity();
 
@@ -304,13 +304,13 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                     checkInLog.setType(InventoryCheckInTypeEnums.PROCUREMENT.toString());
                     checkInLog.setMark(checkIn.getMark());
                     checkInLog.setStatus(checkIn.getStatus());
-                    checkInLog.setRefId(saveReqVO.getPickUpId());
+                    checkInLog.setRefId(saveReqVO.getPickupId());
                     checkInLog.setRefItemId(item.getId());
                     inventoryCheckInRepository.save(checkInLog);
                 }
             });
 
-            supplyPickupRepository.findById(saveReqVO.getPickUpId()).ifPresent(pickup -> {
+            supplyPickupRepository.findById(saveReqVO.getPickupId()).ifPresent(pickup -> {
                 pickup.setWaitCheckIn(!allCheckIn.get());
                 pickup.setWaitStoreIn(true);
                 supplyPickupRepository.save(pickup);
