@@ -68,6 +68,12 @@ public class ProjectFund extends BaseEntity {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
