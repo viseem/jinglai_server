@@ -123,6 +123,15 @@ public class ProcurementController {
         return success(procurementMapper.toPage(pageResult));
     }
 
+    @GetMapping("/paid-page")
+    @Operation(summary = "(分页)获得项目采购单申请列表")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:query')")
+    public CommonResult<PageResult<ProcurementRespVO>> getProcurementPaidPage(@Valid ProcurementPageReqVO pageVO, @Valid ProcurementPageOrder orderV0) {
+        PageResult<Procurement> pageResult = procurementService.getProcurementPaidPage(pageVO, orderV0);
+        // 转换格式
+        return success(procurementMapper.toPage(pageResult));
+    }
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出项目采购单申请 Excel")
     @PreAuthorize("@ss.hasPermission('jl:procurement:export')")

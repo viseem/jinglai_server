@@ -61,6 +61,14 @@ public interface ProcurementService {
     PageResult<Procurement> getProcurementPage(ProcurementPageReqVO pageReqVO, ProcurementPageOrder orderV0);
 
     /**
+     * 获得项目采购单已经支付分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目采购单申请分页
+     */
+    PageResult<Procurement> getProcurementPaidPage(ProcurementPageReqVO pageReqVO, ProcurementPageOrder orderV0);
+
+    /**
      * 获得项目采购单申请列表, 用于 Excel 导出
      *
      * @param exportReqVO 查询条件
