@@ -185,6 +185,13 @@ public class ProjectSupply extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<SupplySendInItem> sendIns;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_supply_id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.SELECT)
+    private List<SupplyPickupItem> pickups;
+
     /**
      * 查询ProcurementItem
      */
