@@ -94,6 +94,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Specification<ProjectCategory> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 直接写死，是1的时候去查一下1 别的都不进行处理
+            if(pageReqVO.getHasFeedback()!=null&&pageReqVO.getHasFeedback()==1) {
+                predicates.add(cb.equal(root.get("hasFeedback"), 1));
+            }
+
             if(pageReqVO.getQuoteId() != null) {
                 predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
             }
