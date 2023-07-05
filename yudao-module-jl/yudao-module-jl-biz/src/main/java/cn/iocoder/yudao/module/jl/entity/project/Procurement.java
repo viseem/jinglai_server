@@ -22,7 +22,7 @@ import org.hibernate.annotations.*;
 @Setter
 @Entity(name = "Procurement")
 @Table(name = "jl_project_procurement")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Procurement extends BaseEntity {
 
     /**
