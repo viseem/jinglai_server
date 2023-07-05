@@ -33,4 +33,8 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
 
     private ProjectOnly project;
 
+    private Integer inedQuantity;
+    private Integer outedQuantity;
+    private Integer remainQuantity;
+
 }

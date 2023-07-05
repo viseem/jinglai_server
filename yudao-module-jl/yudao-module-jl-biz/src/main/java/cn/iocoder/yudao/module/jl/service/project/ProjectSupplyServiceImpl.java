@@ -1,8 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
+import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,10 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -156,6 +159,43 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
         // 执行查询
         Page<ProjectSupply> page = projectSupplyRepository.findAll(spec, pageable);
+        List<ProjectSupply> projectSupplies = page.getContent();
+        // 计算物资数量
+        // 已入库的
+        if (projectSupplies.size() > 0) {
+            projectSupplies.forEach(item -> {
+                Integer inedQuantity = 0; // 重新初始化 inQuantity 变量为 0
+                Integer outedQuantity = 0; // 重新初始化 inQuantity 变量为 0
+
+                String source = item.getSource();
+                if (item.getProcurements().size() > 0) {
+                    inedQuantity = item.getProcurements().stream()
+                            .mapToInt(ProcurementItem::getInQuantity)
+                            .sum();
+                }
+                if (item.getSendIns().size() > 0) {
+                    inedQuantity += item.getSendIns().stream()
+                            .mapToInt(SupplySendInItem::getInQuantity)
+                            .sum();
+                }
+                if (item.getPickups().size() > 0) {
+                    inedQuantity += item.getPickups().stream()
+                            .mapToInt(SupplyPickupItem::getInQuantity)
+                            .sum();
+                }
+
+                if (item.getSupplyOutItems().size() > 0) {
+                    outedQuantity += item.getSupplyOutItems().stream()
+                            .mapToInt(SupplyOutItem::getOutQuantity)
+                            .sum();
+                }
+
+                item.setInedQuantity(inedQuantity);
+                item.setOutedQuantity(outedQuantity);
+                item.setRemainQuantity(inedQuantity - outedQuantity);
+            });
+        }
+
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -206,9 +246,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
         // 执行查询
-        return projectSupplyRepository.findAll(spec);
+        List<ProjectSupply> projectSupplies = projectSupplyRepository.findAll(spec);
+
+        return projectSupplies;
     }
 
     private Sort createSort(ProjectSupplyPageOrder order) {

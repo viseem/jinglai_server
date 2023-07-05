@@ -134,6 +134,22 @@ public class ProjectSupply extends BaseEntity {
      */
     @Column(name = "out_quantity")
     private Integer outQuantity;
+    /**
+     * 计算 已入库数量
+     */
+    @Transient
+    private Integer inedQuantity;
+    /**
+     * 计算 已出库塑料
+     */
+    @Transient
+    private Integer remainQuantity;
+
+    /**
+     * 剩余数量
+     */
+    @Transient
+    private Integer outedQuantity;
 
     /**
      * 品牌
