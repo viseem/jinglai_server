@@ -21,9 +21,10 @@ public enum SalesLeadStatusEnums implements StringArrayValuable {
     PotentialConsultation("1", "潜在咨询"),
     KeyFocus("2", "重点关注"),
     PendingDeal("3", "待成交"),
-    CompletedTransaction("4", "已成交"),
-    EmergencyProject("5", "临时应急项目"),
-    LostDeal("6", "丢单"),
+/*    CompletedTransaction("4", "已成交"),
+    EmergencyProject("5", "临时应急项目"),*/
+    LostDeal("4", "丢单"),
+    ToProject("5","已转项目")
     ;
 
     private final String status;

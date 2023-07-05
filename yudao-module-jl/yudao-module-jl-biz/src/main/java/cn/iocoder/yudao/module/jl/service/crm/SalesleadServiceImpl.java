@@ -128,54 +128,40 @@ public class SalesleadServiceImpl implements SalesleadService {
             salesleadCustomerPlanRepository.saveAll(plans);
         }
 
-        // 转成项目的逻辑
-        if(updateReqVO.getStatus().toString().equals(SalesLeadStatusEnums.CompletedTransaction.getStatus())) {
-            // 1. 创建项目
-            Project project = new Project();
-            project.setSalesleadId(salesleadId);
-            project.setCustomerId(updateReqVO.getCustomerId());
-            project.setName(updateReqVO.getProjectName());
-            project.setStage("1");
-            project.setStatus("0");
-            project.setType(ProjectTypeEnums.NormalProject.getStatus());
-            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
-            projectRepository.save(project);
 
-            // 销售线索中保存项目 id
-            updateObj.setProjectId(project.getId());
-            salesleadRepository.save(updateObj);
+       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
+           // 1. 创建项目
+           Project project = new Project();
+           project.setSalesleadId(salesleadId);
+           project.setCustomerId(updateReqVO.getCustomerId());
+           project.setName(updateReqVO.getProjectName());
+           project.setStage("1");
+           project.setStatus(updateReqVO.getStatus());
+           project.setType(updateReqVO.getType());
+           project.setSalesId(getLoginUserId()); // 线索的销售人员 id
+           projectRepository.save(project);
 
-            // 2. 保存合同
-            // 遍历 updateReqVO.getProjectConstracts(), 创建合同
-            List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
-            if(projectConstracts != null && projectConstracts.size() > 0) {
-                // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
-                projectConstracts.forEach(projectConstract -> {
-                    projectConstract.setProjectId(project.getId());
-                    projectConstract.setCustomerId(updateReqVO.getCustomerId());
-                    projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
-                    projectConstract.setName(project.getName());
-                });
-                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
-                projectConstractRepository.saveAll(contracts);
-            }
-        } else if (updateReqVO.getStatus().toString().equals(SalesLeadStatusEnums.EmergencyProject.getStatus())) {
-            // 临时应急项目
-            // 1. 创建项目
-            Project project = new Project();
-            project.setSalesleadId(salesleadId);
-            project.setCustomerId(updateReqVO.getCustomerId());
-            project.setName(updateReqVO.getProjectName());
-            project.setStage("1");
-            project.setStatus("0");
-            project.setType(ProjectTypeEnums.EmergencyProject.getStatus());
-            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
-            projectRepository.save(project);
+           // 销售线索中保存项目 id
+           updateObj.setProjectId(project.getId());
+           salesleadRepository.save(updateObj);
 
-            // 销售线索中保存项目 id
-            updateObj.setProjectId(project.getId());
-            salesleadRepository.save(updateObj);
-        }
+           //不按照类型区分合同传不传，有就传没有不传
+           // 2. 保存合同
+           // 遍历 updateReqVO.getProjectConstracts(), 创建合同
+           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
+           if(projectConstracts != null && projectConstracts.size() > 0) {
+               // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
+               projectConstracts.forEach(projectConstract -> {
+                   projectConstract.setProjectId(project.getId());
+                   projectConstract.setCustomerId(updateReqVO.getCustomerId());
+                   projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+                   projectConstract.setName(project.getName());
+               });
+               List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
+               projectConstractRepository.saveAll(contracts);
+           }
+       }
+
 
         //设置customer updateLastSalesleadIdById
         customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
