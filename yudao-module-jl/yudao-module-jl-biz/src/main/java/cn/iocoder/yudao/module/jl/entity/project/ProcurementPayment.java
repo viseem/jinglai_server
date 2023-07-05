@@ -3,9 +3,11 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
@@ -16,7 +18,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目采购单打款 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,19 +33,33 @@ public class ProcurementPayment extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
+
+    /**
+     * 项目id
+     */
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
+
+    /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
 
     /**
      * 采购单id
      */
-    @Column(name = "procurement_id", nullable = false )
+    @Column(name = "procurement_id", nullable = false)
     private Long procurementId;
 
     /**
      * 打款时间
      */
-    @Column(name = "payment_date", nullable = false )
+    @Column(name = "payment_date", nullable = false)
     private String paymentDate;
 
     /**
@@ -56,7 +71,7 @@ public class ProcurementPayment extends BaseEntity {
     /**
      * 供货商 id
      */
-    @Column(name = "supplier_id", nullable = false )
+    @Column(name = "supplier_id", nullable = false)
     private Long supplierId;
 
     /**

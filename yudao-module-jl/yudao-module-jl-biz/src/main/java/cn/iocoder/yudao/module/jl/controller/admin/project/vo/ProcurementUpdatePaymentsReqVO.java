@@ -15,6 +15,9 @@ public class ProcurementUpdatePaymentsReqVO {
     @Schema(description = "采购单号 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
     private Long procurementId;
 
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
+    private Long projectId;
+
     @Schema(description = "状态")
     private String status;
 

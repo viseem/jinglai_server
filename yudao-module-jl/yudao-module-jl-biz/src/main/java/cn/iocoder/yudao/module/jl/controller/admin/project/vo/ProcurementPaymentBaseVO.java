@@ -14,6 +14,10 @@ import javax.validation.constraints.*;
 @Data
 public class ProcurementPaymentBaseVO {
 
+    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21105")
+    @NotNull(message = "项目id不能为空")
+    private Long projectId;
+
     @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21105")
     @NotNull(message = "采购单id不能为空")
     private Long procurementId;

@@ -333,6 +333,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (saveReqVO.getPayments() != null && saveReqVO.getPayments().size() > 0) {
             List<ProcurementPayment> payments = saveReqVO.getPayments().stream().map(payment -> {
                 payment.setProcurementId(saveReqVO.getProcurementId());
+                payment.setProjectId(saveReqVO.getProjectId());
                 return procurementPaymentMapper.toEntity(payment);
             }).collect(Collectors.toList());
 
