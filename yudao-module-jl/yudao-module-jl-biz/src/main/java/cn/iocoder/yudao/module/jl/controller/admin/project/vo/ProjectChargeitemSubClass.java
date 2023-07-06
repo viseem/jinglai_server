@@ -20,6 +20,10 @@ public class ProjectChargeitemSubClass {
     @NotNull(message = "原始的实验名目 id不能为空")
     private Long categoryId;
 
+    private Long projectId;
+
+    private Long scheduleId;
+
     @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "5750")
     @NotNull(message = "物资 id不能为空")
     private Long chargeItemId;

@@ -51,7 +51,8 @@ public class ProjectSupply extends BaseEntity {
 
     @Column(name = "project_id", nullable = false)
     private Long projectId;
-
+    @Column(name = "schedule_id", nullable = false)
+    private Long scheduleId;
     //    TODO 很大的问题
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @NotFound(action = NotFoundAction.IGNORE)
@@ -66,8 +67,7 @@ public class ProjectSupply extends BaseEntity {
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
 
-    @Column(name = "schedule_id", nullable = false)
-    private Long scheduleId;
+
 
     /**
      * 物资 id
