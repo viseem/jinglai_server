@@ -26,6 +26,10 @@ public class ProjectChargeitemBaseVO {
     @NotNull(message = "物资 id不能为空")
     private Long chargeItemId;
 
+
+    private Long projectId;
+
+    private Long scheduleId;
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名称不能为空")
     private String name;

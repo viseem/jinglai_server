@@ -61,7 +61,10 @@ public class ProjectChargeitem extends BaseEntity {
      */
     @Column(name = "fee_standard", nullable = false )
     private String feeStandard;
-
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
+    @Column(name = "schedule_id", nullable = false)
+    private Long scheduleId;
     /**
      * 单价
      */
