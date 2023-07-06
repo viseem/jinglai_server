@@ -132,4 +132,6 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_CATEGORY_OUTSOURCE_NOT_EXISTS = new ErrorCode(2054100001, "项目实验委外不存在");
 
     ErrorCode PROJECT_REIMBURSE_NOT_EXISTS = new ErrorCode(2054200001, "项目报销不存在");
+
+    ErrorCode PROJECT_CATEGORY_SUPPLIER_NOT_EXISTS = new ErrorCode(2054300001, "项目实验委外供应商不存在");
 }
