@@ -66,6 +66,15 @@ public class ProjectCategoryController {
         return success(true);
     }
 
+
+    @PostMapping("/delete-by")
+    @Operation(summary = "按照条件删除项目的 实验名目")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:delete')")
+    public CommonResult<Boolean> deleteProjectCategoryBy(@Valid @RequestBody ProjectCategoryDeleteByReqVO updateReqVO) {
+        projectCategoryService.deleteProjectCategoryBy(updateReqVO);
+        return success(true);
+    }
+
     @GetMapping("/get")
     @Operation(summary = "通过 ID 获得项目的实验名目")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")

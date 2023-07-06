@@ -13,6 +13,10 @@ import java.util.List;
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
     @Transactional
     @Modifying
+    @Query("delete from ProjectCategory p where p.labId = ?1")
+    int deleteByLabId(Long labId);
+    @Transactional
+    @Modifying
     @Query("update ProjectCategory p set p.hasFeedback = ?2 where p.id = ?1")
     void updateHasFeedbackById( Long id,Byte hasFeedback);
     @Transactional
