@@ -133,6 +133,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 创建采购单明细
         procurementItemMapper.toEntityList(saveReqVO.getItems()).forEach(procurementItem -> {
             procurementItem.setProcurementId(procurementId);
+            procurementItem.setScheduleId(saveReqVO.getScheduleId());
             procurementItemRepository.save(procurementItem);
         });
 
