@@ -35,6 +35,13 @@ public interface ProjectCategoryService {
     void deleteProjectCategory(Long id);
 
     /**
+     * 按照 条件 删除项目的实验名目
+     *
+     * @param deleteByReqVO 编号
+     */
+    void deleteProjectCategoryBy(ProjectCategoryDeleteByReqVO deleteByReqVO);
+
+    /**
      * 获得项目的实验名目
      *
      * @param id 编号

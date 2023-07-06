@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +41,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
+    private final ProjectSupplyRepository projectSupplyRepository;
+
+    public ProjectCategoryServiceImpl(ProjectSupplyRepository projectSupplyRepository) {
+        this.projectSupplyRepository = projectSupplyRepository;
+    }
 
     @Override
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
@@ -65,6 +71,13 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         validateProjectCategoryExists(id);
         // 删除
         projectCategoryRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteProjectCategoryBy(ProjectCategoryDeleteByReqVO deleteByReqVO) {
+        if (deleteByReqVO.getLabId()!=null){
+            projectCategoryRepository.deleteByLabId(deleteByReqVO.getLabId());
+        }
     }
 
     private void validateProjectCategoryExists(Long id) {
