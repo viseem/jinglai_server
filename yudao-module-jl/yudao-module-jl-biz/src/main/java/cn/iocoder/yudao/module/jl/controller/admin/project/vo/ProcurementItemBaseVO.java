@@ -26,6 +26,8 @@ public class ProcurementItemBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
+    private Long scheduleId;
+
     @Schema(description = "采购规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "采购规则/单位不能为空")
     private String feeStandard;

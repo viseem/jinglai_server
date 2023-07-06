@@ -27,6 +27,8 @@ public class ProcurementBaseVO {
     @Schema(description = "状态", example = "2")
     private String status;
 
+    private Long scheduleId;
+
     @Schema(description = "是否需要签收")
     private Boolean waitCheckIn;
 

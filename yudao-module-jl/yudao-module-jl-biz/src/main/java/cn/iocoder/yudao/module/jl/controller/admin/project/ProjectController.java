@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +39,9 @@ public class ProjectController {
 
     @Resource
     private ProjectService projectService;
+
+    @Resource
+    private ProjectScheduleService projectScheduleService;
 
     @Resource
     private ProjectMapper projectMapper;
@@ -79,8 +83,19 @@ public class ProjectController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<ProjectRespVO> getProject(@RequestParam("id") Long id) {
-            Optional<Project> project = projectService.getProject(id);
-        return success(project.map(projectMapper::toDto).orElseThrow(() -> exception(PROJECT_NOT_EXISTS)));
+        Optional<Project> project = projectService.getProject(id);
+        ProjectRespVO ret = project.map(projectMapper::toDto).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+
+        // 计算各类成本
+        Long currentScheduleId =ret.getCurrentScheduleId();
+        ret.setSupplyCost(projectScheduleService.getSupplyCostByScheduleId(currentScheduleId));
+        ret.setChargeItemCost(projectScheduleService.getChargeItemCostByScheduleId(currentScheduleId));
+        ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByScheduleId(currentScheduleId));
+        ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
+        ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
+
+
+        return success(ret);
     }
 
     @GetMapping("/page")

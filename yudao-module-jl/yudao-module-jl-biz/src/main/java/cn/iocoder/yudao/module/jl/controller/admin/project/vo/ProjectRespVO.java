@@ -36,6 +36,21 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private User manager;
 
+    @Schema(description = "物资成本")
+    private Long supplyCost;
+
+    @Schema(description = "采购成本")
+    private Long procurementCost;
+
+    @Schema(description = "收费项的成本")
+    private Long chargeItemCost;
+
+    @Schema(description = "委外的成本")
+    private Long outsourceCost;
+
+    @Schema(description = "报销的成本")
+    private Long reimbursementCost;
+
     private List<ProjectConstractOnly> contracts = new ArrayList<>();
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
 }

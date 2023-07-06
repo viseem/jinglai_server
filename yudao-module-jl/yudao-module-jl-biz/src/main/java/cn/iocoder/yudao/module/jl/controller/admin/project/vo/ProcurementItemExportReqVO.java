@@ -42,7 +42,7 @@ public class ProcurementItemExportReqVO {
     private Long supplierId;
 
     @Schema(description = "原价", example = "31202")
-    private Integer buyPrice;
+    private Integer buyPrice = 0;
 
     @Schema(description = "销售价", example = "22107")
     private Integer salePrice;

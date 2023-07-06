@@ -49,6 +49,9 @@ public class ProjectReimburse extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Integer projectId;
 
+    @Column(name = "schedule_id")
+    private Long scheduleId;
+
     /**
      * 报销内容
      */

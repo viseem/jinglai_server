@@ -40,6 +40,8 @@ public class ProjectCategoryOutsourceBaseVO {
     @NotNull(message = "销售价格不能为空")
     private Integer salePrice;
 
+    private Long scheduleId;
+
     @Schema(description = "购买价格", example = "12412")
     private Integer buyPrice;
 

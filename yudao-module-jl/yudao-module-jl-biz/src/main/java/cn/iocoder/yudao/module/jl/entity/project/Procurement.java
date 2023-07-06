@@ -108,6 +108,9 @@ public class Procurement extends BaseEntity {
     @Column(name = "shipment_codes")
     private String shipmentCodes;
 
+    @Column(name = "schedule_id")
+    private Long scheduleId;
+
     /**
      * 收货人id
      */

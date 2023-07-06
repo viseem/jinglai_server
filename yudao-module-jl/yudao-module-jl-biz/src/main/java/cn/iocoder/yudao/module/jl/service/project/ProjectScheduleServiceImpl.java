@@ -3,11 +3,13 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
+import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -74,6 +76,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectSupplyRepository projectSupplyRepository;
 
     @Resource
+    private ProcurementRepository procurementRepository;
+
+    @Resource
+    private ProjectReimburseRepository projectReimburseRepository;
+
+    @Resource
+    private ProjectCategoryOutsourceRepository projectCategoryOutsourceRepository;
+
+    @Resource
+    private ProcurementItemRepository procurementItemRepository;
+
+    @Resource
     private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
 
     @Resource
@@ -96,6 +110,105 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 返回
         return projectSchedule.getId();
     }
+
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyCostByScheduleId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByScheduleId(id);
+
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getBuyPrice() != null) {
+                cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemCostByScheduleId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByScheduleId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getBuyPrice() != null) {
+                cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的采购成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getProcurementCostByScheduleId(Long id) {
+        long cost = 0;
+
+        // 计算采购的成本
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByScheduleId(id);
+        for (ProcurementItem procurementItem : procurementItemList) {
+            if(procurementItem.getBuyPrice() != null) {
+                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            }
+
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getReimburseCostByScheduleId(Long id) {
+        long cost = 0;
+
+        // 计算报销的成本
+        List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByScheduleId(id );
+        for (ProjectReimburse projectReimburse : projectReimburseList) {
+            if(projectReimburse.getPrice() != null) {
+                cost += projectReimburse.getPrice().longValue();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getCategoryOutSourceCostByScheduleId(Long id) {
+        long cost = 0;
+
+        // 计算委外的成本
+        List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByScheduleId(id);
+        for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
+            if(projectCategoryOutsource.getBuyPrice() != null) {
+                cost += projectCategoryOutsource.getBuyPrice();
+            }
+        }
+
+        return cost;
+    }
+
+
 
     /**
      * @param saveReqVO
