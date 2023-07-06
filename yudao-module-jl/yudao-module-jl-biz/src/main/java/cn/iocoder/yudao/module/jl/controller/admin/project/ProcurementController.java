@@ -48,13 +48,13 @@ public class ProcurementController {
 //        return success(procurementService.createProcurement(createReqVO));
 //    }
 //
-//    @PutMapping("/update")
-//    @Operation(summary = "更新项目采购单申请")
-//    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
-//    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
-//        procurementService.updateProcurement(updateReqVO);
-//        return success(true);
-//    }
+    @PutMapping("/update")
+    @Operation(summary = "更新项目采购单申请")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> updateProcurement(@Valid @RequestBody ProcurementUpdateReqVO updateReqVO) {
+        procurementService.updateProcurement(updateReqVO);
+        return success(true);
+    }
 
     @PutMapping("/save")
     @Operation(summary = "全量保存项目采购单申请")
