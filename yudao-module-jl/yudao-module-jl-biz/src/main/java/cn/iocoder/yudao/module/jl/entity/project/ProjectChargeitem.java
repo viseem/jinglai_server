@@ -75,6 +75,12 @@ public class ProjectChargeitem extends BaseEntity {
     private Integer unitAmount;
 
     /**
+     * 成本价
+     */
+    @Column(name = "buy_price", nullable = false)
+    private Integer buyPrice;
+
+    /**
      * 数量
      */
     @Column(name = "quantity", nullable = false )

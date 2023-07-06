@@ -40,6 +40,9 @@ public class ProjectChargeitemSubClass {
     @NotNull(message = "单量不能为空")
     private Integer unitAmount;
 
+    @Schema(description = "成本价")
+    private Integer buyPrice;
+
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "数量不能为空")
     private Integer quantity;
