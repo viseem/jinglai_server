@@ -4,11 +4,16 @@ import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
 * ProcurementRepository
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Query("select p from Procurement p where p.scheduleId = ?1")
+    List<Procurement> findByScheduleId(Long scheduleId);
+
     @Transactional
     @Modifying
     @Query("update Procurement p set p.shipmentCodes = ?1 where p.id = ?2")

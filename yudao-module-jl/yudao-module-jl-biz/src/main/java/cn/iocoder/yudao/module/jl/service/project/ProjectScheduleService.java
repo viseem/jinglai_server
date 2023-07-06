@@ -20,6 +20,15 @@ public interface ProjectScheduleService {
      */
     Long createProjectSchedule(@Valid ProjectScheduleCreateReqVO createReqVO);
 
+    Long getSupplyCostByScheduleId(Long id);
+
+    Long getChargeItemCostByScheduleId(Long id);
+
+    Long getProcurementCostByScheduleId(Long id);
+
+    Long getReimburseCostByScheduleId(Long id);
+
+    Long getCategoryOutSourceCostByScheduleId(Long id);
 
     Long saveProjectSchedule(@Valid ProjectScheduleSaveReqVO saveReqVO);
 

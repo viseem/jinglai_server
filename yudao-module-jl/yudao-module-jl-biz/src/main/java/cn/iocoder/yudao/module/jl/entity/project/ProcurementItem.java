@@ -47,6 +47,9 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "project_supply_id", nullable = false)
     private Long projectSupplyId;
 
+    @Column(name = "schedule_id")
+    private Long scheduleId;
+
     /**
      * 名称
      */
@@ -70,6 +73,8 @@ public class ProcurementItem extends BaseEntity {
      */
     @Column(name = "unit_amount")
     private Integer unitAmount;
+
+
 
     /**
      * 采购数量

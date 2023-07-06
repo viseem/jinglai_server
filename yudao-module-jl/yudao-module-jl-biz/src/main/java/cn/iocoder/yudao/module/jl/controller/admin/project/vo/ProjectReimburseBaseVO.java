@@ -33,6 +33,8 @@ public class ProjectReimburseBaseVO {
     @NotNull(message = "凭证名字不能为空")
     private String proofName;
 
+    private Long scheduleId;
+
     @Schema(description = "凭证地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
     @NotNull(message = "凭证地址不能为空")
     private String proofUrl;

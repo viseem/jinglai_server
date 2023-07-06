@@ -43,6 +43,9 @@ public class ProjectCategoryOutsource extends BaseEntity {
     @Column(name = "project_category_id", nullable = false )
     private Long projectCategoryId;
 
+    @Column(name = "schedule_id")
+    private Long scheduleId;
+
     /**
      * 类型：项目、实验、其它
      */
