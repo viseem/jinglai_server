@@ -88,7 +88,7 @@ public class ProductSendServiceImpl implements ProductSendService {
 
         //保存新的items
         productSendItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
-            item.setProductSendId(saveProductSendId);
+                item.setProductSendId(saveProductSendId);
             return productSendItemMapper.toEntity(item);
         }).collect(Collectors.toList()));
 

@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -36,6 +41,14 @@ public class ProductSendItem extends BaseEntity {
      */
     @Column(name = "product_send_id", nullable = false )
     private Long productSendId;
+
+
+    @ManyToOne
+    @JoinColumn(name="product_send_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProductSend productSend;
+
 
     /**
      * 产品 id
