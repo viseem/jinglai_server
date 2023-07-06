@@ -137,8 +137,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             List<Long> categoryIds = categories.stream().map(ProjectCategory::getId).collect(Collectors.toList());
             // 删除原来的
 //            projectCategoryRepository.deleteByScheduleId(scheduleId);
-            projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
-            projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
+//            projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
+//            projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectSopRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectCategoryAttachmentRepository.deleteByProjectCategoryIdIn(categoryIds);
 

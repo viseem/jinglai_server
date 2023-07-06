@@ -10,6 +10,9 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class ProjectSupplySubClass {
+
+    private Long id;
+
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10361")
     private Long projectCategoryId;
 
