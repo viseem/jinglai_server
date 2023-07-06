@@ -161,6 +161,19 @@ public class ProjectCategory extends BaseEntity {
     private String stage;
 
 
+    /**
+     * 原始数据
+     */
+    @Column(name = "raw_data")
+    private String rawData;
+
+
+    /**
+     * 是否有反馈
+     */
+    @Column(name = "has_feedback", nullable = false)
+    private Byte hasFeedback;
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference

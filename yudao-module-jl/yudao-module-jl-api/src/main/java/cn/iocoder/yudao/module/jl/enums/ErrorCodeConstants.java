@@ -23,7 +23,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode JOIN_SALESLEAD2REPORT_NOT_EXISTS = new ErrorCode(2010000001, "销售线索中的方案不存在");
 
-    ErrorCode PROJECT_NOT_EXISTS = new ErrorCode(2011000001, "项目管理不存在");
+    ErrorCode PROJECT_NOT_EXISTS = new ErrorCode(2011000001, "项目不存在");
 
     ErrorCode USER_NOT_EXISTS = new ErrorCode(2012000001, "公司用户不存在");
 
@@ -122,4 +122,16 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_CATEGORY_ATTACHMENT_NOT_EXISTS = new ErrorCode(2053600002, "项目实验名目的附件不存在");
 
     ErrorCode PROJECT_CATEGORY_APPROVAL_NOT_EXISTS = new ErrorCode(2053700001, "项目实验名目的状态变更审批不存在");
+
+    ErrorCode PROJECT_APPROVAL_NOT_EXISTS = new ErrorCode(2053800001, "项目的状态变更记录不存在");
+
+    ErrorCode ASSET_DEVICE_NOT_EXISTS = new ErrorCode(2053900001, "公司资产（设备）不存在");
+
+    ErrorCode PROJECT_FUND_LOG_NOT_EXISTS = new ErrorCode(2054000001, "项目款项不存在");
+
+    ErrorCode PROJECT_CATEGORY_OUTSOURCE_NOT_EXISTS = new ErrorCode(2054100001, "项目实验委外不存在");
+
+    ErrorCode PROJECT_REIMBURSE_NOT_EXISTS = new ErrorCode(2054200001, "项目报销不存在");
+
+    ErrorCode PROJECT_CATEGORY_SUPPLIER_NOT_EXISTS = new ErrorCode(2054300001, "项目实验委外供应商不存在");
 }

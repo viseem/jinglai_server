@@ -173,6 +173,10 @@ public class ProcurementServiceImpl implements ProcurementService {
         Specification<Procurement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (pageReqVO.getCreateTime() != null) {
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0],pageReqVO.getCreateTime()[1]));
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -231,6 +235,75 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
+
+
+    @Override
+    public PageResult<Procurement> getProcurementPaidPage(ProcurementPageReqVO pageReqVO, ProcurementPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<Procurement> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (pageReqVO.getCreateTime() != null) {
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0],pageReqVO.getCreateTime()[1]));
+            }
+
+            if (pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
+            if (pageReqVO.getProjectCategoryId() != null) {
+                predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
+            }
+
+            if (pageReqVO.getCode() != null) {
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
+            }
+
+            if (pageReqVO.getShipmentCodes() != null) {
+                predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
+            }
+
+
+                predicates.add(root.get("status").in(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus(),ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus(),ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus()).not());
+
+
+
+            if (pageReqVO.getMark() != null) {
+                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if (pageReqVO.getStartDate() != null) {
+                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
+            }
+            if (pageReqVO.getCheckUserId() != null) {
+                predicates.add(cb.equal(root.get("checkUserId"), pageReqVO.getCheckUserId()));
+            }
+
+            if (pageReqVO.getAddress() != null) {
+                predicates.add(cb.equal(root.get("address"), pageReqVO.getAddress()));
+            }
+
+            if (pageReqVO.getReceiverUserId() != null) {
+                predicates.add(cb.equal(root.get("receiverUserId"), pageReqVO.getReceiverUserId()));
+            }
+
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<Procurement> page = procurementRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
 
     @Override
     public List<Procurement> getProcurementList(ProcurementExportReqVO exportReqVO) {
@@ -329,6 +402,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (saveReqVO.getPayments() != null && saveReqVO.getPayments().size() > 0) {
             List<ProcurementPayment> payments = saveReqVO.getPayments().stream().map(payment -> {
                 payment.setProcurementId(saveReqVO.getProcurementId());
+                payment.setProjectId(saveReqVO.getProjectId());
                 return procurementPaymentMapper.toEntity(payment);
             }).collect(Collectors.toList());
 

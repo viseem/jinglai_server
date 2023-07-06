@@ -18,7 +18,11 @@ public class ProjectConstractBaseVO {
     @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
-    private ProjectOnly project;
+
+    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
+    @NotNull(message = "客户id不能为空")
+    private Long customerId;
+
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 
@@ -29,7 +33,6 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
     private String status;
 
-    private Long customerId;
 
     @Schema(description = "合同类型", example = "1")
     private String type;

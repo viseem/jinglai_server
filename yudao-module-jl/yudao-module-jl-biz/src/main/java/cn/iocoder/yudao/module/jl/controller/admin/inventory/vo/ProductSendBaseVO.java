@@ -18,6 +18,10 @@ public class ProductSendBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+    @Schema(description = "安排单 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "3772")
+    @NotNull(message = "安排单 id不能为空")
+    private Long scheduleId;
+
     @Schema(description = "实验名目库的名目 id", example = "6760")
     private Long projectCategoryId;
 

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
@@ -72,6 +73,14 @@ public class ProductIn extends BaseEntity {
     private Long projectCategoryId;
 
     /**
+     * JPA 级联出 projectCategory
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly projectCategory;
+
+    /**
      * 状态
      */
     @Column(name = "status")
@@ -82,6 +91,13 @@ public class ProductIn extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
+
+    /**
+     * 库管的备注
+     */
+    @Column(name = "reply_mark")
+    private String replyMark;
 
 
     @OneToMany

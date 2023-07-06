@@ -20,6 +20,10 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProjectFundBaseVO {
 
+    @Schema(description = "合同 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "111")
+    @NotNull(message = "合同 id不能为空")
+    private Long contractId;
+
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @NotNull(message = "名称不能为空")
     private String name;
@@ -32,23 +36,18 @@ public class ProjectFundBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+    @Schema(description = "客户 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "27211")
+    @NotNull(message = "客户 id不能为空")
+    private Long customerId;
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
     private String status;
 
-    @Schema(description = "支付时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime paidTime;
+    @Schema(description = "排序")
+    private Integer sort;
 
     @Schema(description = "支付的截止时间")
     private LocalDate deadline;
 
-    @Schema(description = "支付凭证上传地址", example = "https://www.iocoder.cn")
-    private String receiptUrl;
 
-    @Schema(description = "支付凭证文件名称", example = "芋艿")
-    private String receiptName;
-
-    @Schema(description = "排序")
-    private Integer sort;
 
 }

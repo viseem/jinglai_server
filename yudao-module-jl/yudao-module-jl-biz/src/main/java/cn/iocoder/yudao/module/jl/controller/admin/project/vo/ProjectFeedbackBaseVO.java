@@ -19,6 +19,7 @@ public class ProjectFeedbackBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "5559")
     private Long projectCategoryId;
 
@@ -31,7 +32,7 @@ public class ProjectFeedbackBaseVO {
     @Schema(description = "内部人员 id", example = "5172")
     private Long userId;
 
-    @Schema(description = "客户 id", example = "13743")
+    @Schema(description = "客户 id", example = "13743", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")

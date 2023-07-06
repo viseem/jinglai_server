@@ -94,7 +94,7 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         }).collect(Collectors.toList()));
 
         //同意出库 更新projectSupply库存
-        if(saveReqVO.getStatus() == InventorySupplyOutApprovalEnums.ACCEPT.getStatus()){
+/*        if(saveReqVO.getStatus() == InventorySupplyOutApprovalEnums.ACCEPT.getStatus()){
             saveReqVO.getItems().forEach(item->{
                 if(item.getProjectSupplyId()!=null){
                     Optional<ProjectSupply> projectSupply = projectSupplyRepository.findById(item.getProjectSupplyId());
@@ -104,7 +104,7 @@ public class SupplyOutServiceImpl implements SupplyOutService {
                     });
                 }
             });
-        }
+        }*/
 
         // 返回
         return supplyOut.getId();

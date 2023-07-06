@@ -24,7 +24,12 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
 
     @Schema(description = "项目名字", example = "[]")
     private String projectName;
-
+    @Schema(description = "项目类型", example = "")
+    private String type;
     @Schema(description = "项目合同", example = "[]")
     private List<ProjectConstractItemVO> projectConstracts = new ArrayList<>();
+
+
+
+
 }

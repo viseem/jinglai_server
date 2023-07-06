@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -139,8 +140,24 @@ public class Project extends BaseEntity {
     private ProjectSchedule currentSchedule;
 
 
+/*    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectConstract> constracts = new ArrayList<>();*/
+
+    /**
+     * 查询合同列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectConstractOnly> contracts = new ArrayList<>();
+
+    /**
+     * 查询款项列表
+     */
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstract> constracts = new ArrayList<>();
+    private List<ProjectFundLog> fundLogs = new ArrayList<>();
 }

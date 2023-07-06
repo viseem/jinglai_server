@@ -70,49 +70,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
     @Override
     public Long saveProjectCategoryApproval(ProjectCategoryApprovalSaveReqVO saveReqVO) {
 
-        // 批准该条申请
-//        if (Objects.equals(saveReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
-//
-//            // 校验approval是否存在
-//            if(saveReqVO.getId()==null){
-//                throw exception(PROJECT_CATEGORY_APPROVAL_NOT_EXISTS);
-//            }
-//            validateProjectCategoryApprovalExists(saveReqVO.getId());
-//
-//            // 校验projectCategory是否存在,并修改状态
-//            projectCategoryRepository.findById(saveReqVO.getProjectCategoryId()).ifPresent(category -> {
-//                category.setStage(saveReqVO.getStage());
-//                projectCategoryRepository.save(category);
-//            });
-//
-//        }
-
-        // 拒绝该条申请
-//        if (Objects.equals(saveReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_FAIL.getStatus())) {
-//
-//            // 校验approval是否存在
-//            if(saveReqVO.getId()==null){
-//                throw exception(PROJECT_CATEGORY_APPROVAL_NOT_EXISTS);
-//            }
-//            validateProjectCategoryApprovalExists(saveReqVO.getId());
-//
-//        }
-
-        //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
-//        if (Objects.equals(saveReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-//            projectCategoryRepository.findById(saveReqVO.getProjectCategoryId()).ifPresent(category -> {
-//                category.setStage(saveReqVO.getStage());
-//                projectCategoryRepository.save(category);
-//            });
-//        }
-
-        //只存一条approval，打开这个注释，这个代码是获取主键id，这样save就是修改了；注释掉就只是新增
-/*       if(saveReqVO.getProjectCategoryId() != null &&saveReqVO.getProjectCategoryId()>0){
-           ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalRepository.findByProjectCategoryId(saveReqVO.getProjectCategoryId());
-           if(projectCategoryApproval !=null && projectCategoryApproval.getId()!=null ){
-               saveReqVO.setId(projectCategoryApproval.getId());
-           }
-       }*/
         ProjectCategoryApproval projectCategoryApprovalCreate = projectCategoryApprovalMapper.toEntity(saveReqVO);
         projectCategoryApprovalRepository.save(projectCategoryApprovalCreate);
 
@@ -131,9 +88,11 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
             // 校验projectCategory是否存在,并修改状态
-            projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresent(category -> {
+            projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresentOrElse(category -> {
                 category.setStage(updateReqVO.getStage());
                 projectCategoryRepository.save(category);
+            },()->{
+                throw exception(PROJECT_CATEGORY_NOT_EXISTS);
             });
 
         }

@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -31,7 +36,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目反馈 Service 实现类
- *
  */
 @Service
 @Validated
@@ -39,6 +43,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
     @Resource
     private ProjectFeedbackRepository projectFeedbackRepository;
+
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
     private ProjectFeedbackMapper projectFeedbackMapper;
@@ -49,6 +56,11 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
         projectFeedback.setStatus("2");
         projectFeedbackRepository.save(projectFeedback);
+
+        // 如果是projectCategory的反馈，则更新projectCategory的字段 TODO 可能会更新失败
+        if (createReqVO.getProjectCategoryId() != null && createReqVO.getProjectCategoryId() > 0) {
+            projectCategoryRepository.updateHasFeedbackById(createReqVO.getProjectCategoryId(), (byte) 1);
+        }
 
         // 返回
         return projectFeedback.getId();
@@ -98,43 +110,43 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getProjectStage() != null) {
+            if (pageReqVO.getProjectStage() != null) {
                 predicates.add(cb.equal(root.get("getProjectStage"), pageReqVO.getProjectStage()));
             }
 
-            if(pageReqVO.getFeedType() != null) {
+            if (pageReqVO.getFeedType() != null) {
                 predicates.add(cb.equal(root.get("feedType"), pageReqVO.getFeedType()));
             }
 
-            if(pageReqVO.getUserId() != null) {
+            if (pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
+            if (pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
 
-            if(pageReqVO.getType() != null) {
+            if (pageReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getContent() != null) {
+            if (pageReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
             }
 
-            if(pageReqVO.getResult() != null) {
+            if (pageReqVO.getResult() != null) {
                 predicates.add(cb.equal(root.get("result"), pageReqVO.getResult()));
             }
 
@@ -155,35 +167,35 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getUserId() != null) {
+            if (exportReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), exportReqVO.getUserId()));
             }
 
-            if(exportReqVO.getCustomerId() != null) {
+            if (exportReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
             }
 
-            if(exportReqVO.getType() != null) {
+            if (exportReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
-            if(exportReqVO.getContent() != null) {
+            if (exportReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), exportReqVO.getContent()));
             }
 
-            if(exportReqVO.getResult() != null) {
+            if (exportReqVO.getResult() != null) {
                 predicates.add(cb.equal(root.get("result"), exportReqVO.getResult()));
             }
 

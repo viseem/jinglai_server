@@ -83,4 +83,10 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "当前实验的状态")
     private String stage;
 
+    /**
+     * 原始数据富文本
+     */
+    @Schema(description = "原始数据")
+    private String rawData;
+
 }

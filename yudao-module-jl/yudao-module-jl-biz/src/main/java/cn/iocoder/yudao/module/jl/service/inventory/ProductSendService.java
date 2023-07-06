@@ -27,6 +27,14 @@ public interface ProductSendService {
      */
     void updateProductSend(@Valid ProductSendUpdateReqVO updateReqVO);
 
+
+    /**
+     * save更新实验产品寄送
+     *
+     * @param saveReqVO 更新信息
+     */
+    void saveProductSend(@Valid ProductSendSaveReqVO saveReqVO);
+
     /**
      * 删除实验产品寄送
      *

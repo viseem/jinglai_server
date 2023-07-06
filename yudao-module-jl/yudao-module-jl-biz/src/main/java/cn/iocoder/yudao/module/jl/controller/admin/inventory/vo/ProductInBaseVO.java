@@ -39,4 +39,6 @@ public class ProductInBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "库管的备注")
+    private String replyMark;
 }

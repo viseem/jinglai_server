@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,4 +22,6 @@ public class ProcurementPaymentRespVO extends ProcurementPaymentBaseVO {
     private SupplierRespVO supplier;
 
     private Procurement procurement;
+
+    private ProjectOnly project;
 }

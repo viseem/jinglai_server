@@ -1,18 +1,26 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
  * 实验产品寄送 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,14 +36,20 @@ public class ProductSend extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 项目 id
      */
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
+
+    /**
+     * 项目 id
+     */
+    @Column(name = "schedule_id", nullable = false)
+    private Long scheduleId;
 
     /**
      * 实验名目库的名目 id
@@ -85,4 +99,12 @@ public class ProductSend extends BaseEntity {
     @Column(name = "receiver_phone")
     private String receiverPhone;
 
+    /**
+     * send items
+     */
+    @OneToMany(mappedBy = "productSend",fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonManagedReference
+    private List<ProductSendItem> items;
 }

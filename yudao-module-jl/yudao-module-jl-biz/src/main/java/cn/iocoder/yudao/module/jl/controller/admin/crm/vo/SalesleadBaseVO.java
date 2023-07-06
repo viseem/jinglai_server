@@ -31,7 +31,7 @@ public class SalesleadBaseVO {
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "状态不能为空")
-    private Integer status;
+    private String status;
 
     @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11635")
     @NotNull(message = "客户id不能为空")

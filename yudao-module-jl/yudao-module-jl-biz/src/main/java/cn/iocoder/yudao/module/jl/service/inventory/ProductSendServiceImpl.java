@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOut;
+import cn.iocoder.yudao.module.jl.mapper.inventory.ProductSendItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.ProductSendItemRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +42,13 @@ public class ProductSendServiceImpl implements ProductSendService {
     private ProductSendRepository productSendRepository;
 
     @Resource
+    private ProductSendItemRepository productSendItemRepository;
+
+    @Resource
     private ProductSendMapper productSendMapper;
+
+    @Resource
+    private ProductSendItemMapper productSendItemMapper;
 
     @Override
     public Long createProductSend(ProductSendCreateReqVO createReqVO) {
@@ -57,6 +66,32 @@ public class ProductSendServiceImpl implements ProductSendService {
         // 更新
         ProductSend updateObj = productSendMapper.toEntity(updateReqVO);
         productSendRepository.save(updateObj);
+    }
+
+    @Override
+    public void saveProductSend(ProductSendSaveReqVO saveReqVO) {
+
+
+        Long productSendId = saveReqVO.getId();
+
+        //存在 id，校验存在
+        if (productSendId != null) {
+            validateProductSendExists(productSendId);
+        }
+
+        // 创建、或更新主表
+        ProductSend productSend = productSendMapper.toEntity(saveReqVO);
+        productSend = productSendRepository.save(productSend);
+        Long saveProductSendId = productSend.getId();
+        //删除原来的items
+//        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
+
+        //保存新的items
+        productSendItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+                item.setProductSendId(saveProductSendId);
+            return productSendItemMapper.toEntity(item);
+        }).collect(Collectors.toList()));
+
     }
 
     @Override
