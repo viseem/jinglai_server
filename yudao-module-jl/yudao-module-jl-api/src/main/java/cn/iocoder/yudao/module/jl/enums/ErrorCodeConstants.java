@@ -130,4 +130,6 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_FUND_LOG_NOT_EXISTS = new ErrorCode(2054000001, "项目款项不存在");
 
     ErrorCode PROJECT_CATEGORY_OUTSOURCE_NOT_EXISTS = new ErrorCode(2054100001, "项目实验委外不存在");
+
+    ErrorCode PROJECT_REIMBURSE_NOT_EXISTS = new ErrorCode(2054200001, "项目报销不存在");
 }
