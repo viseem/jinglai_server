@@ -18,8 +18,7 @@ public class ProjectCategoryOutsourceBaseVO {
     @NotNull(message = "项目id不能为空")
     private Long projectId;
 
-    @Schema(description = "项目的实验名目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11020")
-    @NotNull(message = "项目的实验名目id不能为空")
+    @Schema(description = "项目的实验名目id")
     private Long projectCategoryId;
 
     @Schema(description = "类型：项目、实验、其它", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
