@@ -14,6 +14,9 @@ public interface ProductSendItemMapper {
 
     ProductSendItem toEntity(ProductSendItemUpdateReqVO dto);
 
+    ProductSendItem toEntity(ProductSendItem dto);
+
+
     ProductSendItemRespVO toDto(ProductSendItem entity);
 
 

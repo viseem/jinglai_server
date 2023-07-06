@@ -12,6 +12,8 @@ import org.mapstruct.*;
 public interface ProductSendMapper {
     ProductSend toEntity(ProductSendCreateReqVO dto);
 
+    ProductSend toEntity(ProductSendSaveReqVO dto);
+
     ProductSend toEntity(ProductSendUpdateReqVO dto);
 
     ProductSendRespVO toDto(ProductSend entity);

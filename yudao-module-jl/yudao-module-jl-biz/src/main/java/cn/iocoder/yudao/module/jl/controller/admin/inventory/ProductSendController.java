@@ -57,6 +57,14 @@ public class ProductSendController {
         return success(true);
     }
 
+    @PutMapping("/save")
+    @Operation(summary = "save 更新实验产品寄送")
+    @PreAuthorize("@ss.hasPermission('jl:product-send:update')")
+    public CommonResult<Boolean> saveProductSend(@Valid @RequestBody ProductSendSaveReqVO saveReqVO) {
+        productSendService.saveProductSend(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除实验产品寄送")
     @Parameter(name = "id", description = "编号", required = true)
