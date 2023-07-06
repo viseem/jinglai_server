@@ -92,7 +92,7 @@ public class ProcurementItem extends BaseEntity {
      * 原价
      */
     @Column(name = "buy_price")
-    private Integer buyPrice;
+    private Integer buyPrice = 0;
 
     /**
      * 销售价

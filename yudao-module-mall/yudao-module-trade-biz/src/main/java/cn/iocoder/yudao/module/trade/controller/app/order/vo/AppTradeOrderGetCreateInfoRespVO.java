@@ -84,7 +84,7 @@ public class AppTradeOrderGetCreateInfoRespVO {
         /**
          * 购买单价，单位：分
          */
-        private Integer buyPrice;
+        private Integer buyPrice = 0;
         /**
          * 最终价格，单位：分。
          */

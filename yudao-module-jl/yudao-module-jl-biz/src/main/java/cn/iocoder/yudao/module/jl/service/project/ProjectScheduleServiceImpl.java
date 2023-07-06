@@ -123,7 +123,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByScheduleId(id);
 
         for (ProjectSupply projectSupply : projectSupplyList) {
-            cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
+            if (projectSupply.getBuyPrice() != null) {
+                cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
+            }
         }
 
         return cost;
@@ -140,7 +142,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算收费项的成本
         List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByScheduleId(id);
         for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
-            cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            if (projectChargeitem.getBuyPrice() != null) {
+                cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            }
         }
 
         return cost;
@@ -157,7 +161,10 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算采购的成本
         List<ProcurementItem> procurementItemList = procurementItemRepository.findByScheduleId(id);
         for (ProcurementItem procurementItem : procurementItemList) {
-            cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            if(procurementItem.getBuyPrice() != null) {
+                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            }
+
         }
 
         return cost;
@@ -174,7 +181,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算报销的成本
         List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByScheduleId(id );
         for (ProjectReimburse projectReimburse : projectReimburseList) {
-            cost += projectReimburse.getPrice().longValue();
+            if(projectReimburse.getPrice() != null) {
+                cost += projectReimburse.getPrice().longValue();
+            }
         }
 
         return cost;
@@ -191,7 +200,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算委外的成本
         List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByScheduleId(id);
         for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
-            cost += projectCategoryOutsource.getBuyPrice();
+            if(projectCategoryOutsource.getBuyPrice() != null) {
+                cost += projectCategoryOutsource.getBuyPrice();
+            }
         }
 
         return cost;

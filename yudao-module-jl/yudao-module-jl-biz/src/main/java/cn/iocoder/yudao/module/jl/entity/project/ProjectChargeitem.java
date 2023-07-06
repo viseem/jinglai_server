@@ -80,8 +80,8 @@ public class ProjectChargeitem extends BaseEntity {
     /**
      * 成本价
      */
-    @Column(name = "buy_price", nullable = false)
-    private Integer buyPrice;
+    @Column(name = "buy_price")
+    private Integer buyPrice = 0;
 
     /**
      * 数量

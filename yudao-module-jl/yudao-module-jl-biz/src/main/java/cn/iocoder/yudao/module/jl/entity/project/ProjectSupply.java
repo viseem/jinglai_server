@@ -103,7 +103,7 @@ public class ProjectSupply extends BaseEntity {
      * 成本价
      */
     @Column(name = "buy_price", nullable = false)
-    private Integer buyPrice;
+    private Integer buyPrice = 0;
 
     /**
      * 数量

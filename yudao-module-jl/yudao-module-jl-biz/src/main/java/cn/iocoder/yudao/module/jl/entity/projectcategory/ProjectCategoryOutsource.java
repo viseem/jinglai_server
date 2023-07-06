@@ -80,7 +80,7 @@ public class ProjectCategoryOutsource extends BaseEntity {
      * 购买价格
      */
     @Column(name = "buy_price")
-    private Integer buyPrice;
+    private Integer buyPrice = 0;
 
     /**
      * 凭证名字
