@@ -107,6 +107,12 @@ public class ProcurementItem extends BaseEntity {
     private String mark;
 
     /**
+     * 付款周期
+     */
+    @Column(name = "payment_cycle")
+    private String paymentCycle;
+
+    /**
      * 有效期
      */
     @Column(name = "valid_date")

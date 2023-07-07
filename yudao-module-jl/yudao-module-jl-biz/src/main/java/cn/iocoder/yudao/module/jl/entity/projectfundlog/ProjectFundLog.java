@@ -41,7 +41,7 @@ public class ProjectFundLog extends BaseEntity {
      * 收款金额
      */
     @Column(name = "price", nullable = false )
-    private Long price;
+    private Integer price;
 
     /**
      * 项目 id

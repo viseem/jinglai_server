@@ -22,4 +22,7 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
 
 
     private User sales;
+
+    //合同的已收金额合计
+    private Integer receivedPrice;
 }
