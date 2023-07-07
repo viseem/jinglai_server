@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -43,6 +47,14 @@ public class ProjectCategoryOutsource extends BaseEntity {
     @Column(name = "project_category_id", nullable = false )
     private Long projectCategoryId;
 
+    /**
+     * JPA 级联出 实验
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly projectCategory;
+
     @Column(name = "schedule_id")
     private Long scheduleId;
 
@@ -63,6 +75,15 @@ public class ProjectCategoryOutsource extends BaseEntity {
      */
     @Column(name = "category_supplier_id")
     private Integer categorySupplierId;
+
+    /**
+     * JPA 级联出 委外供应商
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "category_supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategorySupplier supplier;
+
 
     /**
      * 供应商报价
@@ -99,5 +120,6 @@ public class ProjectCategoryOutsource extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
 
 }
