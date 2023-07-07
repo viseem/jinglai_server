@@ -78,6 +78,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 /*        List<ProjectFundLog> sops = projectFundLogMapper.toEntity(saveReqVO.getItems());
         projectFundLogRepository.saveAll(sops);*/
         projectFundLogMapper.toEntity(saveReqVO.getItems()).forEach(item -> {
+            item.setContractId(saveReqVO.getContractId());
             item.setProjectId(saveReqVO.getProjectId());
             item.setProjectFundId(saveReqVO.getId());
             projectFundLogRepository.save(item);

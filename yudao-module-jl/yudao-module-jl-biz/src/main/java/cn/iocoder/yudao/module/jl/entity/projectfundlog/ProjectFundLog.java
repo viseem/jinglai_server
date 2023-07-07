@@ -44,6 +44,12 @@ public class ProjectFundLog extends BaseEntity {
     private Integer price;
 
     /**
+     * 合同 id
+     */
+    @Column(name = "contract_id", nullable = false )
+    private Long contractId;
+
+    /**
      * 项目 id
      */
     @Column(name = "project_id", nullable = false )
