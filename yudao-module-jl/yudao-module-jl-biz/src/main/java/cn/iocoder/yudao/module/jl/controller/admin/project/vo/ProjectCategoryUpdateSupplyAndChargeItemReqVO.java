@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Schema(description = "管理后台 - 项目的实验名目创建 Request VO")
@@ -17,6 +18,6 @@ public class ProjectCategoryUpdateSupplyAndChargeItemReqVO extends ProjectCatego
     @Schema(description = "项目实验 id", example = "1")
     private Long projectCategoryId;
 
-    private List<ProjectChargeitemCreateReqVO> chargeList;
-    private List<ProjectSupplyCreateReqVO> supplyList;
+    private List<ProjectChargeitemCreateReqVO> chargeList = new ArrayList<>();
+    private List<ProjectSupplyCreateReqVO> supplyList = new ArrayList<>();
 }
