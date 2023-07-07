@@ -173,6 +173,21 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 
         // 执行查询
         Page<ProjectFund> page = projectFundRepository.findAll(spec, pageable);
+        List<ProjectFund> projectFunds = page.getContent();
+
+        //计算已收金额
+        if (projectFunds.size() > 0) {
+            projectFunds.forEach(item -> {
+                Integer receivedPrice = 0;
+                if (item.getItems().size() > 0) {
+                    receivedPrice = item.getItems().stream()
+                            .mapToInt(ProjectFundLog::getPrice)
+                            .sum();
+                }
+
+                item.setReceivedPrice(receivedPrice);
+            });
+        }
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

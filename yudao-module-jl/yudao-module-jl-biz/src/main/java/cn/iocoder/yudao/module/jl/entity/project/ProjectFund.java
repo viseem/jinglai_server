@@ -14,6 +14,7 @@ import org.hibernate.annotations.NotFoundAction;
 import java.time.LocalDate;
 import java.util.*;
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -60,7 +61,13 @@ public class ProjectFund extends BaseEntity {
      * 资金额度
      */
     @Column(name = "price", nullable = false)
-    private Long price;
+    private Integer price;
+
+    /**
+     * 已收款项
+     */
+    @Transient
+    private Integer receivedPrice;
 
     /**
      * 项目 id
