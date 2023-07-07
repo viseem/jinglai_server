@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategorySupplier;
 import io.swagger.v3.oas.annotations.media.Schema;
+import liquibase.hub.model.Project;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -15,5 +18,8 @@ public class ProjectCategoryOutsourceRespVO extends ProjectCategoryOutsourceBase
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
+
+    private ProjectCategoryOnly projectCategory;
+    private ProjectCategorySupplier supplier;
 
 }
