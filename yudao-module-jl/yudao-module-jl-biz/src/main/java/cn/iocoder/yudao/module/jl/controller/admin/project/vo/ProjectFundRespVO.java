@@ -27,4 +27,7 @@ public class ProjectFundRespVO extends ProjectFundBaseVO {
     private ProjectConstractOnly contract;
 
     private List<ProjectFundLog> items;
+
+    // 已收款项
+    private Integer receivedPrice;
 }
