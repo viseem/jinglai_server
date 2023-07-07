@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -26,6 +27,9 @@ public class ProjectChargeitemBaseVO {
     @NotNull(message = "物资 id不能为空")
     private Long chargeItemId;
 
+    private Integer finalUsageNum;
+
+    private Integer isAppend;
 
     private Long projectId;
 

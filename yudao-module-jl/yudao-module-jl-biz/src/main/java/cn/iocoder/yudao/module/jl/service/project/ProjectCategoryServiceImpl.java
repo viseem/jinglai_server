@@ -1,5 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -41,11 +46,18 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
-    private final ProjectSupplyRepository projectSupplyRepository;
 
-    public ProjectCategoryServiceImpl(ProjectSupplyRepository projectSupplyRepository) {
-        this.projectSupplyRepository = projectSupplyRepository;
-    }
+    @Resource
+    private ProjectSupplyRepository projectSupplyRepository;
+
+    @Resource
+    private ProjectChargeitemRepository projectChargeitemRepository;
+
+    @Resource
+    private ProjectChargeitemMapper projectChargeitemMapper;
+
+    @Resource
+    private ProjectSupplyMapper projectSupplyMapper;
 
     @Override
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
@@ -54,6 +66,47 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectCategoryRepository.save(projectCategory);
         // 返回
         return projectCategory.getId();
+    }
+
+    /** 更新项目的实验名目的收费项和物资项
+     * @param updateReqVO
+     * @return
+     */
+    @Override
+    public Boolean updateSupplyAndChargeItem(ProjectCategoryUpdateSupplyAndChargeItemReqVO updateReqVO) {
+        List<ProjectChargeitem> chargeList = updateReqVO.getChargeList();
+        // 遍历 chargeList ，更新数据
+        chargeList.forEach(chargeItem -> {
+            if(chargeItem.getId() == null) {
+                chargeItem.setIsAppend(1);
+                chargeItem.setCategoryId(updateReqVO.getCategoryId());
+                chargeItem.setProjectCategoryId(updateReqVO.getProjectCategoryId());
+                chargeItem.setScheduleId(updateReqVO.getScheduleId());
+                chargeItem.setQuantity(0);
+                chargeItem.setChargeItemId(chargeItem.getChargeItemId());
+                chargeItem.setProjectId(updateReqVO.getProjectId());
+            }
+
+        });
+        projectChargeitemRepository.saveAll(chargeList);
+
+
+        List<ProjectSupply> supplyList = updateReqVO.getSupplyList();
+        // 遍历 supplyList ，更新数据
+        supplyList.forEach(supplyItem -> {
+            if(supplyItem.getId() == null) {
+                supplyItem.setIsAppend(1);
+                supplyItem.setIsAppend(1);
+                supplyItem.setCategoryId(updateReqVO.getCategoryId());
+                supplyItem.setProjectCategoryId(updateReqVO.getProjectCategoryId());
+                supplyItem.setScheduleId(updateReqVO.getScheduleId());
+                supplyItem.setQuantity(supplyItem.getFinalUsageNum());
+                supplyItem.setProjectId(updateReqVO.getProjectId());
+            }
+        });
+        projectSupplyRepository.saveAll(supplyList);
+
+        return null;
     }
 
     @Override

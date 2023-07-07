@@ -49,6 +49,14 @@ public class ProjectCategoryController {
         return success(projectCategoryService.createProjectCategory(createReqVO));
     }
 
+    @PostMapping("/update-supply-and-chargeitem")
+    @Operation(summary = "更新实验物资和收费项")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:create')")
+    public CommonResult<Boolean> updateSupplyAndChargeItem(@Valid @RequestBody ProjectCategoryUpdateSupplyAndChargeItemReqVO updateReqVO) {
+
+        return success(projectCategoryService.updateSupplyAndChargeItem(updateReqVO));
+    }
+
     @PutMapping("/update")
     @Operation(summary = "更新项目的实验名目")
     @PreAuthorize("@ss.hasPermission('jl:project-category:update')")
