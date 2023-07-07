@@ -164,13 +164,19 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 已入库的
         if (projectSupplies.size() > 0) {
             projectSupplies.forEach(item -> {
-                Integer inedQuantity = 0; // 重新初始化 inQuantity 变量为 0
-                Integer outedQuantity = 0; // 重新初始化 inQuantity 变量为 0
+                Integer inedQuantity = 0; // 已入库数量
+                Integer outedQuantity = 0; // 已出库数量
+                Integer procurementedQuantity = 0;
 
                 String source = item.getSource();
+                //todo  这里不严谨 按说应该判断对应物资的来源
                 if (item.getProcurements().size() > 0) {
                     inedQuantity = item.getProcurements().stream()
                             .mapToInt(ProcurementItem::getInQuantity)
+                            .sum();
+
+                    procurementedQuantity = item.getProcurements().stream()
+                            .mapToInt(ProcurementItem::getQuantity)
                             .sum();
                 }
                 if (item.getSendIns().size() > 0) {
@@ -186,10 +192,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
                 if (item.getSupplyOutItems().size() > 0) {
                     outedQuantity += item.getSupplyOutItems().stream()
-                            .mapToInt(SupplyOutItem::getOutQuantity)
+                            .mapToInt(SupplyOutItem::getStoreOut)
                             .sum();
                 }
-
+                item.setProcurementedQuantity(procurementedQuantity);
                 item.setInedQuantity(inedQuantity);
                 item.setOutedQuantity(outedQuantity);
                 item.setRemainQuantity(inedQuantity - outedQuantity);

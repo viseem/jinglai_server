@@ -37,4 +37,6 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
     private Integer outedQuantity;
     private Integer remainQuantity;
 
+    private Integer procurementedQuantity;
+
 }

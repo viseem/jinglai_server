@@ -61,6 +61,9 @@ public class ProcurementItemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "付款周期")
+    private String paymentCycle;
+
     @Schema(description = "有效期", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String validDate;
 
