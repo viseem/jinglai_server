@@ -37,6 +37,7 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
     private Integer outedQuantity;
     private Integer remainQuantity;
 
+    //已申请------的采购数量
     private Integer procurementedQuantity;
 
 }

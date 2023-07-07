@@ -166,7 +166,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
             projectSupplies.forEach(item -> {
                 Integer inedQuantity = 0; // 已入库数量
                 Integer outedQuantity = 0; // 已出库数量
-                Integer procurementedQuantity = 0;
+                Integer procurementedQuantity = 0; //已申请采购的数量
 
                 String source = item.getSource();
                 //todo  这里不严谨 按说应该判断对应物资的来源
