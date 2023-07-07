@@ -12,12 +12,20 @@ import java.util.List;
 
 @Schema(description = "管理后台 - 项目的实验名目创建 Request VO")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ProjectCategoryUpdateSupplyAndChargeItemReqVO extends ProjectCategoryBaseVO {
-    @Schema(description = "项目实验 id", example = "1")
+public class ProjectCategoryUpdateSupplyAndChargeItemReqVO {
+    @Schema(description = "实验名目 id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long categoryId;
+
+    @Schema(description = "projectCategoryId id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long projectCategoryId;
 
-    private List<ProjectChargeitemCreateReqVO> chargeList = new ArrayList<>();
-    private List<ProjectSupplyCreateReqVO> supplyList = new ArrayList<>();
+    @Schema(description = "scheduleId id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long scheduleId;
+
+    @Schema(description = "projectId id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long projectId;
+
+    private List<ProjectChargeitem> chargeList = new ArrayList<>();
+    private List<ProjectSupply> supplyList = new ArrayList<>();
 }

@@ -74,26 +74,37 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
      */
     @Override
     public Boolean updateSupplyAndChargeItem(ProjectCategoryUpdateSupplyAndChargeItemReqVO updateReqVO) {
-        Long projectCategoryId = updateReqVO.getProjectCategoryId();
-        List<ProjectChargeitemCreateReqVO> chargeList = updateReqVO.getChargeList();
+        List<ProjectChargeitem> chargeList = updateReqVO.getChargeList();
         // 遍历 chargeList ，更新数据
         chargeList.forEach(chargeItem -> {
-            ProjectChargeitem updateObj = projectChargeitemMapper.toEntity(chargeItem);
-            if(updateObj.getId() == null) {
-                updateObj.setIsAppend(1);
+            if(chargeItem.getId() == null) {
+                chargeItem.setIsAppend(1);
+                chargeItem.setCategoryId(updateReqVO.getCategoryId());
+                chargeItem.setProjectCategoryId(updateReqVO.getProjectCategoryId());
+                chargeItem.setScheduleId(updateReqVO.getScheduleId());
+                chargeItem.setQuantity(0);
+                chargeItem.setChargeItemId(chargeItem.getChargeItemId());
+                chargeItem.setProjectId(updateReqVO.getProjectId());
             }
-            projectChargeitemRepository.save(updateObj);
-        });
 
-        List<ProjectSupplyCreateReqVO> supplyList = updateReqVO.getSupplyList();
+        });
+        projectChargeitemRepository.saveAll(chargeList);
+
+
+        List<ProjectSupply> supplyList = updateReqVO.getSupplyList();
         // 遍历 supplyList ，更新数据
         supplyList.forEach(supplyItem -> {
-            ProjectSupply updateObj = projectSupplyMapper.toEntity(supplyItem);
-            if(updateObj.getId() == null) {
-                updateObj.setIsAppend(1);
+            if(supplyItem.getId() == null) {
+                supplyItem.setIsAppend(1);
+                supplyItem.setIsAppend(1);
+                supplyItem.setCategoryId(updateReqVO.getCategoryId());
+                supplyItem.setProjectCategoryId(updateReqVO.getProjectCategoryId());
+                supplyItem.setScheduleId(updateReqVO.getScheduleId());
+                supplyItem.setQuantity(supplyItem.getFinalUsageNum());
+                supplyItem.setProjectId(updateReqVO.getProjectId());
             }
-            projectSupplyRepository.save(updateObj);
         });
+        projectSupplyRepository.saveAll(supplyList);
 
         return null;
     }

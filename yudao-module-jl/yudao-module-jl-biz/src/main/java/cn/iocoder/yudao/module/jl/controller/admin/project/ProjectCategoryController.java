@@ -53,6 +53,7 @@ public class ProjectCategoryController {
     @Operation(summary = "更新实验物资和收费项")
     @PreAuthorize("@ss.hasPermission('jl:project-category:create')")
     public CommonResult<Boolean> updateSupplyAndChargeItem(@Valid @RequestBody ProjectCategoryUpdateSupplyAndChargeItemReqVO updateReqVO) {
+
         return success(projectCategoryService.updateSupplyAndChargeItem(updateReqVO));
     }
 

@@ -65,6 +65,7 @@ public class ProjectSupply extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ProjectOnly project;
 
 
@@ -206,21 +207,21 @@ public class ProjectSupply extends BaseEntity {
     private List<SupplyOutItem> supplyOutItems;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id")
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id")
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
     private List<SupplySendInItem> sendIns;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id")
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
