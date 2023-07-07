@@ -1,5 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
+import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -139,8 +144,28 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
+
         // 执行查询
         Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
+        
+        List<ProjectConstract> contracts = page.getContent();
+        
+        //计算已收金额
+
+        if (contracts.size() > 0) {
+            contracts.forEach(item -> {
+                Integer receivedPrice = 0;
+                if (item.getFundLogs().size() > 0) {
+                    receivedPrice = item.getFundLogs().stream()
+                            .mapToInt(ProjectFundLog::getPrice)
+                            .sum();
+                }
+
+                item.setReceivedPrice(receivedPrice);
+            });
+        }
+
+
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

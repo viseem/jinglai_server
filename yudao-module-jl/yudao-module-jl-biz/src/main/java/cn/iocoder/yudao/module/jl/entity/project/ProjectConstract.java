@@ -2,12 +2,15 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
@@ -18,7 +21,6 @@ import java.time.LocalDateTime;
 
 /**
  * 项目合同 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,13 +36,13 @@ public class ProjectConstract extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 项目 id
      */
-    @Column(name = "project_id", nullable = false )
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -65,7 +67,7 @@ public class ProjectConstract extends BaseEntity {
     /**
      * 合同文件 URL
      */
-    @Column(name = "file_url", nullable = false )
+    @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
     /**
@@ -103,5 +105,19 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "file_name")
     private String fileName;
+
+    /*
+     * 已收金额
+     * */
+    @Transient
+    private Integer receivedPrice;
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "contract_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectFundLog> fundLogs;
 
 }
