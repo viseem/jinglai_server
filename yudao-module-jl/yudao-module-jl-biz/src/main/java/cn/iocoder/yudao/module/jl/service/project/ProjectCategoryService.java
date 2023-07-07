@@ -20,6 +20,8 @@ public interface ProjectCategoryService {
      */
     Long createProjectCategory(@Valid ProjectCategoryCreateReqVO createReqVO);
 
+    Boolean updateSupplyAndChargeItem(@Valid ProjectCategoryUpdateSupplyAndChargeItemReqVO updateReqVO);
+
     /**
      * 更新项目的实验名目
      *

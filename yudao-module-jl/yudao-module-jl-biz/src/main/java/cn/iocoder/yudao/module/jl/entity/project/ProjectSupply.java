@@ -157,6 +157,12 @@ public class ProjectSupply extends BaseEntity {
     @Transient
     private Integer remainQuantity;
 
+    @Column(name = "final_usage_num")
+    private Integer finalUsageNum;
+
+    @Column(name = "is_append")
+    private Integer isAppend;
+
     /**
      * 剩余数量
      */

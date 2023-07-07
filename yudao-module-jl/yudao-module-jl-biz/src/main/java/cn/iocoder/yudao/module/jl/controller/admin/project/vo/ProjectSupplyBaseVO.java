@@ -73,4 +73,8 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "库存总量")
     private Integer inventoryQuantity;
 
+    private Integer finalUsageNum;
+
+    private Integer isAppend;
+
 }
