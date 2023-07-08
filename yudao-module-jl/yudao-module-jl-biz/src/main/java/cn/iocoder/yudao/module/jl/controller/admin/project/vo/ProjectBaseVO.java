@@ -34,10 +34,10 @@ public class ProjectBaseVO {
     private String type;
 
     @Schema(description = "启动时间")
-    private LocalDate startDate;
+    private String startDate;
 
     @Schema(description = "截止时间")
-    private LocalDate endDate;
+    private String endDate;
 
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
