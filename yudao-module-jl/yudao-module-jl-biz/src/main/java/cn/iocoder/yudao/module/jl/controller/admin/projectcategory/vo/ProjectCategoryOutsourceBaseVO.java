@@ -32,8 +32,7 @@ public class ProjectCategoryOutsourceBaseVO {
     @Schema(description = "外包供应商id", example = "20117")
     private Integer categorySupplierId;
 
-    @Schema(description = "供应商报价", requiredMode = Schema.RequiredMode.REQUIRED, example = "9982")
-    @NotNull(message = "供应商报价不能为空")
+    @Schema(description = "供应商报价")
     private Integer supplierPrice;
 
     @Schema(description = "销售价格", requiredMode = Schema.RequiredMode.REQUIRED, example = "32231")
@@ -55,5 +54,14 @@ public class ProjectCategoryOutsourceBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    @Schema(description = "原始数据")
+    private String rawdata;
+
+    @Schema(description = "实验记录")
+    private String record;
+
+    @Schema(description = "附件")
+    private String files;
 
 }

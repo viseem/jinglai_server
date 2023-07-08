@@ -15,4 +15,12 @@ public class ProjectCategoryOutsourceUpdateReqVO extends ProjectCategoryOutsourc
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    @Schema(description = "原始数据", requiredMode = Schema.RequiredMode.REQUIRED, example = "19764")
+    @NotNull(message = "原始数据不能为空")
+    private String rawdata;
+
+    @Schema(description = "实验记录")
+    private String record;
+
+    private String files;
 }
