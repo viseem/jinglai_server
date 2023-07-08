@@ -186,7 +186,7 @@ public class ProductInServiceImpl implements ProductInService {
         Long productInId = updateObj.getId();
 
         // 删除原有的
-        productInItemRepository.deleteByProductInId(productInId);
+//        productInItemRepository.deleteByProductInId(productInId);
 
         // 更新 items
         productInItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {

@@ -225,4 +225,7 @@ public class ProjectCategory extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryApproval> approvalList;
 
+    @Transient
+    private String approvalStage;
+
 }
