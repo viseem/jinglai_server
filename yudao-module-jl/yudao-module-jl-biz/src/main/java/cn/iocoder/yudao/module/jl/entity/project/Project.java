@@ -71,13 +71,13 @@ public class Project extends BaseEntity {
      * 启动时间
      */
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private String startDate;
 
     /**
      * 截止时间
      */
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private String endDate;
 
     /**
      * 项目负责人
@@ -149,7 +149,7 @@ public class Project extends BaseEntity {
      * 查询合同列表
      */
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectConstractOnly> contracts = new ArrayList<>();
 
@@ -157,7 +157,7 @@ public class Project extends BaseEntity {
      * 查询款项列表
      */
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
 }
