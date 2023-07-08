@@ -106,10 +106,9 @@ public class CategoryServiceImpl implements CategoryService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            if(pageReqVO.getLabId() != null) {
+                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
             }
-
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

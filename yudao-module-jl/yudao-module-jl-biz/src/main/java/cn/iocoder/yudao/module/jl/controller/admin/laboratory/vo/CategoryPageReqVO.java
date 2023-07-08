@@ -31,4 +31,7 @@ public class CategoryPageReqVO extends PageParam {
     @Schema(description = "类型", example = "2")
     private String type;
 
+    @Schema(description = "实验室id", example = "2")
+    private Long labId;
+
 }

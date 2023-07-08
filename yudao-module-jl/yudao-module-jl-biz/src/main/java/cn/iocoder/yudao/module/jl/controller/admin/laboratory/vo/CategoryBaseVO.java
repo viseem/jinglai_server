@@ -24,9 +24,11 @@ public class CategoryBaseVO {
     @Schema(description = "重要备注说明")
     private String mark;
 
-    @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    @NotNull(message = "类型不能为空")
+    @Schema(description = "类型")
     private String type;
+
+    @Schema(description = "实验室id", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
+    private Long labId;
 
     @Schema(description = "历史操作次数", example = "0")
     private Integer actionCount;

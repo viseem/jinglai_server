@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 /**
  * 实验名目 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,13 +28,13 @@ public class Category extends BaseEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false )
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
      * 名字
      */
-    @Column(name = "name", nullable = false )
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
@@ -53,19 +52,33 @@ public class Category extends BaseEntity {
     /**
      * 类型
      */
-    @Column(name = "type", nullable = false )
+    @Column(name = "type", nullable = false)
     private String type;
+
+    /**
+     * 实验室id
+     */
+    @Column(name = "lab_id", nullable = false)
+    private Long labId;
+
+    /**
+     * JPA 级联出 lab
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private LaboratoryLab lab;
 
     /**
      * 历史操作次数
      */
-    @Column(name = "action_count" )
+    @Column(name = "action_count")
     private Integer actionCount = 0;
 
     /**
      * 实验名目的擅长人员
      */
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(
             name = "jl_laboratory_category_skilluser",
