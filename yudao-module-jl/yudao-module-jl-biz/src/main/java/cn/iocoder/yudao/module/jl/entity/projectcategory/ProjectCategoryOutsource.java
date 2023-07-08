@@ -122,4 +122,21 @@ public class ProjectCategoryOutsource extends BaseEntity {
     private String mark;
 
 
+    /**
+     * 原始数据
+     */
+    @Column(name = "rawdata")
+    private String rawdata;
+
+    /**
+     * 备注
+     */
+    @Column(name = "record")
+    private String record;
+
+    /**
+     * 附件 json
+     */
+    @Column(name = "files")
+    private String files;
 }
