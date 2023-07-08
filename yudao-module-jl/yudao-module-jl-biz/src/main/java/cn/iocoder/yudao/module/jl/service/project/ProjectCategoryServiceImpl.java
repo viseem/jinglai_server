@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
@@ -217,7 +218,19 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         // 执行查询
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
+        List<ProjectCategory> content = page.getContent();
 
+        content.forEach(projectCategory -> {
+            List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+            if (!approvalList.isEmpty()) {
+                String approvalStage = approvalList.stream()
+                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime))
+                        .map(ProjectCategoryApproval::getApprovalStage)
+                        .orElse(null);
+
+                projectCategory.setApprovalStage(approvalStage);
+            }
+        });
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }

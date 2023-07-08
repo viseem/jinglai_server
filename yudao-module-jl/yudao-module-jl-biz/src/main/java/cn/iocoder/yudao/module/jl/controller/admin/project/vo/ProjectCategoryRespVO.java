@@ -33,5 +33,6 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 //    private ProjectCategoryApproval approval;
 
     private List<ProjectCategoryApproval> approvalList;
+    private String approvalStage;
     private ProjectOnly project;
 }
