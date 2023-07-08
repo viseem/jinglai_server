@@ -14,6 +14,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectCategoryWithSupplyAndChargeItemVO extends ProjectCategoryBaseVO {
+
+    @Schema(description = "labId")
+    private Long labId;
+
     @Schema(description = "projectCategoryId", example = "1")
     private Long id;
     @Schema(description = "收费项", example = "[]")

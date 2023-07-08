@@ -115,9 +115,9 @@ public class ProjectQuoteServiceImpl implements ProjectQuoteService {
             // 获取 categories 里的 id
             List<Long> categoryIds = categories.stream().map(ProjectCategory::getId).collect(Collectors.toList());
             // 删除原来的
-            projectCategoryRepository.deleteByQuoteId(quoteId);
-            projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
-            projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
+//            projectCategoryRepository.deleteByQuoteId(quoteId);
+//            projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
+//            projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
 
             // 保存新的
             for (int i = 0; i < categoryList.size(); i++) {
