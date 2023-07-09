@@ -1,5 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.ProductIn;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryAttachmentEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
+import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
+import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +45,13 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
     private ProjectCategoryLogRepository projectCategoryLogRepository;
 
     @Resource
+    private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
+
+    @Resource
     private ProjectCategoryLogMapper projectCategoryLogMapper;
+
+    @Resource
+    private ProjectCategoryAttachmentMapper projectCategoryAttachmentMapper;
 
     @Override
     public Long createProjectCategoryLog(ProjectCategoryLogCreateReqVO createReqVO) {
@@ -52,6 +63,36 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
         projectCategoryLogRepository.save(projectCategoryLog);
         // 返回
         return projectCategoryLog.getId();
+    }
+
+    @Override
+    public void saveProjectCategoryLog(ProjectCategoryLogSaveReqVO saveReqVO) {
+
+        if(saveReqVO.getId() != null) {
+            // 校验存在
+            validateProjectCategoryLogExists(saveReqVO.getId());
+        }
+
+        saveReqVO.setOperatorId(getLoginUserId());
+
+        // 更新
+        ProjectCategoryLog updateObj = projectCategoryLogMapper.toEntity(saveReqVO);
+        updateObj = projectCategoryLogRepository.save(updateObj);
+        Long refId = updateObj.getId();
+        Long projectCategoryId = updateObj.getProjectCategoryId();
+
+        projectCategoryAttachmentRepository.deleteByProjectCategoryLogId(refId);
+
+        // 更新 items
+        if(saveReqVO.getAttachments()!=null){
+            projectCategoryAttachmentRepository.saveAll(saveReqVO.getAttachments().stream().peek(item -> {
+                item.setProjectCategoryId(projectCategoryId);
+                item.setProjectCategoryLogId(refId);
+
+                item.setType(ProjectCategoryAttachmentEnums.ExpLog.getStatus());
+            }).collect(Collectors.toList()));
+        }
+
     }
 
     @Override

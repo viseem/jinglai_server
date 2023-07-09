@@ -28,6 +28,13 @@ public interface ProjectCategoryLogService {
     void updateProjectCategoryLog(@Valid ProjectCategoryLogUpdateReqVO updateReqVO);
 
     /**
+     * save 更新项目实验名目的操作日志
+     *
+     * @param saveReqVO 更新信息
+     */
+    void saveProjectCategoryLog(@Valid ProjectCategoryLogSaveReqVO saveReqVO);
+
+    /**
      * 删除项目实验名目的操作日志
      *
      * @param id 编号

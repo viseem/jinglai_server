@@ -25,5 +25,5 @@ public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalB
     @NotNull(message = "安排单id不能为空")
     private Long scheduleId;
 
-    private String approvalStage="0";
+    private String approvalStage;
 }

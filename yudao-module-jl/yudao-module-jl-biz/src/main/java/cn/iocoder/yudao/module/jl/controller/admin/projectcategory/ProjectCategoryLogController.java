@@ -57,6 +57,14 @@ public class ProjectCategoryLogController {
         return success(true);
     }
 
+    @PutMapping("/save")
+    @Operation(summary = "更新项目实验名目的操作日志")
+    @PreAuthorize("@ss.hasPermission('jl:project-category-log:update')")
+    public CommonResult<Boolean> saveProjectCategoryLog(@Valid @RequestBody ProjectCategoryLogSaveReqVO saveReqVO) {
+        projectCategoryLogService.saveProjectCategoryLog(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目实验名目的操作日志")
     @Parameter(name = "id", description = "编号", required = true)

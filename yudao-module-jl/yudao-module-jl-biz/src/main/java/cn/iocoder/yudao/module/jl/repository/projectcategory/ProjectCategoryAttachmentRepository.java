@@ -13,6 +13,10 @@ import java.util.Collection;
 public interface ProjectCategoryAttachmentRepository extends JpaRepository<ProjectCategoryAttachment, Long>, JpaSpecificationExecutor<ProjectCategoryAttachment> {
     @Transactional
     @Modifying
+    @Query("delete from ProjectCategoryAttachment p where p.projectCategoryLogId = ?1")
+    int deleteByProjectCategoryLogId(Long projectCategoryLogId);
+    @Transactional
+    @Modifying
     @Query("delete from ProjectCategoryAttachment p where p.projectCategoryId in ?1")
     int deleteByProjectCategoryIdIn(Collection<Long> projectCategoryIds);
 }

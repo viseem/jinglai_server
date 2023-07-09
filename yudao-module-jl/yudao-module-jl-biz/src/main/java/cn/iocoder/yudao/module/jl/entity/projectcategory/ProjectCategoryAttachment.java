@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.projectcategory;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -25,7 +26,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategoryAttachment")
 @Table(name = "jl_project_category_attachment")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectCategoryAttachment extends BaseEntity {
 
     /**
@@ -37,6 +38,13 @@ public class ProjectCategoryAttachment extends BaseEntity {
     private Long id;
 
     /**
+     * project_category_log_id
+     */
+    @Column(name = "project_category_log_id", nullable = false )
+    private Long projectCategoryLogId;
+
+
+    /**
      * 实验名目 id
      */
     @Column(name = "project_category_id", nullable = false )
@@ -44,6 +52,7 @@ public class ProjectCategoryAttachment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     private ProjectCategory category;

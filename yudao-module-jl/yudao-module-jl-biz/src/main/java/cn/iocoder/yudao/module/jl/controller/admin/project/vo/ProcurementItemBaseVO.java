@@ -46,12 +46,10 @@ public class ProcurementItemBaseVO {
 
 
 
-    @Schema(description = "供货商id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6961")
-    @NotNull(message = "供货商id不能为空")
+    @Schema(description = "供货商id")
     private Long supplierId;
 
-    @Schema(description = "原价", requiredMode = Schema.RequiredMode.REQUIRED, example = "31202")
-    @NotNull(message = "原价不能为空")
+    @Schema(description = "原价")
     private Integer buyPrice = 0;
 
     @Schema(description = "销售价", requiredMode = Schema.RequiredMode.REQUIRED, example = "22107")

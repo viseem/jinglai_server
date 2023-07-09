@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.*;
@@ -26,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategoryLog")
 @Table(name = "jl_project_category_log")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectCategoryLog extends BaseEntity {
 
     /**
@@ -49,6 +52,7 @@ public class ProjectCategoryLog extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ProjectOnly project;
 
     /**
@@ -56,6 +60,12 @@ public class ProjectCategoryLog extends BaseEntity {
      */
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
+
+/*    @ManyToOne
+    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectCategory category;*/
 
     /**
      * 原实验名目 id
@@ -75,6 +85,7 @@ public class ProjectCategoryLog extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private User operator;
 
     /**
@@ -88,5 +99,14 @@ public class ProjectCategoryLog extends BaseEntity {
      */
     @Column(name = "score", nullable = false)
     private String score;
+
+    /**
+     * 查询附件列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_category_log_id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectCategoryAttachment> attachments = new ArrayList<>();
 
 }
