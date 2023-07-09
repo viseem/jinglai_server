@@ -225,7 +225,11 @@ public class ProjectCategory extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryApproval> approvalList;
 
+    //审批的状态 通过 未通过
     @Transient
     private String approvalStage;
+    //申请变更的状态
+    @Transient
+    private String requestStage;
 
 }

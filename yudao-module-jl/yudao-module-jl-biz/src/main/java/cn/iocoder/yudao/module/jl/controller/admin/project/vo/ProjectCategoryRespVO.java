@@ -33,6 +33,10 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 //    private ProjectCategoryApproval approval;
 
     private List<ProjectCategoryApproval> approvalList;
+
+    //审批的状态 通过 还是未通过
     private String approvalStage;
+    //申请的变更的状态
+    private String requestStage;
     private ProjectOnly project;
 }

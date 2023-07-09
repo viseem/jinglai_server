@@ -140,6 +140,20 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Override
     public Optional<ProjectCategory> getProjectCategory(Long id) {
+        Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
+        if (byId.isPresent()) {
+            List<ProjectCategoryApproval> approvalList = byId.get().getApprovalList();
+            if (!approvalList.isEmpty()) {
+                Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
+                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
+
+                latestApproval.ifPresent(approval -> {
+                    byId.get().setApprovalStage(approval.getApprovalStage());
+                    byId.get().setRequestStage(approval.getStage());
+                });
+            }
+        }
+
         return projectCategoryRepository.findById(id);
     }
 
@@ -223,12 +237,14 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         content.forEach(projectCategory -> {
             List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
             if (!approvalList.isEmpty()) {
-                String approvalStage = approvalList.stream()
-                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime))
-                        .map(ProjectCategoryApproval::getApprovalStage)
-                        .orElse(null);
+                Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
+                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
+
+                String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
+                String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);
 
                 projectCategory.setApprovalStage(approvalStage);
+                projectCategory.setRequestStage(requestStage);
             }
         });
         // 转换为 PageResult 并返回
