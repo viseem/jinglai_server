@@ -230,5 +230,12 @@ public class ProjectCategory extends BaseEntity {
     private String requestStage;
 
     //实验记录
-
+    /**
+     * 查询实验记录列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectCategoryLog> logs;
 }
