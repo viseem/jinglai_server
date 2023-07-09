@@ -87,9 +87,18 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         // 批准该条申请
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
+            //获取要变更的状态
+            String stage;
+            // 如果是实验审核通过了 就改为已完成
+            if(Objects.equals(updateReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
+                stage = ProjectCategoryStatusEnums.COMPLETE.getStatus();
+            } else {
+                stage = updateReqVO.getStage();
+            }
+
             // 校验projectCategory是否存在,并修改状态
             projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresentOrElse(category -> {
-                category.setStage(updateReqVO.getStage());
+                category.setStage(stage);
                 projectCategoryRepository.save(category);
             },()->{
                 throw exception(PROJECT_CATEGORY_NOT_EXISTS);

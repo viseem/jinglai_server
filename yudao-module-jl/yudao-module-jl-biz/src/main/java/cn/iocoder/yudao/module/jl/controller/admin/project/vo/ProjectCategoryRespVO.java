@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -39,4 +40,7 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     //申请的变更的状态
     private String requestStage;
     private ProjectOnly project;
+
+    //实验记录
+    private List<ProjectCategoryLog> logs;
 }

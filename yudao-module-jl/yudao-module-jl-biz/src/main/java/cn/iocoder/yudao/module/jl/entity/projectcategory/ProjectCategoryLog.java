@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -58,6 +60,12 @@ public class ProjectCategoryLog extends BaseEntity {
      */
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
+
+/*    @ManyToOne
+    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonBackReference
+    private ProjectCategory category;*/
 
     /**
      * 原实验名目 id
