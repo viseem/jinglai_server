@@ -18,6 +18,9 @@ public class ProjectCategoryAttachmentBaseVO {
     @NotNull(message = "实验名目 id不能为空")
     private Long projectCategoryId;
 
+    @Schema(description = "projectCategoryLogId")
+    private Long projectCategoryLogId;
+
     @Schema(description = "文件名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotNull(message = "文件名不能为空")
     private String fileName;

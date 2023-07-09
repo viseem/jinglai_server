@@ -119,7 +119,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
             }
 
             if (pageReqVO.getProjectStage() != null) {
-                predicates.add(cb.equal(root.get("getProjectStage"), pageReqVO.getProjectStage()));
+                predicates.add(cb.equal(root.get("projectStage"), pageReqVO.getProjectStage()));
             }
 
             if (pageReqVO.getFeedType() != null) {

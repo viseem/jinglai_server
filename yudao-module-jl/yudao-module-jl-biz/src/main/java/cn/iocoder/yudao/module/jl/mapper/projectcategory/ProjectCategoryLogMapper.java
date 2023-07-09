@@ -13,6 +13,8 @@ public interface ProjectCategoryLogMapper {
     ProjectCategoryLog toEntity(ProjectCategoryLogCreateReqVO dto);
 
     ProjectCategoryLog toEntity(ProjectCategoryLogUpdateReqVO dto);
+    ProjectCategoryLog toEntity(ProjectCategoryLogSaveReqVO dto);
+
 
     ProjectCategoryLogRespVO toDto(ProjectCategoryLog entity);
 

@@ -22,6 +22,7 @@ public class ProjectCategoryLogBaseVO {
     @NotNull(message = "实验名目 id不能为空")
     private Long projectCategoryId;
 
+
     @Schema(description = "原实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
     @NotNull(message = "原实验名目 id不能为空")
     private Long categoryId;
