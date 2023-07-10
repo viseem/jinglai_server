@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.*;
@@ -116,7 +117,8 @@ public class ProjectConstract extends BaseEntity {
      * 查询款项列表
      */
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "contract_id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectFundLog> fundLogs;
 
