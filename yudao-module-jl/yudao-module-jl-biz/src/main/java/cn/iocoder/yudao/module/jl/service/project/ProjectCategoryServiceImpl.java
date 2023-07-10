@@ -234,19 +234,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
         List<ProjectCategory> content = page.getContent();
 
-        content.forEach(projectCategory -> {
-            List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
-            if (!approvalList.isEmpty()) {
-                Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
-                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
+        if(content!=null){
+            content.forEach(projectCategory -> {
+                List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+                if (!approvalList.isEmpty()) {
+                    Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
+                            .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
 
-                String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
-                String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);
+                    String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
+                    String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);
 
-                projectCategory.setApprovalStage(approvalStage);
-                projectCategory.setRequestStage(requestStage);
-            }
-        });
+                    projectCategory.setApprovalStage(approvalStage);
+                    projectCategory.setRequestStage(requestStage);
+                }
+            });
+        }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
