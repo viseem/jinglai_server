@@ -1,24 +1,19 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
-@Schema(description = "管理后台 - 项目的实验名目保存 Request VO")
+@Schema(description = "管理后台 - 项目报价保存 Request VO")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ProjectCategoryWithSupplyAndChargeItemVO extends ProjectCategoryBaseVO {
-
-    @Schema(description = "labId")
-    private Long labId;
-
-    @Schema(description = "projectCategoryId", example = "1")
+public class ProjectScheduleCategorySaveReqVO extends ProjectCategoryBaseVO {
+    @Schema(description = "安排单 id", example = "1", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long id;
 
     @Schema(description = "收费项", example = "[]")

@@ -25,4 +25,7 @@ public class ProjectScheduleBaseVO {
     @NotNull(message = "状态, 待审批、已审批不能为空")
     private String status;
 
+    @Schema(description = "方案文档", example = "方案文档")
+    private String planText;
+
 }

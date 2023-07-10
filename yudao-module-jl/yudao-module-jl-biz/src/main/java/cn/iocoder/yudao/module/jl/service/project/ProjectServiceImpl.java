@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -39,13 +42,32 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectRepository projectRepository;
 
     @Resource
+    private ProjectScheduleRepository projectScheduleRepository;
+
+    @Resource
     private ProjectMapper projectMapper;
+
+    @Resource
+    private ProjectScheduleMapper projectScheduleMapper;
 
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
+
+        Long projectId = project.getId();
+
+        // 创建默认的安排单
+        ProjectScheduleSaveReqVO saveScheduleReqVO = new ProjectScheduleSaveReqVO();
+        saveScheduleReqVO.setProjectId(projectId);
+        saveScheduleReqVO.setName(project.getName() + "的默认安排单");
+        ProjectSchedule projectSchedule = projectScheduleMapper.toEntity(saveScheduleReqVO);
+        projectScheduleRepository.save(projectSchedule);
+
+        // 设置项目当前安排单
+        setProjectCurrentSchedule(projectId, projectSchedule.getId());
+
         // 返回
         return project.getId();
     }

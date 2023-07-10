@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Schema(description = "管理后台 - 项目报价保存 Request VO")
@@ -27,6 +28,6 @@ public class ProjectScheduleSaveReqVO {
     private String status = "1";
 
     @Schema(description = "实验名目", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    private List<ProjectCategoryWithSupplyAndChargeItemVO>  categoryList;
+    private List<ProjectCategoryWithSupplyAndChargeItemVO>  categoryList = new ArrayList<>();
 
 }

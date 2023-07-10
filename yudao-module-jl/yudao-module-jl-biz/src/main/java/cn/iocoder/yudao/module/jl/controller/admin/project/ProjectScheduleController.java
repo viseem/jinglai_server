@@ -52,7 +52,14 @@ public class ProjectScheduleController {
     @PostMapping("/save")
     @Operation(summary = "保存项目安排单")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
-    public CommonResult<Long> createProjectSchedule(@Valid @RequestBody ProjectScheduleSaveReqVO saveReqVO) {
+    public CommonResult<Long> createProjectSchedule(@Valid @RequestBody ProjectScheduleCategorySaveReqVO saveReqVO) {
+        return success(projectScheduleService.saveProjectScheduleCategory(saveReqVO));
+    }
+
+    @PostMapping("/save-category")
+    @Operation(summary = "保存项目安排单")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
+    public CommonResult<Long> saveScheduleCategory(@Valid @RequestBody ProjectScheduleSaveReqVO saveReqVO) {
         return success(projectScheduleService.saveProjectSchedule(saveReqVO));
     }
 

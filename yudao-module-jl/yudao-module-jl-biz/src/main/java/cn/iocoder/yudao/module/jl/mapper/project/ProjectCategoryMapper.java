@@ -12,6 +12,8 @@ import org.mapstruct.*;
 public interface ProjectCategoryMapper {
     ProjectCategory toEntity(ProjectCategoryCreateReqVO dto);
 
+    ProjectCategory toEntity(ProjectScheduleCategorySaveReqVO dto);
+
     ProjectCategory toEntity(ProjectCategoryUpdateReqVO dto);
 
     ProjectCategoryRespVO toDto(ProjectCategory entity);

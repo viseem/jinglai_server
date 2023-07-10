@@ -53,6 +53,12 @@ public class ProjectSchedule extends BaseEntity {
     private String status;
 
     /**
+     * 方案状态
+     */
+    @Column(name = "plan_text", nullable = false )
+    private String planText;
+
+    /**
      * 实验名目
      */
     @OneToMany(mappedBy="schedule")

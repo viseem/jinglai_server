@@ -32,6 +32,8 @@ public interface ProjectScheduleService {
 
     Long saveProjectSchedule(@Valid ProjectScheduleSaveReqVO saveReqVO);
 
+    Long saveProjectScheduleCategory(@Valid ProjectScheduleCategorySaveReqVO saveReqVO);
+
     /**
      * 更新项目安排单
      *

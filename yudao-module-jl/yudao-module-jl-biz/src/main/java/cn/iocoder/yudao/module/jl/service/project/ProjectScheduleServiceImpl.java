@@ -249,9 +249,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             // 获取 categories 里的 id
             List<Long> categoryIds = categories.stream().map(ProjectCategory::getId).collect(Collectors.toList());
             // 删除原来的
-//            projectCategoryRepository.deleteByScheduleId(scheduleId);
-//            projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
-//            projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
+            // projectCategoryRepository.deleteByScheduleId(scheduleId);
+            // projectSupplyRepository.deleteByProjectCategoryIdIn(categoryIds);
+            // projectChargeitemRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectSopRepository.deleteByProjectCategoryIdIn(categoryIds);
             projectCategoryAttachmentRepository.deleteByProjectCategoryIdIn(categoryIds);
 
@@ -327,6 +327,88 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             }
         }
         return scheduleId;
+    }
+
+    /**
+     * @param saveReqVO
+     * @return
+     */
+    @Override
+    public Long saveProjectScheduleCategory(ProjectScheduleCategorySaveReqVO category) {
+        if (category.getId() != null) {
+            List<Long> categoryIds = new ArrayList<>();
+            categoryIds.add(category.getId());
+
+            projectSopRepository.deleteByProjectCategoryIdIn(categoryIds);
+            projectCategoryAttachmentRepository.deleteByProjectCategoryIdIn(categoryIds);
+        }
+
+        category.setType("schedule");
+        if(category.getStage()==null){
+            category.setStage("0");
+        }
+
+        ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
+        projectCategoryRepository.save(categoryDo);
+
+        // 保存收费项
+        List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();
+        if (chargetItemList != null && chargetItemList.size() >= 1) {
+            List<ProjectChargeitemSubClass> projectChargeitemList = chargetItemList.stream().map(chargeItem -> {
+                chargeItem.setProjectCategoryId(categoryDo.getId());
+                chargeItem.setCategoryId(categoryDo.getCategoryId());
+                chargeItem.setProjectId(category.getProjectId());
+                chargeItem.setScheduleId(category.getScheduleId());
+                return chargeItem;
+            }).collect(Collectors.toList());
+
+            List<ProjectChargeitem> projectChargeitems = projectChargeitemMapper.toEntity(projectChargeitemList);
+            projectChargeitemRepository.saveAll(projectChargeitems);
+        }
+
+        // 保存物资项
+        List<ProjectSupplySubClass> supplyList = category.getSupplyList();
+        if (supplyList != null && supplyList.size() >= 1) {
+            List<ProjectSupplySubClass> projectSupplyList = supplyList.stream().map(supply -> {
+                supply.setProjectCategoryId(categoryDo.getId());
+                supply.setCategoryId(categoryDo.getCategoryId());
+                supply.setProjectId(category.getProjectId());
+                supply.setScheduleId(category.getScheduleId());
+                return supply;
+            }).collect(Collectors.toList());
+
+            List<ProjectSupply> projectSupplies = projectSupplyMapper.toEntity(projectSupplyList);
+            projectSupplyRepository.saveAll(projectSupplies);
+        }
+
+        // 保存 SOP
+        List<ProjectSopBaseVO> sopList = category.getSopList();
+        if (sopList != null && sopList.size() >= 1) {
+            List<ProjectSopBaseVO> projectSopList = sopList.stream().map(sop -> {
+                sop.setProjectCategoryId(categoryDo.getId());
+                sop.setCategoryId(categoryDo.getCategoryId());
+                return sop;
+            }).collect(Collectors.toList());
+
+            List<ProjectSop> projectSupplies = projectSopMapper.toEntity(projectSopList);
+            projectSopRepository.saveAll(projectSupplies);
+        }
+
+        // 保存 附件attachment
+        List<ProjectCategoryAttachmentBaseVO> attachmentList = category.getAttachmentList();
+        if (attachmentList != null && attachmentList.size() >= 1) {
+            List<ProjectCategoryAttachmentBaseVO> projectAttachmentList = attachmentList.stream().map(attachment -> {
+                attachment.setProjectCategoryId(categoryDo.getId());
+                return attachment;
+            }).collect(Collectors.toList());
+
+            List<ProjectCategoryAttachment> projectCategoryAttachments = projectCategoryAttachmentMapper.toEntity(projectAttachmentList);
+            projectCategoryAttachmentRepository.saveAll(projectCategoryAttachments);
+        }
+
+
+
+        return null;
     }
 
     @Override
