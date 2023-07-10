@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategoryApproval")
 @Table(name = "jl_project_category_approval")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectCategoryApproval extends BaseEntity {
 
     /**
