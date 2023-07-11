@@ -55,4 +55,22 @@ public class ProjectCategorySupplier extends BaseEntity {
     @Column(name = "advantage")
     private String advantage;
 
+    /**
+     * 发票抬头
+     */
+    @Column(name = "bill_title", nullable = false )
+    private String billTitle;
+
+    /**
+     * 开票方式
+     */
+    @Column(name = "bill_way", nullable = false )
+    private String billWay;
+
+    /**
+     * 发票要求
+     */
+    @Column(name = "bill_request", nullable = false )
+    private String billRequest;
+
 }
