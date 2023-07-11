@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -62,9 +64,25 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         // 校验存在
         validateProjectApprovalExists(updateReqVO.getId());
 
-        // 批准该条申请
+
+
+        // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
+            // 校验projectCategory是否存在,并修改状态
+            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
+                if(Objects.equals(updateReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+                    project.setStage(ProjectStageEnums.DOING.getStatus());
+                }else{
+                    project.setStage(updateReqVO.getStage());
+                }
+                projectRepository.save(project);
+            },()->{
+                throw exception(PROJECT_NOT_EXISTS);
+            });
+
+        }else{
+            // 如果是开展前审批 则直接变更为此状态
             // 校验projectCategory是否存在,并修改状态
             projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
                 project.setStage(updateReqVO.getStage());
@@ -72,7 +90,6 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
             });
-
         }
 
 
