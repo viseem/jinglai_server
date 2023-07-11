@@ -41,7 +41,7 @@ public class InstitutionBaseVO {
     private String billTitle;
 
     @Schema(description = "开票方式")
-    private String billType;
+    private String billWay;
 
     @Schema(description = "发票要求")
     private String billRequest;
