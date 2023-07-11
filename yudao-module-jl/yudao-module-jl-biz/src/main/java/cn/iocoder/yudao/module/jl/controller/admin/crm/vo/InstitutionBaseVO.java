@@ -37,4 +37,16 @@ public class InstitutionBaseVO {
     @NotNull(message = "机构类型枚举值不能为空")
     private String type;
 
+    @Schema(description = "发票抬头")
+    private String billTitle;
+
+    @Schema(description = "开票方式")
+    private String billType;
+
+    @Schema(description = "发票要求")
+    private String billRequest;
+
+    @Schema(description = "科室")
+    private String department;
+
 }

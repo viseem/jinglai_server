@@ -17,8 +17,7 @@ public class ProjectChargeitemSubClass {
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10361")
     private Long projectCategoryId;
 
-    @Schema(description = "原始的实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10361")
-    @NotNull(message = "原始的实验名目 id不能为空")
+    @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
     private Long projectId;

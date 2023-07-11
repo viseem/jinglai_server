@@ -386,7 +386,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         if (sopList != null && sopList.size() >= 1) {
             List<ProjectSopBaseVO> projectSopList = sopList.stream().map(sop -> {
                 sop.setProjectCategoryId(categoryDo.getId());
-                sop.setCategoryId(categoryDo.getCategoryId());
+                    sop.setCategoryId(categoryDo.getCategoryId());
                 return sop;
             }).collect(Collectors.toList());
 

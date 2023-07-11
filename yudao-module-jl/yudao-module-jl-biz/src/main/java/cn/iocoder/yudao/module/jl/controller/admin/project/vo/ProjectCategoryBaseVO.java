@@ -73,6 +73,9 @@ public class ProjectCategoryBaseVO {
     @NotNull(message = "实验名目名字不能为空")
     private String name;
 
+    @Schema(description = "原始内容")
+    private String content;
+
     @Schema(description = "备注")
     private String mark;
 

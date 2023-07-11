@@ -64,4 +64,28 @@ public class Institution extends BaseEntity {
     @Column(name = "type", nullable = false )
     private String type;
 
+    /**
+     * 发票抬头
+     */
+    @Column(name = "bill_title", nullable = false )
+    private String billTitle;
+
+    /**
+     * 开票方式
+     */
+    @Column(name = "bill_type", nullable = false )
+    private String billType;
+
+    /**
+     * 发票要求
+     */
+    @Column(name = "bill_request", nullable = false )
+    private String billRequest;
+
+    /**
+     * 科室
+     */
+    @Column(name = "department", nullable = false )
+    private String department;
+
 }
