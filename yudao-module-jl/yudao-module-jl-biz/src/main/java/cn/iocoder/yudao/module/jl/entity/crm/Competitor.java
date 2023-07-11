@@ -72,4 +72,16 @@ public class Competitor extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 官网
+     */
+    @Column(name = "website")
+    private String website;
+
+    /**
+     * 公众号
+     */
+    @Column(name = "wx_website")
+    private String wxWebsite;
+
 }

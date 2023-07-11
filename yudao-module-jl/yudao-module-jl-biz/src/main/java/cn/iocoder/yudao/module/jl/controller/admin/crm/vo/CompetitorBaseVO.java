@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -35,5 +36,17 @@ public class CompetitorBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    /**
+     * 官网
+     */
+    @Schema(description = "官网")
+    private String website;
+
+    /**
+     * 公众号
+     */
+    @Schema(description = "公众号")
+    private String wxWebsite;
 
 }
