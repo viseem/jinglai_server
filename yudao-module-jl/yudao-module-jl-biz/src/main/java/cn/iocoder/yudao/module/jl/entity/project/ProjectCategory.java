@@ -146,6 +146,12 @@ public class ProjectCategory extends BaseEntity {
     private String name;
 
     /**
+     * 从方案中选中的内容
+     */
+    @Column(name = "content", nullable = false)
+    private String content;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
