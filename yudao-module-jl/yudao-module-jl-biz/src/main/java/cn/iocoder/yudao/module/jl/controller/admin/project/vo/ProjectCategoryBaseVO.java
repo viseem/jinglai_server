@@ -49,8 +49,7 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")
     private String categoryType;
 
-    @Schema(description = "实验名目库的名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "17935")
-    @NotNull(message = "实验名目库的名目 id不能为空")
+    @Schema(description = "实验名目库的名目 id")
     private Long categoryId;
 
     @Schema(description = "实验人员", example = "17520")
