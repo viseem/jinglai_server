@@ -6,7 +6,10 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
+import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
+import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -55,10 +58,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private ProjectChargeitemRepository projectChargeitemRepository;
 
     @Resource
+    private ProjectSopRepository projectSopRepository;
+
+    @Resource
+    private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
+
+    @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
 
     @Resource
     private ProjectSupplyMapper projectSupplyMapper;
+    private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
+
+    public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository) {
+        this.projectCategorySupplierRepository = projectCategorySupplierRepository;
+    }
 
     @Override
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
@@ -123,6 +137,15 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public void deleteProjectCategory(Long id) {
         // 校验存在
         validateProjectCategoryExists(id);
+
+        //删除物资
+        projectSupplyRepository.deleteByProjectCategoryId(id);
+        //删除收费项
+        projectChargeitemRepository.deleteByProjectCategoryId(id);
+        //删除sop
+        projectSopRepository.deleteByProjectCategoryId(id);
+        //删除attachment
+        projectCategoryAttachmentRepository.deleteByProjectCategoryId(id);
         // 删除
         projectCategoryRepository.deleteById(id);
     }

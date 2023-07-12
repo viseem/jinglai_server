@@ -52,8 +52,11 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "实验名目库的名目 id")
     private Long categoryId;
 
-    @Schema(description = "实验人员", example = "17520")
+    @Schema(description = "实验负责人", example = "17520")
     private Long operatorId;
+
+    @Schema(description = "实验员", example = "17520")
+    private String operatorIds;
 
     private User operator;
 

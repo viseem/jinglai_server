@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +50,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
+    private final UserRepository userRepository;
+
+    public ProjectServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
@@ -128,6 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
             }
 
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
@@ -166,7 +173,18 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
 
-
+            if(pageReqVO.getProcurementerId() != null) {
+                predicates.add(cb.equal(root.get("procurementerId"), pageReqVO.getProcurementerId()));
+            }
+            if(pageReqVO.getInventorierId() != null) {
+                predicates.add(cb.equal(root.get("inventorierId"), pageReqVO.getInventorierId()));
+            }
+            if(pageReqVO.getExperId() != null) {
+                predicates.add(cb.equal(root.get("experId"), pageReqVO.getExperId()));
+            }
+/*            if(pageReqVO.getExpersId() != null) {
+                predicates.add(cb.in(root.get("experIds"), pageReqVO.getExpersId()));
+            }*/
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 

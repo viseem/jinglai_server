@@ -14,4 +14,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     @Query("update Project p set p.currentScheduleId = ?2 where p.id = ?1")
     int updateCurrentScheduleIdById(Long projectId, Long scheduleId);
 
+
+
+
 }

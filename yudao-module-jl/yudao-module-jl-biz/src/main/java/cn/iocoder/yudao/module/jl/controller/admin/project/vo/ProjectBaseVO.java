@@ -1,12 +1,19 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 
 /**
@@ -51,4 +58,27 @@ public class ProjectBaseVO {
     @Schema(description = "销售 id", example = "8556")
     private Long customerId;
 
+
+    /**
+     * 采购负责人
+     */
+    @Schema(description = "销采购负责人 id", example = "16310")
+    private Long procurementerId;
+
+
+    /**
+     * 库管负责人
+     */
+    @Schema(description = "库管负责人 id", example = "16310")
+    private Long inventorierId;
+
+
+    /**
+     * 实验负责人
+     */
+    @Schema(description = "实验负责人 id", example = "16310")
+    private Long experId;
+
+    @Schema(description = "实验员 ids", example = "16310")
+    private String experIds;
 }
