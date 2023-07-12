@@ -137,4 +137,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_SERVICE_NOT_EXISTS = new ErrorCode(2054400001, "项目售后不存在");
     ErrorCode TEMPLATE_PROJECT_PLAN_NOT_EXISTS = new ErrorCode(2054500001, "项目方案模板不存在");
+
+    ErrorCode TEMPLATE_CONTRACT_NOT_EXISTS = new ErrorCode(2054600001, "合同模板不存在");
 }
