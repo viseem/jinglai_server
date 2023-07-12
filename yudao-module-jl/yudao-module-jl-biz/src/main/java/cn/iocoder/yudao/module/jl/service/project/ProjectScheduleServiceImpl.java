@@ -395,6 +395,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         }
 
         // 保存 附件attachment
+        projectCategoryAttachmentRepository.deleteByProjectCategoryId(categoryDo.getId());
         List<ProjectCategoryAttachmentBaseVO> attachmentList = category.getAttachmentList();
         if (attachmentList != null && attachmentList.size() >= 1) {
             List<ProjectCategoryAttachmentBaseVO> projectAttachmentList = attachmentList.stream().map(attachment -> {

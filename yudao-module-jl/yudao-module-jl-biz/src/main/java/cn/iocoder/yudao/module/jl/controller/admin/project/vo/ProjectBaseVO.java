@@ -23,6 +23,9 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectBaseVO {
 
+    @Schema(description = "当前安排单 id", example = "15320")
+    private Long currentScheduleId;
+
     @Schema(description = "销售线索 id", example = "15320")
     private Long salesleadId;
 
