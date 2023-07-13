@@ -94,6 +94,10 @@ public class TemplateProjectPlanServiceImpl implements TemplateProjectPlanServic
         Specification<TemplateProjectPlan> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
             if(pageReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
             }

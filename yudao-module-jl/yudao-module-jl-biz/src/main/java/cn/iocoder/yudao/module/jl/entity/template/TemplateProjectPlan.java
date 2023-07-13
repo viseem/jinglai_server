@@ -32,6 +32,12 @@ public class TemplateProjectPlan extends BaseEntity {
     private Long id;
 
     /**
+     * 模板名称
+     */
+    @Column(name = "name")
+    private String name;
+
+    /**
      * 参考文件
      */
     @Column(name = "file_name")

@@ -14,6 +14,10 @@ import javax.validation.constraints.*;
 @Data
 public class TemplateProjectPlanBaseVO {
 
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "模板名称不能为空")
+    private String name;
+
     @Schema(description = "参考文件", example = "张三")
     private String fileName;
 
@@ -27,7 +31,7 @@ public class TemplateProjectPlanBaseVO {
     private String mark;
 
     @Schema(description = "模板：方案富文本", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "模板：方案富文本不能为空")
+    @NotNull(message = "方案内容不能为空")
     private String content;
 
 }
