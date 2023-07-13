@@ -22,20 +22,8 @@ public class AssetDeviceBaseVO {
     @NotNull(message = "所属类型：公司、租赁不能为空")
     private String ownerType;
 
-    @Schema(description = "设备类型：细胞仪器、解剖仪器", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "设备类型：细胞仪器、解剖仪器不能为空")
-    private String type;
-
-    @Schema(description = "位置：字典", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "位置：字典不能为空")
-    private String location;
-
     @Schema(description = "管理人 id", example = "11048")
     private Long managerId;
-
-    @Schema(description = "设备状态：空闲、忙碌(前端先自己算)", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "设备状态：空闲、忙碌(前端先自己算)不能为空")
-    private String status;
 
     @Schema(description = "备注")
     private String mark;
@@ -46,7 +34,16 @@ public class AssetDeviceBaseVO {
     @Schema(description = "设备快照地址", example = "https://www.iocoder.cn")
     private String fileUrl;
 
+    @Schema(description = "设备类型：细胞仪器、解剖仪器", example = "2")
+    private String type;
+
+    @Schema(description = "位置")
+    private String location;
+
+    @Schema(description = "设备状态：空闲、忙碌(前端先自己算)", example = "2")
+    private String status;
+
     @Schema(description = "设备编码：后端生成")
-    private String code;
+    private String sn;
 
 }

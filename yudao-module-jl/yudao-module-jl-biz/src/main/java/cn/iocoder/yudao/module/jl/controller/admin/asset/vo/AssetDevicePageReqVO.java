@@ -25,17 +25,8 @@ public class AssetDevicePageReqVO extends PageParam {
     @Schema(description = "所属类型：公司、租赁", example = "1")
     private String ownerType;
 
-    @Schema(description = "设备类型：细胞仪器、解剖仪器", example = "1")
-    private String type;
-
-    @Schema(description = "位置：字典")
-    private String location;
-
     @Schema(description = "管理人 id", example = "11048")
     private Long managerId;
-
-    @Schema(description = "设备状态：空闲、忙碌(前端先自己算)", example = "1")
-    private String status;
 
     @Schema(description = "备注")
     private String mark;
@@ -46,7 +37,16 @@ public class AssetDevicePageReqVO extends PageParam {
     @Schema(description = "设备快照地址", example = "https://www.iocoder.cn")
     private String fileUrl;
 
+    @Schema(description = "设备类型：细胞仪器、解剖仪器", example = "2")
+    private String type;
+
+    @Schema(description = "位置")
+    private String location;
+
+    @Schema(description = "设备状态：空闲、忙碌(前端先自己算)", example = "2")
+    private String status;
+
     @Schema(description = "设备编码：后端生成")
-    private String code;
+    private String sn;
 
 }

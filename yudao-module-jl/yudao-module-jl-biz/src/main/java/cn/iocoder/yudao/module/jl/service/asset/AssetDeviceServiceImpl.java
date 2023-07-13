@@ -102,20 +102,8 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
                 predicates.add(cb.equal(root.get("ownerType"), pageReqVO.getOwnerType()));
             }
 
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
-
-            if(pageReqVO.getLocation() != null) {
-                predicates.add(cb.equal(root.get("location"), pageReqVO.getLocation()));
-            }
-
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-            }
-
-            if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
             if(pageReqVO.getMark() != null) {
@@ -130,8 +118,20 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
-            if(pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
+            if(pageReqVO.getLocation() != null) {
+                predicates.add(cb.equal(root.get("location"), pageReqVO.getLocation()));
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
+
+            if(pageReqVO.getSn() != null) {
+                predicates.add(cb.equal(root.get("sn"), pageReqVO.getSn()));
             }
 
 
@@ -159,20 +159,8 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
                 predicates.add(cb.equal(root.get("ownerType"), exportReqVO.getOwnerType()));
             }
 
-            if(exportReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
-            }
-
-            if(exportReqVO.getLocation() != null) {
-                predicates.add(cb.equal(root.get("location"), exportReqVO.getLocation()));
-            }
-
             if(exportReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"), exportReqVO.getManagerId()));
-            }
-
-            if(exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
             if(exportReqVO.getMark() != null) {
@@ -187,8 +175,20 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
                 predicates.add(cb.equal(root.get("fileUrl"), exportReqVO.getFileUrl()));
             }
 
-            if(exportReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), exportReqVO.getCode()));
+            if(exportReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
+            }
+
+            if(exportReqVO.getLocation() != null) {
+                predicates.add(cb.equal(root.get("location"), exportReqVO.getLocation()));
+            }
+
+            if(exportReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
+            }
+
+            if(exportReqVO.getSn() != null) {
+                predicates.add(cb.equal(root.get("sn"), exportReqVO.getSn()));
             }
 
 
@@ -218,20 +218,8 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
             orders.add(new Sort.Order(order.getOwnerType().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "ownerType"));
         }
 
-        if (order.getType() != null) {
-            orders.add(new Sort.Order(order.getType().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "type"));
-        }
-
-        if (order.getLocation() != null) {
-            orders.add(new Sort.Order(order.getLocation().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "location"));
-        }
-
         if (order.getManagerId() != null) {
             orders.add(new Sort.Order(order.getManagerId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "managerId"));
-        }
-
-        if (order.getStatus() != null) {
-            orders.add(new Sort.Order(order.getStatus().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "status"));
         }
 
         if (order.getMark() != null) {
@@ -246,8 +234,20 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
             orders.add(new Sort.Order(order.getFileUrl().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "fileUrl"));
         }
 
-        if (order.getCode() != null) {
-            orders.add(new Sort.Order(order.getCode().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "code"));
+        if (order.getType() != null) {
+            orders.add(new Sort.Order(order.getType().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "type"));
+        }
+
+        if (order.getLocation() != null) {
+            orders.add(new Sort.Order(order.getLocation().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "location"));
+        }
+
+        if (order.getStatus() != null) {
+            orders.add(new Sort.Order(order.getStatus().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "status"));
+        }
+
+        if (order.getSn() != null) {
+            orders.add(new Sort.Order(order.getSn().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "sn"));
         }
 
 
