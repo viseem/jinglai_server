@@ -20,16 +20,10 @@ public class CompanySupplyPageOrder {
     private String createTime;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String supplyId;
-
-    @Schema(allowableValues = {"desc", "asc"})
     private String name;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String feeStandard;
-
-    @Schema(allowableValues = {"desc", "asc"})
-    private String unitFee;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String unitAmount;
@@ -38,6 +32,33 @@ public class CompanySupplyPageOrder {
     private String quantity;
 
     @Schema(allowableValues = {"desc", "asc"})
+    private String supplyId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String location;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String projectSupplyId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String customerId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String projectId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String ownerType;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String unitFee;
+
+    @Schema(allowableValues = {"desc", "asc"})
     private String validDate;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String fileName;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String fileUrl;
 
 }

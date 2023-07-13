@@ -24,8 +24,11 @@ public class ProjectCategoryApprovalBaseVO {
 
 
 
+    @Schema(description = "checkList检查项json")
+    private String checkList;
 
-
+    @Schema(description = "checkedList检查项json")
+    private String checkedList;
 
 
 
