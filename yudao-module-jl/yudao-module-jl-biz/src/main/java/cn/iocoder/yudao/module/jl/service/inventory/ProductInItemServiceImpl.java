@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.ProductSendItem;
+import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -152,6 +154,22 @@ public class ProductInItemServiceImpl implements ProductInItemService {
         // 执行查询
         Page<ProductInItem> page = productInItemRepository.findAll(spec, pageable);
 
+        List<ProductInItem> productInItems = page.getContent();
+
+        if (productInItems.size()>0){
+            productInItems.forEach(item->{
+                Integer sendedQuantity = 0; // 已入库数量
+                if (item.getProductSendItems().size() > 0) {
+                    sendedQuantity += item.getProductSendItems().stream()
+                            .mapToInt(ProductSendItem::getQuantity)
+                            .sum();
+                }
+                item.setSendedQuantity(sendedQuantity);
+                if(item.getProductIn()!=null){
+                    item.setInStatus(item.getProductIn().getStatus());
+                }
+            });
+        }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
