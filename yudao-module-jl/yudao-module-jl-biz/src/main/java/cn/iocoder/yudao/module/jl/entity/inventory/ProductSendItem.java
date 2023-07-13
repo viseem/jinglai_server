@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.inventory;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -56,6 +57,12 @@ public class ProductSendItem extends BaseEntity {
     @Column(name = "product_id", nullable = false )
     private Long productId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private ProductInItemOnly productInItem;
+
     /**
      * 名称
      */
@@ -85,6 +92,12 @@ public class ProductSendItem extends BaseEntity {
      */
     @Column(name = "quantity", nullable = false )
     private Integer quantity;
+
+    /**
+     * 数出库数量
+     */
+    @Column(name = "out_quantity", nullable = false )
+    private Integer outQuantity = 0;
 
     /**
      * 备注

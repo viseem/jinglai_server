@@ -161,7 +161,7 @@ public class ProductInItemServiceImpl implements ProductInItemService {
                 Integer sendedQuantity = 0; // 已入库数量
                 if (item.getProductSendItems().size() > 0) {
                     sendedQuantity += item.getProductSendItems().stream()
-                            .mapToInt(ProductSendItem::getQuantity)
+                            .mapToInt(ProductSendItem::getOutQuantity)
                             .sum();
                 }
                 item.setSendedQuantity(sendedQuantity);
