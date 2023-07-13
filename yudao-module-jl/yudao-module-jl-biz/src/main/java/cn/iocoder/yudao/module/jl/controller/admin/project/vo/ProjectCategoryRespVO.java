@@ -35,6 +35,8 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private List<ProjectCategoryApproval> approvalList;
 
+    private ProjectCategoryApproval latestApproval;
+
     //审批的状态 通过 还是未通过
     private String approvalStage;
     //申请的变更的状态
