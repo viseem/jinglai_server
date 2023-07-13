@@ -90,6 +90,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
     public void deleteSupplyPickup(Long id) {
         // 校验存在
         validateSupplyPickupExists(id);
+        supplyPickupItemRepository.deleteBySupplyPickupId(id);
         // 删除
         supplyPickupRepository.deleteById(id);
     }

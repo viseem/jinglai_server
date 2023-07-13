@@ -57,6 +57,7 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private ProcurementRepository procurementRepository;
 
+
     @Resource
     private ProcurementMapper procurementMapper;
 
@@ -143,6 +144,9 @@ public class ProcurementServiceImpl implements ProcurementService {
     public void deleteProcurement(Long id) {
         // 校验存在
         validateProcurementExists(id);
+
+        procurementItemRepository.deleteByProcurementId(id);
+
         // 删除
         procurementRepository.deleteById(id);
     }

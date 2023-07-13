@@ -126,6 +126,9 @@ public class SupplySendInServiceImpl implements SupplySendInService {
     public void deleteSupplySendIn(Long id) {
         // 校验存在
         validateSupplySendInExists(id);
+
+        supplySendInItemRepository.deleteBySupplySendInId(id);
+
         // 删除
         supplySendInRepository.deleteById(id);
     }
