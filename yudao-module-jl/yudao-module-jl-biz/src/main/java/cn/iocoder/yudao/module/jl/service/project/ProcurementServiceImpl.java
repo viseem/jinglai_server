@@ -508,6 +508,7 @@ public class ProcurementServiceImpl implements ProcurementService {
                     item.setRoomId(storeIn.getRoomId());
                     item.setContainerId(storeIn.getContainerId());
                     item.setPlaceId(storeIn.getPlaceId());
+                    item.setLocationName(storeIn.getLocationName());
                     item.setTemperature(storeIn.getTemperature());
                     item.setValidDate(storeIn.getValidDate());
 

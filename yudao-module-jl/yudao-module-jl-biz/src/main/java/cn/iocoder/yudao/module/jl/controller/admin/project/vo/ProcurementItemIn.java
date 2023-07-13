@@ -26,6 +26,8 @@ public class ProcurementItemIn {
 
     private Long containerId;
 
+    private String locationName;
+
     private String temperature;
 
     private String validDate;

@@ -68,6 +68,7 @@ public class SupplySendInItemBaseVO {
     private Long roomId;
     private Long placeId;
     private Long containerId;
+    private String locationName;
     private Integer inQuantity = 0;
     private Integer checkInQuantity = 0;
 }

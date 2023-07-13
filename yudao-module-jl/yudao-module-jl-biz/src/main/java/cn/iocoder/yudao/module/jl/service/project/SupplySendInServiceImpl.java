@@ -352,6 +352,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
                     item.setStatus(status);
                     item.setRoomId(storeIn.getRoomId());
                     item.setContainerId(storeIn.getContainerId());
+                    item.setLocationName(storeIn.getLocationName());
                     item.setPlaceId(storeIn.getPlaceId());
                     item.setTemperature(storeIn.getTemperature());
                     item.setValidDate(storeIn.getValidDate());
