@@ -32,12 +32,6 @@ public class CompanySupply extends BaseEntity {
     private Long id;
 
     /**
-     * 物资 id
-     */
-    @Column(name = "supply_id", nullable = false )
-    private Long supplyId;
-
-    /**
      * 名称
      */
     @Column(name = "name", nullable = false )
@@ -48,12 +42,6 @@ public class CompanySupply extends BaseEntity {
      */
     @Column(name = "fee_standard", nullable = false )
     private String feeStandard;
-
-    /**
-     * 单价
-     */
-    @Column(name = "unit_fee", nullable = false )
-    private String unitFee;
 
     /**
      * 单量
@@ -68,9 +56,63 @@ public class CompanySupply extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 物资 id
+     */
+    @Column(name = "supply_id")
+    private Long supplyId;
+
+    /**
+     * 存储位置
+     */
+    @Column(name = "location")
+    private String location;
+
+    /**
+     * 项目物资id
+     */
+    @Column(name = "project_supply_id")
+    private Long projectSupplyId;
+
+    /**
+     * 所属客户
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
+    /**
+     * 所属项目
+     */
+    @Column(name = "project_id")
+    private Long projectId;
+
+    /**
+     * 所属类型：公司、客户
+     */
+    @Column(name = "owner_type", nullable = false )
+    private String ownerType;
+
+    /**
+     * 单价
+     */
+    @Column(name = "unit_fee")
+    private String unitFee;
+
+    /**
      * 有效期
      */
-    @Column(name = "valid_date", nullable = false )
+    @Column(name = "valid_date")
     private String validDate;
+
+    /**
+     * 物资快照名称
+     */
+    @Column(name = "file_name")
+    private String fileName;
+
+    /**
+     * 物资快照地址
+     */
+    @Column(name = "file_url")
+    private String fileUrl;
 
 }

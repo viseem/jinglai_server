@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.laboratory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -86,5 +87,41 @@ public class Category extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> skillUsers = new HashSet<>();
+
+    /**
+     * charge list
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CategoryChargeitem> chargeList = new ArrayList<>();
+
+    /**
+     * supply list
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CategorySupply> supplyList = new ArrayList<>();
+
+    /**
+     * attachment list
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CategoryReference> attachmentList = new ArrayList<>();
+
+    /**
+     * sop list
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CategorySop> sopList = new ArrayList<>();
 
 }

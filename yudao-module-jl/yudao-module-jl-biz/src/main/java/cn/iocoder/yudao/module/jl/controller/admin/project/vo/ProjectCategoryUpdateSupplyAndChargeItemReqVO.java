@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ProjectCategoryUpdateSupplyAndChargeItemReqVO {
     private Long categoryId;
 
     @Schema(description = "projectCategoryId id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "实验名目id不能为空")
     private Long projectCategoryId;
 
     @Schema(description = "scheduleId id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

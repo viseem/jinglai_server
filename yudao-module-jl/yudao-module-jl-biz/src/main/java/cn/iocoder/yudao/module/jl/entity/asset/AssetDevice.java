@@ -44,28 +44,10 @@ public class AssetDevice extends BaseEntity {
     private String ownerType;
 
     /**
-     * 设备类型：细胞仪器、解剖仪器
-     */
-    @Column(name = "type", nullable = false )
-    private String type;
-
-    /**
-     * 位置：字典
-     */
-    @Column(name = "location", nullable = false )
-    private String location;
-
-    /**
      * 管理人 id
      */
     @Column(name = "manager_id")
     private Long managerId;
-
-    /**
-     * 设备状态：空闲、忙碌(前端先自己算)
-     */
-    @Column(name = "status", nullable = false )
-    private String status;
 
     /**
      * 备注
@@ -86,9 +68,27 @@ public class AssetDevice extends BaseEntity {
     private String fileUrl;
 
     /**
+     * 设备类型：细胞仪器、解剖仪器
+     */
+    @Column(name = "type")
+    private String type;
+
+    /**
+     * 位置
+     */
+    @Column(name = "location")
+    private String location;
+
+    /**
+     * 设备状态：空闲、忙碌(前端先自己算)
+     */
+    @Column(name = "status")
+    private String status;
+
+    /**
      * 设备编码：后端生成
      */
-    @Column(name = "code")
-    private String code;
+    @Column(name = "sn")
+    private String sn;
 
 }

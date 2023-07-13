@@ -94,20 +94,12 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
         Specification<CompanySupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getSupplyId() != null) {
-                predicates.add(cb.equal(root.get("supplyId"), pageReqVO.getSupplyId()));
-            }
-
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
             if(pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
-            }
-
-            if(pageReqVO.getUnitFee() != null) {
-                predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
             }
 
             if(pageReqVO.getUnitAmount() != null) {
@@ -118,9 +110,45 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
                 predicates.add(cb.equal(root.get("quantity"), pageReqVO.getQuantity()));
             }
 
+            if(pageReqVO.getSupplyId() != null) {
+                predicates.add(cb.equal(root.get("supplyId"), pageReqVO.getSupplyId()));
+            }
+
+            if(pageReqVO.getLocation() != null) {
+                predicates.add(cb.equal(root.get("location"), pageReqVO.getLocation()));
+            }
+
+            if(pageReqVO.getProjectSupplyId() != null) {
+                predicates.add(cb.equal(root.get("projectSupplyId"), pageReqVO.getProjectSupplyId()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
+            if(pageReqVO.getOwnerType() != null) {
+                predicates.add(cb.equal(root.get("ownerType"), pageReqVO.getOwnerType()));
+            }
+
+            if(pageReqVO.getUnitFee() != null) {
+                predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
+            }
+
             if(pageReqVO.getValidDate() != null) {
                 predicates.add(cb.between(root.get("validDate"), pageReqVO.getValidDate()[0], pageReqVO.getValidDate()[1]));
             } 
+            if(pageReqVO.getFileName() != null) {
+                predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
+            }
+
+            if(pageReqVO.getFileUrl() != null) {
+                predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
+            }
+
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -138,20 +166,12 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
         Specification<CompanySupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getSupplyId() != null) {
-                predicates.add(cb.equal(root.get("supplyId"), exportReqVO.getSupplyId()));
-            }
-
             if(exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
             if(exportReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), exportReqVO.getFeeStandard()));
-            }
-
-            if(exportReqVO.getUnitFee() != null) {
-                predicates.add(cb.equal(root.get("unitFee"), exportReqVO.getUnitFee()));
             }
 
             if(exportReqVO.getUnitAmount() != null) {
@@ -162,9 +182,45 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
                 predicates.add(cb.equal(root.get("quantity"), exportReqVO.getQuantity()));
             }
 
+            if(exportReqVO.getSupplyId() != null) {
+                predicates.add(cb.equal(root.get("supplyId"), exportReqVO.getSupplyId()));
+            }
+
+            if(exportReqVO.getLocation() != null) {
+                predicates.add(cb.equal(root.get("location"), exportReqVO.getLocation()));
+            }
+
+            if(exportReqVO.getProjectSupplyId() != null) {
+                predicates.add(cb.equal(root.get("projectSupplyId"), exportReqVO.getProjectSupplyId()));
+            }
+
+            if(exportReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
+            }
+
+            if(exportReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
+            }
+
+            if(exportReqVO.getOwnerType() != null) {
+                predicates.add(cb.equal(root.get("ownerType"), exportReqVO.getOwnerType()));
+            }
+
+            if(exportReqVO.getUnitFee() != null) {
+                predicates.add(cb.equal(root.get("unitFee"), exportReqVO.getUnitFee()));
+            }
+
             if(exportReqVO.getValidDate() != null) {
                 predicates.add(cb.between(root.get("validDate"), exportReqVO.getValidDate()[0], exportReqVO.getValidDate()[1]));
             } 
+            if(exportReqVO.getFileName() != null) {
+                predicates.add(cb.like(root.get("fileName"), "%" + exportReqVO.getFileName() + "%"));
+            }
+
+            if(exportReqVO.getFileUrl() != null) {
+                predicates.add(cb.equal(root.get("fileUrl"), exportReqVO.getFileUrl()));
+            }
+
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -184,20 +240,12 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
         }
 
-        if (order.getSupplyId() != null) {
-            orders.add(new Sort.Order(order.getSupplyId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "supplyId"));
-        }
-
         if (order.getName() != null) {
             orders.add(new Sort.Order(order.getName().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "name"));
         }
 
         if (order.getFeeStandard() != null) {
             orders.add(new Sort.Order(order.getFeeStandard().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "feeStandard"));
-        }
-
-        if (order.getUnitFee() != null) {
-            orders.add(new Sort.Order(order.getUnitFee().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "unitFee"));
         }
 
         if (order.getUnitAmount() != null) {
@@ -208,8 +256,44 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
             orders.add(new Sort.Order(order.getQuantity().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "quantity"));
         }
 
+        if (order.getSupplyId() != null) {
+            orders.add(new Sort.Order(order.getSupplyId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "supplyId"));
+        }
+
+        if (order.getLocation() != null) {
+            orders.add(new Sort.Order(order.getLocation().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "location"));
+        }
+
+        if (order.getProjectSupplyId() != null) {
+            orders.add(new Sort.Order(order.getProjectSupplyId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "projectSupplyId"));
+        }
+
+        if (order.getCustomerId() != null) {
+            orders.add(new Sort.Order(order.getCustomerId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "customerId"));
+        }
+
+        if (order.getProjectId() != null) {
+            orders.add(new Sort.Order(order.getProjectId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "projectId"));
+        }
+
+        if (order.getOwnerType() != null) {
+            orders.add(new Sort.Order(order.getOwnerType().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "ownerType"));
+        }
+
+        if (order.getUnitFee() != null) {
+            orders.add(new Sort.Order(order.getUnitFee().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "unitFee"));
+        }
+
         if (order.getValidDate() != null) {
             orders.add(new Sort.Order(order.getValidDate().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "validDate"));
+        }
+
+        if (order.getFileName() != null) {
+            orders.add(new Sort.Order(order.getFileName().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "fileName"));
+        }
+
+        if (order.getFileUrl() != null) {
+            orders.add(new Sort.Order(order.getFileUrl().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "fileUrl"));
         }
 
 

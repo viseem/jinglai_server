@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectFundLog")
 @Table(name = "jl_project_fund_log")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectFundLog extends BaseEntity {
 
     /**

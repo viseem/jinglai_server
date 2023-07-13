@@ -126,6 +126,9 @@ public class SupplySendInServiceImpl implements SupplySendInService {
     public void deleteSupplySendIn(Long id) {
         // 校验存在
         validateSupplySendInExists(id);
+
+        supplySendInItemRepository.deleteBySupplySendInId(id);
+
         // 删除
         supplySendInRepository.deleteById(id);
     }
@@ -352,6 +355,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
                     item.setStatus(status);
                     item.setRoomId(storeIn.getRoomId());
                     item.setContainerId(storeIn.getContainerId());
+                    item.setLocationName(storeIn.getLocationName());
                     item.setPlaceId(storeIn.getPlaceId());
                     item.setTemperature(storeIn.getTemperature());
                     item.setValidDate(storeIn.getValidDate());

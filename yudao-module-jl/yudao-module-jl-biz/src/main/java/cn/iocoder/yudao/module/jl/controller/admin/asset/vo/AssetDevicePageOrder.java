@@ -26,16 +26,7 @@ public class AssetDevicePageOrder {
     private String ownerType;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String type;
-
-    @Schema(allowableValues = {"desc", "asc"})
-    private String location;
-
-    @Schema(allowableValues = {"desc", "asc"})
     private String managerId;
-
-    @Schema(allowableValues = {"desc", "asc"})
-    private String status;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String mark;
@@ -47,6 +38,15 @@ public class AssetDevicePageOrder {
     private String fileUrl;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String code;
+    private String type;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String location;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String status;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String sn;
 
 }

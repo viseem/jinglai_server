@@ -28,17 +28,8 @@ public class AssetDeviceExcelVO {
     @ExcelProperty("所属类型：公司、租赁")
     private String ownerType;
 
-    @ExcelProperty("设备类型：细胞仪器、解剖仪器")
-    private String type;
-
-    @ExcelProperty("位置：字典")
-    private String location;
-
     @ExcelProperty("管理人 id")
     private Long managerId;
-
-    @ExcelProperty("设备状态：空闲、忙碌(前端先自己算)")
-    private String status;
 
     @ExcelProperty("备注")
     private String mark;
@@ -49,7 +40,16 @@ public class AssetDeviceExcelVO {
     @ExcelProperty("设备快照地址")
     private String fileUrl;
 
+    @ExcelProperty("设备类型：细胞仪器、解剖仪器")
+    private String type;
+
+    @ExcelProperty("位置")
+    private String location;
+
+    @ExcelProperty("设备状态：空闲、忙碌(前端先自己算)")
+    private String status;
+
     @ExcelProperty("设备编码：后端生成")
-    private String code;
+    private String sn;
 
 }

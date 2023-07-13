@@ -18,8 +18,7 @@ public class ProjectSopBaseVO {
     @NotNull(message = "实验名目 id不能为空")
     private Long projectCategoryId;
 
-    @Schema(description = "原始实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21140")
-    @NotNull(message = "原始实验名目 id不能为空")
+    @Schema(description = "原始实验名目 id")
     private Long categoryId;
 
     @Schema(description = "操作步骤的内容", requiredMode = Schema.RequiredMode.REQUIRED)

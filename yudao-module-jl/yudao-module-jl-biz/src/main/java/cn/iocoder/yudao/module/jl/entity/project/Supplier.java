@@ -73,4 +73,46 @@ public class Supplier extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 发票抬头
+     */
+    @Column(name = "bill_title", nullable = false )
+    private String billTitle;
+
+    /**
+     * 开票方式
+     */
+    @Column(name = "bill_way", nullable = false )
+    private String billWay;
+
+    /**
+     * 发票要求
+     */
+    @Column(name = "bill_request", nullable = false )
+    private String billRequest;
+
+    /**
+     * 所属部门
+     */
+    @Column(name = "contactDepartment", nullable = false )
+    private String contact_department;
+
+    /**
+     * 产品
+     */
+    @Column(name = "product", nullable = false )
+    private String product;
+
+    /**
+     * 服务折扣
+     */
+    @Column(name = "discount", nullable = false )
+    private String discount;
+
+    /**
+     * 联系人的职位
+     */
+    @Column(name = "contact_level", nullable = false )
+    private String contactLevel;
+
 }

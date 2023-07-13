@@ -86,6 +86,45 @@ public class Project extends BaseEntity {
     private Long managerId;
 
     /**
+     * 采购负责人
+     */
+    @Column(name = "procurementer_id")
+    private Long procurementerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "procurementer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User procurementer;
+
+    /**
+     * 库管负责人
+     */
+    @Column(name = "inventorier_id")
+    private Long inventorierId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "inventorier_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User intentorier;
+
+    /**
+     * 实验负责人
+     */
+    @Column(name = "exper_id")
+    private Long experId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User exper;
+
+    /**
+     * 实验员
+     */
+    @Column(name = "exper_ids")
+    private String experIds;
+
+    /**
      * 参与者 ids，数组
      */
     @Column(name = "participants")

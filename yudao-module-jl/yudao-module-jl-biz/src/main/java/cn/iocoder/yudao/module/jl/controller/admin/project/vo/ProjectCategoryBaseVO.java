@@ -52,8 +52,11 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "实验名目库的名目 id")
     private Long categoryId;
 
-    @Schema(description = "实验人员", example = "17520")
+    @Schema(description = "实验负责人", example = "17520")
     private Long operatorId;
+
+    @Schema(description = "实验员", example = "17520")
+    private String operatorIds;
 
     private User operator;
 
@@ -72,6 +75,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "实验名目名字", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "实验名目名字不能为空")
     private String name;
+
+    @Schema(description = "原始内容")
+    private String content;
 
     @Schema(description = "备注")
     private String mark;

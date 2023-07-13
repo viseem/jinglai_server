@@ -27,4 +27,22 @@ public class ProjectCategorySupplierBaseVO {
     @Schema(description = "擅长领域")
     private String advantage;
 
+    /**
+     * 发票抬头
+     */
+    @Schema(description = "发票抬头")
+    private String billTitle;
+
+    /**
+     * 开票方式
+     */
+    @Schema(description = "开票方式")
+    private String billWay;
+
+    /**
+     * 发票要求
+     */
+    @Schema(description = "发票要求：textarea")
+    private String billRequest;
+
 }

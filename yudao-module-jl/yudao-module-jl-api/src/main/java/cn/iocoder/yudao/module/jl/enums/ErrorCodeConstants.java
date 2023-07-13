@@ -53,7 +53,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_SOP_NOT_EXISTS = new ErrorCode(2025000001, "项目中的操作SOP不存在");
 
-    ErrorCode PROJECT_SCHEDULE_NOT_EXISTS = new ErrorCode(2026000001, "项目中的操作SOP不存在");
+    ErrorCode PROJECT_SCHEDULE_NOT_EXISTS = new ErrorCode(2026000001, "安排单不存在");
 
     ErrorCode PROJECT_CATEGORY_NOT_EXISTS = new ErrorCode(2027000001, "项目中的实验名目不存在");
 
@@ -136,4 +136,9 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_CATEGORY_SUPPLIER_NOT_EXISTS = new ErrorCode(2054300001, "项目实验委外供应商不存在");
 
     ErrorCode PROJECT_SERVICE_NOT_EXISTS = new ErrorCode(2054400001, "项目售后不存在");
+    ErrorCode TEMPLATE_PROJECT_PLAN_NOT_EXISTS = new ErrorCode(2054500001, "项目方案模板不存在");
+
+    ErrorCode TEMPLATE_CONTRACT_NOT_EXISTS = new ErrorCode(2054600001, "合同模板不存在");
+    ErrorCode PROJECT_DEVICE_NOT_EXISTS = new ErrorCode(2054700001, "项目设备不存在");
+
 }

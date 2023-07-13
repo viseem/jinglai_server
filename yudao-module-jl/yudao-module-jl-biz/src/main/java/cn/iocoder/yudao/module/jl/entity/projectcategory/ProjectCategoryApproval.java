@@ -87,7 +87,17 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 
+    /**
+     * 检查项json string
+     */
+    @Column(name = "check_list")
+    private String checkList;
 
+    /**
+     * 检查项json string
+     */
+    @Column(name = "checked_list")
+    private String checkedList;
     /**
      * JPA 级联出 user
      */

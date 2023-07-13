@@ -102,13 +102,19 @@ public class ProjectCategory extends BaseEntity {
     private Long categoryId;
 
     /**
-     * 实验人员
+     * 实验负责人
      */
     @Column(name = "operator_id")
     private Long operatorId;
 
     /**
-     * JPA 级联出 user 实验人员
+     * 实验人员
+     */
+    @Column(name = "operator_ids")
+    private String operatorIds;
+
+    /**
+     * JPA 级联出 user 实验负责人
      */
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

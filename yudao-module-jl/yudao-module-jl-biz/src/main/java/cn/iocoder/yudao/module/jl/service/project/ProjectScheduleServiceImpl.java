@@ -386,7 +386,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         if (sopList != null && sopList.size() >= 1) {
             List<ProjectSopBaseVO> projectSopList = sopList.stream().map(sop -> {
                 sop.setProjectCategoryId(categoryDo.getId());
-                sop.setCategoryId(categoryDo.getCategoryId());
+                    sop.setCategoryId(categoryDo.getCategoryId());
                 return sop;
             }).collect(Collectors.toList());
 
@@ -395,6 +395,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         }
 
         // 保存 附件attachment
+        projectCategoryAttachmentRepository.deleteByProjectCategoryId(categoryDo.getId());
         List<ProjectCategoryAttachmentBaseVO> attachmentList = category.getAttachmentList();
         if (attachmentList != null && attachmentList.size() >= 1) {
             List<ProjectCategoryAttachmentBaseVO> projectAttachmentList = attachmentList.stream().map(attachment -> {

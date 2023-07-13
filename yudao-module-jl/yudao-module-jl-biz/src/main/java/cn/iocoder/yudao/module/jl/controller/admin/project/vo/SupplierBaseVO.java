@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -35,5 +36,48 @@ public class SupplierBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+
+    /**
+     * 发票抬头
+     */
+    @Schema(description = "发票抬头")
+    private String billTitle;
+
+    /**
+     * 开票方式
+     */
+    @Schema(description = "开票方式")
+    private String billWay;
+
+    /**
+     * 发票要求
+     */
+    @Schema(description = "发票要求：textarea")
+    private String billRequest;
+
+    /**
+     * 所属部门
+     */
+    @Schema(description = "联系人部门")
+    private String contact_department;
+
+    /**
+     * 产品
+     */
+    @Schema(description = "产品")
+    private String product;
+
+    /**
+     * 服务折扣
+     */
+    @Schema(description = "服务折扣")
+    private String discount;
+
+    /**
+     * 联系人的职位
+     */
+    @Schema(description = "联系人的职位")
+    private String contactLevel;
 
 }

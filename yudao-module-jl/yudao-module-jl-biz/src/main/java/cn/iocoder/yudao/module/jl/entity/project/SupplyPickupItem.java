@@ -116,6 +116,9 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "container_id")
     private Long containerId;
 
+    @Column(name = "location_name")
+    private String locationName;
+
     @Column(name = "temperature")
     private String temperature;
 }

@@ -80,6 +80,7 @@ public class ProcurementItemBaseVO {
     private Long roomId;
     private Long placeId;
     private Long containerId;
+    private String locationName;
     private String temperature;
     private Integer inQuantity = 0;
     private Integer checkInQuantity = 0;

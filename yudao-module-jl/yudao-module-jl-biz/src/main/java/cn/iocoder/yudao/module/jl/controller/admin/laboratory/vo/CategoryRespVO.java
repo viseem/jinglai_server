@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo;
 
-import cn.iocoder.yudao.module.jl.entity.laboratory.CategorySkillUser;
-import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
+import cn.iocoder.yudao.module.jl.entity.laboratory.*;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -33,4 +36,11 @@ public class CategoryRespVO extends CategoryBaseVO {
     private Set<User> skillUsers = new HashSet<>();
 
     private LaboratoryLab lab;
+
+    private List<CategoryChargeitem> chargeList;
+    private List<CategorySupply> supplyList;
+
+    private List<CategorySop> sopList;
+
+    private List<CategoryReference> attachmentList;
 }
