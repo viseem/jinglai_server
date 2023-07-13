@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.ProductInItem;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,5 +18,5 @@ public class ProductInSaveReqVO extends ProductInBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "27693")
     private Long id;
 
-    private List<ProductInItemCreateReqVO> items;
+    private List<ProductInItem> items;
 }

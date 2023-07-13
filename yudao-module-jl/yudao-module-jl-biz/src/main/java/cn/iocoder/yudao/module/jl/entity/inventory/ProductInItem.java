@@ -129,6 +129,12 @@ public class ProductInItem extends BaseEntity {
     private Long zoomId;
 
     /**
+     * 位置
+     */
+    @Column(name = "location_name")
+    private String locationName;
+
+    /**
      * 有效期
      */
     @Column(name = "valid_date")
