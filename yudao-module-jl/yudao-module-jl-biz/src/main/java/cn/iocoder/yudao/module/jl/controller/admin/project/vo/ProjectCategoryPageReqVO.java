@@ -22,6 +22,8 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
+    @Schema(description = "项目 id", example = "14245")
+    private Long projectId;
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
 

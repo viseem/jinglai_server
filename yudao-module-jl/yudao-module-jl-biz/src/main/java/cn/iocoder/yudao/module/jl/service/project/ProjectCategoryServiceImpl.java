@@ -206,7 +206,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if(pageReqVO.getQuoteId() != null) {
                 predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
             }
-
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
             if(pageReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
