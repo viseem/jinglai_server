@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "AssetDevice")
 @Table(name = "jl_asset_device")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AssetDevice extends BaseEntity {
 
     /**
