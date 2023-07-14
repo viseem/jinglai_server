@@ -141,4 +141,5 @@ public interface ErrorCodeConstants {
     ErrorCode TEMPLATE_CONTRACT_NOT_EXISTS = new ErrorCode(2054600001, "合同模板不存在");
     ErrorCode PROJECT_DEVICE_NOT_EXISTS = new ErrorCode(2054700001, "项目设备不存在");
 
+    ErrorCode ASSET_DEVICE_LOG_NOT_EXISTS = new ErrorCode(2054800001, "公司资产（设备）预约不存在");
 }

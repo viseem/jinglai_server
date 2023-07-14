@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -118,6 +120,18 @@ public class ProjectDeviceServiceImpl implements ProjectDeviceService {
 
         // 执行查询
         Page<ProjectDevice> page = projectDeviceRepository.findAll(spec, pageable);
+
+        List<ProjectDevice> projectDevices = page.getContent();
+        projectDevices.forEach(item->{
+            if (item.getLogs()!=null){
+                List<AssetDeviceLog> logs = item.getLogs();
+                if (!logs.isEmpty()) {
+                    Optional<AssetDeviceLog> latestLog = logs.stream()
+                            .max(Comparator.comparing(AssetDeviceLog::getCreateTime));
+                    item.setLatestLog(latestLog.orElse(null));
+                }
+            }
+        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

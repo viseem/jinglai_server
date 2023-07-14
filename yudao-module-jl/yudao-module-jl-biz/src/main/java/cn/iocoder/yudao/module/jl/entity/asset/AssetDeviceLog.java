@@ -1,8 +1,6 @@
-package cn.iocoder.yudao.module.jl.entity.project;
+package cn.iocoder.yudao.module.jl.entity.asset;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
-import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -19,20 +17,20 @@ import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
- * 项目设备 Entity
+ * 公司资产（设备）预约 Entity
  *
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProjectDevice")
-@Table(name = "jl_project_device")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class ProjectDevice extends BaseEntity {
+@Entity(name = "AssetDeviceLog")
+@Table(name = "jl_asset_device_log")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class AssetDeviceLog extends BaseEntity {
 
     /**
-     * 岗位ID
+     * ID
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,22 +50,7 @@ public class ProjectDevice extends BaseEntity {
     private AssetDevice device;
 
     /**
-     * 查询日志
-     */
-    @OneToMany(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_device_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<AssetDeviceLog> logs = new ArrayList<>();
-
-    /**
-     * 设备名称
-     */
-    @Column(name = "name", nullable = false )
-    private String name;
-
-    /**
-     * 备注
+     * 预约说明
      */
     @Column(name = "mark")
     private String mark;
@@ -75,16 +58,31 @@ public class ProjectDevice extends BaseEntity {
     /**
      * 开始时间
      */
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Column(name = "start_date", nullable = false )
+    private String startDate;
 
     /**
      * 结束时间
      */
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Column(name = "end_date", nullable = false )
+    private String endDate;
 
-    @Transient
-    private AssetDeviceLog latestLog;
+    /**
+     * 项目id
+     */
+    @Column(name = "project_id")
+    private Long projectId;
+
+    /**
+     * 用途分类：项目
+     */
+    @Column(name = "use_type")
+    private String useType;
+
+    /**
+     * 项目设备id
+     */
+    @Column(name = "project_device_id")
+    private Long projectDeviceId;
 
 }
