@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.asset;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -72,6 +73,12 @@ public class AssetDeviceLog extends BaseEntity {
      */
     @Column(name = "project_id")
     private Long projectId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
 
     /**
      * 用途分类：项目
