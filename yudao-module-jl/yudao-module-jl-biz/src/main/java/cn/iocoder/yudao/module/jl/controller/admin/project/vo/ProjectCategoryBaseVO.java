@@ -63,6 +63,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "客户需求")
     private String demand;
 
+    @Schema(description = "开始日期")
+    private String startDate;
+
     @Schema(description = "截止日期")
     private String deadline;
 

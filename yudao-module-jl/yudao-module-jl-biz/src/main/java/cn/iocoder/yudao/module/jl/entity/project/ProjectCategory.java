@@ -128,6 +128,12 @@ public class ProjectCategory extends BaseEntity {
     private String demand;
 
     /**
+     * 开始日期
+     */
+    @Column(name = "start_date")
+    private String startDate;
+
+    /**
      * 截止日期
      */
     @Column(name = "deadline")
