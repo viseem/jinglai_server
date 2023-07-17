@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedCard;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 动物饲养申请单 Response VO")
 @Data
@@ -20,5 +22,7 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
 
     private ProjectOnly project;
     private CustomerOnly customer;
+
+    private List<AnimalFeedCard> cards;
 
 }

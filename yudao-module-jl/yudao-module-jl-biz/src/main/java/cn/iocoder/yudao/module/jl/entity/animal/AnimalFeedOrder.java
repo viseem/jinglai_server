@@ -183,4 +183,32 @@ public class AnimalFeedOrder extends BaseEntity {
     @Column(name = "reply")
     private String reply;
 
+    /**
+     * 计费规则
+     */
+    @Column(name = "bill_rules")
+    private String billRules;
+
+    /**
+     * 单价
+     */
+    @Column(name = "unit_fee")
+    private Integer unitFee;
+
+    /**
+     * 入库备注
+     */
+    @Column(name = "in_mark")
+    private String inMark;
+
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<AnimalFeedCard> cards = new ArrayList<>();
+
 }

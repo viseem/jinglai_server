@@ -28,6 +28,13 @@ public interface AnimalFeedOrderService {
     void updateAnimalFeedOrder(@Valid AnimalFeedOrderUpdateReqVO updateReqVO);
 
     /**
+     * save更新动物饲养申请单
+     *
+     * @param saveReqVO 更新信息
+     */
+    void saveAnimalFeedOrder(@Valid AnimalFeedOrderSaveReqVO saveReqVO);
+
+    /**
      * 删除动物饲养申请单
      *
      * @param id 编号

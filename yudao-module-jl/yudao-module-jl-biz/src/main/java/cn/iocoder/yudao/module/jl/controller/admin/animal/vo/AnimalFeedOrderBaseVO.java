@@ -95,4 +95,12 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "回复")
     private String reply;
 
+    @Schema(description = "计费规则")
+    private String billRules;
+
+    @Schema(description = "单价")
+    private Integer unitFee;
+
+    @Schema(description = "入库备注")
+    private String inMark;
 }

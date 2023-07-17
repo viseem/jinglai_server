@@ -147,4 +147,6 @@ public interface ErrorCodeConstants {
     ErrorCode ANIMAL_SHELF_NOT_EXISTS = new ErrorCode(2055000001, "动物饲养笼架不存在");
 
     ErrorCode ANIMAL_FEED_ORDER_NOT_EXISTS = new ErrorCode(2055100001, "动物饲养申请单不存在");
+
+    ErrorCode ANIMAL_FEED_CARD_NOT_EXISTS = new ErrorCode(2055200001, "动物饲养鼠牌不存在");
 }
