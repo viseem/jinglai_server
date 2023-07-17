@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedCardRepository;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -43,6 +45,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private AnimalFeedCardRepository animalFeedCardRepository;
 
     @Resource
+    private AnimalFeedStoreInRepository animalFeedStoreInRepository;
+
+    @Resource
     private AnimalFeedOrderMapper animalFeedOrderMapper;
 
     @Override
@@ -80,6 +85,32 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }).collect(Collectors.toList()));
 
     }
+    @Override
+    public void storeAnimalFeedOrder(AnimalFeedOrderStoreReqVO storeReqVO) {
+        // 校验存在
+        // 更新
+        storeReqVO.setStage(AnimalFeedStageEnums.FEEDING.getStatus());
+        AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(storeReqVO);
+        AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
+        Long id = animalFeedOrder.getId();
+
+        //更新鼠牌
+        animalFeedCardRepository.saveAll(storeReqVO.getCards().stream().map(item->{
+            item.setFeedOrderId(id);
+            item.setProjectId(animalFeedOrder.getProjectId());
+            item.setCustomerId(animalFeedOrder.getCustomerId());
+            item.setBreed(saveObj.getBreed());
+            return item;
+        }).collect(Collectors.toList()));
+
+        //更新入库信息
+        animalFeedStoreInRepository.saveAll(storeReqVO.getStores().stream().map(item->{
+            item.setFeedOrderId(id);
+            return item;
+        }).collect(Collectors.toList()));
+
+    }
+
     @Override
     public void deleteAnimalFeedOrder(Long id) {
         // 校验存在

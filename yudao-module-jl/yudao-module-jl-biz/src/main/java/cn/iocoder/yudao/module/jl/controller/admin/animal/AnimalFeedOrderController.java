@@ -65,6 +65,14 @@ public class AnimalFeedOrderController {
         return success(true);
     }
 
+    @PutMapping("/store-in")
+    @Operation(summary = "更新动物饲养申请单")
+    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:update')")
+    public CommonResult<Boolean> storeAnimalFeedOrder(@Valid @RequestBody AnimalFeedOrderStoreReqVO storeReqVO) {
+        animalFeedOrderService.storeAnimalFeedOrder(storeReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除动物饲养申请单")
     @Parameter(name = "id", description = "编号", required = true)

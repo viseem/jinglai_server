@@ -11,6 +11,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AnimalFeedOrderMapper {
 
+    AnimalFeedOrder toEntity(AnimalFeedOrderStoreReqVO dto);
     AnimalFeedOrder toEntity(AnimalFeedOrderSaveReqVO dto);
     AnimalFeedOrder toEntity(AnimalFeedOrderCreateReqVO dto);
 

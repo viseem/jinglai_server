@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "AnimalFeedOrder")
 @Table(name = "jl_animal_feed_order")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalFeedOrder extends BaseEntity {
 
     /**
@@ -203,12 +203,19 @@ public class AnimalFeedOrder extends BaseEntity {
 
 
     /**
-     * 查询款项列表
+     * 查询鼠牌
      */
     @OneToMany(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<AnimalFeedCard> cards = new ArrayList<>();
+
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<AnimalFeedStoreIn> stores = new ArrayList<>();
 
 }

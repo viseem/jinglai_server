@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedCard;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,5 +25,7 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
     private CustomerOnly customer;
 
     private List<AnimalFeedCard> cards;
+
+    private List<AnimalFeedStoreIn> stores;
 
 }
