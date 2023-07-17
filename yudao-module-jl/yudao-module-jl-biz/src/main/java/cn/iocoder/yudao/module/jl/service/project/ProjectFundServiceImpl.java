@@ -141,6 +141,10 @@ public class ProjectFundServiceImpl implements ProjectFundService {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
             }
 
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
