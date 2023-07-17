@@ -70,6 +70,12 @@ public class AnimalFeedOrder extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 笼数
+     */
+    @Column(name = "cage_quantity", nullable = false )
+    private Integer cageQuantity;
+
+    /**
      * 雌
      */
     @Column(name = "female_count", nullable = false )

@@ -37,6 +37,9 @@ public class AnimalFeedOrderBaseVO {
     @NotNull(message = "数量不能为空")
     private Integer quantity;
 
+    @Schema(description = "笼数")
+    private Integer cageQuantity;
+
     @Schema(description = "雌", requiredMode = Schema.RequiredMode.REQUIRED, example = "6065")
     @NotNull(message = "雌不能为空")
     private Integer femaleCount;
