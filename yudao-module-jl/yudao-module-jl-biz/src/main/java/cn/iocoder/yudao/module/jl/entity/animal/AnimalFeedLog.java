@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
- * 动物饲养鼠牌 Entity
+ * 动物饲养日志 Entity
  *
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "AnimalFeedCard")
-@Table(name = "jl_animal_feed_card")
+@Entity(name = "AnimalFeedLog")
+@Table(name = "jl_animal_feed_log")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AnimalFeedCard extends BaseEntity {
+public class AnimalFeedLog extends BaseEntity {
 
     /**
      * ID
@@ -38,45 +38,60 @@ public class AnimalFeedCard extends BaseEntity {
     private Long feedOrderId;
 
     /**
-     * 序号
+     * 变更数量
      */
-    @Column(name = "seq")
-    private Integer seq;
+    @Column(name = "change_quantity", nullable = false )
+    private Integer changeQuantity;
 
     /**
-     * 品系品种
+     * 变更笼数
      */
-    @Column(name = "breed", nullable = false )
-    private String breed;
+    @Column(name = "change_cage_quantity", nullable = false )
+    private Integer changeCageQuantity;
 
     /**
-     * 备注
+     * 类型
+     */
+    @Column(name = "type", nullable = false )
+    private String type;
+
+    /**
+     * 说明
      */
     @Column(name = "mark")
     private String mark;
 
     /**
-     * 性别
+     * 变更附件
      */
-    @Column(name = "gender", nullable = false )
-    private Byte gender;
+    @Column(name = "files")
+    private String files;
 
     /**
-     * 数量
+     * 变更位置
+     */
+    @Column(name = "stores")
+    private String stores;
+
+    /**
+     * 变更后数量
      */
     @Column(name = "quantity", nullable = false )
     private Integer quantity;
 
     /**
-     * 项目id
+     * 变更后笼数
      */
-    @Column(name = "project_id")
-    private Long projectId;
+    @Column(name = "cage_quantity", nullable = false )
+    private Integer cageQuantity;
 
-    /**
-     * 客户id
-     */
-    @Column(name = "customer_id")
-    private Long customerId;
+    @Transient
+    private Integer rowAmount;
+
+    @Transient
+    private String dateStr;
+
+    @Transient
+    private String timeStr;
 
 }

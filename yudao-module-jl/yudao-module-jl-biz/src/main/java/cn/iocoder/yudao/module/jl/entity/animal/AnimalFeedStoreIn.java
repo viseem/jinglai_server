@@ -61,4 +61,10 @@ public class AnimalFeedStoreIn extends BaseEntity {
     @Column(name = "location")
     private String location;
 
+    /**
+     * 位置code
+     */
+    @Column(name = "location_code")
+    private String locationCode;
+
 }

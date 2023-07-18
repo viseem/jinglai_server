@@ -224,4 +224,16 @@ public class AnimalFeedOrder extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<AnimalFeedStoreIn> stores = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime desc")
+    private List<AnimalFeedLog> logs = new ArrayList<>();
+
+    @Transient
+    private AnimalFeedLog latestLog;
+    @Transient
+    private Integer Amount;
+
 }

@@ -30,4 +30,6 @@ public class AnimalFeedStoreInBaseVO {
     @Schema(description = "位置")
     private String location;
 
+    @Schema(description = "位置code")
+    private String locationCode;
 }
