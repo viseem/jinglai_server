@@ -33,6 +33,9 @@ public class ProjectBaseVO {
     @NotNull(message = "项目名字不能为空")
     private String name;
 
+    @Schema(description = "编号")
+    private String code;
+
     @Schema(description = "项目开展阶段")
     private String stage;
 

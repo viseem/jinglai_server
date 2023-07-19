@@ -1,20 +1,26 @@
 package cn.iocoder.yudao.module.jl.repository.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
 * ProjectRepository
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Query("select a from Project a ORDER BY a.id DESC")
+    Project findLastOne();
+
     @Transactional
     @Modifying
     @Query("update Project p set p.currentScheduleId = ?2 where p.id = ?1")
     int updateCurrentScheduleIdById(Long projectId, Long scheduleId);
 
 
-
-
+    Project findFirstByOrderByIdDesc();
 }

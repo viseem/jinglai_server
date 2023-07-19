@@ -4,9 +4,15 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.RandomNumberGenerator;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,10 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -38,9 +41,30 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectServiceImpl implements ProjectService {
-
     @Resource
     private ProjectRepository projectRepository;
+
+    public ProjectServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @PostConstruct
+    public void ProjectServiceImpl() {
+        Project lastRow = projectRepository.findFirstByOrderByIdDesc();
+        System.out.println(lastRow);
+        if (lastRow != null) {
+            counter = new AtomicLong(lastRow.getId()+1);
+        } else {
+            counter = new AtomicLong(0); // 设置一个默认初始值
+        }
+    }
+    private static AtomicLong counter = new AtomicLong(0);
+
+    public static String generateCode() {
+        // 获取当前日期，并格式化为"yyyyMMdd"形式
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return  String.format("%s%s%d%s", dateStr, RandomNumberGenerator.generateRandomNumber(3),counter.incrementAndGet(),RandomNumberGenerator.generateRandomNumber(3));
+    }
 
     @Resource
     private ProjectScheduleRepository projectScheduleRepository;
@@ -52,13 +76,12 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectScheduleMapper projectScheduleMapper;
     private final UserRepository userRepository;
 
-    public ProjectServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+
 
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setCode(generateCode());
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
 
@@ -81,7 +104,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectExists(updateReqVO.getId());
+        Project project = validateProjectExists(updateReqVO.getId());
+        if(project.getCode()==null|| project.getCode().equals("")){
+            updateReqVO.setCode(generateCode());
+        }
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);
@@ -103,8 +129,12 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.deleteById(id);
     }
 
-    private void validateProjectExists(Long id) {
-        projectRepository.findById(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+    private Project validateProjectExists(Long id) {
+        Optional<Project> byId = projectRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override

@@ -36,7 +36,6 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 @RequestMapping("/jl/project")
 @Validated
 public class ProjectController {
-
     @Resource
     private ProjectService projectService;
 
