@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedCardRepository;
@@ -176,6 +177,13 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }
     }
 
+    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder){
+        List<AnimalFeedStoreIn> stores = animalFeedOrder.getStores();
+        if(stores!=null&&stores.size()>0){
+            animalFeedOrder.setLatestStore(stores.get(0));
+        }
+    }
+
     @Override
     public List<AnimalFeedOrder> getAnimalFeedOrderList(Collection<Long> ids) {
         return StreamSupport.stream(animalFeedOrderRepository.findAllById(ids).spliterator(), false)
@@ -273,8 +281,11 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         Page<AnimalFeedOrder> page = animalFeedOrderRepository.findAll(spec, pageable);
 
         List<AnimalFeedOrder> animalFeedOrders = page.getContent();
-        animalFeedOrders.forEach(this::processLatestFeedLog);
 
+        animalFeedOrders.forEach(animalFeedOrder -> {
+            processLatestFeedLog(animalFeedOrder);
+            processLatestFeedStore(animalFeedOrder);
+        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

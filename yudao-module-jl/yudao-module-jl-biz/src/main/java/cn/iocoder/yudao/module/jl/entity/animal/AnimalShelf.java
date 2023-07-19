@@ -2,9 +2,11 @@ package cn.iocoder.yudao.module.jl.entity.animal;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalRoomRepository;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
+import javax.annotation.Resource;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -28,6 +30,9 @@ import java.time.LocalDateTime;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalShelf extends BaseEntity {
 
+    @Resource
+    @Transient
+    private AnimalRoomRepository animalRoomRepository;
     /**
      * ID
      */
@@ -47,6 +52,14 @@ public class AnimalShelf extends BaseEntity {
      */
     @Column(name = "code")
     private String code;
+
+/*    public String getCode(){
+        if(this.code!=null&&this.code.length()>0){
+            return this.code;
+        }
+        animalRoomRepository.updateCodeById("ST"+this.id,this.id);
+        return "ST"+this.id;
+    }*/
 
     /**
      * 缩略图名称

@@ -15,6 +15,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
@@ -35,17 +36,34 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class AnimalRoomServiceImpl implements AnimalRoomService {
 
+    @Transactional
+    public synchronized String generateUniqueCode(String prefix) {
+        long count = animalRoomRepository.count();
+        return String.format("%s%d", prefix,count+1);
+    }
+
     @Resource
     private AnimalRoomRepository animalRoomRepository;
 
     @Resource
     private AnimalRoomMapper animalRoomMapper;
 
+    private String generateCodeById(Long id){
+        return "R"+id;
+    }
+
     @Override
     public Long createAnimalRoom(AnimalRoomCreateReqVO createReqVO) {
+        //校验一下code是否存在
+        validateAnimalRoomExistsByCode(createReqVO.getCode());
         // 插入
         AnimalRoom animalRoom = animalRoomMapper.toEntity(createReqVO);
         animalRoomRepository.save(animalRoom);
+
+        Long id = animalRoom.getId();
+        if(createReqVO.getCode()==null||createReqVO.getCode().equals("")){
+            animalRoomRepository.updateCodeById(generateCodeById(id),id);
+        }
         // 返回
         return animalRoom.getId();
     }
@@ -53,7 +71,15 @@ public class AnimalRoomServiceImpl implements AnimalRoomService {
     @Override
     public void updateAnimalRoom(AnimalRoomUpdateReqVO updateReqVO) {
         // 校验存在
-        validateAnimalRoomExists(updateReqVO.getId());
+        AnimalRoom animalRoom = validateAnimalRoomExists(updateReqVO.getId());
+
+        // 如果是空 设置一个
+        if(updateReqVO.getCode()==null||updateReqVO.getCode().equals("")){
+            updateReqVO.setCode(generateCodeById(updateReqVO.getId()));
+        } else if (!Objects.equals(animalRoom.getCode(), updateReqVO.getCode())) {
+            //如果不空 并且跟原先的code不一样 校验一下存在
+            validateAnimalRoomExistsByCode(updateReqVO.getCode());
+        }
         // 更新
         AnimalRoom updateObj = animalRoomMapper.toEntity(updateReqVO);
         animalRoomRepository.save(updateObj);
@@ -67,8 +93,19 @@ public class AnimalRoomServiceImpl implements AnimalRoomService {
         animalRoomRepository.deleteById(id);
     }
 
-    private void validateAnimalRoomExists(Long id) {
-        animalRoomRepository.findById(id).orElseThrow(() -> exception(ANIMAL_ROOM_NOT_EXISTS));
+    private AnimalRoom validateAnimalRoomExists(Long id) {
+        Optional<AnimalRoom> byId = animalRoomRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(ANIMAL_ROOM_NOT_EXISTS);
+        }
+        return byId.orElse(null);
+    }
+
+    private void validateAnimalRoomExistsByCode(String code) {
+        AnimalRoom byCode = animalRoomRepository.findByCode(code);
+        if (byCode!=null){
+            throw exception(ANIMAL_CODE_EXISTS);
+        }
     }
 
     @Override

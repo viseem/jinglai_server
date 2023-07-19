@@ -41,19 +41,45 @@ public class AnimalShelfServiceImpl implements AnimalShelfService {
     @Resource
     private AnimalShelfMapper animalShelfMapper;
 
+    private String generateCodeById(Long id){
+        return "ST"+id;
+    }
+
     @Override
     public Long createAnimalShelf(AnimalShelfCreateReqVO createReqVO) {
+        validateAnimalShelfExistsByCode(createReqVO.getCode());
+
         // 插入
         AnimalShelf animalShelf = animalShelfMapper.toEntity(createReqVO);
         animalShelfRepository.save(animalShelf);
+        Long id = animalShelf.getId();
+        if(createReqVO.getCode()==null||createReqVO.getCode().equals("")){
+            animalShelfRepository.updateCodeById(generateCodeById(id),id);
+        }
+
         // 返回
         return animalShelf.getId();
     }
 
+    private void validateAnimalShelfExistsByCode(String code) {
+        AnimalShelf byCode = animalShelfRepository.findByCode(code);
+        if (byCode!=null){
+            throw exception(ANIMAL_CODE_EXISTS);
+        }
+    }
+
     @Override
     public void updateAnimalShelf(AnimalShelfUpdateReqVO updateReqVO) {
+
         // 校验存在
-        validateAnimalShelfExists(updateReqVO.getId());
+        AnimalShelf animalShelf = validateAnimalShelfExists(updateReqVO.getId());
+        // 如果是空 设置一个
+        if(updateReqVO.getCode()==null||updateReqVO.getCode().equals("")){
+            updateReqVO.setCode(generateCodeById(updateReqVO.getId()));
+        } else if (!Objects.equals(animalShelf.getCode(), updateReqVO.getCode())) {
+            //如果不空 并且跟原先的code不一样 校验一下存在
+            validateAnimalShelfExistsByCode(updateReqVO.getCode());
+        }
         // 更新
         AnimalShelf updateObj = animalShelfMapper.toEntity(updateReqVO);
         animalShelfRepository.save(updateObj);
@@ -67,8 +93,12 @@ public class AnimalShelfServiceImpl implements AnimalShelfService {
         animalShelfRepository.deleteById(id);
     }
 
-    private void validateAnimalShelfExists(Long id) {
-        animalShelfRepository.findById(id).orElseThrow(() -> exception(ANIMAL_SHELF_NOT_EXISTS));
+    private AnimalShelf validateAnimalShelfExists(Long id) {
+        Optional<AnimalShelf> byId = animalShelfRepository.findById(id);
+        if (byId.isEmpty()){
+            throw exception(ANIMAL_SHELF_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override

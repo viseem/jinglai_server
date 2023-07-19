@@ -222,6 +222,7 @@ public class AnimalFeedOrder extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime desc")
     private List<AnimalFeedStoreIn> stores = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -233,6 +234,8 @@ public class AnimalFeedOrder extends BaseEntity {
 
     @Transient
     private AnimalFeedLog latestLog;
+    @Transient
+    private AnimalFeedStoreIn latestStore;
     @Transient
     private Integer Amount;
 

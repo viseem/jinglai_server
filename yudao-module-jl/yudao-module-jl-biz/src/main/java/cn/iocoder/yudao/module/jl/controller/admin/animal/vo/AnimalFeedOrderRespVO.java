@@ -29,6 +29,8 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
 
     private List<AnimalFeedStoreIn> stores;
 
+    private AnimalFeedStoreIn latestStore;
+
     private List<AnimalFeedLog> logs;
 
     private AnimalFeedLog latestLog;
