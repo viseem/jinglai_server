@@ -50,20 +50,21 @@ public class ProjectServiceImpl implements ProjectService {
 
     @PostConstruct
     public void ProjectServiceImpl() {
+
         Project lastRow = projectRepository.findFirstByOrderByIdDesc();
         System.out.println(lastRow);
         if (lastRow != null) {
             counter = new AtomicLong(lastRow.getId()+1);
         } else {
-            counter = new AtomicLong(0); // 设置一个默认初始值
+            counter = new AtomicLong(1); // 设置一个默认初始值
         }
     }
-    private static AtomicLong counter = new AtomicLong(0);
+    private static AtomicLong counter = new AtomicLong(1);
 
     public static String generateCode() {
         // 获取当前日期，并格式化为"yyyyMMdd"形式
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%d%s", dateStr, RandomNumberGenerator.generateRandomNumber(3),counter.incrementAndGet(),RandomNumberGenerator.generateRandomNumber(3));
+        return  String.format("%s%07d", dateStr,counter.incrementAndGet());
     }
 
     @Resource

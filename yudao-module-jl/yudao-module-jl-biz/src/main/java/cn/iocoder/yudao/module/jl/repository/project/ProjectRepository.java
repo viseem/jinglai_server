@@ -7,12 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 /**
 * ProjectRepository
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+
     @Query("select a from Project a ORDER BY a.id DESC")
     Project findLastOne();
 
@@ -23,4 +25,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
 
 
     Project findFirstByOrderByIdDesc();
+
+
 }
