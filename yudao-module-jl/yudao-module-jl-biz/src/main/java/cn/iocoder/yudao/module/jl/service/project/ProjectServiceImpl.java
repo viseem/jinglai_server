@@ -4,7 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import cn.iocoder.yudao.module.jl.utils.RandomNumberGenerator;
+import cn.iocoder.yudao.module.system.dal.redis.common.UniqCodeRedisDAO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,6 +32,8 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.AUTO_INCREMENT_KEY_PROJECT_CODE;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.PREFIX_PROJECT_CODE;
 
 /**
  * 项目管理 Service 实现类
@@ -41,6 +42,30 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectServiceImpl implements ProjectService {
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
+
+    @Resource
+    private UniqCodeRedisDAO uniqCodeRedisDAO;
+
+    @PostConstruct
+    public void ProjectServiceImpl(){
+        Long aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
+        if (aLong==null || aLong<=1){
+            Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
+            if (firstByOrderByIdDesc!=null){
+                Long id = firstByOrderByIdDesc.getId();
+                uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey,id);
+            }
+        }
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return  String.format("%s%s%07d",uniqCodeRedisDAO.getUniqCodePrefix(uniqCodePrefixKey,"proj"),dateStr, uniqCodeRedisDAO.generateUniqUid(uniqCodeKey));
+    }
+
     @Resource
     private ProjectRepository projectRepository;
 
@@ -48,24 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
         this.userRepository = userRepository;
     }
 
-    @PostConstruct
-    public void ProjectServiceImpl() {
 
-        Project lastRow = projectRepository.findFirstByOrderByIdDesc();
-        System.out.println(lastRow);
-        if (lastRow != null) {
-            counter = new AtomicLong(lastRow.getId()+1);
-        } else {
-            counter = new AtomicLong(1); // 设置一个默认初始值
-        }
-    }
-    private static AtomicLong counter = new AtomicLong(1);
-
-    public static String generateCode() {
-        // 获取当前日期，并格式化为"yyyyMMdd"形式
-        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%07d", dateStr,counter.incrementAndGet());
-    }
 
     @Resource
     private ProjectScheduleRepository projectScheduleRepository;
