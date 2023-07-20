@@ -234,7 +234,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             }
 
             if (pageReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
 
             if (pageReqVO.getBreed() != null) {

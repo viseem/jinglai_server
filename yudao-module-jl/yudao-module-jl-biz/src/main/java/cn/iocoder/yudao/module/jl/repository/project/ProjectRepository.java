@@ -15,8 +15,6 @@ import java.util.List;
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
 
-    @Query("select a from Project a ORDER BY a.id DESC")
-    Project findLastOne();
 
     @Transactional
     @Modifying
