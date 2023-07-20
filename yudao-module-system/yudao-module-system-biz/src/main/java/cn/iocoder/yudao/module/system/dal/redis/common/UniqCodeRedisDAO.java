@@ -24,7 +24,15 @@ public class UniqCodeRedisDAO {
     }
 
     public Long getUniqUidByKey(String key){
-      return Long.valueOf(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(key)));
+        String s = stringRedisTemplate.opsForValue().get(key);
+        if (s==null){
+            s = "0";
+        }
+        return Long.valueOf(s);
+    }
+
+    public void setUniqCodePrefix(String key,String prefix){
+        stringRedisTemplate.opsForValue().set(key,prefix);
     }
 
     public String getUniqCodePrefix(String key,String defaultPrefix){

@@ -2,8 +2,10 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import cn.iocoder.yudao.module.system.dal.redis.common.UniqCodeRedisDAO;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -45,32 +49,30 @@ public class ProjectServiceImpl implements ProjectService {
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
 
-    @Resource
-    private UniqCodeRedisDAO uniqCodeRedisDAO;
 
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+
+    @Resource
+    private ProjectRepository projectRepository;
     @PostConstruct
     public void ProjectServiceImpl(){
-        Long aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
-        if (aLong==null || aLong<=1){
-            Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
-            if (firstByOrderByIdDesc!=null){
-                Long id = firstByOrderByIdDesc.getId();
-                uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey,id);
-            }
-        }
+        Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey,"PROJ");
     }
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%07d",uniqCodeRedisDAO.getUniqCodePrefix(uniqCodePrefixKey,"proj"),dateStr, uniqCodeRedisDAO.generateUniqUid(uniqCodeKey));
+        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
-    @Resource
-    private ProjectRepository projectRepository;
 
-    public ProjectServiceImpl(UserRepository userRepository) {
+
+    public ProjectServiceImpl(UserRepository userRepository,
+                              ProjectConstractRepository projectConstractRepository) {
         this.userRepository = userRepository;
+        this.projectConstractRepository = projectConstractRepository;
     }
 
 
@@ -84,7 +86,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
     private final UserRepository userRepository;
-
+    private final ProjectConstractRepository projectConstractRepository;
 
 
     @Override
@@ -114,9 +116,9 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
         Project project = validateProjectExists(updateReqVO.getId());
-        if(project.getCode()==null|| project.getCode().equals("")){
+/*        if(project.getCode()==null|| project.getCode().equals("")){
             updateReqVO.setCode(generateCode());
-        }
+        }*/
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

@@ -28,10 +28,19 @@ public interface RedisKeyConstants {
 
 
     RedisKeyDefine AUTO_INCREMENT_KEY_PROJECT_CODE = new RedisKeyDefine("项目自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
-            "auto_increment_key:project_code1", // 参数为 state
+            "auto_increment_key:project_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 
     RedisKeyDefine PREFIX_PROJECT_CODE = new RedisKeyDefine("项目流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "prefix:project_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+
+    RedisKeyDefine AUTO_INCREMENT_KEY_PROJECT_CONTRACT_CODE = new RedisKeyDefine("项目自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:project_contract_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    RedisKeyDefine PREFIX_PROJECT_CONTRACT_CODE = new RedisKeyDefine("项目流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:project_contract_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 }

@@ -1,13 +1,18 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,7 +28,6 @@ import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
@@ -31,6 +35,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
  * 项目合同 Service 实现类
@@ -40,8 +45,26 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectConstractServiceImpl implements ProjectConstractService {
 
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CONTRACT_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PROJECT_CONTRACT_CODE.getKeyTemplate();
     @Resource
     private ProjectConstractRepository projectConstractRepository;
+
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+    @PostConstruct
+    public void ProjectConstractServiceImpl() {
+        ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey,"CON");
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+    }
+
+
 
     @Resource
     private ProjectConstractMapper projectConstractMapper;
@@ -49,6 +72,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
         projectConstractRepository.save(projectConstract);
         // 返回

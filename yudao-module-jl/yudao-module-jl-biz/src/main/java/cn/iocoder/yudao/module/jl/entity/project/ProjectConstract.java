@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectConstract")
 @Table(name = "jl_project_constract")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectConstract extends BaseEntity {
 
     /**
