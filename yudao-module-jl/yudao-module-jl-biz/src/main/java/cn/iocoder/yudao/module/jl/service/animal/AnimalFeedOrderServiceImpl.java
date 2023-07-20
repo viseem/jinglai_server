@@ -6,12 +6,15 @@ import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedCardRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.validation.annotation.Validated;
 
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
  * 动物饲养申请单 Service 实现类
@@ -43,6 +47,25 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
+
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_ANIMAL_FEED_ORDER.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_ANIMAL_FEED_ORDER.getKeyTemplate();
+
+
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+
+    @PostConstruct
+    public void ProjectServiceImpl(){
+        AnimalFeedOrder firstByOrderByIdDesc = animalFeedOrderRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, ANIMAL_FEED_ORDER_DEFAULT_PREFIX);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+    }
 
     @Resource
     private AnimalFeedOrderRepository animalFeedOrderRepository;
@@ -59,6 +82,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     @Override
     public Long createAnimalFeedOrder(AnimalFeedOrderCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setCode(generateCode());
         AnimalFeedOrder animalFeedOrder = animalFeedOrderMapper.toEntity(createReqVO);
         animalFeedOrderRepository.save(animalFeedOrder);
         // 返回
@@ -78,6 +102,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     public void saveAnimalFeedOrder(AnimalFeedOrderSaveReqVO saveReqVO) {
         // 校验存在
         // 更新
+        if (saveReqVO.getId()==null||saveReqVO.getId()<=0){
+            saveReqVO.setCode(generateCode());
+        }
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(saveReqVO);
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();

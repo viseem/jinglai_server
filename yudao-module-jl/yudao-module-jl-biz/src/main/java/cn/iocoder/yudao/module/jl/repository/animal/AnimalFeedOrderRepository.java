@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.*;
 */
 public interface AnimalFeedOrderRepository extends JpaRepository<AnimalFeedOrder, Long>, JpaSpecificationExecutor<AnimalFeedOrder> {
 
+    AnimalFeedOrder findFirstByOrderByIdDesc();
 }

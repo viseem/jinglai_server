@@ -37,8 +37,8 @@ public class UniqCodeGenerator {
 
         uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
 
-        Object aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
-        if (aLong == null || !(((Number) aLong).longValue() >= 0)) {
+        Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
+        if (aLong == null || !(aLong.longValue() > 0)) {
             uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, Long.valueOf(String.valueOf(id)));
         }
     }

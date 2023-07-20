@@ -26,6 +26,7 @@ public interface RedisKeyConstants {
             "social_auth_state:%s", // 参数为 state
             STRING, String.class, Duration.ofHours(24)); // 值为 state
 
+    public String PROJECT_CODE_DEFAULT_PREFIX = "PROJ";
 
     RedisKeyDefine AUTO_INCREMENT_KEY_PROJECT_CODE = new RedisKeyDefine("项目自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "auto_increment_key:project_code", // 参数为 state
@@ -36,11 +37,22 @@ public interface RedisKeyConstants {
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 
 
-    RedisKeyDefine AUTO_INCREMENT_KEY_PROJECT_CONTRACT_CODE = new RedisKeyDefine("项目自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+    public String PROJECT_CONTRACT_CODE_DEFAULT_PREFIX = "Ct";
+    RedisKeyDefine AUTO_INCREMENT_KEY_PROJECT_CONTRACT_CODE = new RedisKeyDefine("合同自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "auto_increment_key:project_contract_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 
-    RedisKeyDefine PREFIX_PROJECT_CONTRACT_CODE = new RedisKeyDefine("项目流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+    RedisKeyDefine PREFIX_PROJECT_CONTRACT_CODE = new RedisKeyDefine("合同流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "prefix:project_contract_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+
+    public String ANIMAL_FEED_ORDER_DEFAULT_PREFIX = "AFOrd";
+    RedisKeyDefine AUTO_INCREMENT_KEY_ANIMAL_FEED_ORDER = new RedisKeyDefine("动物饲养单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:animal_feed_order", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    RedisKeyDefine PREFIX_ANIMAL_FEED_ORDER = new RedisKeyDefine("动物饲养单流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:animal_feed_order", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 }

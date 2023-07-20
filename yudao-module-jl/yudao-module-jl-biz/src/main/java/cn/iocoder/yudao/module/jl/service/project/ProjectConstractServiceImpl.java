@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +9,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -21,10 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -55,7 +49,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey,"CON");
+        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CONTRACT_CODE_DEFAULT_PREFIX);
     }
 
 
