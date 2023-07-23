@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "AnimalRoom")
 @Table(name = "jl_animal_room")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalRoom extends BaseEntity {
 
     /**
