@@ -102,4 +102,10 @@ public class AssetDevice extends BaseEntity {
     @Column(name = "sn")
     private String sn;
 
+    /**
+     * 设备编码：后端生成
+     */
+    @Column(name = "color")
+    private String color;
+
 }

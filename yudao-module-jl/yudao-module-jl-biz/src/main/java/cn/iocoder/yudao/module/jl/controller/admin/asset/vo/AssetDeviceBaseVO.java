@@ -46,4 +46,7 @@ public class AssetDeviceBaseVO {
     @Schema(description = "设备编码：后端生成")
     private String sn;
 
+    @Schema(description = "颜色标识")
+    private String color;
+
 }
