@@ -11,10 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
@@ -64,7 +61,7 @@ public class AnimalShelfServiceImpl implements AnimalShelfService {
     private void validateAnimalShelfExistsByCode(String code) {
         AnimalShelf byCode = animalShelfRepository.findByCode(code);
         if (byCode!=null){
-            throw exception(ANIMAL_CODE_EXISTS);
+            throw exception(UNIQUE_CODE_EXISTS);
         }
     }
 

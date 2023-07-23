@@ -145,7 +145,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode ANIMAL_ROOM_NOT_EXISTS = new ErrorCode(2054900001, "动物饲养室不存在");
     ErrorCode ANIMAL_SHELF_NOT_EXISTS = new ErrorCode(2055000001, "动物饲养笼架不存在");
-    ErrorCode ANIMAL_CODE_EXISTS = new ErrorCode(2054900002, "该编码已存在");
+    ErrorCode UNIQUE_CODE_EXISTS = new ErrorCode(2054900002, "该编码已存在");
 
     ErrorCode ANIMAL_FEED_ORDER_NOT_EXISTS = new ErrorCode(2055100001, "动物饲养申请单不存在");
 

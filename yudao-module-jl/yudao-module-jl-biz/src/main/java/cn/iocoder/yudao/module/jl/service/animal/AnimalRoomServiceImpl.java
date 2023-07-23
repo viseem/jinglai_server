@@ -11,10 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import java.util.*;
@@ -60,6 +57,7 @@ public class AnimalRoomServiceImpl implements AnimalRoomService {
         AnimalRoom animalRoom = animalRoomMapper.toEntity(createReqVO);
         animalRoomRepository.save(animalRoom);
 
+        //如果没有传入编码 更新一下 TODO事物
         Long id = animalRoom.getId();
         if(createReqVO.getCode()==null||createReqVO.getCode().equals("")){
             animalRoomRepository.updateCodeById(generateCodeById(id),id);
@@ -104,7 +102,7 @@ public class AnimalRoomServiceImpl implements AnimalRoomService {
     private void validateAnimalRoomExistsByCode(String code) {
         AnimalRoom byCode = animalRoomRepository.findByCode(code);
         if (byCode!=null){
-            throw exception(ANIMAL_CODE_EXISTS);
+            throw exception(UNIQUE_CODE_EXISTS);
         }
     }
 
