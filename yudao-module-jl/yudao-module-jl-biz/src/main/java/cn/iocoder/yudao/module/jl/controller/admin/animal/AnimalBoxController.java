@@ -57,6 +57,14 @@ public class AnimalBoxController {
         return success(true);
     }
 
+    @PutMapping("/save")
+    @Operation(summary = "更新动物笼位")
+    @PreAuthorize("@ss.hasPermission('jl:animal-box:update')")
+    public CommonResult<Boolean> updateAnimalBox(@Valid @RequestBody AnimalBoxSaveReqVO saveReqVO) {
+        animalBoxService.saveAnimalBox(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除动物笼位")
     @Parameter(name = "id", description = "编号", required = true)

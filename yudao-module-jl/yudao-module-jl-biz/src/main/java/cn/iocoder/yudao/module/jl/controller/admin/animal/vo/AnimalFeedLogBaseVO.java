@@ -47,4 +47,9 @@ public class AnimalFeedLogBaseVO {
     @NotNull(message = "变更后笼数不能为空")
     private Integer cageQuantity;
 
+
+    @Schema(description = "变更后笼位的数量", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "笼位数量不能为空")
+    private Integer boxQuantity;
+
 }

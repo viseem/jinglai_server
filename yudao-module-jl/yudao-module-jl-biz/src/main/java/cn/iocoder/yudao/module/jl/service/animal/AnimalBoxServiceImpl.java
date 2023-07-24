@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedLogRepository;
+import cn.iocoder.yudao.module.jl.utils.StringGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
@@ -39,6 +42,9 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
     private AnimalBoxRepository animalBoxRepository;
 
     @Resource
+    private AnimalFeedLogRepository animalFeedLogRepository;
+
+    @Resource
     private AnimalBoxMapper animalBoxMapper;
 
     @Override
@@ -54,9 +60,26 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
     public void updateAnimalBox(AnimalBoxUpdateReqVO updateReqVO) {
         // 校验存在
         validateAnimalBoxExists(updateReqVO.getId());
+
+        if (updateReqVO.getCode()==null|| updateReqVO.getCode().equals("")){
+            updateReqVO.setCode(StringGenerator.convertToAX(updateReqVO.getColIndex(),updateReqVO.getRowIndex()));
+        }
+
         // 更新
         AnimalBox updateObj = animalBoxMapper.toEntity(updateReqVO);
         animalBoxRepository.save(updateObj);
+    }
+
+    @Override
+    @Transactional
+    public void saveAnimalBox(AnimalBoxSaveReqVO saveReqVO) {
+        // 校验存在
+        AnimalBox animalBox = validateAnimalBoxExists(saveReqVO.getId());
+        animalBox.setQuantity(saveReqVO.getLog().getBoxQuantity());
+        animalBox.setFeedOrderId(saveReqVO.getLog().getFeedOrderId());
+        // 更新
+        animalBoxRepository.save(animalBox);
+        animalFeedLogRepository.save(saveReqVO.getLog());
     }
 
     @Override
@@ -67,8 +90,12 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
         animalBoxRepository.deleteById(id);
     }
 
-    private void validateAnimalBoxExists(Long id) {
-        animalBoxRepository.findById(id).orElseThrow(() -> exception(ANIMAL_BOX_NOT_EXISTS));
+    private AnimalBox validateAnimalBoxExists(Long id) {
+        Optional<AnimalBox> byId = animalBoxRepository.findById(id);
+        if (byId.isEmpty()){
+            throw exception(ANIMAL_BOX_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override

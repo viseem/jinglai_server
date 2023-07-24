@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "AnimalBox")
 @Table(name = "jl_animal_box")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalBox extends BaseEntity {
 
     /**
@@ -59,7 +59,7 @@ public class AnimalBox extends BaseEntity {
      * 现有
      */
     @Column(name = "quantity")
-    private Integer quantity;
+    private Integer quantity = 0;
 
     /**
      * 状态

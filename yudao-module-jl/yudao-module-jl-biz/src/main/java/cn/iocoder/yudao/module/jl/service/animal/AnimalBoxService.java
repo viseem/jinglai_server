@@ -28,6 +28,13 @@ public interface AnimalBoxService {
     void updateAnimalBox(@Valid AnimalBoxUpdateReqVO updateReqVO);
 
     /**
+     * save更新动物笼位和log
+     *
+     * @param saveReqVO 更新信息
+     */
+    void saveAnimalBox(@Valid AnimalBoxSaveReqVO saveReqVO);
+
+    /**
      * 删除动物笼位
      *
      * @param id 编号

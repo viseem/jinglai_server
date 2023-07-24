@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalBox;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalRoom;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 动物饲养笼架 Response VO")
 @Data
@@ -21,5 +23,7 @@ public class AnimalShelfRespVO extends AnimalShelfBaseVO {
     private User manager;
 
     private AnimalRoom room;
+
+    private List<AnimalBox> boxes;
 
 }

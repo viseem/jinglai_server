@@ -85,6 +85,19 @@ public class AnimalFeedLog extends BaseEntity {
     @Column(name = "cage_quantity", nullable = false )
     private Integer cageQuantity;
 
+    /**
+     * 笼位id
+     */
+    @Column(name = "box_id", nullable = false )
+    private Long boxId;
+
+    /**
+     * 变更后数量
+     */
+    @Column(name = "box_quantity", nullable = false )
+    private Integer boxQuantity;
+
+
     @Transient
     private Integer rowAmount;
 

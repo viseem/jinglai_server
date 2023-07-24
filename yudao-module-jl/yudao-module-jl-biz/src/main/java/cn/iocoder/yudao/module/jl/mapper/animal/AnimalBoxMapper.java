@@ -10,6 +10,8 @@ import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AnimalBoxMapper {
+    AnimalBox toEntity(AnimalBoxSaveReqVO dto);
+
     AnimalBox toEntity(AnimalBoxCreateReqVO dto);
 
     AnimalBox toEntity(AnimalBoxUpdateReqVO dto);

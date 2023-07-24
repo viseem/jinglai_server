@@ -51,8 +51,7 @@ public class AnimalBoxBaseVO {
     @Schema(description = "列索引")
     private Integer colIndex;
 
-    @Schema(description = "饲养单", requiredMode = Schema.RequiredMode.REQUIRED, example = "16046")
-    @NotNull(message = "饲养单不能为空")
+    @Schema(description = "饲养单")
     private Long feedOrderId;
 
 }

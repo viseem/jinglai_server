@@ -28,6 +28,13 @@ public interface AnimalShelfService {
     void updateAnimalShelf(@Valid AnimalShelfUpdateReqVO updateReqVO);
 
     /**
+     * save更新动物饲养笼架 笼位
+     *
+     * @param saveReqVO 更新信息
+     */
+    void saveAnimalShelf(@Valid AnimalShelfSaveReqVO saveReqVO);
+
+    /**
      * 删除动物饲养笼架
      *
      * @param id 编号

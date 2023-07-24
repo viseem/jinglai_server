@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalBox;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
+import cn.iocoder.yudao.module.jl.utils.StringGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +37,9 @@ public class AnimalShelfServiceImpl implements AnimalShelfService {
 
     @Resource
     private AnimalShelfRepository animalShelfRepository;
+
+    @Resource
+    private AnimalBoxRepository animalBoxRepository;
 
     @Resource
     private AnimalShelfMapper animalShelfMapper;
@@ -80,6 +86,42 @@ public class AnimalShelfServiceImpl implements AnimalShelfService {
         // 更新
         AnimalShelf updateObj = animalShelfMapper.toEntity(updateReqVO);
         animalShelfRepository.save(updateObj);
+    }
+
+
+
+    @Override
+    public void saveAnimalShelf(AnimalShelfSaveReqVO saveReqVO) {
+        AnimalShelf animalShelf;
+        // 校验存在
+        if(saveReqVO.getId()!=null){
+            animalShelf = validateAnimalShelfExists(saveReqVO.getId());
+        } else {
+            animalShelf = null;
+        }
+        // 更新
+        AnimalShelf updateObj = animalShelfMapper.toEntity(saveReqVO);
+        animalShelfRepository.save(updateObj);
+
+        //笼位更新
+        if(animalShelf==null){
+            animalBoxRepository.saveAll( saveReqVO.getBoxes().stream().peek(item -> {
+                item.setShelfId(updateObj.getId());
+                item.setRoomId(updateObj.getRoomId());
+            }).collect(Collectors.toList()));
+        }else{
+            if( saveReqVO.getCapacity()>0){
+                animalBoxRepository.saveAll( saveReqVO.getBoxes().stream().peek(item -> {
+                    item.setShelfId(animalShelf.getId());
+                    item.setRoomId(animalShelf.getRoomId());
+                    item.setCapacity(saveReqVO.getCapacity());
+                    if (item.getCode()==null|| item.getCode().equals("")){
+                        item.setCode(StringGenerator.convertToAX(item.getColIndex(),item.getRowIndex()));
+                    }
+                }).collect(Collectors.toList()));
+            }
+        }
+
     }
 
     @Override

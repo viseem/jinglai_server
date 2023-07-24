@@ -57,6 +57,14 @@ public class AnimalShelfController {
         return success(true);
     }
 
+    @PutMapping("/save-box")
+    @Operation(summary = "批量更新 笼位")
+    @PreAuthorize("@ss.hasPermission('jl:animal-shelf:update')")
+    public CommonResult<Boolean> updateAnimalShelf(@Valid @RequestBody AnimalShelfSaveReqVO saveReqVO) {
+        animalShelfService.saveAnimalShelf(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除动物饲养笼架")
     @Parameter(name = "id", description = "编号", required = true)

@@ -30,9 +30,6 @@ import java.time.LocalDateTime;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalShelf extends BaseEntity {
 
-    @Resource
-    @Transient
-    private AnimalRoomRepository animalRoomRepository;
     /**
      * ID
      */
@@ -40,6 +37,15 @@ public class AnimalShelf extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false )
     private Long id;
+
+    /**
+     *
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "shelf_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<AnimalBox> boxes = new ArrayList<>();
 
     /**
      * 名字
