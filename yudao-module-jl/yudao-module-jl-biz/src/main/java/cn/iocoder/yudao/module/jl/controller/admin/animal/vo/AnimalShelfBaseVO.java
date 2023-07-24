@@ -47,4 +47,10 @@ public class AnimalShelfBaseVO {
     @NotNull(message = "排序不能为空")
     private Integer weight;
 
+    private Integer colCount;
+
+    private Integer rowCount;
+
+    private Integer capacity;
+
 }

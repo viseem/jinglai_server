@@ -115,4 +115,22 @@ public class AnimalShelf extends BaseEntity {
     @Column(name = "weight", nullable = false )
     private Integer weight;
 
+    /**
+     * 行个数
+     */
+    @Column(name = "row_count", nullable = false )
+    private Integer rowCount;
+
+    /**
+     * 列个数
+     */
+    @Column(name = "col_count", nullable = false )
+    private Integer colCount;
+
+    /**
+     * 笼位默认容量
+     */
+    @Column(name = "capacity", nullable = false )
+    private Integer capacity;
+
 }
