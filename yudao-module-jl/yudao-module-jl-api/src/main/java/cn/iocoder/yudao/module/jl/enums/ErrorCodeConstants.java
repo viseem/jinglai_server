@@ -154,4 +154,6 @@ public interface ErrorCodeConstants {
     ErrorCode ANIMAL_FEED_STORE_IN_NOT_EXISTS = new ErrorCode(2055300001, "动物饲养入库不存在");
 
     ErrorCode ANIMAL_FEED_LOG_NOT_EXISTS = new ErrorCode(2055400001, "动物饲养日志不存在");
+
+    ErrorCode ANIMAL_BOX_NOT_EXISTS = new ErrorCode(2055500001, "动物笼位不存在");
 }
