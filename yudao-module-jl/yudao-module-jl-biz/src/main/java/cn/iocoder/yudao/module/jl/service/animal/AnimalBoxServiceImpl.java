@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedLogRepository;
 import cn.iocoder.yudao.module.jl.utils.StringGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -17,7 +19,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;

@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedCardRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
@@ -71,6 +73,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private AnimalFeedOrderRepository animalFeedOrderRepository;
 
     @Resource
+    private AnimalBoxRepository animalBoxRepository;
+
+    @Resource
     private AnimalFeedCardRepository animalFeedCardRepository;
 
     @Resource
@@ -120,6 +125,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
+    @Transactional
     public void storeAnimalFeedOrder(AnimalFeedOrderStoreReqVO storeReqVO) {
         // 校验存在
         // 更新
@@ -141,6 +147,11 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         animalFeedStoreInRepository.saveAll(storeReqVO.getStores().stream().map(item -> {
             item.setFeedOrderId(id);
             return item;
+        }).collect(Collectors.toList()));
+
+        //更新笼位信息
+        animalBoxRepository.saveAll(storeReqVO.getBoxes().stream().peek(item->{
+            item.setFeedOrderId(storeReqVO.getId());
         }).collect(Collectors.toList()));
 
     }
