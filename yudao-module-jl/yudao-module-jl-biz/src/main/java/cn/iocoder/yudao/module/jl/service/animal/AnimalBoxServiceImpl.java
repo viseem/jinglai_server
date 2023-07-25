@@ -77,7 +77,11 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
         // 校验存在
         AnimalBox animalBox = validateAnimalBoxExists(saveReqVO.getId());
         animalBox.setQuantity(saveReqVO.getLog().getBoxQuantity());
-        animalBox.setFeedOrderId(saveReqVO.getLog().getFeedOrderId());
+        animalBox.setFeedOrderId(saveReqVO.getFeedOrderId());
+        animalBox.setFeedOrderName(saveReqVO.getFeedOrderName());
+        animalBox.setFeedOrderCode(saveReqVO.getFeedOrderCode());
+        animalBox.setProjectName(saveReqVO.getProjectName());
+        animalBox.setCustomerName(saveReqVO.getCustomerName());
         // 更新
         animalBoxRepository.save(animalBox);
         animalFeedLogRepository.save(saveReqVO.getLog());

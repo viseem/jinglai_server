@@ -103,4 +103,25 @@ public class AnimalBox extends BaseEntity {
     @Column(name = "feed_order_id", nullable = false )
     private Long feedOrderId;
 
+
+    /**
+     *
+     */
+    @Column(name = "feed_order_code")
+    private String feedOrderCode;
+    /**
+     *
+     */
+    @Column(name = "feed_order_name")
+    private String feedOrderName;
+    /**
+     *
+     */
+    @Column(name = "project_name")
+    private String projectName;
+    /**
+     *
+     */
+    @Column(name = "customer_name")
+    private String customerName;
 }

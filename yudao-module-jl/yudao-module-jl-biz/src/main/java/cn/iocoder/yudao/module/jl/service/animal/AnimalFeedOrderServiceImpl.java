@@ -152,6 +152,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         //更新笼位信息
         animalBoxRepository.saveAll(storeReqVO.getBoxes().stream().peek(item->{
             item.setFeedOrderId(storeReqVO.getId());
+            item.setFeedOrderName(animalFeedOrder.getName());
+            item.setFeedOrderCode(animalFeedOrder.getCode());
+            if(animalFeedOrder.getProject()!=null){
+                item.setProjectName(animalFeedOrder.getProject().getName());
+            }
+            if(animalFeedOrder.getCustomer()!=null){
+                item.setCustomerName(animalFeedOrder.getCustomer().getName());
+            }
         }).collect(Collectors.toList()));
 
     }

@@ -14,8 +14,18 @@ import javax.validation.constraints.NotNull;
 public class AnimalBoxSaveReqVO{
 
     @Schema(description = "``", requiredMode = Schema.RequiredMode.REQUIRED, example = "16609")
-    @NotNull(message = "``不能为空")
+    @NotNull(message = "id不能为空")
     private Long id;
+
+    private Long feedOrderId;
+
+    private String feedOrderCode;
+
+    private String feedOrderName;
+
+    private String projectName;
+
+    private String customerName;
 
     @Schema(description = "变更信息", requiredMode = Schema.RequiredMode.REQUIRED, example = "16609")
     @NotNull(message = "变更信息不能为空")

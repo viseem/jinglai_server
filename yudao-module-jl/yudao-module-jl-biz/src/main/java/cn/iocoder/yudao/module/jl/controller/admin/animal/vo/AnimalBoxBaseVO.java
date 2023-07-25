@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -53,5 +54,13 @@ public class AnimalBoxBaseVO {
 
     @Schema(description = "饲养单")
     private Long feedOrderId;
+
+    private String feedOrderCode;
+
+    private String feedOrderName;
+
+    private String projectName;
+
+    private String customerName;
 
 }
