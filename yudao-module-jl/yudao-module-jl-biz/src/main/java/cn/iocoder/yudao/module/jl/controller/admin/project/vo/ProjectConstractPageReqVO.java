@@ -50,4 +50,7 @@ public class ProjectConstractPageReqVO extends PageParam {
 
     @Schema(description = "是否收齐")
     private Boolean isCollectAll;
+
+    @Schema(description = "关键字", example = "芋艿")
+    private String keyword;
 }

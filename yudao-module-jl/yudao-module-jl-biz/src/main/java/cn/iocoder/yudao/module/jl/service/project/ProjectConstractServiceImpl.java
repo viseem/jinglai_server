@@ -165,6 +165,14 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
+            if(pageReqVO.getKeyword()!=null){
+                Predicate namePredicate = cb.like(root.get("name"), "%" + pageReqVO.getKeyword() + "%");
+                Predicate snPredicate = cb.like(root.get("sn"), "%" + pageReqVO.getKeyword() + "%");
+
+                // Combine the predicates with 'or' (or 'and', depending on your needs)
+                predicates.add(cb.or(namePredicate, snPredicate));
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
