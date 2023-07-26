@@ -90,6 +90,12 @@ public class ProjectConstract extends BaseEntity {
     private Long price;
 
     /**
+     * 结算金额
+     */
+    @Column(name = "real_price")
+    private Integer realPrice;
+
+    /**
      * 签订销售人员
      */
     @Column(name = "sales_id")

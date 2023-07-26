@@ -40,6 +40,9 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同金额", example = "30614")
     private Long price;
 
+    @Schema(description = "结算金额", example = "30614")
+    private Long realPrice;
+
     @Schema(description = "签订销售人员", example = "32406")
     private Long salesId;
 

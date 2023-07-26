@@ -68,6 +68,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 插入
         createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
+        if (projectConstract.getRealPrice()==null){
+            projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
+        }
         projectConstractRepository.save(projectConstract);
         // 返回
         return projectConstract.getId();
