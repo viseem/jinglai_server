@@ -66,7 +66,7 @@ public class ProjectFund extends BaseEntity {
     /**
      * 已收款项
      */
-    private Integer receivedPrice;
+    private Integer receivedPrice = 0;
 
     /**
      * 项目 id

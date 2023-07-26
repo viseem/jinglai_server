@@ -140,6 +140,37 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         Specification<ProjectFund> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+/*            if(pageReqVO.getStatus() != null) {
+                //如果status="ALL_PAY"  判断root.get("receivedPrice") >= root.get("price")
+                //如果status="PART" 判断root.get("receivedPrice") < root.get("price") && root.get("receivedPrice") > 0
+                //如果status="NO" 判断root.get("receivedPrice") == 0 || root.get("receivedPrice") == null
+                predicates.add();
+            }*/
+
+            if (pageReqVO.getStatus() != null) {
+                switch (pageReqVO.getStatus()) {
+                    case "ALL_PAY":
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("receivedPrice"), root.get("price")));
+                        break;
+                    case "PART":
+                        predicates.add(cb.and(
+                                cb.lessThan(root.get("receivedPrice"), root.get("price")),
+                                cb.greaterThan(root.get("receivedPrice"), 0)
+                        ));
+                        break;
+                    case "NO":
+                        predicates.add(cb.or(
+                                cb.equal(root.get("receivedPrice"), 0),
+                                cb.isNull(root.get("receivedPrice"))
+                        ));
+                        break;
+                    // Add more cases if needed
+                    default:
+                        break;
+                }
+            }
+
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.equal(root.get("name"), pageReqVO.getName()));
             }
@@ -160,9 +191,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-            }
+
 
             if(pageReqVO.getPaidTime() != null) {
                 predicates.add(cb.between(root.get("paidTime"), pageReqVO.getPaidTime()[0], pageReqVO.getPaidTime()[1]));
