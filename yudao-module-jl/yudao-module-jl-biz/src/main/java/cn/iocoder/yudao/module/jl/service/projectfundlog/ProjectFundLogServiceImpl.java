@@ -1,7 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectfundlog;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -39,24 +44,52 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
     private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
+    private ProjectFundRepository projectFundRepository;
+
+    @Resource
     private ProjectFundLogMapper projectFundLogMapper;
 
     @Override
+    @Transactional
     public Long createProjectFundLog(ProjectFundLogCreateReqVO createReqVO) {
+
+        ProjectFund projectFund = validateProjectFundExists(createReqVO.getProjectFundId());
+
         // 插入
         ProjectFundLog projectFundLog = projectFundLogMapper.toEntity(createReqVO);
+        projectFundLog.setProjectId(projectFund.getProjectId());
+        projectFundLog.setCustomerId(projectFund.getCustomerId());
+        projectFundLog.setContractId(projectFund.getContractId());
         projectFundLogRepository.save(projectFundLog);
+
+        //更新projectFund的已收金额
+        processReceivedPrice(createReqVO.getProjectFundId());
+
         // 返回
         return projectFundLog.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectFundLog(ProjectFundLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectFundLogExists(updateReqVO.getId());
+
         // 更新
         ProjectFundLog updateObj = projectFundLogMapper.toEntity(updateReqVO);
         projectFundLogRepository.save(updateObj);
+
+        //更新projectFund的已收金额
+        processReceivedPrice(updateReqVO.getProjectFundId());
+    }
+
+    private void processReceivedPrice(Long updateReqVO) {
+        List<ProjectFundLog> allByProjectFundId = projectFundLogRepository.findAllByProjectFundId(updateReqVO);
+        int priceSum = 0;
+        for (ProjectFundLog log : allByProjectFundId) {
+            priceSum += log.getPrice();
+        }
+        projectFundRepository.updateReceivedPriceById(priceSum, updateReqVO);
     }
 
     @Override
@@ -65,6 +98,14 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
         validateProjectFundLogExists(id);
         // 删除
         projectFundLogRepository.deleteById(id);
+    }
+
+    private ProjectFund validateProjectFundExists(Long id) {
+        Optional<ProjectFund> byId = projectFundRepository.findById(id);
+        if (byId.isEmpty()){
+            throw exception(PROJECT_FUND_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     private void validateProjectFundLogExists(Long id) {
