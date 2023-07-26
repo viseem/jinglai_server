@@ -1,33 +1,29 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import javax.validation.constraints.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-/**
- * 项目合同 Base VO，提供给添加、修改、详细的子 VO 使用
- * 如果子 VO 存在差异的字段，请不要添加到这里，影响 Swagger 文档生成
- */
+import javax.validation.constraints.NotNull;
+
+@Schema(description = "管理后台 - 项目合同更新 Request VO")
 @Data
-public class ProjectConstractBaseVO {
-
-    @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
-    @NotNull(message = "项目 id不能为空")
+@ToString(callSuper = true)
+public class ProjectConstractUpdateFieldReqVO {
+    @Schema(description = "岗位ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "22660")
+    @NotNull(message = "岗位ID不能为空")
+    private Long id;
+    @Schema(description = "项目 id")
     private Long projectId;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 
-    @Schema(description = "合同文件 URL", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
-    @NotNull(message = "合同文件 URL不能为空")
+    @Schema(description = "合同文件 URL")
     private String fileUrl;
 
     @Schema(description = "合同状态：起效、失效、其它", example = "2")

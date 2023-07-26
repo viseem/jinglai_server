@@ -113,6 +113,12 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "file_name")
     private String fileName;
 
+    /**
+     * 是否收齐
+     */
+    @Column(name = "is_collect_all")
+    private Boolean isCollectAll;
+
     /*
      * 已收金额
      * */

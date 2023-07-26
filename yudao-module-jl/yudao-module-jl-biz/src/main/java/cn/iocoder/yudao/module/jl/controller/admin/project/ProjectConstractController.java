@@ -57,6 +57,14 @@ public class ProjectConstractController {
         return success(true);
     }
 
+    @PutMapping("/update-field")
+    @Operation(summary = "更新项目合同")
+    @PreAuthorize("@ss.hasPermission('jl:project-constract:update')")
+    public CommonResult<Boolean> updateFieldProjectConstract(@Valid @RequestBody ProjectConstractUpdateFieldReqVO updateReqVO) {
+        projectConstractService.updateFieldProjectConstract(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目合同")
     @Parameter(name = "id", description = "编号", required = true)

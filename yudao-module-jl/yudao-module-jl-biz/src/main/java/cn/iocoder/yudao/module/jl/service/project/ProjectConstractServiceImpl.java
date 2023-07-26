@@ -3,12 +3,14 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -86,6 +88,41 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     }
 
     @Override
+    public void updateFieldProjectConstract(ProjectConstractUpdateFieldReqVO updateReqVO) {
+        // 校验存在
+        ProjectConstract projectConstract = validateProjectConstractExists(updateReqVO.getId());
+        // 更新
+
+        ProjectConstract updateObj = projectConstractMapper.toEntity(updateReqVO);
+        // Copy non-null properties from updateObj to projectConstract
+        copyNonNullProperties(updateObj, projectConstract);
+        projectConstractRepository.save(projectConstract);
+    }
+
+
+    private <T> void copyNonNullProperties(T source, T destination) {
+        try {
+            Class<?> sourceClass = source.getClass();
+            Class<?> destinationClass = destination.getClass();
+
+            for (Field sourceField : sourceClass.getDeclaredFields()) {
+                sourceField.setAccessible(true);
+                Object sourceValue = sourceField.get(source);
+
+                // Only copy non-null properties
+                if (sourceValue != null) {
+                    Field destinationField = destinationClass.getDeclaredField(sourceField.getName());
+                    destinationField.setAccessible(true);
+                    destinationField.set(destination, sourceValue);
+                }
+            }
+        } catch (Exception e) {
+            // Handle any exceptions that might occur during the copy process
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void deleteProjectConstract(Long id) {
         // 校验存在
         validateProjectConstractExists(id);
@@ -93,8 +130,12 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstractRepository.deleteById(id);
     }
 
-    private void validateProjectConstractExists(Long id) {
-        projectConstractRepository.findById(id).orElseThrow(() -> exception(PROJECT_CONSTRACT_NOT_EXISTS));
+    private ProjectConstract validateProjectConstractExists(Long id) {
+        Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
+        if (byId.isEmpty()){
+            throw exception(PROJECT_CONSTRACT_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override
@@ -154,13 +195,16 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }
 
             if(pageReqVO.getSn() != null) {
-                predicates.add(cb.equal(root.get("sn"), pageReqVO.getSn()));
+                predicates.add(cb.like(root.get("sn"), "%" + pageReqVO.getSn() + "%"));
             }
 
             if(pageReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
             }
 
+            if(pageReqVO.getIsCollectAll() != null) {
+                predicates.add(cb.equal(root.get("isCollectAll"), pageReqVO.getIsCollectAll()));
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
