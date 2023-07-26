@@ -28,6 +28,8 @@ public class ProjectFundRespVO extends ProjectFundBaseVO {
 
     private List<ProjectFundLog> items;
 
+    private ProjectFundLog latestFundLog;
+
     // 已收款项
     private Integer receivedPrice;
 }

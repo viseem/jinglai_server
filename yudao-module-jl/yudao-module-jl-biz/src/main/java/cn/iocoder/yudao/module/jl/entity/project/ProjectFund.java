@@ -66,7 +66,6 @@ public class ProjectFund extends BaseEntity {
     /**
      * 已收款项
      */
-    @Transient
     private Integer receivedPrice;
 
     /**
@@ -147,6 +146,10 @@ public class ProjectFund extends BaseEntity {
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime desc")
     private List<ProjectFundLog> items;
+
+    @Transient
+    private ProjectFundLog latestFundLog;
 
 }
