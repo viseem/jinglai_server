@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectfundlog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -20,4 +22,6 @@ public class ProjectFundLogRespVO extends ProjectFundLogBaseVO {
 
     private ProjectOnly project;
     private ProjectConstractOnly contract;
+
+    private ProjectFundOnly fund;
 }

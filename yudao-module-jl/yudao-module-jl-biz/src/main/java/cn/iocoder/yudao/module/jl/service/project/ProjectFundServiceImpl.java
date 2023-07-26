@@ -79,6 +79,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundLogRepository.saveAll(sops);*/
         AtomicReference<Integer> receivedPrice = new AtomicReference<>(0);
         projectFundLogRepository.saveAll(saveReqVO.getItems().stream().peek(item -> {
+            item.setCustomerId(saveReqVO.getCustomerId());
             item.setContractId(saveReqVO.getContractId());
             item.setProjectId(saveReqVO.getProjectId());
             item.setProjectFundId(saveReqVO.getId());
