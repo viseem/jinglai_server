@@ -10,6 +10,9 @@ import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProjectConstractMapper {
+
+    ProjectConstract toEntity(ProjectConstractUpdateFieldReqVO dto);
+
     ProjectConstract toEntity(ProjectConstractCreateReqVO dto);
 
     ProjectConstract toEntity(ProjectConstractUpdateReqVO dto);

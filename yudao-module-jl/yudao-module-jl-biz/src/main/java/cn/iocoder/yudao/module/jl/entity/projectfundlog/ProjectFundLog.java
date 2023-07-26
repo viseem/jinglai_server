@@ -1,8 +1,12 @@
 package cn.iocoder.yudao.module.jl.entity.projectfundlog;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -49,11 +53,30 @@ public class ProjectFundLog extends BaseEntity {
     @Column(name = "contract_id", nullable = false )
     private Long contractId;
 
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectConstractOnly contract;
+
     /**
      * 项目 id
      */
     @Column(name = "project_id", nullable = false )
     private Long projectId;
+
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id", nullable = false )
+    private Long customerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
 
     /**
      * 支付凭证上传地址
@@ -96,6 +119,12 @@ public class ProjectFundLog extends BaseEntity {
      */
     @Column(name = "project_fund_id", nullable = false )
     private Long projectFundId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_fund_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectFundOnly fund;
 
     @ManyToOne
     @JoinColumn(name="project_fund_id", insertable = false, updatable = false)

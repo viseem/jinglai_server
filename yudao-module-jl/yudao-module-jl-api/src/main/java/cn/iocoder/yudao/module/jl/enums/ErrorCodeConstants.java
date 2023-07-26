@@ -141,4 +141,19 @@ public interface ErrorCodeConstants {
     ErrorCode TEMPLATE_CONTRACT_NOT_EXISTS = new ErrorCode(2054600001, "合同模板不存在");
     ErrorCode PROJECT_DEVICE_NOT_EXISTS = new ErrorCode(2054700001, "项目设备不存在");
 
+    ErrorCode ASSET_DEVICE_LOG_NOT_EXISTS = new ErrorCode(2054800001, "公司资产（设备）预约不存在");
+
+    ErrorCode ANIMAL_ROOM_NOT_EXISTS = new ErrorCode(2054900001, "动物饲养室不存在");
+    ErrorCode ANIMAL_SHELF_NOT_EXISTS = new ErrorCode(2055000001, "动物饲养笼架不存在");
+    ErrorCode UNIQUE_CODE_EXISTS = new ErrorCode(2054900002, "该编码已存在");
+
+    ErrorCode ANIMAL_FEED_ORDER_NOT_EXISTS = new ErrorCode(2055100001, "动物饲养申请单不存在");
+
+    ErrorCode ANIMAL_FEED_CARD_NOT_EXISTS = new ErrorCode(2055200001, "动物饲养鼠牌不存在");
+
+    ErrorCode ANIMAL_FEED_STORE_IN_NOT_EXISTS = new ErrorCode(2055300001, "动物饲养入库不存在");
+
+    ErrorCode ANIMAL_FEED_LOG_NOT_EXISTS = new ErrorCode(2055400001, "动物饲养日志不存在");
+
+    ErrorCode ANIMAL_BOX_NOT_EXISTS = new ErrorCode(2055500001, "动物笼位不存在");
 }

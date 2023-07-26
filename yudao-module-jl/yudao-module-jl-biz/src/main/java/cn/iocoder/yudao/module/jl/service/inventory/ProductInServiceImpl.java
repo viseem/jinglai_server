@@ -189,10 +189,7 @@ public class ProductInServiceImpl implements ProductInService {
 //        productInItemRepository.deleteByProductInId(productInId);
 
         // 更新 items
-        productInItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
-            item.setProductInId(productInId);
-            return productInItemMapper.toEntity(item);
-        }).collect(Collectors.toList()));
+        productInItemRepository.saveAll(saveReqVO.getItems().stream().peek(item -> item.setProductInId(productInId)).collect(Collectors.toList()));
 
     }
 

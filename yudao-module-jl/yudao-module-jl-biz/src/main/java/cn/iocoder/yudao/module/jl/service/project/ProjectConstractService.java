@@ -28,6 +28,13 @@ public interface ProjectConstractService {
     void updateProjectConstract(@Valid ProjectConstractUpdateReqVO updateReqVO);
 
     /**
+     * 更新项目合同
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateFieldProjectConstract(@Valid ProjectConstractUpdateFieldReqVO updateReqVO);
+
+    /**
      * 删除项目合同
      *
      * @param id 编号

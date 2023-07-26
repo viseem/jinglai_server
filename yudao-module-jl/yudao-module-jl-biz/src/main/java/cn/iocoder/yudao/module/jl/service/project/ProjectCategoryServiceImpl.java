@@ -169,7 +169,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if (!approvalList.isEmpty()) {
                 Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
                         .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-
+                byId.get().setLatestApproval(latestApproval.orElse(null));
                 latestApproval.ifPresent(approval -> {
                     byId.get().setApprovalStage(approval.getApprovalStage());
                     byId.get().setRequestStage(approval.getStage());
@@ -206,7 +206,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if(pageReqVO.getQuoteId() != null) {
                 predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
             }
-
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
             if(pageReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
@@ -267,6 +269,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                     String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
                     String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);
 
+                    projectCategory.setLatestApproval(latestApproval.orElse(null));
                     projectCategory.setApprovalStage(approvalStage);
                     projectCategory.setRequestStage(requestStage);
                 }

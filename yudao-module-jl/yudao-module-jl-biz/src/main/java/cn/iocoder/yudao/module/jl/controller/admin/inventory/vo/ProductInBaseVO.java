@@ -25,8 +25,7 @@ public class ProductInBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
-    @Schema(description = "实验名目库的名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "25595")
-    @NotNull(message = "实验名目库的名目 id不能为空")
+    @Schema(description = "实验名目库的名目 id")
     private Long categoryId;
 
     @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "29527")

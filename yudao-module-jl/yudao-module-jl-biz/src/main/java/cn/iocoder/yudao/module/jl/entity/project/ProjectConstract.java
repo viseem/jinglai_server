@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectConstract")
 @Table(name = "jl_project_constract")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectConstract extends BaseEntity {
 
     /**
@@ -90,6 +90,12 @@ public class ProjectConstract extends BaseEntity {
     private Long price;
 
     /**
+     * 结算金额
+     */
+    @Column(name = "real_price")
+    private Integer realPrice;
+
+    /**
      * 签订销售人员
      */
     @Column(name = "sales_id")
@@ -106,6 +112,12 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "file_name")
     private String fileName;
+
+    /**
+     * 是否收齐
+     */
+    @Column(name = "is_collect_all")
+    private Boolean isCollectAll;
 
     /*
      * 已收金额

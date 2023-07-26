@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.*;
 */
 public interface ProjectConstractRepository extends JpaRepository<ProjectConstract, Long>, JpaSpecificationExecutor<ProjectConstract> {
 
+    ProjectConstract findFirstByOrderByIdDesc();
 }

@@ -1,12 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
-import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,10 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -70,6 +69,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     }
 
     @Override
+    @Transactional
     public void saveProjectFund(ProjectFundSaveReqVO saveReqVO) {
         // 校验存在
         validateProjectFundExists(saveReqVO.getId());
@@ -77,15 +77,18 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         //创建items明细 ProjectFundLog
 /*        List<ProjectFundLog> sops = projectFundLogMapper.toEntity(saveReqVO.getItems());
         projectFundLogRepository.saveAll(sops);*/
-        projectFundLogMapper.toEntity(saveReqVO.getItems()).forEach(item -> {
+        AtomicReference<Integer> receivedPrice = new AtomicReference<>(0);
+        projectFundLogRepository.saveAll(saveReqVO.getItems().stream().peek(item -> {
+            item.setCustomerId(saveReqVO.getCustomerId());
             item.setContractId(saveReqVO.getContractId());
             item.setProjectId(saveReqVO.getProjectId());
             item.setProjectFundId(saveReqVO.getId());
-            projectFundLogRepository.save(item);
-        });
+            receivedPrice.updateAndGet(v -> v + item.getPrice());
+        }).collect(Collectors.toList()));
 
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(saveReqVO);
+        updateObj.setReceivedPrice(receivedPrice.get());
         projectFundRepository.save(updateObj);
     }
 
@@ -112,7 +115,12 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 
     @Override
     public Optional<ProjectFund> getProjectFund(Long id) {
-        return projectFundRepository.findById(id);
+        Optional<ProjectFund> byId = projectFundRepository.findById(id);
+        if (byId.isPresent()){
+            ProjectFund projectFund = byId.orElse(null);
+            processFundLogs(projectFund);
+        }
+        return byId;
     }
 
     @Override
@@ -133,6 +141,37 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         Specification<ProjectFund> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+/*            if(pageReqVO.getStatus() != null) {
+                //如果status="ALL_PAY"  判断root.get("receivedPrice") >= root.get("price")
+                //如果status="PART" 判断root.get("receivedPrice") < root.get("price") && root.get("receivedPrice") > 0
+                //如果status="NO" 判断root.get("receivedPrice") == 0 || root.get("receivedPrice") == null
+                predicates.add();
+            }*/
+
+            if (pageReqVO.getStatus() != null) {
+                switch (pageReqVO.getStatus()) {
+                    case "ALL_PAY":
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("receivedPrice"), root.get("price")));
+                        break;
+                    case "PART":
+                        predicates.add(cb.and(
+                                cb.lessThan(root.get("receivedPrice"), root.get("price")),
+                                cb.greaterThan(root.get("receivedPrice"), 0)
+                        ));
+                        break;
+                    case "NO":
+                        predicates.add(cb.or(
+                                cb.equal(root.get("receivedPrice"), 0),
+                                cb.isNull(root.get("receivedPrice"))
+                        ));
+                        break;
+                    // Add more cases if needed
+                    default:
+                        break;
+                }
+            }
+
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.equal(root.get("name"), pageReqVO.getName()));
             }
@@ -141,13 +180,19 @@ public class ProjectFundServiceImpl implements ProjectFundService {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
             }
 
+            if(pageReqVO.getContractId() != null) {
+                predicates.add(cb.equal(root.get("contractId"), pageReqVO.getContractId()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-            }
+
 
             if(pageReqVO.getPaidTime() != null) {
                 predicates.add(cb.between(root.get("paidTime"), pageReqVO.getPaidTime()[0], pageReqVO.getPaidTime()[1]));
@@ -177,20 +222,17 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 
         //计算已收金额
         if (projectFunds.size() > 0) {
-            projectFunds.forEach(item -> {
-                Integer receivedPrice = 0;
-                if (item.getItems().size() > 0) {
-                    receivedPrice = item.getItems().stream()
-                            .mapToInt(ProjectFundLog::getPrice)
-                            .sum();
-                }
-
-                item.setReceivedPrice(receivedPrice);
-            });
+            projectFunds.forEach(ProjectFundServiceImpl::processFundLogs);
         }
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private static void processFundLogs(ProjectFund item) {
+        if (item.getItems().size() > 0) {
+            item.setLatestFundLog(item.getItems().get(0));
+        }
     }
 
     @Override

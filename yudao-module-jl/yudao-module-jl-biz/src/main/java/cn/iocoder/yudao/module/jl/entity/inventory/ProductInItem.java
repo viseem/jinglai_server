@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.*;
@@ -44,12 +45,22 @@ public class ProductInItem extends BaseEntity {
 
 
     /**
-     * JPA 级联出 user
+     * JPA 级联出 productIn
      */
     @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "product_in_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProductInOnly productIn;
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProductSendItem> productSendItems = new ArrayList<>();
 
     /**
      * 产自实验物资的 id
@@ -118,6 +129,12 @@ public class ProductInItem extends BaseEntity {
     private Long zoomId;
 
     /**
+     * 位置
+     */
+    @Column(name = "location_name")
+    private String locationName;
+
+    /**
      * 有效期
      */
     @Column(name = "valid_date")
@@ -129,4 +146,9 @@ public class ProductInItem extends BaseEntity {
     @Column(name = "temperature")
     private String temperature;
 
+    @Transient
+    private Integer sendedQuantity;
+
+    @Transient
+    private String inStatus;
 }

@@ -1,12 +1,18 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -39,6 +45,21 @@ public class ProjectDevice extends BaseEntity {
     @Column(name = "device_id", nullable = false )
     private Long deviceId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "device_id",  insertable = false, updatable = false)
+    private AssetDevice device;
+
+    /**
+     * 查询日志
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_device_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<AssetDeviceLog> logs = new ArrayList<>();
+
     /**
      * 设备名称
      */
@@ -62,5 +83,8 @@ public class ProjectDevice extends BaseEntity {
      */
     @Column(name = "end_date")
     private LocalDateTime endDate;
+
+    @Transient
+    private AssetDeviceLog latestLog;
 
 }

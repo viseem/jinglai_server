@@ -37,6 +37,13 @@ public class Project extends BaseEntity {
     @Column(name = "id", nullable = false )
     private Long id;
 
+
+    /**
+     * 项目编号
+     */
+    @Column(name = "code", nullable = false )
+    private String code;
+
     /**
      * 销售线索 id
      */

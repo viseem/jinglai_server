@@ -52,6 +52,8 @@ public class ProductInItemBaseVO {
 
     @Schema(description = "区域位置 id", example = "11044")
     private Long zoomId;
+    @Schema(description = "位置", example = "11044")
+    private String locationName;
 
     @Schema(description = "有效期")
     private String validDate;

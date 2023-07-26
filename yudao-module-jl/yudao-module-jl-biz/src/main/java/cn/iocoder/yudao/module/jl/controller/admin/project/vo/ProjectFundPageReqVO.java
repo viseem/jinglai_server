@@ -27,8 +27,13 @@ public class ProjectFundPageReqVO extends PageParam {
     @Schema(description = "资金额度", example = "23415")
     private Long price;
 
+    @Schema(description = "客户 id", example = "27211")
+    private Long customerId;
     @Schema(description = "项目 id", example = "27211")
     private Long projectId;
+
+    @Schema(description = "合同 id", example = "27211")
+    private Long contractId;
 
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
     private String status;

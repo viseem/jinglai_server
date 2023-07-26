@@ -48,4 +48,9 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "合同文件名", example = "芋艿")
     private String fileName;
 
+    @Schema(description = "是否收齐")
+    private Boolean isCollectAll;
+
+    @Schema(description = "关键字", example = "芋艿")
+    private String keyword;
 }

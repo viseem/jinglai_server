@@ -128,6 +128,12 @@ public class ProjectCategory extends BaseEntity {
     private String demand;
 
     /**
+     * 开始日期
+     */
+    @Column(name = "start_date")
+    private String startDate;
+
+    /**
      * 截止日期
      */
     @Column(name = "deadline")
@@ -240,6 +246,9 @@ public class ProjectCategory extends BaseEntity {
     //申请变更的状态
     @Transient
     private String requestStage;
+    //最新一个approval
+    @Transient
+    private ProjectCategoryApproval latestApproval;
 
     //实验记录
     /**

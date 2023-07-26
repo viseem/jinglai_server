@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
@@ -35,6 +36,8 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private List<ProjectCategoryApproval> approvalList;
 
+    private ProjectCategoryApproval latestApproval;
+
     //审批的状态 通过 还是未通过
     private String approvalStage;
     //申请的变更的状态
@@ -43,4 +46,6 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     //实验记录
     private List<ProjectCategoryLog> logs;
+
+    private LaboratoryLab lab;
 }

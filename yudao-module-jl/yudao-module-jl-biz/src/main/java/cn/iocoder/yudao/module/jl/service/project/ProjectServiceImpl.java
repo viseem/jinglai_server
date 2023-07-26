@@ -2,11 +2,17 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,10 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -30,6 +33,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
  * 项目管理 Service 实现类
@@ -38,9 +42,36 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectServiceImpl implements ProjectService {
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
+
+
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
 
     @Resource
     private ProjectRepository projectRepository;
+    @PostConstruct
+    public void ProjectServiceImpl(){
+        Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CODE_DEFAULT_PREFIX);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+    }
+
+
+
+    public ProjectServiceImpl(UserRepository userRepository,
+                              ProjectConstractRepository projectConstractRepository) {
+        this.userRepository = userRepository;
+        this.projectConstractRepository = projectConstractRepository;
+    }
+
+
 
     @Resource
     private ProjectScheduleRepository projectScheduleRepository;
@@ -51,14 +82,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
     private final UserRepository userRepository;
+    private final ProjectConstractRepository projectConstractRepository;
 
-    public ProjectServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setCode(generateCode());
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
 
@@ -81,7 +111,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectExists(updateReqVO.getId());
+        Project project = validateProjectExists(updateReqVO.getId());
+/*        if(project.getCode()==null|| project.getCode().equals("")){
+            updateReqVO.setCode(generateCode());
+        }*/
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);
@@ -103,8 +136,12 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.deleteById(id);
     }
 
-    private void validateProjectExists(Long id) {
-        projectRepository.findById(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+    private Project validateProjectExists(Long id) {
+        Optional<Project> byId = projectRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override

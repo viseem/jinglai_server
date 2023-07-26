@@ -17,14 +17,22 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
  */
 @Data
 public class ProjectFundLogBaseVO {
+    @Schema(description = "项目款项主表id", requiredMode = Schema.RequiredMode.REQUIRED, example = "872")
+    @NotNull(message = "项目款项主表id不能为空")
+    private Long projectFundId;
 
     @Schema(description = "收款金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "3943")
     @NotNull(message = "收款金额不能为空")
     private Long price;
 
-    @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "10996")
-    @NotNull(message = "项目 id不能为空")
+    @Schema(description = "项目 id")
     private Long projectId;
+
+    @Schema(description = "客户 id")
+    private Long customerId;
+
+    @Schema(description = "合同 id")
+    private Long contractId;
 
     @Schema(description = "支付凭证上传地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
     @NotNull(message = "支付凭证上传地址不能为空")
@@ -48,8 +56,6 @@ public class ProjectFundLogBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    @Schema(description = "项目款项主表id", requiredMode = Schema.RequiredMode.REQUIRED, example = "872")
-    @NotNull(message = "项目款项主表id不能为空")
-    private Long projectFundId;
+
 
 }
