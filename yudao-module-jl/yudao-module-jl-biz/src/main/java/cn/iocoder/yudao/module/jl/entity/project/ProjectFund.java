@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectBaseVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -42,6 +43,12 @@ public class ProjectFund extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectConstractOnly contract;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    private User user;
 
     /**
      * ID
