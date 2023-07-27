@@ -1,9 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.CustomerAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
@@ -40,6 +41,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class CustomerServiceImpl implements CustomerService {
 
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
     @Resource
     private DeptService deptService;
     @Resource
@@ -103,8 +106,10 @@ public class CustomerServiceImpl implements CustomerService {
         //如果是所有
         //我的
         //我的下属
-        List<Long> creators = new ArrayList<>();
-        if (Objects.equals(pageReqVO.getAttribute(), CustomerAttributeTypeEnums.SUB.getStatus()) || Objects.equals(pageReqVO.getAttribute(), CustomerAttributeTypeEnums.ALL.getStatus())) {
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+       /* List<Long> creators = new ArrayList<>();
+        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.SUB.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
             DeptByReqVO dept = new DeptByReqVO();
             dept.setLeaderUserId(getLoginUserId());
             DeptDO deptBy = deptService.getDeptBy(dept);
@@ -123,12 +128,12 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
 
-        if (Objects.equals(pageReqVO.getAttribute(), CustomerAttributeTypeEnums.MY.getStatus()) || Objects.equals(pageReqVO.getAttribute(), CustomerAttributeTypeEnums.ALL.getStatus())) {
+        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.MY.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
             creators.add(getLoginUserId());
         }
 
         // Set creators as Long[] type
-        pageReqVO.setCreators(creators.toArray(new Long[0]));
+        pageReqVO.setCreators(creators.toArray(new Long[0]));*/
 
 
         // 创建 Sort 对象

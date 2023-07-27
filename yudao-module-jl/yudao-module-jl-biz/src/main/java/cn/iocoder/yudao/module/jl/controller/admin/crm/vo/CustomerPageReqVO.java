@@ -1,8 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
-import cn.iocoder.yudao.module.jl.enums.CustomerAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import lombok.*;
-import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,7 +16,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class CustomerPageReqVO extends PageParam {
 
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = CustomerAttributeTypeEnums.ALL.getStatus();
+    private String attribute = DateAttributeTypeEnums.ALL.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;
