@@ -15,6 +15,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class CustomerPageReqVO extends PageParam {
 
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute;
+
+    @Schema(description = "in 查询 creators")
+    private Long[] creators;
+
     @Schema(description = "创建者")
     private String creator;
 

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Schema(description = "管理后台 - 部门列表 Request VO")
 @Data
-public class DeptListByReqVO {
+public class DeptByReqVO {
 
     @Schema(description = "负责人的用户编号", example = "2048")
     private Long leaderUserId;

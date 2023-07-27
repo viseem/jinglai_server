@@ -87,7 +87,7 @@ public class DeptController {
     @Operation(summary = "获得部门信息")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('system:dept:query')")
-    public CommonResult<DeptRespVO> getDept(DeptListByReqVO reqVO) {
+    public CommonResult<DeptRespVO> getDept(DeptByReqVO reqVO) {
         return success(DeptConvert.INSTANCE.convert(deptService.getDeptBy(reqVO)));
     }
 

@@ -5,7 +5,7 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.yudao.framework.tenant.core.util.TenantUtils;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptCreateReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListByReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptUpdateReqVO;
 import cn.iocoder.yudao.module.system.convert.dept.DeptConvert;
@@ -246,7 +246,7 @@ public class DeptServiceImpl implements DeptService {
         return deptMapper.selectById(id);
     }
     @Override
-    public DeptDO getDeptBy(DeptListByReqVO reqVO) {
+    public DeptDO getDeptBy(DeptByReqVO reqVO) {
         DeptDO deptDO = deptMapper.selectOne(DeptDO::getLeaderUserId, reqVO.getLeaderUserId());
 /*        List<DeptDO> result = new ArrayList<>();
         if(deptDO!=null){
