@@ -46,10 +46,6 @@ public class DateAttributeGenerator {
                 }
             }
         }
-        System.out.println(getLoginUserId());
-
-        System.out.println("--------");
-        System.out.println(creators);
 
         if (Objects.equals(attribute, DateAttributeTypeEnums.SUB.getStatus())) {
             creators.remove(getLoginUserId());
