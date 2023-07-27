@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -29,4 +30,6 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
     private Integer receivedPrice;
 
     private List<ProjectFundLog> fundLogs;
+
+    private List<ProjectFund> funds;
 }

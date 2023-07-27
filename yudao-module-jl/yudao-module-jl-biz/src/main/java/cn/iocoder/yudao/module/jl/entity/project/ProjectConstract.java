@@ -125,8 +125,19 @@ public class ProjectConstract extends BaseEntity {
     @Transient
     private Integer receivedPrice;
 
+
     /**
-     * 查询款项列表
+     * 查询回款计划列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectFund> funds;
+
+
+    /**
+     * 查询回款日志列表
      */
     @OneToMany(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
