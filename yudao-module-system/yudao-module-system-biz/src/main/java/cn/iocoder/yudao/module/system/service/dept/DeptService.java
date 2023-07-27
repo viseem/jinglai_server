@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.system.service.dept;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptCreateReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptUpdateReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
@@ -92,6 +93,15 @@ public interface DeptService {
      * @return 部门信息
      */
     DeptDO getDept(Long id);
+
+
+    /**
+     * 获得部门信息
+     *
+     * @param reqVO 部门编号
+     * @return 部门信息
+     */
+    DeptDO getDeptBy(DeptListByReqVO reqVO);
 
     /**
      * 校验部门们是否有效。如下情况，视为无效：

@@ -83,4 +83,12 @@ public class DeptController {
         return success(DeptConvert.INSTANCE.convert(deptService.getDept(id)));
     }
 
+    @GetMapping("/get-by")
+    @Operation(summary = "获得部门信息")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('system:dept:query')")
+    public CommonResult<DeptRespVO> getDept(DeptListByReqVO reqVO) {
+        return success(DeptConvert.INSTANCE.convert(deptService.getDeptBy(reqVO)));
+    }
+
 }
