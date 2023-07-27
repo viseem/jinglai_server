@@ -1,5 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -11,10 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
@@ -25,6 +30,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -36,10 +42,21 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class CustomerServiceImpl implements CustomerService {
 
     @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
+
+    @Resource
     private CustomerRepository customerRepository;
 
     @Resource
     private CustomerMapper customerMapper;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    public CustomerServiceImpl(UserRepository userRepository,
+                               UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
 
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
@@ -84,6 +101,40 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
+
+        //如果是所有
+        //我的
+        //我的下属
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+       /* List<Long> creators = new ArrayList<>();
+        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.SUB.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
+            DeptByReqVO dept = new DeptByReqVO();
+            dept.setLeaderUserId(getLoginUserId());
+            DeptDO deptBy = deptService.getDeptBy(dept);
+            if (deptBy != null) {
+                List<DeptDO> deptListByParentIdFromCache = deptService.getDeptListByParentIdFromCache(deptBy.getId(), true);
+                if (deptListByParentIdFromCache != null) {
+                    // Extract the department IDs from the list of DeptDO objects
+                    Collection<Long> departmentIds = deptListByParentIdFromCache.stream()
+                            .map(DeptDO::getId)
+                            .collect(Collectors.toList());
+                    departmentIds.add(deptBy.getId());
+                    // Find users by department IDs
+                    List<User> byDeptIdIn = userRepository.findByDeptIdIn(departmentIds);
+                    creators.addAll(byDeptIdIn.stream().map(User::getId).collect(Collectors.toList()));
+                }
+            }
+        }
+
+        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.MY.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
+            creators.add(getLoginUserId());
+        }
+
+        // Set creators as Long[] type
+        pageReqVO.setCreators(creators.toArray(new Long[0]));*/
+
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -93,6 +144,8 @@ public class CustomerServiceImpl implements CustomerService {
         // 创建 Specification
         Specification<Customer> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));

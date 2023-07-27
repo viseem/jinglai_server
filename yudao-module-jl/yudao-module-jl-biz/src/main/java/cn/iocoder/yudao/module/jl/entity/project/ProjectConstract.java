@@ -40,6 +40,12 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    private User sales;
+
     /**
      * 项目 id
      */
@@ -51,10 +57,10 @@ public class ProjectConstract extends BaseEntity {
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+/*    @ManyToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User sales;
+    private User sales;*/
 
     /**
      * 合同名字
@@ -125,8 +131,19 @@ public class ProjectConstract extends BaseEntity {
     @Transient
     private Integer receivedPrice;
 
+
     /**
-     * 查询款项列表
+     * 查询回款计划列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectFund> funds;
+
+
+    /**
+     * 查询回款日志列表
      */
     @OneToMany(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

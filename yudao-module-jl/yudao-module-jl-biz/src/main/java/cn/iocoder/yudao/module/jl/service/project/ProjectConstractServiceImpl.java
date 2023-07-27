@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,8 @@ import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 @Service
 @Validated
 public class ProjectConstractServiceImpl implements ProjectConstractService {
-
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CONTRACT_CODE.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_PROJECT_CONTRACT_CODE.getKeyTemplate();
     @Resource
@@ -151,6 +153,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public PageResult<ProjectConstract> getProjectConstractPage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -160,6 +166,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));

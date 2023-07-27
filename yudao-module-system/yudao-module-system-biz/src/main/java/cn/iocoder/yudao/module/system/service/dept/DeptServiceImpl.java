@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.yudao.framework.tenant.core.util.TenantUtils;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptCreateReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptUpdateReqVO;
 import cn.iocoder.yudao.module.system.convert.dept.DeptConvert;
@@ -244,7 +245,19 @@ public class DeptServiceImpl implements DeptService {
     public DeptDO getDept(Long id) {
         return deptMapper.selectById(id);
     }
-
+    @Override
+    public DeptDO getDeptBy(DeptByReqVO reqVO) {
+        DeptDO deptDO = deptMapper.selectOne(DeptDO::getLeaderUserId, reqVO.getLeaderUserId());
+/*        List<DeptDO> result = new ArrayList<>();
+        if(deptDO!=null){
+            // 递归，简单粗暴
+            getDeptsByParentIdFromCache(result, deptDO.getId(),
+                    Integer.MAX_VALUE, // 如果递归获取，则无限；否则，只递归 1 次
+                    parentDeptCache);
+            deptDO.setDepts(result);
+        }*/
+        return deptDO;
+    }
     @Override
     public void validateDeptList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {

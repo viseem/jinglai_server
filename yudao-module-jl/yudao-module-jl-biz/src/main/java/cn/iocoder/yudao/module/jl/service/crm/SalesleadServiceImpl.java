@@ -5,7 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCompetitor;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
@@ -14,6 +15,11 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -25,10 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
@@ -48,6 +51,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class SalesleadServiceImpl implements SalesleadService {
+
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private SalesleadRepository salesleadRepository;
@@ -193,6 +199,10 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Override
     public PageResult<Saleslead> getSalesleadPage(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -202,6 +212,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 创建 Specification
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
@@ -265,6 +276,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
+
 
     @Override
     public List<Saleslead> getSalesleadList(SalesleadExportReqVO exportReqVO) {

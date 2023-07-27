@@ -17,7 +17,7 @@ public class FollowupPageOrder {
     private String id;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String createTime;
+    private String createTime = "desc";
 
     @Schema(allowableValues = {"desc", "asc"})
     private String content;

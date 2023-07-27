@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import com.google.errorprone.annotations.FormatMethod;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -46,8 +47,7 @@ public class ProjectFundBaseVO {
     private Integer sort;
 
     @Schema(description = "支付的截止时间")
-    private LocalDate deadline;
-
+    private String deadline;
 
 
 }

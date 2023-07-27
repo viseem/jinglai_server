@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -37,6 +38,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectFundServiceImpl implements ProjectFundService {
+
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private ProjectFundRepository projectFundRepository;
@@ -131,6 +135,10 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 
     @Override
     public PageResult<ProjectFund> getProjectFundPage(ProjectFundPageReqVO pageReqVO, ProjectFundPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -140,6 +148,10 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         // 创建 Specification
         Specification<ProjectFund> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getAttribute()!=null){
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
 
 /*            if(pageReqVO.getStatus() != null) {
                 //如果status="ALL_PAY"  判断root.get("receivedPrice") >= root.get("price")

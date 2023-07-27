@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,6 +17,11 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectFundPageReqVO extends PageParam {
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute;
+
+    @Schema(description = "in 查询 creators")
+    private Long[] creators;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
