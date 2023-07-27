@@ -43,8 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
-    @Resource
-    private DeptService deptService;
+
     @Resource
     private CustomerRepository customerRepository;
 
