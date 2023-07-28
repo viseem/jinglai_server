@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectFundServiceImpl implements ProjectFundService {
+    @Resource
+    private ProjectConstractRepository projectConstractRepository;
 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
@@ -56,6 +60,16 @@ public class ProjectFundServiceImpl implements ProjectFundService {
 
     @Override
     public Long createProjectFund(ProjectFundCreateReqVO createReqVO) {
+
+        //校验合同是否存在
+        Optional<ProjectConstract> byId = projectConstractRepository.findById(createReqVO.getContractId());
+        ProjectConstract projectConstract = byId.orElse(null);
+        if (projectConstract==null){
+            throw exception(PROJECT_CONSTRACT_NOT_EXISTS);
+        }
+        createReqVO.setProjectId(projectConstract.getProjectId());
+        createReqVO.setCustomerId(projectConstract.getCustomerId());
+
         // 插入
         ProjectFund projectFund = projectFundMapper.toEntity(createReqVO);
         projectFundRepository.save(projectFund);
