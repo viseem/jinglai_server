@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
     @Transactional
     @Modifying
+    @Query("update Customer c set c.toCustomer = ?1 where c.id = ?2")
+    int updateToCustomerById(Boolean toCustomer, Long id);
+    @Transactional
+    @Modifying
     @Query("update Customer c set c.lastSalesleadId = ?2 where c.id = ?1")
     int updateLastSalesleadIdById(Long id,Long lastSalesleadId );
     @Transactional

@@ -77,6 +77,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public void toCustomer(ClueToCustomerReqVO updateReqVO) {
+        // 校验存在
+        validateCustomerExists(updateReqVO.getId());
+        // 更新
+        customerRepository.updateToCustomerById(true,updateReqVO.getId());
+    }
+
+    @Override
     public void deleteCustomer(Long id) {
         // 校验存在
         validateCustomerExists(id);
@@ -146,6 +154,10 @@ public class CustomerServiceImpl implements CustomerService {
             List<Predicate> predicates = new ArrayList<>();
 
             predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));

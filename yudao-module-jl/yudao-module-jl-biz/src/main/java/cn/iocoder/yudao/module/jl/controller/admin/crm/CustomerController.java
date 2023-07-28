@@ -60,6 +60,14 @@ public class CustomerController {
         return success(true);
     }
 
+    @PutMapping("/to-customer")
+    @Operation(summary = "转客户")
+    @PreAuthorize("@ss.hasPermission('jl:customer:update')")
+    public CommonResult<Boolean> updateCustomer(@Valid @RequestBody ClueToCustomerReqVO updateReqVO) {
+        customerService.toCustomer(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除客户")
     @Parameter(name = "id", description = "编号", required = true)

@@ -28,6 +28,13 @@ public interface CustomerService {
     void updateCustomer(@Valid CustomerUpdateReqVO updateReqVO);
 
     /**
+     * 更新客户
+     *
+     * @param updateReqVO 更新信息
+     */
+    void toCustomer(@Valid ClueToCustomerReqVO updateReqVO);
+
+    /**
      * 删除客户
      *
      * @param id 编号
