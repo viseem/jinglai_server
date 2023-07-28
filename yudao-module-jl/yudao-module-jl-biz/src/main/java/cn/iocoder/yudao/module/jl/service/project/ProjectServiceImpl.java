@@ -167,6 +167,10 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<Project> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
+                predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
+            }
+
             if(pageReqVO.getSalesleadId() != null) {
                 predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
             }
