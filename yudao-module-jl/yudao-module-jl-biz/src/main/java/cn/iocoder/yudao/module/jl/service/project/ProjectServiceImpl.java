@@ -32,6 +32,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -167,6 +168,10 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<Project> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
+            }
+
             if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
                 predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
             }
@@ -204,10 +209,6 @@ public class ProjectServiceImpl implements ProjectService {
 
             if(pageReqVO.getParticipants() != null) {
                 predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
-            }
-
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getCustomerId() != null) {
