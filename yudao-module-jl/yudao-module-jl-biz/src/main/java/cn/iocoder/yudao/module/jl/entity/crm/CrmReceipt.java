@@ -76,7 +76,7 @@ public class CrmReceipt extends BaseEntity {
      * 开票日期
      */
     @Column(name = "date")
-    private LocalDateTime date;
+    private String date;
 
     /**
      * 开票类型：增值税专用发票
