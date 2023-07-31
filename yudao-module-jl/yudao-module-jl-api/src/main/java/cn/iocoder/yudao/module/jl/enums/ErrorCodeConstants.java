@@ -160,4 +160,6 @@ public interface ErrorCodeConstants {
     ErrorCode CRM_RECEIPT_HEAD_NOT_EXISTS = new ErrorCode(2055600001, "客户发票抬头不存在");
 
     ErrorCode CRM_RECEIPT_NOT_EXISTS = new ErrorCode(2055700001, "客户发票不存在");
+
+    ErrorCode CRM_CONTACT_NOT_EXISTS = new ErrorCode(2055800001, "客户联系人不存在");
 }
