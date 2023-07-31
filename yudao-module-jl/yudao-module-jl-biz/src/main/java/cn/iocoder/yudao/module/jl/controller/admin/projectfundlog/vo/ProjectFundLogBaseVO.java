@@ -45,12 +45,10 @@ public class ProjectFundLogBaseVO {
     @NotNull(message = "支付凭证文件名称不能为空")
     private String receiptName;
 
-    @Schema(description = "付款方", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "付款方不能为空")
+    @Schema(description = "付款方")
     private String payer;
 
-    @Schema(description = "收款方", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "收款方不能为空")
+    @Schema(description = "收款方")
     private String payee;
 
     @Schema(description = "备注")
