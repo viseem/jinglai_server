@@ -158,4 +158,6 @@ public interface ErrorCodeConstants {
     ErrorCode ANIMAL_BOX_NOT_EXISTS = new ErrorCode(2055500001, "动物笼位不存在");
 
     ErrorCode CRM_RECEIPT_HEAD_NOT_EXISTS = new ErrorCode(2055600001, "客户发票抬头不存在");
+
+    ErrorCode CRM_RECEIPT_NOT_EXISTS = new ErrorCode(2055700001, "客户发票不存在");
 }
