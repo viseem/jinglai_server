@@ -29,7 +29,8 @@ public class ProjectFeedbackBaseVO {
     @Schema(description = "具体的反馈内容")
     private String feedType;
 
-    @Schema(description = "内部人员 id", example = "5172")
+    @Schema(description = "责任人 id", example = "5172", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @NotNull(message = "责任人 id不能为空")
     private Long userId;
 
     @Schema(description = "客户 id", example = "13743", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

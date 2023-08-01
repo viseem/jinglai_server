@@ -110,9 +110,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
-        //如果是所有
-        //我的
-        //我的下属
+        //获取attributeUsers
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setCreators(users);
        /* List<Long> creators = new ArrayList<>();
