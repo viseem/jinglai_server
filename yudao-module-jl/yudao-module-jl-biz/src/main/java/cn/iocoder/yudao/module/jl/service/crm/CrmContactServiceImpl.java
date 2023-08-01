@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +35,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class CrmContactServiceImpl implements CrmContactService {
+
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private CrmContactRepository crmContactRepository;
@@ -84,6 +88,10 @@ public class CrmContactServiceImpl implements CrmContactService {
 
     @Override
     public PageResult<CrmContact> getCrmContactPage(CrmContactPageReqVO pageReqVO, CrmContactPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -93,6 +101,8 @@ public class CrmContactServiceImpl implements CrmContactService {
         // 创建 Specification
         Specification<CrmContact> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));

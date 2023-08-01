@@ -142,9 +142,11 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
+            //content!=null  like content
             if (pageReqVO.getContent() != null) {
-                predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
+                predicates.add(cb.like(root.get("content"), "%" + pageReqVO.getContent() + "%"));
             }
+
 
             if (pageReqVO.getResult() != null) {
                 predicates.add(cb.equal(root.get("result"), pageReqVO.getResult()));

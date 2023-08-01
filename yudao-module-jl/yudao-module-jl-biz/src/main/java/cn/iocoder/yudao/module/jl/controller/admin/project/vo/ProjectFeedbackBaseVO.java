@@ -36,12 +36,13 @@ public class ProjectFeedbackBaseVO {
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")
-    private String type = "inner";
+    private String type = "INNER";
 
     @Schema(description = "状态", example = "1")
     private String status;
 
-    @Schema(description = "反馈的内容")
+    @Schema(description = "反馈的内容",requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "这是反馈的内容")
+    @NotNull(message = "反馈的内容不能为空")
     private String content;
 
     @Schema(description = "处理结果")
