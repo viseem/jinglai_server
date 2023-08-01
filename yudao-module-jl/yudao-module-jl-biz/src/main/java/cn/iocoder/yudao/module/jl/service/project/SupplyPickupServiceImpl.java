@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
@@ -323,6 +324,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInPickupItemReqVO saveReqVO) {
         // 校验存在
         validateSupplyPickupExists(saveReqVO.getPickupId());

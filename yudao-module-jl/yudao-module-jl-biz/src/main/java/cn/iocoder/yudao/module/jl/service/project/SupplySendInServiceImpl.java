@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
@@ -329,6 +330,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInSendInItemReqVO saveReqVO) {
         // 校验存在
         validateSupplySendInExists(saveReqVO.getSendInId());

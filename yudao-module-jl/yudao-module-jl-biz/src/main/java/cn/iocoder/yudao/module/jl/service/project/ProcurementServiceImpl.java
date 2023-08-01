@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -482,6 +483,7 @@ public class ProcurementServiceImpl implements ProcurementService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInProcurementItemReqVO saveReqVO) {
         // 校验存在
         validateProcurementExists(saveReqVO.getProcurementId());
