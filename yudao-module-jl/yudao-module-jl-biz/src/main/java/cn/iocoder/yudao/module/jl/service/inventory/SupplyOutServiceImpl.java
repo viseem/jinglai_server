@@ -76,23 +76,26 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         return supplyOut.getId();
     }
 
+
+
     @Override
     @Transactional
     public Long saveSupplyOut(SupplyOutSaveReqVO saveReqVO) {
 
         Long supplyOutId = saveReqVO.getId();
-
+        Long creator;
         //存在 id，校验存在
         if (supplyOutId != null) {
-            validateSupplyOutExists(supplyOutId);
+            SupplyOut supplyOut = validateSupplyOutExists(supplyOutId);
+            creator = supplyOut.getCreator();
+        } else {
+            creator = null;
         }
 
         // 创建、或更新主表
         SupplyOut supplyOut = supplyOutMapper.toEntity(saveReqVO);
         supplyOut = supplyOutRepository.save(supplyOut);
         Long saveSupplyId = supplyOut.getId();
-        //删除原来的items
-//        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
 
         //保存新的items
         supplyOutItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
@@ -102,15 +105,14 @@ public class SupplyOutServiceImpl implements SupplyOutService {
 
         //保存出库日志 supplyStoreOut
         if(supplyOutId != null&&supplyOutId>0&& Objects.equals(saveReqVO.getStatus(), InventorySupplyOutApprovalEnums.ACCEPT.getStatus())){
-            SupplyOut finalSupplyOut = supplyOut;
             inventoryStoreOutRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
                 InventoryStoreOut inventoryStoreOut = new InventoryStoreOut();
-                inventoryStoreOut.setOutQuantity(item.getQuantity());
+                inventoryStoreOut.setOutQuantity(item.getOutQuantity());
                 inventoryStoreOut.setMark(item.getMark());
                 inventoryStoreOut.setProjectSupplyId(item.getProjectSupplyId());
                 inventoryStoreOut.setRefId(supplyOutId);
                 inventoryStoreOut.setRefItemId(item.getId());
-                inventoryStoreOut.setApplyUser(finalSupplyOut.getCreator());
+                inventoryStoreOut.setApplyUser(creator);
                 return inventoryStoreOut;
             }).collect(Collectors.toList()));
         }
@@ -136,8 +138,12 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         supplyOutRepository.deleteById(id);
     }
 
-    private void validateSupplyOutExists(Long id) {
-        supplyOutRepository.findById(id).orElseThrow(() -> exception(SUPPLY_OUT_NOT_EXISTS));
+    private SupplyOut validateSupplyOutExists(Long id) {
+        Optional<SupplyOut> byId = supplyOutRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw exception(SUPPLY_OUT_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

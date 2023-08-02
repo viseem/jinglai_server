@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
@@ -199,9 +200,9 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                     .sum();
         }
 
-        if (item.getSupplyOutItems().size() > 0) {
-            outedQuantity += item.getSupplyOutItems().stream()
-                    .mapToInt(SupplyOutItem::getStoreOut)
+        if (item.getOutLogs().size() > 0) {
+            outedQuantity += item.getOutLogs().stream()
+                    .mapToInt(InventoryStoreOut::getOutQuantity)
                     .sum();
         }
         item.setProcurementedQuantity(procurementedQuantity);
