@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -170,6 +171,10 @@ public class ProjectSupply extends BaseEntity {
     @Transient
     private Integer outedQuantity;
 
+    @Transient
+    private InventoryStoreIn latestStoreLog;
+
+
     /**
      * 品牌
      */
@@ -234,5 +239,15 @@ public class ProjectSupply extends BaseEntity {
     @JoinColumn(name = "project_supply_id")
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProcurementItem> procurements;*/
+
+    /**
+     * 入库记录
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<InventoryStoreIn> storeLogs = new ArrayList<>();
+
 
 }

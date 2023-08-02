@@ -363,7 +363,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                     storeInLog.setProjectSupplyId(item.getProjectSupplyId());
                     storeInLog.setInQuantity(storeIn.getInNum());
                     storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
-                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setMark(item.getMark());
                     storeInLog.setStatus(storeIn.getStatus());
                     storeInLog.setRefId(saveReqVO.getPickupId());
                     storeInLog.setRefItemId(item.getId());
@@ -372,6 +372,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                     storeInLog.setPlaceId(storeIn.getPlaceId());
                     storeInLog.setTemperature(storeIn.getTemperature());
                     storeInLog.setValidDate(storeIn.getValidDate());
+                    storeInLog.setLocationName(storeIn.getLocationName());
                     inventoryStoreInRepository.save(storeInLog);
 
                 }

@@ -77,4 +77,6 @@ public class ProjectSupplyBaseVO {
 
     private Integer isAppend;
 
+
+
 }

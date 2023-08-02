@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -21,7 +26,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "InventoryStoreIn")
 @Table(name = "jl_inventory_store_in")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class InventoryStoreIn extends BaseEntity {
 
     /**
@@ -110,4 +115,57 @@ public class InventoryStoreIn extends BaseEntity {
     @Column(name = "valid_date")
     private String validDate;
 
+    /**
+     * 详细位置
+     */
+    @Column(name = "location_name")
+    private String locationName;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "room_id", insertable = false, updatable = false)
+    private InventoryRoom room;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "container_id", insertable = false, updatable = false)
+    private InventoryContainer container;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "place_id", insertable = false, updatable = false)
+    private InventoryContainerPlace place;
+
+    @Transient
+    private String locationText;
+
+
+    public String getLocationText() {
+        String locationText = "";
+        //如果 room container place拼接其name，拼接后赋值给 locationText，注意null值的情况
+        if (room != null) {
+            locationText = room.getName();
+        }
+        if (container != null) {
+            locationText = locationText + "/" + container.getName();
+        }
+        if (place != null) {
+            locationText = locationText + "/" + place.getName();
+        }
+        if (locationText.length()>0){
+            locationText = locationText + "/" + locationName;
+        }else {
+            locationText = locationName;
+        }
+        return locationText;
+    }
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 }
