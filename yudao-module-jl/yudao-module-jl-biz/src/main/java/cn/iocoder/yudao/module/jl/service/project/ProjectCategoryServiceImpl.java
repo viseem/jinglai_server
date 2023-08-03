@@ -202,6 +202,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if(pageReqVO.getHasFeedback()!=null&&pageReqVO.getHasFeedback()==1) {
                 predicates.add(cb.equal(root.get("hasFeedback"), 1));
             }
+            if(pageReqVO.getStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
+            }
 
             if(pageReqVO.getQuoteId() != null) {
                 predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
