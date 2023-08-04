@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -206,4 +207,18 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
+
+    /*
+    * 查询审批列表
+    * */
+    //排序
+    @OrderBy("createTime desc")
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectApproval> approvals = new ArrayList<>();
+
+    @Transient
+    private ProjectApproval latestApproval;
 }
