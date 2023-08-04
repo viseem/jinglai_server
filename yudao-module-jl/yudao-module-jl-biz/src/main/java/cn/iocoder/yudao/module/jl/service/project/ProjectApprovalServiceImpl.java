@@ -31,6 +31,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectApprovalMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectApprovalRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -65,11 +66,16 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         validateProjectApprovalExists(updateReqVO.getId());
 
 
+        // 如果是审批 ，则记录审批人
+        if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())||Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_FAIL.getStatus())){
+            updateReqVO.setApprovalUserId(getLoginUserId());
+        }
+
 
         // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
-            // 校验projectCategory是否存在,并修改状态
+            // 校验是否存在,并修改状态
             projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
                 if(Objects.equals(updateReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
                     project.setStage(ProjectStageEnums.DOING.getStatus());

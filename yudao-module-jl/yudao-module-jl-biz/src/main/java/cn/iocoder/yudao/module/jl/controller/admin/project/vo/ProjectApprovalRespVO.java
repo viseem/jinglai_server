@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,4 +35,8 @@ public class ProjectApprovalRespVO extends ProjectApprovalBaseVO {
 
     @Schema(description = "审批状态：等待审批、批准、拒绝")
     private String approvalStage;
+
+    private ProjectOnly project;
+
+    private User approvalUser;
 }
