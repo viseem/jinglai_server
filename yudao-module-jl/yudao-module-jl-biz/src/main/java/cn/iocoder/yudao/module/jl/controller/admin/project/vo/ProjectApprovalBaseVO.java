@@ -29,4 +29,6 @@ public class ProjectApprovalBaseVO {
     @Schema(description = "安排单id")
     private Long scheduleId;
 
+
+    private String approvalStage = "0";
 }

@@ -154,7 +154,6 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             if(pageReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), pageReqVO.getApprovalMark()));
             }
-
             if(pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
             }
