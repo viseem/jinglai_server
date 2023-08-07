@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -77,6 +79,19 @@ public class ProjectApproval extends BaseEntity {
      */
     @Column(name = "schedule_id", nullable = false )
     private Long scheduleId;
+
+    /*
+    * 审批表的id
+    * */
+
+    @Column(name = "approval_id", nullable = false )
+    private Long approvalId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "approval_id",  insertable = false, updatable = false)
+    private Approval approval;
 
     /**
      * JPA 级联出 user

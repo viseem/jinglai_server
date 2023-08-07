@@ -131,24 +131,7 @@ public class ApprovalServiceImpl implements ApprovalService {
         // 执行查询
         Page<Approval> page = approvalRepository.findAll(spec, pageable);
 
-        // 设置lastApprovalProgress
-        page.getContent().forEach(approval -> {
-            //判断items是否为空
-            if(approval.getItems()==null||approval.getItems().size() == 0) {
-                return;
-            }
-            //获取最后一个approvalStage不为null的对象
-            for(int i = approval.getItems().size() - 1; i >= 0; i--) {
-                if(approval.getItems().get(i).getApprovalStage() != null) {
-                    approval.setLastApprovalProgress(approval.getItems().get(i));
-                    if (i==approval.getItems().size()-1){
-                        approval.setApprovalStage(approval.getItems().get(i).getApprovalStage());
-                    }
-                    break;
-                }
-            }
 
-        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

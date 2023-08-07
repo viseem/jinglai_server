@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.approval;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectApprovalUpdateReqVO;
+import cn.iocoder.yudao.module.jl.enums.ApprovalStageEnums;
+import cn.iocoder.yudao.module.jl.enums.ApprovalTypeEnums;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectApprovalServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -47,6 +50,11 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
 
     @Resource
     private ApprovalProgressMapper approvalProgressMapper;
+    private final ApprovalRepository approvalRepository;
+
+    public ApprovalProgressServiceImpl(ApprovalRepository approvalRepository) {
+        this.approvalRepository = approvalRepository;
+    }
 
     @Override
     public Long createApprovalProgress(ApprovalProgressCreateReqVO createReqVO) {
@@ -65,18 +73,26 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
         approvalProgress.setApprovalMark(updateReqVO.getApprovalMark());
         approvalProgress.setApprovalStage(updateReqVO.getApprovalStage());
 
-        //获取ProjectApprovalUpdateReqVO
-        ProjectApprovalUpdateReqVO projectApprovalUpdateReqVO = new ProjectApprovalUpdateReqVO();
-        projectApprovalUpdateReqVO.setId(updateReqVO.getRefId());
-        projectApprovalUpdateReqVO.setApprovalMark(approvalProgress.getApprovalMark());
-        projectApprovalUpdateReqVO.setApprovalStage(approvalProgress.getApprovalStage());
-        projectApprovalUpdateReqVO.setApprovalUserId(approvalProgress.getToUserId());
-        System.out.println("approvalProgress =-- " + approvalProgress);
-        System.out.println("projectApprovalUpdateReqVO =--- " + projectApprovalUpdateReqVO );
-        // 更新项目状态
-        projectApprovalService.updateProjectApproval(
-                projectApprovalUpdateReqVO
-        );
+        //检验approvalProgress是否为最后一步
+        if(approvalProgress.getIsLast()|| Objects.equals(approvalProgress.getApprovalStage(), ApprovalStageEnums.APPROVAL_FAIL.getStatus())){
+            //获取ProjectApprovalUpdateReqVO
+            ProjectApprovalUpdateReqVO projectApprovalUpdateReqVO = new ProjectApprovalUpdateReqVO();
+            projectApprovalUpdateReqVO.setId(updateReqVO.getRefId());
+            projectApprovalUpdateReqVO.setApprovalMark(approvalProgress.getApprovalMark());
+            projectApprovalUpdateReqVO.setApprovalStage(approvalProgress.getApprovalStage());
+            projectApprovalUpdateReqVO.setApprovalUserId(approvalProgress.getToUserId());
+//            projectApprovalUpdateReqVO.setApprovalId(approvalProgress.getApprovalId());
+            System.out.println("approvalProgress =-- " + approvalProgress);
+            System.out.println("projectApprovalUpdateReqVO =--- " + projectApprovalUpdateReqVO );
+            // 更新项目状态
+            projectApprovalService.updateProjectApproval(
+                    projectApprovalUpdateReqVO
+            );
+            System.out.println("-=-=-=--");
+            approvalRepository.updateStatusById(approvalProgress.getApprovalStage(),approvalProgress.getApprovalId());
+        }
+
+
 
         // 更新
 //        ApprovalProgress updateObj = approvalProgressMapper.toEntity(updateReqVO);

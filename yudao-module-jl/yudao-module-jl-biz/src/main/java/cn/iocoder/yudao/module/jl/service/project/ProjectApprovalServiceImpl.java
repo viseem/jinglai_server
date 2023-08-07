@@ -79,16 +79,27 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         //保存ApprovalProgress
         //获取审批人数组
         List<User> userList = createReqVO.getUserList();
-        //遍历审批人数组
-        for (User user : userList) {
-            //设置ApprovalProgress的属性
+        int totalUsers = userList.size();
+            // 遍历审批人数组
+        for (int i = 0; i < totalUsers; i++) {
+            User user = userList.get(i);
+
+            // 设置ApprovalProgress的属性
             ApprovalProgress approvalProgress = new ApprovalProgress();
             approvalProgress.setApprovalId(approval.getId());
             approvalProgress.setToUserId(user.getId());
             approvalProgress.setType("APPROVAL");
-            //保存ApprovalProgress
+
+            // 判断是否为最后一个元素，并设置isLast的值
+            boolean isLast = (i == totalUsers - 1);
+            approvalProgress.setIsLast(isLast);
+
+            // 保存ApprovalProgress
             approvalProgressRepository.save(approvalProgress);
         }
+
+        //修改一下
+        projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
 
         // 返回
         return projectApproval.getId();
@@ -100,6 +111,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         ProjectApproval projectApproval = validateProjectApprovalExists(updateReqVO.getId());
         projectApproval.setApprovalMark(updateReqVO.getApprovalMark());
         projectApproval.setApprovalStage(updateReqVO.getApprovalStage());
+//        projectApproval.setApprovalId(updateReqVO.getApprovalId());
 
 
         // 如果是审批 ，则记录审批人
@@ -111,7 +123,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
 
         // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
-        if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
+        if (Objects.equals(updateReqVO.getApprovalStage(), ApprovalStageEnums.APPROVAL_SUCCESS.getStatus())) {
 
             // 校验是否存在,并修改状态
             projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
@@ -125,15 +137,6 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                 throw exception(PROJECT_NOT_EXISTS);
             });
 
-        }else{
-            // 如果是开展前审批 则直接变更为此状态
-            // 校验projectCategory是否存在,并修改状态
-            projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
-                project.setStage(projectApproval.getStage());
-                projectRepository.save(project);
-            },()->{
-                throw exception(PROJECT_NOT_EXISTS);
-            });
         }
 
 

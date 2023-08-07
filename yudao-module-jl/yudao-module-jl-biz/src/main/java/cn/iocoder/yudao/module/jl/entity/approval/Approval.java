@@ -83,7 +83,31 @@ public class Approval extends BaseEntity {
     @Transient
     private ApprovalProgressOnly lastApprovalProgress;
 
+    public ApprovalProgressOnly getLastApprovalProgress() {
+        System.out.println("items:"+items   );
+
+        for(int i = 0; i < items.size(); i++) {
+            if(items.get(i).getApprovalStage() == null || items.get(i).getApprovalStage().length()==0){
+                return items.get(i);
+            }
+        }
+        return  null;
+    }
+
+    public String getApprovalStage() {
+        for(int i = items.size() - 1; i >= 0; i--) {
+            if(items.get(i).getApprovalStage() != null) {
+                if (i==items.size()-1){
+                    return items.get(i).getApprovalStage();
+                }
+                break;
+            }
+        }
+        return  null;
+    }
+
     @Transient
     private String approvalStage;
+
 
 }

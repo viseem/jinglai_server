@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
@@ -39,4 +40,6 @@ public class ProjectApprovalRespVO extends ProjectApprovalBaseVO {
     private ProjectOnly project;
 
     private User approvalUser;
+
+    private Approval approval;
 }

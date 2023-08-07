@@ -66,6 +66,11 @@ public class ApprovalProgress extends BaseEntity {
     @Column(name = "type", nullable = false )
     private String type;
 
+    /*
+    * 是否最后一个
+    * */
+    private Boolean isLast;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

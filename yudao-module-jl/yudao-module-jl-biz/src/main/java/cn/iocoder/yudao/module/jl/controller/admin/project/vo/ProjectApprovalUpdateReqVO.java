@@ -23,4 +23,6 @@ public class ProjectApprovalUpdateReqVO {
     @Schema(description = "审批状态：等待审批、批准、拒绝", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "审批状态：等待审批、批准、拒绝不能为空")
     private String approvalStage;
+
+    private Long approvalId;
 }
