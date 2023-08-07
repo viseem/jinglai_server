@@ -1,13 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
-import cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants;
-import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -43,6 +47,12 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
     @Resource
+    private ApprovalRepository approvalRepository;
+
+    @Resource
+    private ApprovalProgressRepository approvalProgressRepository;
+
+    @Resource
     private ProjectRepository projectRepository;
 
     @Resource
@@ -52,10 +62,34 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     private ProjectApprovalMapper projectApprovalMapper;
 
     @Override
+    @Transactional
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
         // 插入
         ProjectApproval projectApproval = projectApprovalMapper.toEntity(createReqVO);
-        projectApprovalRepository.save(projectApproval);
+        ProjectApproval save = projectApprovalRepository.save(projectApproval);
+
+        //同时插入审批表Approval,设置Approval的属性
+        Approval approval = new Approval();
+        approval.setRefId(save.getId());
+        approval.setContent(save.getStageMark());
+        approval.setType(ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus());
+        //保存Approval
+        approvalRepository.save(approval);
+
+        //保存ApprovalProgress
+        //获取审批人数组
+        List<User> userList = createReqVO.getUserList();
+        //遍历审批人数组
+        for (User user : userList) {
+            //设置ApprovalProgress的属性
+            ApprovalProgress approvalProgress = new ApprovalProgress();
+            approvalProgress.setApprovalId(approval.getId());
+            approvalProgress.setToUserId(user.getId());
+            approvalProgress.setType("APPROVAL");
+            //保存ApprovalProgress
+            approvalProgressRepository.save(approvalProgress);
+        }
+
         // 返回
         return projectApproval.getId();
     }

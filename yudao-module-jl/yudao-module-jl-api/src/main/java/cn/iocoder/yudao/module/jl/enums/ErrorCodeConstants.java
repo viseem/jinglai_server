@@ -164,4 +164,7 @@ public interface ErrorCodeConstants {
     ErrorCode CRM_CONTACT_NOT_EXISTS = new ErrorCode(2055800001, "客户联系人不存在");
 
     ErrorCode INVENTORY_STORE_OUT_NOT_EXISTS = new ErrorCode(2055900001, "出库记录不存在");
+
+    ErrorCode APPROVAL_NOT_EXISTS = new ErrorCode(2056000001, "审批不存在");
+    ErrorCode APPROVAL_PROGRESS_NOT_EXISTS = new ErrorCode(2056000002, "审批流程不存在");
 }
