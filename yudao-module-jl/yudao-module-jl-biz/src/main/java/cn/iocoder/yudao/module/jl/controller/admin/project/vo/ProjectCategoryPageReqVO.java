@@ -65,4 +65,6 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "是否有反馈", example = "17935")
     private Byte hasFeedback;
 
+    private String approvalStage;
+    private String requestStage;
 }

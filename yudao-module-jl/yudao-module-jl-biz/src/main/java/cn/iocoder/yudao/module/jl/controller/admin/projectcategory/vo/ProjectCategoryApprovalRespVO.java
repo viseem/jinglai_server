@@ -24,4 +24,6 @@ public class ProjectCategoryApprovalRespVO extends ProjectCategoryApprovalBaseVO
     private User user;
 
     private ProjectCategoryOnly projectCategory;
+
+    private User approvalUser;
 }

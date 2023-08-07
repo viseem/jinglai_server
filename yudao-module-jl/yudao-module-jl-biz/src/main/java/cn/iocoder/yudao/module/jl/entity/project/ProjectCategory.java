@@ -241,10 +241,10 @@ public class ProjectCategory extends BaseEntity {
     private List<ProjectCategoryApproval> approvalList;
 
     //审批的状态 通过 未通过
-    @Transient
+    @Column(name = "approval_stage")
     private String approvalStage;
     //申请变更的状态
-    @Transient
+    @Column(name = "request_stage")
     private String requestStage;
     //最新一个approval
     @Transient
