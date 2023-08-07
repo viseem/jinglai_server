@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.approval.vo;
 
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalOnly;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -20,4 +22,5 @@ public class ApprovalProgressRespVO extends ApprovalProgressBaseVO {
 
     private User toUser;
 
+    private ApprovalOnly approval;
 }

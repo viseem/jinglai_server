@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.approval.vo;
 
 import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgressOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,7 +19,9 @@ public class ApprovalRespVO extends ApprovalBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
-    private List<ApprovalProgress> items;
+    private List<ApprovalProgressOnly> items;
 
+    private ApprovalProgressOnly lastApprovalProgress;
+    private String approvalStage;
 
 }

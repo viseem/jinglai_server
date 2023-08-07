@@ -3,17 +3,14 @@ package cn.iocoder.yudao.module.jl.entity.approval;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
 
 /**
  * 审批流程 Entity
@@ -23,10 +20,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ApprovalProgress")
+@Entity(name = "ApprovalProgressOnly")
 @Table(name = "jl_approval_progress")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class ApprovalProgress extends BaseEntity {
+public class ApprovalProgressOnly extends BaseEntity {
 
     /**
      * ID
@@ -71,10 +68,4 @@ public class ApprovalProgress extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "to_user_id", insertable = false, updatable = false)
     private User toUser;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "approval_id",  insertable = false, updatable = false)
-    private ApprovalOnly approval;
 }

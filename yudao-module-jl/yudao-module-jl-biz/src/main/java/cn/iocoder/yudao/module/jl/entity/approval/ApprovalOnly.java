@@ -2,17 +2,16 @@ package cn.iocoder.yudao.module.jl.entity.approval;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 审批 Entity
@@ -22,10 +21,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "Approval")
+@Entity(name = "ApprovalOnly")
 @Table(name = "jl_approval")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Approval extends BaseEntity {
+public class ApprovalOnly extends BaseEntity {
 
     /**
      * ID
@@ -71,19 +70,5 @@ public class Approval extends BaseEntity {
     @Column(name = "current_approval_stage")
     private String currentApprovalStage;
 
-    /**
-     * 查询审批进度
-     */
-    @OneToMany(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "approval_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ApprovalProgressOnly> items = new ArrayList<>();
-
-    @Transient
-    private ApprovalProgressOnly lastApprovalProgress;
-
-    @Transient
-    private String approvalStage;
 
 }
