@@ -97,12 +97,16 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Override
     public void updateProjectApproval(ProjectApprovalUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectApprovalExists(updateReqVO.getId());
+        ProjectApproval projectApproval = validateProjectApprovalExists(updateReqVO.getId());
+        projectApproval.setApprovalMark(updateReqVO.getApprovalMark());
+        projectApproval.setApprovalStage(updateReqVO.getApprovalStage());
 
 
         // 如果是审批 ，则记录审批人
-        if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())||Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_FAIL.getStatus())){
-            updateReqVO.setApprovalUserId(getLoginUserId());
+        if (updateReqVO.getApprovalUserId()==null){
+            projectApproval.setApprovalUserId(getLoginUserId());
+        }else{
+            projectApproval.setApprovalUserId(updateReqVO.getApprovalUserId());
         }
 
 
@@ -110,11 +114,11 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
 
             // 校验是否存在,并修改状态
-            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
-                if(Objects.equals(updateReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+            projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
+                if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
                     project.setStage(ProjectStageEnums.DOING.getStatus());
                 }else{
-                    project.setStage(updateReqVO.getStage());
+                    project.setStage(projectApproval.getStage());
                 }
                 projectRepository.save(project);
             },()->{
@@ -124,8 +128,8 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         }else{
             // 如果是开展前审批 则直接变更为此状态
             // 校验projectCategory是否存在,并修改状态
-            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
-                project.setStage(updateReqVO.getStage());
+            projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
+                project.setStage(projectApproval.getStage());
                 projectRepository.save(project);
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
@@ -134,8 +138,8 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
 
         // 更新
-        ProjectApproval updateObj = projectApprovalMapper.toEntity(updateReqVO);
-        projectApprovalRepository.save(updateObj);
+//        ProjectApproval updateObj = projectApprovalMapper.toEntity(projectApproval);
+        projectApprovalRepository.save(projectApproval);
     }
 
     @Override
@@ -146,8 +150,12 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         projectApprovalRepository.deleteById(id);
     }
 
-    private void validateProjectApprovalExists(Long id) {
-        projectApprovalRepository.findById(id).orElseThrow(() -> exception(PROJECT_APPROVAL_NOT_EXISTS));
+    private ProjectApproval validateProjectApprovalExists(Long id) {
+        Optional<ProjectApproval> byId = projectApprovalRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(PROJECT_APPROVAL_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

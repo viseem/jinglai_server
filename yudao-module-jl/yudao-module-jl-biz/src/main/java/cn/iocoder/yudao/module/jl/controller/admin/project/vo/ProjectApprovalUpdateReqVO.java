@@ -7,9 +7,8 @@ import javax.validation.constraints.*;
 
 @Schema(description = "管理后台 - 项目的状态变更记录更新 Request VO")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ProjectApprovalUpdateReqVO extends ProjectApprovalBaseVO {
+public class ProjectApprovalUpdateReqVO {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "25843")
     @NotNull(message = "ID不能为空")

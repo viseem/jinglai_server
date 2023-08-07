@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.approval;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectApprovalUpdateReqVO;
+import cn.iocoder.yudao.module.jl.service.project.ProjectApprovalServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -37,6 +40,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ApprovalProgressServiceImpl implements ApprovalProgressService {
 
     @Resource
+    private ProjectApprovalServiceImpl projectApprovalService;
+
+    @Resource
     private ApprovalProgressRepository approvalProgressRepository;
 
     @Resource
@@ -52,12 +58,29 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
     }
 
     @Override
+    @Transient
     public void updateApprovalProgress(ApprovalProgressUpdateReqVO updateReqVO) {
         // 校验存在
-        validateApprovalProgressExists(updateReqVO.getId());
+        ApprovalProgress approvalProgress = validateApprovalProgressExists(updateReqVO.getId());
+        approvalProgress.setApprovalMark(updateReqVO.getApprovalMark());
+        approvalProgress.setApprovalStage(updateReqVO.getApprovalStage());
+
+        //获取ProjectApprovalUpdateReqVO
+        ProjectApprovalUpdateReqVO projectApprovalUpdateReqVO = new ProjectApprovalUpdateReqVO();
+        projectApprovalUpdateReqVO.setId(updateReqVO.getRefId());
+        projectApprovalUpdateReqVO.setApprovalMark(approvalProgress.getApprovalMark());
+        projectApprovalUpdateReqVO.setApprovalStage(approvalProgress.getApprovalStage());
+        projectApprovalUpdateReqVO.setApprovalUserId(approvalProgress.getToUserId());
+        System.out.println("approvalProgress =-- " + approvalProgress);
+        System.out.println("projectApprovalUpdateReqVO =--- " + projectApprovalUpdateReqVO );
+        // 更新项目状态
+        projectApprovalService.updateProjectApproval(
+                projectApprovalUpdateReqVO
+        );
+
         // 更新
-        ApprovalProgress updateObj = approvalProgressMapper.toEntity(updateReqVO);
-        approvalProgressRepository.save(updateObj);
+//        ApprovalProgress updateObj = approvalProgressMapper.toEntity(updateReqVO);
+        approvalProgressRepository.save(approvalProgress);
     }
 
     @Override
@@ -68,8 +91,12 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
         approvalProgressRepository.deleteById(id);
     }
 
-    private void validateApprovalProgressExists(Long id) {
-        approvalProgressRepository.findById(id).orElseThrow(() -> exception(APPROVAL_PROGRESS_NOT_EXISTS));
+    private ApprovalProgress validateApprovalProgressExists(Long id) {
+        Optional<ApprovalProgress> byId = approvalProgressRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(APPROVAL_PROGRESS_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
