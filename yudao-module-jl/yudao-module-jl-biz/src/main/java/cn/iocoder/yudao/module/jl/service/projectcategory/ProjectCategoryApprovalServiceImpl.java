@@ -83,7 +83,7 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
 
-        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
+        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.EXP_PROGRESS.getStatus(), save.getId(),save.getStageMark());
         projectCategoryApprovalRepository.updateApprovalIdById(approval.getId(), save.getId());
 
 
@@ -110,6 +110,7 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
         // 校验存在
         ProjectCategoryApproval projectCategoryApproval = validateProjectCategoryApprovalExists(updateReqVO.getId());
+        System.out.println("projectCategoryApproval:"+projectCategoryApproval);
 
         //任务状态
         String stage = null;
@@ -212,7 +213,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             if (pageReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
-
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

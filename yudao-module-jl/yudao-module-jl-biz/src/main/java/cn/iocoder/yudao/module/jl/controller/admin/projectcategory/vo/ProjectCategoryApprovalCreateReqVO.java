@@ -11,6 +11,11 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalBaseVO {
+
+    @Schema(description = "变更前状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "变更前状态")
+    private String originStage;
+
     @Schema(description = "申请变更的状态：开始、暂停、数据审批", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "申请变更的状态：开始、暂停、数据审批不能为空")
     private String stage;

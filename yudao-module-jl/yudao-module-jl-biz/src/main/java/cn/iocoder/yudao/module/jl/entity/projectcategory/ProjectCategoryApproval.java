@@ -48,6 +48,12 @@ public class ProjectCategoryApproval extends BaseEntity {
     private String stage;
 
     /**
+     * 变更前状态
+     */
+    @Column(name = "origin_stage", nullable = false)
+    private String originStage;
+
+    /**
      * 申请的备注
      */
     @Column(name = "stage_mark")
@@ -77,11 +83,11 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
-    @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectCategory category;
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly projectCategory;
 
     /**
      * 安排单id

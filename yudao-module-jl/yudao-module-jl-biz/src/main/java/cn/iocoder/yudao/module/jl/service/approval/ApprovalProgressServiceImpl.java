@@ -95,8 +95,9 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
                         projectApprovalUpdateReqVO
                 );
             }
+
             //如果是实验审核推进
-            if(Objects.equals(approvalProgress.getType(), ApprovalTypeEnums.EXP_PROGRESS.getStatus())){
+            if(Objects.equals(approvalProgress.getApprovalType(), ApprovalTypeEnums.EXP_PROGRESS.getStatus())){
                 //获取ProjectCategoryApprovalUpdateReqVO
                 ProjectCategoryApprovalUpdateReqVO projectCategoryApprovalUpdateReqVO = new ProjectCategoryApprovalUpdateReqVO();
                 projectCategoryApprovalUpdateReqVO.setId(updateReqVO.getRefId());

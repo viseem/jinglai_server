@@ -30,6 +30,8 @@ public class ProjectCategoryApprovalDetailRespVO extends ProjectCategoryApproval
     @NotNull(message = "申请变更的状态：开始、暂停、数据审批不能为空")
     private String stage;
 
+    private String originStage;
+
     @Schema(description = "申请的备注")
     private String stageMark;
     @Schema(description = "项目的实验名目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "24706")
@@ -49,6 +51,8 @@ public class ProjectCategoryApprovalDetailRespVO extends ProjectCategoryApproval
 
     @Schema(description = "审批状态：等待审批、已审批")
     private String approvalStage = "0";
+
+    private ProjectCategoryOnly projectCategory;
 
 
 }
