@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -48,6 +51,11 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
+    /**
+     * OA 对应的流程定义 KEY
+     */
+    public static final String PROCESS_KEY = "PROJECT_STATUS_CHANGE";
+
     @Resource
     private ApprovalServiceImpl approvalService;
 
@@ -60,18 +68,30 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private ProjectApprovalMapper projectApprovalMapper;
 
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
     @Override
     @Transactional
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
         // 插入
         ProjectApproval projectApproval = projectApprovalMapper.toEntity(createReqVO);
+        projectApproval.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult());
         ProjectApproval save = projectApprovalRepository.save(projectApproval);
 
         //同时插入审批表Approval,设置Approval的属性
-        Approval approval = approvalService.processApproval(createReqVO.getUserList(),ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
-
+//        Approval approval = approvalService.processApproval(createReqVO.getUserList(),ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
         //修改一下
-        projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
+//        projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
+
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+
+        // 更新流程实例编号
+        projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
 
         // 返回
         return projectApproval.getId();
