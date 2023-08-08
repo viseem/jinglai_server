@@ -39,9 +39,6 @@ public class ProjectApprovalRespVO extends ProjectApprovalBaseVO {
 
     private ProjectOnly project;
 
-    private User approvalUser;
-
-    private Approval approval;
 
     private String processInstanceId;
 }

@@ -92,18 +92,7 @@ public class ProjectApproval extends BaseEntity {
     @Column(name = "schedule_id", nullable = false )
     private Long scheduleId;
 
-    /*
-    * 审批表的id
-    * */
 
-    @Column(name = "approval_id", nullable = false )
-    private Long approvalId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "approval_id",  insertable = false, updatable = false)
-    private Approval approval;
 
     /**
      * JPA 级联出 user
@@ -119,10 +108,5 @@ public class ProjectApproval extends BaseEntity {
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
 
-/*    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "approval_user_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User approvalUser;*/
 
 }

@@ -34,5 +34,5 @@ public class ProjectApprovalBaseVO {
     private Long scheduleId;
 
 
-    private String approvalStage = "0";
+    private String approvalStage;
 }

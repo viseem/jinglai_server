@@ -13,9 +13,5 @@ public interface ProjectApprovalRepository extends JpaRepository<ProjectApproval
     @Modifying
     @Query("update ProjectApproval p set p.processInstanceId = ?1 where p.id = ?2")
     int updateProcessInstanceIdById(String processInstanceId, Long id);
-    @Transactional
-    @Modifying
-    @Query("update ProjectApproval p set p.approvalId = ?1 where p.id = ?2")
-    int updateApprovalIdById(Long approvalId, Long id);
 
 }
