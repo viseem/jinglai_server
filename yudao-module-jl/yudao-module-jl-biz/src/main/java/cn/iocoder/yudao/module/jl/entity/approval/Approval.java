@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.approval;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.enums.ApprovalStageEnums;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -84,10 +85,9 @@ public class Approval extends BaseEntity {
     private ApprovalProgressOnly lastApprovalProgress;
 
     public ApprovalProgressOnly getLastApprovalProgress() {
-        System.out.println("items:"+items   );
 
         for(int i = 0; i < items.size(); i++) {
-            if(items.get(i).getApprovalStage() == null || items.get(i).getApprovalStage().length()==0){
+            if(items.get(i).getApprovalStage() == null || Objects.equals(items.get(i).getApprovalStage(), ApprovalStageEnums.DEFAULT.getStatus())){
                 return items.get(i);
             }
         }
@@ -106,6 +106,7 @@ public class Approval extends BaseEntity {
         return  null;
     }
 
+    // 注意这个 跟status是不一样的
     @Transient
     private String approvalStage;
 

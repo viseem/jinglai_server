@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ApprovalStageEnums implements StringArrayValuable {
-
+    DEFAULT("0", "默认未处理"),
     APPROVAL_SUCCESS("APPROVAL_SUCCESS", "同意"),
     APPROVAL_FAIL("APPROVAL_FAIL", "拒绝"),
     ;

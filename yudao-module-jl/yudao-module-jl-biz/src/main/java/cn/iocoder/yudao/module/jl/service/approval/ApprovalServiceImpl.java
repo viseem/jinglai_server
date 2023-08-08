@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.approval;
 
 import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ApprovalStageEnums;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -71,6 +72,7 @@ public class ApprovalServiceImpl implements ApprovalService {
         approval.setRefId(id);
         approval.setContent(mark);
         approval.setType(type);
+        approval.setStatus(ApprovalStageEnums.DEFAULT.getStatus());
         //保存Approval
         approvalRepository.save(approval);
 
@@ -87,6 +89,7 @@ public class ApprovalServiceImpl implements ApprovalService {
             approvalProgress.setToUserId(user.getId());
             approvalProgress.setType("APPROVAL");
             approvalProgress.setApprovalType(type);
+            approvalProgress.setApprovalStage(ApprovalStageEnums.DEFAULT.getStatus());
 
             // 判断是否为最后一个元素，并设置isLast的值
             boolean isLast = (i == totalUsers - 1);

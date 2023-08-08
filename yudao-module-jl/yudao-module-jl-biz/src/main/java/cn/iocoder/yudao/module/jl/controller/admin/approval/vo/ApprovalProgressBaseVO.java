@@ -31,5 +31,7 @@ public class ApprovalProgressBaseVO {
     @Schema(description = "审批类型：抄送，审批", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
     @NotNull(message = "审批类型：抄送，审批不能为空")
     private String type;
-
+    @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
+    @NotNull(message = "类型不能为空")
+    private String approvalType;
 }
