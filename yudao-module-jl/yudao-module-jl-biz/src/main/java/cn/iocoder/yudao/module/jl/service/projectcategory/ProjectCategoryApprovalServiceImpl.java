@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
+import cn.iocoder.yudao.module.jl.enums.ApprovalTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +48,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprovalService {
 
     @Resource
+    private ApprovalServiceImpl approvalService;
+    @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
@@ -61,10 +66,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         String stage = null;
 
         if (Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-            /*projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
-                category.setStage(createReqVO.getStage());
-                projectCategoryRepository.save(category);
-            });*/
             stage = createReqVO.getStage();
         }
 
@@ -80,7 +81,12 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
-        projectCategoryApprovalRepository.save(projectCategoryApproval);
+        ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
+
+        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
+        projectCategoryApprovalRepository.updateApprovalIdById(approval.getId(), save.getId());
+
+
         // 返回
         return projectCategoryApproval.getId();
     }
@@ -110,9 +116,9 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
         // 批准该条申请
         if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
-            stage = updateReqVO.getStage();
+            stage = projectCategoryApproval.getStage();
             // 如果是实验审核通过了 就改为已完成
-            if(Objects.equals(updateReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
+            if(Objects.equals(projectCategoryApproval.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
                 stage = ProjectCategoryStatusEnums.COMPLETE.getStatus();
             }
         }
@@ -120,20 +126,18 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         // 校验projectCategory是否存在,并修改状态、审批状态、审批意见
         String finalStage = stage;
         System.out.println(finalStage);
-        projectCategoryRepository.findById(updateReqVO.getProjectCategoryId()).ifPresentOrElse(category -> {
+        projectCategoryRepository.findById(projectCategoryApproval.getProjectCategoryId()).ifPresentOrElse(category -> {
             //如果不为空才设置
             if(finalStage!=null){
                 category.setStage(finalStage);
             }
             category.setApprovalStage(updateReqVO.getApprovalStage());
-            category.setRequestStage(updateReqVO.getStage());
+            category.setRequestStage(projectCategoryApproval.getStage());
             projectCategoryRepository.save(category);
         },()->{
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
         });
 
-        // 更新
-//        ProjectCategoryApproval updateObj = projectCategoryApprovalMapper.toEntity(updateReqVO);
         //更新审批状态 审批人员 审批意见
         projectCategoryApproval.setApprovalStage(updateReqVO.getApprovalStage());
         projectCategoryApproval.setApprovalUserId(getLoginUserId());

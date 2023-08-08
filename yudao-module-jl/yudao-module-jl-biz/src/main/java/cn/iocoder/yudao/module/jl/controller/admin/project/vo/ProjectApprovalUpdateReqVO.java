@@ -24,5 +24,5 @@ public class ProjectApprovalUpdateReqVO {
     @NotNull(message = "审批状态：等待审批、批准、拒绝不能为空")
     private String approvalStage;
 
-    private Long approvalId;
+//    private Long approvalId;
 }

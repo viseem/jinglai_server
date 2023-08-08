@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.approval;
 
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +40,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ApprovalServiceImpl implements ApprovalService {
 
     @Resource
+    private ApprovalProgressRepository approvalProgressRepository;
+
+    @Resource
     private ApprovalRepository approvalRepository;
 
     @Resource
@@ -58,6 +64,38 @@ public class ApprovalServiceImpl implements ApprovalService {
         // 更新
         Approval updateObj = approvalMapper.toEntity(updateReqVO);
         approvalRepository.save(updateObj);
+    }
+
+    public Approval processApproval(List<User> userList, String type, Long id, String mark) {
+        Approval approval = new Approval();
+        approval.setRefId(id);
+        approval.setContent(mark);
+        approval.setType(type);
+        //保存Approval
+        approvalRepository.save(approval);
+
+        //保存ApprovalProgress
+        //获取审批人数组
+        int totalUsers = userList.size();
+        // 遍历审批人数组
+        for (int i = 0; i < totalUsers; i++) {
+            User user = userList.get(i);
+
+            // 设置ApprovalProgress的属性
+            ApprovalProgress approvalProgress = new ApprovalProgress();
+            approvalProgress.setApprovalId(approval.getId());
+            approvalProgress.setToUserId(user.getId());
+            approvalProgress.setType("APPROVAL");
+            approvalProgress.setApprovalType(type);
+
+            // 判断是否为最后一个元素，并设置isLast的值
+            boolean isLast = (i == totalUsers - 1);
+            approvalProgress.setIsLast(isLast);
+
+            // 保存ApprovalProgress
+            approvalProgressRepository.save(approvalProgress);
+        }
+        return approval;
     }
 
     @Override
@@ -130,8 +168,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 
         // 执行查询
         Page<Approval> page = approvalRepository.findAll(spec, pageable);
-
-
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

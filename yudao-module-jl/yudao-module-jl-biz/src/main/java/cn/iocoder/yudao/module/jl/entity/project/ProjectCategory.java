@@ -207,7 +207,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验收费项
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference

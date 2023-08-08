@@ -66,6 +66,12 @@ public class ApprovalProgress extends BaseEntity {
     @Column(name = "type", nullable = false )
     private String type;
 
+    /**
+     * 审批主表的审批类型
+     */
+    @Column(name = "approval_type", nullable = false )
+    private String approvalType;
+
     /*
     * 是否最后一个
     * */

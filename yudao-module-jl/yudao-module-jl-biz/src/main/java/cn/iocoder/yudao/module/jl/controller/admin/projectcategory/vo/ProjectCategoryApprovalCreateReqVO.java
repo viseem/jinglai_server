@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,4 +27,7 @@ public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalB
     private Long scheduleId;
 
     private String approvalStage;
+
+    private List<User> userList;
+
 }

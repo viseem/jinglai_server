@@ -8,6 +8,8 @@ import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -47,10 +49,7 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
     @Resource
-    private ApprovalRepository approvalRepository;
-
-    @Resource
-    private ApprovalProgressRepository approvalProgressRepository;
+    private ApprovalServiceImpl approvalService;
 
     @Resource
     private ProjectRepository projectRepository;
@@ -69,34 +68,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         ProjectApproval save = projectApprovalRepository.save(projectApproval);
 
         //同时插入审批表Approval,设置Approval的属性
-        Approval approval = new Approval();
-        approval.setRefId(save.getId());
-        approval.setContent(save.getStageMark());
-        approval.setType(ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus());
-        //保存Approval
-        approvalRepository.save(approval);
-
-        //保存ApprovalProgress
-        //获取审批人数组
-        List<User> userList = createReqVO.getUserList();
-        int totalUsers = userList.size();
-            // 遍历审批人数组
-        for (int i = 0; i < totalUsers; i++) {
-            User user = userList.get(i);
-
-            // 设置ApprovalProgress的属性
-            ApprovalProgress approvalProgress = new ApprovalProgress();
-            approvalProgress.setApprovalId(approval.getId());
-            approvalProgress.setToUserId(user.getId());
-            approvalProgress.setType("APPROVAL");
-
-            // 判断是否为最后一个元素，并设置isLast的值
-            boolean isLast = (i == totalUsers - 1);
-            approvalProgress.setIsLast(isLast);
-
-            // 保存ApprovalProgress
-            approvalProgressRepository.save(approvalProgress);
-        }
+        Approval approval = approvalService.processApproval(createReqVO.getUserList(),ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
 
         //修改一下
         projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
@@ -105,13 +77,14 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         return projectApproval.getId();
     }
 
+
+
     @Override
     public void updateProjectApproval(ProjectApprovalUpdateReqVO updateReqVO) {
         // 校验存在
         ProjectApproval projectApproval = validateProjectApprovalExists(updateReqVO.getId());
         projectApproval.setApprovalMark(updateReqVO.getApprovalMark());
         projectApproval.setApprovalStage(updateReqVO.getApprovalStage());
-//        projectApproval.setApprovalId(updateReqVO.getApprovalId());
 
 
         // 如果是审批 ，则记录审批人

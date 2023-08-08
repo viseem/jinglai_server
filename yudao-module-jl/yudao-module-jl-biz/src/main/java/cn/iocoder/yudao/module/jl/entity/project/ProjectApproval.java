@@ -45,6 +45,12 @@ public class ProjectApproval extends BaseEntity {
     private String stage;
 
     /**
+     * 变更前状态
+     */
+    @Column(name = "origin_stage", nullable = false )
+    private String originStage;
+
+    /**
      * 申请的备注
      */
     @Column(name = "stage_mark")
@@ -107,10 +113,10 @@ public class ProjectApproval extends BaseEntity {
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
 
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "approval_user_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User approvalUser;
+    private User approvalUser;*/
 
 }

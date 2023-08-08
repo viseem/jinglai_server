@@ -74,7 +74,7 @@ public class Approval extends BaseEntity {
     /**
      * 查询审批进度
      */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "approval_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
