@@ -76,7 +76,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
         // 插入
         ProjectApproval projectApproval = projectApprovalMapper.toEntity(createReqVO);
-        projectApproval.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult());
+        projectApproval.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
         ProjectApproval save = projectApprovalRepository.save(projectApproval);
 
         //同时插入审批表Approval,设置Approval的属性
@@ -103,20 +103,11 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     public void updateProjectApproval(ProjectApprovalUpdateReqVO updateReqVO) {
         // 校验存在
         ProjectApproval projectApproval = validateProjectApprovalExists(updateReqVO.getId());
-        projectApproval.setApprovalMark(updateReqVO.getApprovalMark());
         projectApproval.setApprovalStage(updateReqVO.getApprovalStage());
 
 
-        // 如果是审批 ，则记录审批人
-        if (updateReqVO.getApprovalUserId()==null){
-            projectApproval.setApprovalUserId(getLoginUserId());
-        }else{
-            projectApproval.setApprovalUserId(updateReqVO.getApprovalUserId());
-        }
-
-
         // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
-        if (Objects.equals(updateReqVO.getApprovalStage(), ApprovalStageEnums.APPROVAL_SUCCESS.getStatus())) {
+        if (Objects.equals(updateReqVO.getApprovalStage(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
 
             // 校验是否存在,并修改状态
             projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
@@ -129,9 +120,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
             });
-
         }
-
 
         // 更新
 //        ProjectApproval updateObj = projectApprovalMapper.toEntity(projectApproval);

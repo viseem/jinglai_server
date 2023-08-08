@@ -75,6 +75,12 @@ public class ProjectApproval extends BaseEntity {
     private String approvalStage;
 
     /**
+     * 流程实例id
+     */
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
+    /**
      * 项目的id
      */
     @Column(name = "project_id", nullable = false )
