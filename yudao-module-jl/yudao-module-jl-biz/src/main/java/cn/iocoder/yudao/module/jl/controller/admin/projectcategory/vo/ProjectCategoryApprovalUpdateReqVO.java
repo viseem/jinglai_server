@@ -24,14 +24,14 @@ public class ProjectCategoryApprovalUpdateReqVO {
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;*/
 
-    @Schema(description = "审批备注")
-    private String approvalMark;
+/*    @Schema(description = "审批备注")
+    private String approvalMark;*/
 
     @Schema(description = "审批状态：等待审批、已审批")
-    private String approvalStage = "0";
+    private String approvalStage;
 
 
-    @Schema(description = "审批人id", example = "378")
-    private Long approvalUserId;
+/*    @Schema(description = "审批人id", example = "378")
+    private Long approvalUserId;*/
 
 }

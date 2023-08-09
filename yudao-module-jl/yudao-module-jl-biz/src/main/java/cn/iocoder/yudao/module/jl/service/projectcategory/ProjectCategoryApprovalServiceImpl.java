@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.enums.ApprovalTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
@@ -46,7 +49,10 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprovalService {
+    public static final String PROCESS_KEY = "PROJECT_CATEGORY_STATUS_CHANGE";
 
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
     @Resource
     private ApprovalServiceImpl approvalService;
     @Resource
@@ -61,30 +67,34 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
     @Override
     @Transactional
     public Long createProjectCategoryApproval(ProjectCategoryApprovalCreateReqVO createReqVO) {
+
         //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
-
-        String stage = null;
-
         if (Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-            stage = createReqVO.getStage();
+            String stage = createReqVO.getStage();
+            projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
+                if(stage !=null){
+                    category.setStage(createReqVO.getStage());
+                }
+                category.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
+                projectCategoryRepository.save(category);
+            });
         }
-
-        String finalStage = stage;
-        projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
-            if(finalStage !=null){
-                category.setStage(createReqVO.getStage());
-            }
-            category.setApprovalStage("0");
-            category.setRequestStage(createReqVO.getStage());
-            projectCategoryRepository.save(category);
-        });
 
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
 
-        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.EXP_PROGRESS.getStatus(), save.getId(),save.getStageMark());
-        projectCategoryApprovalRepository.updateApprovalIdById(approval.getId(), save.getId());
+        // 更新流程实例编号
+        projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+
+
+/*        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.EXP_PROGRESS.getStatus(), save.getId(),save.getStageMark());
+        projectCategoryApprovalRepository.updateApprovalIdById(approval.getId(), save.getId());*/
 
 
         // 返回
@@ -110,13 +120,12 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
         // 校验存在
         ProjectCategoryApproval projectCategoryApproval = validateProjectCategoryApprovalExists(updateReqVO.getId());
-        System.out.println("projectCategoryApproval:"+projectCategoryApproval);
 
         //任务状态
         String stage = null;
 
         // 批准该条申请
-        if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
+        if (Objects.equals(updateReqVO.getApprovalStage(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
             stage = projectCategoryApproval.getStage();
             // 如果是实验审核通过了 就改为已完成
             if(Objects.equals(projectCategoryApproval.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
@@ -124,16 +133,15 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             }
         }
 
-        // 校验projectCategory是否存在,并修改状态、审批状态、审批意见
+        // 校验projectCategory是否存在,并修改状态
         String finalStage = stage;
-        System.out.println(finalStage);
         projectCategoryRepository.findById(projectCategoryApproval.getProjectCategoryId()).ifPresentOrElse(category -> {
             //如果不为空才设置
             if(finalStage!=null){
                 category.setStage(finalStage);
             }
-            category.setApprovalStage(updateReqVO.getApprovalStage());
-            category.setRequestStage(projectCategoryApproval.getStage());
+//            category.setApprovalStage(updateReqVO.getApprovalStage());
+//            category.setRequestStage(projectCategoryApproval.getStage());
             projectCategoryRepository.save(category);
         },()->{
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
@@ -141,8 +149,7 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
 
         //更新审批状态 审批人员 审批意见
         projectCategoryApproval.setApprovalStage(updateReqVO.getApprovalStage());
-        projectCategoryApproval.setApprovalUserId(getLoginUserId());
-        projectCategoryApproval.setApprovalMark(updateReqVO.getApprovalMark());
+//        projectCategoryApproval.setApprovalUserId(getLoginUserId());
         projectCategoryApprovalRepository.save(projectCategoryApproval);
     }
 

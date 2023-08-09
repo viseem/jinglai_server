@@ -99,9 +99,7 @@ public class ApprovalProgressServiceImpl implements ApprovalProgressService {
                 //获取ProjectCategoryApprovalUpdateReqVO
                 ProjectCategoryApprovalUpdateReqVO projectCategoryApprovalUpdateReqVO = new ProjectCategoryApprovalUpdateReqVO();
                 projectCategoryApprovalUpdateReqVO.setId(updateReqVO.getRefId());
-                projectCategoryApprovalUpdateReqVO.setApprovalMark(approvalProgress.getApprovalMark());
                 projectCategoryApprovalUpdateReqVO.setApprovalStage(approvalProgress.getApprovalStage());
-                projectCategoryApprovalUpdateReqVO.setApprovalUserId(approvalProgress.getToUserId());
 
 // 更新项目状态
                 projectCategoryApprovalService.updateProjectCategoryApproval(

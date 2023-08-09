@@ -65,6 +65,13 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "approval_user_id")
     private Long approvalUserId;
 
+
+    /**
+     * 流程实例id
+     */
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
     /**
      * 审批备注
      */
