@@ -44,4 +44,5 @@ public class ProjectCategoryApprovalRespVO extends ProjectCategoryApprovalBaseVO
 
     private Approval approval;
 
+    private String processInstanceId;
 }
