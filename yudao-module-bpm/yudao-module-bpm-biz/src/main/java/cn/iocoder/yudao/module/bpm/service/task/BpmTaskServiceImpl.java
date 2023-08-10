@@ -74,8 +74,11 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 查询待办任务
         TaskQuery taskQuery = taskService.createTaskQuery().taskAssignee(String.valueOf(userId)) // 分配给自己
             .orderByTaskCreateTime().desc(); // 创建时间倒序
-        if (StrUtil.isNotBlank(pageVO.getName())) {
+/*        if (StrUtil.isNotBlank(pageVO.getName())) {
             taskQuery.taskNameLike("%" + pageVO.getName() + "%");
+        }*/
+        if (StrUtil.isNotBlank(pageVO.getProcessDefinitionKey())) {
+            taskQuery.processDefinitionKey(pageVO.getProcessDefinitionKey());
         }
         if (ArrayUtil.get(pageVO.getCreateTime(), 0) != null) {
             taskQuery.taskCreatedAfter(DateUtils.of(pageVO.getCreateTime()[0]));
@@ -106,8 +109,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         HistoricTaskInstanceQuery taskQuery = historyService.createHistoricTaskInstanceQuery().finished() // 已完成
             .taskAssignee(String.valueOf(userId)) // 分配给自己
             .orderByHistoricTaskInstanceEndTime().desc(); // 审批时间倒序
-        if (StrUtil.isNotBlank(pageVO.getName())) {
-            taskQuery.taskNameLike("%" + pageVO.getName() + "%");
+        if (StrUtil.isNotBlank(pageVO.getProcessDefinitionKey())) {
+            taskQuery.processDefinitionKey(pageVO.getProcessDefinitionKey());
         }
         if (pageVO.getBeginCreateTime() != null) {
             taskQuery.taskCreatedAfter(DateUtils.of(pageVO.getBeginCreateTime()));
