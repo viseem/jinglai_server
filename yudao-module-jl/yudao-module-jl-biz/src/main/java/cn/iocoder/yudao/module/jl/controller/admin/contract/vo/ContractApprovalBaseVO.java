@@ -33,8 +33,7 @@ public class ContractApprovalBaseVO {
     @NotNull(message = "合同id不能为空")
     private Long contractId;
 
-    @Schema(description = "变更前状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "变更前状态不能为空")
+    @Schema(description = "变更前状态")
     private String originStage;
 
     @Schema(description = "流程实例的编号", example = "811")
