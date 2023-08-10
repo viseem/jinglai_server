@@ -2,10 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project.listener;
 
 import cn.iocoder.yudao.module.bpm.framework.bpm.core.event.BpmProcessInstanceResultEvent;
 import cn.iocoder.yudao.module.bpm.framework.bpm.core.event.BpmProcessInstanceResultEventListener;
+import cn.iocoder.yudao.module.jl.controller.admin.contract.vo.ContractApprovalUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectApprovalUpdateReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryApprovalUpdateReqVO;
+import cn.iocoder.yudao.module.jl.repository.contract.ContractApprovalRepository;
+import cn.iocoder.yudao.module.jl.service.contract.ContractApprovalServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectApprovalServiceImpl;
-import cn.iocoder.yudao.module.jl.service.projectcategory.ProjectCategoryApprovalServiceImpl;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -16,14 +17,14 @@ import javax.annotation.Resource;
  * @author 芋道源码
  */
 @Component
-public class BpmProjectCategoryChangeStatusResultListener extends BpmProcessInstanceResultEventListener {
+public class BpmProjectContractChangeResultListener extends BpmProcessInstanceResultEventListener {
 
     @Resource
-    private ProjectCategoryApprovalServiceImpl projectCategoryApprovalService;
+    private ContractApprovalServiceImpl contractApprovalService;
 
     @Override
     protected String getProcessDefinitionKey() {
-        return ProjectCategoryApprovalServiceImpl.PROCESS_KEY;
+        return ContractApprovalServiceImpl.PROCESS_KEY;
     }
 
     @Override
@@ -31,10 +32,10 @@ public class BpmProjectCategoryChangeStatusResultListener extends BpmProcessInst
         long id = Long.parseLong(event.getBusinessKey());
         String result = event.getResult().toString();
         //获取
-        ProjectCategoryApprovalUpdateReqVO projectCategoryApprovalUpdateReqVO = new ProjectCategoryApprovalUpdateReqVO();
-        projectCategoryApprovalUpdateReqVO.setId(id);
-        projectCategoryApprovalUpdateReqVO.setApprovalStage(result);
-        projectCategoryApprovalService.updateProjectCategoryApproval(projectCategoryApprovalUpdateReqVO);
+        ContractApprovalUpdateReqVO contractApprovalUpdateReqVO = new ContractApprovalUpdateReqVO();
+        contractApprovalUpdateReqVO.setId(id);
+        contractApprovalUpdateReqVO.setApprovalStage(result);
+        contractApprovalService.updateContractApproval(contractApprovalUpdateReqVO);
     }
 
 }

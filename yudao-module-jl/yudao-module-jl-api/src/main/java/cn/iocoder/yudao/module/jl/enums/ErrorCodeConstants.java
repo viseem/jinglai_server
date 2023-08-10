@@ -167,4 +167,5 @@ public interface ErrorCodeConstants {
 
     ErrorCode APPROVAL_NOT_EXISTS = new ErrorCode(2056000001, "审批不存在");
     ErrorCode APPROVAL_PROGRESS_NOT_EXISTS = new ErrorCode(2056000002, "审批流程不存在");
+    ErrorCode CONTRACT_APPROVAL_NOT_EXISTS = new ErrorCode(2056100001, "合同状态变更记录不存在");
 }
