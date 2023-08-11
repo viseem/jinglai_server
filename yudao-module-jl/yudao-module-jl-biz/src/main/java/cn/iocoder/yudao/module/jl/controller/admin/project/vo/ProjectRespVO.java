@@ -58,4 +58,6 @@ public class ProjectRespVO extends ProjectBaseVO {
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
 
     private ProjectApproval latestApproval;
+
+    private List<ProjectCategoryOnly> categoryList;
 }

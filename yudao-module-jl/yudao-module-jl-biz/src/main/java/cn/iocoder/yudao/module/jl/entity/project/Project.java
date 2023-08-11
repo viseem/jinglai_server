@@ -221,4 +221,10 @@ public class Project extends BaseEntity {
 
     @Transient
     private ProjectApproval latestApproval;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    private List<ProjectCategoryOnly> categoryList;
 }
