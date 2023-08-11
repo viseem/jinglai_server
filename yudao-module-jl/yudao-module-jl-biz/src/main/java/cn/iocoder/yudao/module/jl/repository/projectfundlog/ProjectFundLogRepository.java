@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectFundLogRepository extends JpaRepository<ProjectFundLog, Long>, JpaSpecificationExecutor<ProjectFundLog> {
+    @Query("select p from ProjectFundLog p where p.customerId = ?1")
+    List<ProjectFundLog> findByCustomerId(Long customerId);
     @Query("select p from ProjectFundLog p where p.projectFundId = ?1")
     ProjectFundLog findByProjectFundId(Long projectFundId);
 

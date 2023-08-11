@@ -81,4 +81,6 @@ public interface CustomerService {
      * @return 客户
      */
     Boolean bindLastSaleslead(Long customerId, Long salesleadId);
+
+    CustomerStatisticsRespVO getCustomerStatistics(Long id);
 }

@@ -43,6 +43,15 @@ public class CustomerController {
     @Resource
     private CustomerMapper customerMapper;
 
+    //计算客户的成交次数、成交总额、款项总额、未付款项总额
+    @GetMapping("/statistics")
+    @Operation(summary = "计算客户的成交次数、成交总额、款项总额、未付款项总额")
+    @PreAuthorize("@ss.hasPermission('jl:customer:query')")
+    public CommonResult<CustomerStatisticsRespVO> getCustomerStatistics(@RequestParam("id") Long id) {
+        CustomerStatisticsRespVO customerStatisticsRespVO = customerService.getCustomerStatistics(id);
+        return success(customerStatisticsRespVO);
+    }
+
     @PostMapping("/create")
     @Operation(summary = "创建客户")
     @PreAuthorize("@ss.hasPermission('jl:customer:create')")
