@@ -97,13 +97,13 @@ public class BpmMessageServiceImpl implements BpmMessageService {
 
         //发送通知
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                reqDTO.getStartUserId(),
+                reqDTO.getAssigneeUserId(),
                 BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams
         ));
     }
 
     private String getProcessInstanceDetailUrl(String taskId) {
-        return webProperties.getAdminUi().getUrl() + "/bpm/process-instance/detail?id=" + taskId;
+        return webProperties.getAdminUi().getUrl() + "/link/transfer/taskInstance?id=" + taskId;
     }
 
 }
