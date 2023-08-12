@@ -34,4 +34,9 @@ public class MailSendSingleToUserReqDTO {
      */
     private Map<String, Object> templateParams;
 
+    public MailSendSingleToUserReqDTO(Long startUserId, String smsTemplateCode, Map<String, Object> templateParams) {
+        this.userId = startUserId;
+        this.templateCode = smsTemplateCode;
+        this.templateParams = templateParams;
+    }
 }

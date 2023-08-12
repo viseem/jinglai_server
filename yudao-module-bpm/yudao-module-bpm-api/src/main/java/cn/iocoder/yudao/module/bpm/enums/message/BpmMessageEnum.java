@@ -12,15 +12,19 @@ import lombok.Getter;
 @Getter
 public enum BpmMessageEnum {
 
-    PROCESS_INSTANCE_APPROVE("bpm_process_instance_approve"), // 流程任务被审批通过时，发送给申请人
-    PROCESS_INSTANCE_REJECT("bpm_process_instance_reject"), // 流程任务被审批不通过时，发送给申请人
-    TASK_ASSIGNED("bpm_task_assigned"); // 任务被分配时，发送给审批人
+    SMS_WHEN_APPROVAL("bpm_process_instance_approve"), // 流程任务被审批通过时，发送给申请人
+    SMS_WHEN_REJECT("bpm_process_instance_reject"), // 流程任务被审批不通过时，发送给申请人
+    SMS_WHEN_ASSIGNED("bpm_task_assigned"), // 任务被分配时，发送给审批人
+
+    EMAIL_WHEN_APPROVAL("EMAIL_WHEN_BPM_APPROVAL"), // 流程任务被审批通过时，发送给申请人
+    EMAIL_WHEN_REJECT("EMAIL_WHEN_BPM_REJECT"), // 流程任务被审批不通过时，发送给申请人
+    EMAIL_WHEN_ASSIGNED("EMAIL_WHEN_BPM_ASSIGNED"); // 任务被分配时，发送给审批人
 
     /**
      * 短信模板的标识
      *
      * 关联 SmsTemplateDO 的 code 属性
      */
-    private final String smsTemplateCode;
+    private final String templateCode;
 
 }
