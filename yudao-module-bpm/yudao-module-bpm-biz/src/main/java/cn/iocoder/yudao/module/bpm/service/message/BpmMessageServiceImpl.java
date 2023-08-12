@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.bpm.service.message.dto.BpmMessageSendWhenTaskCre
 import cn.iocoder.yudao.module.system.api.mail.MailSendApi;
 import cn.iocoder.yudao.module.system.api.mail.dto.MailSendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsSendApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,10 +51,15 @@ public class BpmMessageServiceImpl implements BpmMessageService {
                 BpmMessageEnum.PROCESS_INSTANCE_APPROVE.getSmsTemplateCode(), templateParams));*/
         //发送邮件
         mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getStartUserId(),
-                BpmMessageEnum.EMAIL_WHEN_APPROVAL.getTemplateCode(), templateParams));
+                BpmMessageEnum.NOTIFY_WHEN_APPROVAL.getTemplateCode(), templateParams));
         //发送通知
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                reqDTO.getStartUserId(),
+                BpmMessageEnum.NOTIFY_WHEN_APPROVAL.getTemplateCode(), templateParams
+        ));
 
     }
+
 
     @Override
     public void sendMessageWhenProcessInstanceReject(BpmMessageSendWhenProcessInstanceRejectReqDTO reqDTO) {
@@ -64,8 +70,15 @@ public class BpmMessageServiceImpl implements BpmMessageService {
         //暂时不发送短信
 /*        smsSendApi.sendSingleSmsToAdmin(BpmMessageConvert.INSTANCE.convert(reqDTO.getStartUserId(),
                 BpmMessageEnum.PROCESS_INSTANCE_REJECT.getSmsTemplateCode(), templateParams));*/
+        //发送邮件
         mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getStartUserId(),
-                BpmMessageEnum.EMAIL_WHEN_REJECT.getTemplateCode(), templateParams));
+                BpmMessageEnum.NOTIFY_WHEN_REJECT.getTemplateCode(), templateParams));
+
+        //发送通知
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                reqDTO.getStartUserId(),
+                BpmMessageEnum.NOTIFY_WHEN_REJECT.getTemplateCode(), templateParams
+        ));
     }
 
     @Override
@@ -78,8 +91,15 @@ public class BpmMessageServiceImpl implements BpmMessageService {
         //暂时不发送短信
 /*        smsSendApi.sendSingleSmsToAdmin(BpmMessageConvert.INSTANCE.convert(reqDTO.getAssigneeUserId(),
                 BpmMessageEnum.TASK_ASSIGNED.getSmsTemplateCode(), templateParams));*/
+        //发送邮件
         mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getAssigneeUserId(),
-                BpmMessageEnum.EMAIL_WHEN_ASSIGNED.getTemplateCode(), templateParams));
+                BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams));
+
+        //发送通知
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                reqDTO.getStartUserId(),
+                BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams
+        ));
     }
 
     private String getProcessInstanceDetailUrl(String taskId) {

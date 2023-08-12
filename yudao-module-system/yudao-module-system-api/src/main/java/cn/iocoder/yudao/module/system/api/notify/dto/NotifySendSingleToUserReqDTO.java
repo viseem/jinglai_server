@@ -30,4 +30,10 @@ public class NotifySendSingleToUserReqDTO {
      * 站内信模板参数
      */
     private Map<String, Object> templateParams;
+
+    public NotifySendSingleToUserReqDTO(Long startUserId, String templateCode, Map<String, Object> templateParams) {
+        this.userId = startUserId;
+        this.templateCode = templateCode;
+        this.templateParams = templateParams;
+    }
 }
