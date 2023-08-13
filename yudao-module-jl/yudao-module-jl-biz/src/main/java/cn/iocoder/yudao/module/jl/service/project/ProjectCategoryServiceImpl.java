@@ -164,7 +164,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     public Optional<ProjectCategory> getProjectCategory(Long id) {
         Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
-        if (byId.isPresent()) {
+/*        if (byId.isPresent()) {
             List<ProjectCategoryApproval> approvalList = byId.get().getApprovalList();
             if (!approvalList.isEmpty()) {
                 Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
@@ -175,7 +175,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                     byId.get().setRequestStage(approval.getStage());
                 });
             }
-        }
+        }*/
+        byId.ifPresent(this::processProjectCategoryItem);
 
         return projectCategoryRepository.findById(id);
     }
@@ -198,9 +199,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Specification<ProjectCategory> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+
+            if(pageReqVO.getApprovalStage() != null) {
+                predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
+            }
+
+            if(pageReqVO.getStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
+            }
+
             // 直接写死，是1的时候去查一下1 别的都不进行处理
             if(pageReqVO.getHasFeedback()!=null&&pageReqVO.getHasFeedback()==1) {
                 predicates.add(cb.equal(root.get("hasFeedback"), 1));
+            }
+            if(pageReqVO.getStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
             }
 
             if(pageReqVO.getQuoteId() != null) {
@@ -259,24 +272,26 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
         List<ProjectCategory> content = page.getContent();
 
-        if(content!=null){
-            content.forEach(projectCategory -> {
-                List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
-                if (!approvalList.isEmpty()) {
-                    Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
-                            .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-
-                    String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
-                    String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);
-
-                    projectCategory.setLatestApproval(latestApproval.orElse(null));
-                    projectCategory.setApprovalStage(approvalStage);
-                    projectCategory.setRequestStage(requestStage);
-                }
-            });
+        if(content!=null&&content.size()>0){
+            content.forEach(this::processProjectCategoryItem);
         }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processProjectCategoryItem(ProjectCategory projectCategory) {
+        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+        if (!approvalList.isEmpty()) {
+            Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
+                    .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
+
+/*            String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
+            String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);*/
+
+            projectCategory.setLatestApproval(latestApproval.orElse(null));
+//            projectCategory.setApprovalStage(approvalStage);
+//            projectCategory.setRequestStage(requestStage);
+        }
     }
 
     @Override

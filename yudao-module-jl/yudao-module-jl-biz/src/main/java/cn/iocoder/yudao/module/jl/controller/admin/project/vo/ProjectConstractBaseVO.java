@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -31,8 +32,7 @@ public class ProjectConstractBaseVO {
     private String fileUrl;
 
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
-    private String status;
-
+    private String status = ProjectContractStatusEnums.WAIT_SIGN.getStatus();
 
     @Schema(description = "合同类型", example = "1")
     private String type;

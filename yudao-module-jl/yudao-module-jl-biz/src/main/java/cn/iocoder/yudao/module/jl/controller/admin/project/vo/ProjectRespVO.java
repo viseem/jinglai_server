@@ -2,10 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerRespVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -59,4 +56,8 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private List<ProjectConstractOnly> contracts = new ArrayList<>();
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
+
+    private ProjectApproval latestApproval;
+
+    private List<ProjectCategoryOnly> categoryList;
 }

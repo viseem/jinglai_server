@@ -48,6 +48,12 @@ public class ProjectCategoryOnly extends BaseEntity {
     /**
      * 安排单 id
      */
+    @Column(name = "project_id")
+    private Long projectId;
+
+    /**
+     * 安排单 id
+     */
     @Column(name = "schedule_id")
     private Long scheduleId;
 

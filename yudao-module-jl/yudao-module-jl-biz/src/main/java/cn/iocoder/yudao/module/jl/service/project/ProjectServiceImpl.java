@@ -32,6 +32,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -146,7 +147,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Optional<Project> getProject(Long id) {
-        return projectRepository.findById(id);
+        Optional<Project> byId = projectRepository.findById(id);
+        byId.ifPresent(this::processProjectItem);
+        return byId;
     }
 
     @Override
@@ -166,6 +169,14 @@ public class ProjectServiceImpl implements ProjectService {
         // 创建 Specification
         Specification<Project> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
+            }
+
+            if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
+                predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
+            }
 
             if(pageReqVO.getSalesleadId() != null) {
                 predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
@@ -202,10 +213,6 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
             }
 
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }
-
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
@@ -227,12 +234,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
-        page.forEach(project->{
-        });
+        page.forEach(this::processProjectItem);
 
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processProjectItem(Project project) {
+        if (project.getApprovals()!=null&&project.getApprovals().size()>0){
+            project.setLatestApproval(project.getApprovals().get(0));
+        }
     }
 
     @Override

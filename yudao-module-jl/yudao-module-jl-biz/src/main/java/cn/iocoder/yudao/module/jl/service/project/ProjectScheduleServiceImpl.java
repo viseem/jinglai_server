@@ -344,9 +344,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         }
 
         category.setType("schedule");
-        if(category.getStage()==null){
-            category.setStage("0");
-        }
+
 
         ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
         projectCategoryRepository.save(categoryDo);

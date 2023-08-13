@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -44,6 +45,7 @@ public class SupplyOutItem extends BaseEntity {
     private Long supplyOutId;
 
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name="supply_out_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
@@ -56,6 +58,7 @@ public class SupplyOutItem extends BaseEntity {
     private Long projectSupplyId;
 
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name="project_supply_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference

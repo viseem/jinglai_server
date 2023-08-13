@@ -89,7 +89,7 @@ public class ProjectCategoryBaseVO {
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */
     @Schema(description = "当前实验的状态")
-    private String stage;
+    private String stage = "0";
 
     /**
      * 原始数据富文本

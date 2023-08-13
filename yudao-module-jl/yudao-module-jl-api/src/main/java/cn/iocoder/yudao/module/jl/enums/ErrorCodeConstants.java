@@ -156,4 +156,16 @@ public interface ErrorCodeConstants {
     ErrorCode ANIMAL_FEED_LOG_NOT_EXISTS = new ErrorCode(2055400001, "动物饲养日志不存在");
 
     ErrorCode ANIMAL_BOX_NOT_EXISTS = new ErrorCode(2055500001, "动物笼位不存在");
+
+    ErrorCode CRM_RECEIPT_HEAD_NOT_EXISTS = new ErrorCode(2055600001, "客户发票抬头不存在");
+
+    ErrorCode CRM_RECEIPT_NOT_EXISTS = new ErrorCode(2055700001, "客户发票不存在");
+
+    ErrorCode CRM_CONTACT_NOT_EXISTS = new ErrorCode(2055800001, "客户联系人不存在");
+
+    ErrorCode INVENTORY_STORE_OUT_NOT_EXISTS = new ErrorCode(2055900001, "出库记录不存在");
+
+    ErrorCode APPROVAL_NOT_EXISTS = new ErrorCode(2056000001, "审批不存在");
+    ErrorCode APPROVAL_PROGRESS_NOT_EXISTS = new ErrorCode(2056000002, "审批流程不存在");
+    ErrorCode CONTRACT_APPROVAL_NOT_EXISTS = new ErrorCode(2056100001, "合同状态变更记录不存在");
 }

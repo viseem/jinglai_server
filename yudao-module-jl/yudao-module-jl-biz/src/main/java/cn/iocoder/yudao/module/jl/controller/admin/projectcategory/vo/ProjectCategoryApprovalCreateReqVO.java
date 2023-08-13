@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +11,11 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalBaseVO {
+
+    @Schema(description = "变更前状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "变更前状态")
+    private String originStage;
+
     @Schema(description = "申请变更的状态：开始、暂停、数据审批", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "申请变更的状态：开始、暂停、数据审批不能为空")
     private String stage;
@@ -26,4 +32,7 @@ public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalB
     private Long scheduleId;
 
     private String approvalStage;
+
+    private List<User> userList;
+
 }

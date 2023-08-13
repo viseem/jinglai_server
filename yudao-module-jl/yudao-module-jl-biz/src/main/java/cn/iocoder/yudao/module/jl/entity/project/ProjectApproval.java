@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -42,6 +45,12 @@ public class ProjectApproval extends BaseEntity {
     private String stage;
 
     /**
+     * 变更前状态
+     */
+    @Column(name = "origin_stage", nullable = false )
+    private String originStage;
+
+    /**
      * 申请的备注
      */
     @Column(name = "stage_mark")
@@ -66,6 +75,12 @@ public class ProjectApproval extends BaseEntity {
     private String approvalStage;
 
     /**
+     * 流程实例id
+     */
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
+    /**
      * 项目的id
      */
     @Column(name = "project_id", nullable = false )
@@ -77,6 +92,8 @@ public class ProjectApproval extends BaseEntity {
     @Column(name = "schedule_id", nullable = false )
     private Long scheduleId;
 
+
+
     /**
      * JPA 级联出 user
      */
@@ -84,4 +101,12 @@ public class ProjectApproval extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
+
+
 }

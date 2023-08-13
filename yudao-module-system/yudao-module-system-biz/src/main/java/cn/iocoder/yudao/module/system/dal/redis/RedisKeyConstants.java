@@ -55,4 +55,13 @@ public interface RedisKeyConstants {
     RedisKeyDefine PREFIX_ANIMAL_FEED_ORDER = new RedisKeyDefine("动物饲养单流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "prefix:animal_feed_order", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    public String CUSTOMER_RECEIPT_DEFAULT_PREFIX = "INV";
+    RedisKeyDefine AUTO_INCREMENT_KEY_CUSTOMER_RECEIPT = new RedisKeyDefine("客户发票申请编号自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:customer_receipt", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    RedisKeyDefine PREFIX_CUSTOMER_RECEIPT = new RedisKeyDefine("客户发票申请编号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:customer_receipt", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 }

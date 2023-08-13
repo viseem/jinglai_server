@@ -1,0 +1,37 @@
+package cn.iocoder.yudao.module.jl.controller.admin.approval.vo;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import java.util.*;
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
+import javax.validation.constraints.*;
+
+/**
+ * 审批流程 Order 设置，用于分页使用
+ */
+@Data
+public class ApprovalProgressPageOrder {
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String id;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String createTime = "desc";
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String approvalId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String toUserId;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String approvalStage;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String approvalMark;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String type;
+
+}

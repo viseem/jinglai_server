@@ -28,4 +28,6 @@ public class BpmTaskDonePageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endCreateTime;
 
+    private String processDefinitionKey;
+
 }

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +15,6 @@ import java.util.List;
 public class SupplyOutSaveReqVO extends SupplyOutBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "10832")
     private Long id;
-    List<SupplyOutItemSaveReqVO> items;
+    List<SupplyOutItem> items;
 
 }

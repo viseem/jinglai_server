@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
@@ -323,6 +324,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInPickupItemReqVO saveReqVO) {
         // 校验存在
         validateSupplyPickupExists(saveReqVO.getPickupId());
@@ -361,7 +363,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                     storeInLog.setProjectSupplyId(item.getProjectSupplyId());
                     storeInLog.setInQuantity(storeIn.getInNum());
                     storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
-                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setMark(item.getMark());
                     storeInLog.setStatus(storeIn.getStatus());
                     storeInLog.setRefId(saveReqVO.getPickupId());
                     storeInLog.setRefItemId(item.getId());
@@ -370,6 +372,7 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                     storeInLog.setPlaceId(storeIn.getPlaceId());
                     storeInLog.setTemperature(storeIn.getTemperature());
                     storeInLog.setValidDate(storeIn.getValidDate());
+                    storeInLog.setLocationName(storeIn.getLocationName());
                     inventoryStoreInRepository.save(storeInLog);
 
                 }

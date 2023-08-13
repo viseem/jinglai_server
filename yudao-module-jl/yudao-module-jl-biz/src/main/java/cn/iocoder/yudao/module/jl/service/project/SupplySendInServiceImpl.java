@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
@@ -329,6 +330,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInSendInItemReqVO saveReqVO) {
         // 校验存在
         validateSupplySendInExists(saveReqVO.getSendInId());
@@ -367,7 +369,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
                     storeInLog.setProjectSupplyId(item.getProjectSupplyId());
                     storeInLog.setInQuantity(storeIn.getInNum());
                     storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
-                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setMark(item.getMark());
                     storeInLog.setStatus(storeIn.getStatus());
                     storeInLog.setRefId(saveReqVO.getSendInId());
                     storeInLog.setRefItemId(item.getId());
@@ -376,6 +378,7 @@ public class SupplySendInServiceImpl implements SupplySendInService {
                     storeInLog.setPlaceId(storeIn.getPlaceId());
                     storeInLog.setTemperature(storeIn.getTemperature());
                     storeInLog.setValidDate(storeIn.getValidDate());
+                    storeInLog.setLocationName(storeIn.getLocationName());
                     inventoryStoreInRepository.save(storeInLog);
 
                 }

@@ -29,19 +29,21 @@ public class ProjectFeedbackBaseVO {
     @Schema(description = "具体的反馈内容")
     private String feedType;
 
-    @Schema(description = "内部人员 id", example = "5172")
+    @Schema(description = "责任人 id", example = "5172", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @NotNull(message = "责任人 id不能为空")
     private Long userId;
 
     @Schema(description = "客户 id", example = "13743", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")
-    private String type = "inner";
+    private String type = "INNER";
 
     @Schema(description = "状态", example = "1")
     private String status;
 
-    @Schema(description = "反馈的内容")
+    @Schema(description = "反馈的内容",requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "这是反馈的内容")
+    @NotNull(message = "反馈的内容不能为空")
     private String content;
 
     @Schema(description = "处理结果")

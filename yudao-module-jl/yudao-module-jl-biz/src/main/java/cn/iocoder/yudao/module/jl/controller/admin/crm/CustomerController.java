@@ -43,6 +43,15 @@ public class CustomerController {
     @Resource
     private CustomerMapper customerMapper;
 
+    //计算客户的成交次数、成交总额、款项总额、未付款项总额
+    @GetMapping("/statistics")
+    @Operation(summary = "计算客户的成交次数、成交总额、款项总额、未付款项总额")
+    @PreAuthorize("@ss.hasPermission('jl:customer:query')")
+    public CommonResult<CustomerStatisticsRespVO> getCustomerStatistics(@RequestParam("id") Long id) {
+        CustomerStatisticsRespVO customerStatisticsRespVO = customerService.getCustomerStatistics(id);
+        return success(customerStatisticsRespVO);
+    }
+
     @PostMapping("/create")
     @Operation(summary = "创建客户")
     @PreAuthorize("@ss.hasPermission('jl:customer:create')")
@@ -57,6 +66,14 @@ public class CustomerController {
     @PreAuthorize("@ss.hasPermission('jl:customer:update')")
     public CommonResult<Boolean> updateCustomer(@Valid @RequestBody CustomerUpdateReqVO updateReqVO) {
         customerService.updateCustomer(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/to-customer")
+    @Operation(summary = "转客户")
+    @PreAuthorize("@ss.hasPermission('jl:customer:update')")
+    public CommonResult<Boolean> updateCustomer(@Valid @RequestBody ClueToCustomerReqVO updateReqVO) {
+        customerService.toCustomer(updateReqVO);
         return success(true);
     }
 

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,7 +41,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
-
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
     @Resource
     private ProjectFeedbackRepository projectFeedbackRepository;
 
@@ -100,6 +102,10 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
     @Override
     public PageResult<ProjectFeedback> getProjectFeedbackPage(ProjectFeedbackPageReqVO pageReqVO, ProjectFeedbackPageOrder orderV0) {
+
+        //获取attribute
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -109,6 +115,8 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 创建 Specification
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
@@ -142,9 +150,11 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
+            //content!=null  like content
             if (pageReqVO.getContent() != null) {
-                predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
+                predicates.add(cb.like(root.get("content"), "%" + pageReqVO.getContent() + "%"));
             }
+
 
             if (pageReqVO.getResult() != null) {
                 predicates.add(cb.equal(root.get("result"), pageReqVO.getResult()));

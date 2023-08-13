@@ -14,6 +14,10 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectApprovalBaseVO {
 
+    @Schema(description = "原状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "原状态")
+    private String originStage;
+
     @Schema(description = "申请变更的状态：提前开展、项目开展、暂停、中止、退单、提前出库、出库、售后", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "申请变更的状态：提前开展、项目开展、暂停、中止、退单、提前出库、出库、售后不能为空")
     private String stage;
@@ -29,4 +33,6 @@ public class ProjectApprovalBaseVO {
     @Schema(description = "安排单id")
     private Long scheduleId;
 
+
+    private String approvalStage;
 }

@@ -207,7 +207,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验收费项
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference
@@ -232,19 +232,19 @@ public class ProjectCategory extends BaseEntity {
     private List<ProjectCategoryAttachment> attachmentList;
 
     /**
-     * 实验名目的审批状态
+     * 查询款项列表
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryApproval> approvalList;
+    private List<ProjectCategoryApproval> approvalList = new ArrayList<>();
 
     //审批的状态 通过 未通过
-    @Transient
+    @Column(name = "approval_stage")
     private String approvalStage;
     //申请变更的状态
-    @Transient
+    @Column(name = "request_stage")
     private String requestStage;
     //最新一个approval
     @Transient

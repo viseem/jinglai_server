@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
@@ -76,7 +78,9 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
     @Override
     public Optional<ProjectSupply> getProjectSupply(Long id) {
-        return projectSupplyRepository.findById(id);
+        Optional<ProjectSupply> byId = projectSupplyRepository.findById(id);
+        byId.ifPresent(this::processSupplyItem);
+        return byId;
     }
 
     @Override
@@ -163,48 +167,48 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 计算物资数量
         // 已入库的
         if (projectSupplies.size() > 0) {
-            projectSupplies.forEach(item -> {
-                Integer inedQuantity = 0; // 已入库数量
-                Integer outedQuantity = 0; // 已出库数量
-                Integer procurementedQuantity = 0; //已申请采购的数量
-
-                String source = item.getSource();
-                //todo  这里不严谨 按说应该判断对应物资的来源
-                if (item.getProcurements().size() > 0) {
-                    inedQuantity = item.getProcurements().stream()
-                            .mapToInt(ProcurementItem::getInQuantity)
-                            .sum();
-
-                    procurementedQuantity = item.getProcurements().stream()
-                            .mapToInt(ProcurementItem::getQuantity)
-                            .sum();
-                }
-                if (item.getSendIns().size() > 0) {
-                    inedQuantity += item.getSendIns().stream()
-                            .mapToInt(SupplySendInItem::getInQuantity)
-                            .sum();
-                }
-                if (item.getPickups().size() > 0) {
-                    inedQuantity += item.getPickups().stream()
-                            .mapToInt(SupplyPickupItem::getInQuantity)
-                            .sum();
-                }
-
-                if (item.getSupplyOutItems().size() > 0) {
-                    outedQuantity += item.getSupplyOutItems().stream()
-                            .mapToInt(SupplyOutItem::getStoreOut)
-                            .sum();
-                }
-                item.setProcurementedQuantity(procurementedQuantity);
-                item.setInedQuantity(inedQuantity);
-                item.setOutedQuantity(outedQuantity);
-                item.setRemainQuantity(inedQuantity - outedQuantity);
-            });
+            projectSupplies.forEach(this::processSupplyItem);
         }
 
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processSupplyItem(ProjectSupply item) {
+        int inedQuantity = 0; // 已入库数量
+        int outedQuantity = 0; // 已出库数量
+        int procurementedQuantity = 0; //已申请采购的数量
+
+        if (item.getProcurements().size() > 0) {
+            procurementedQuantity = item.getProcurements().stream()
+                    .mapToInt(ProcurementItem::getQuantity)
+                    .sum();
+        }
+        if (item.getSendIns().size() > 0) {
+
+        }
+        if (item.getPickups().size() > 0) {
+
+        }
+
+        if(item.getStoreLogs().size()>0){
+            item.setLatestStoreLog(item.getStoreLogs().get(0));
+
+            inedQuantity = item.getStoreLogs().stream()
+                    .mapToInt(InventoryStoreIn::getInQuantity)
+                    .sum();
+        }
+
+        if (item.getOutLogs().size() > 0) {
+            outedQuantity += item.getOutLogs().stream()
+                    .mapToInt(InventoryStoreOut::getOutQuantity)
+                    .sum();
+        }
+        item.setProcurementedQuantity(procurementedQuantity);
+        item.setInedQuantity(inedQuantity);
+        item.setOutedQuantity(outedQuantity);
+        item.setRemainQuantity(inedQuantity - outedQuantity);
     }
 
     @Override

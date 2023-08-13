@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -170,6 +172,10 @@ public class ProjectSupply extends BaseEntity {
     @Transient
     private Integer outedQuantity;
 
+    @Transient
+    private InventoryStoreIn latestStoreLog;
+
+
     /**
      * 品牌
      */
@@ -196,15 +202,8 @@ public class ProjectSupply extends BaseEntity {
     private ProjectCategory category;
 
 
-    /**
-     * 出库items
-     */
-    @OneToMany(mappedBy = "projectSupply", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<SupplyOutItem> supplyOutItems;
+
+
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
@@ -234,5 +233,23 @@ public class ProjectSupply extends BaseEntity {
     @JoinColumn(name = "project_supply_id")
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProcurementItem> procurements;*/
+
+    /**
+     * 入库记录
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<InventoryStoreIn> storeLogs = new ArrayList<>();
+
+    /**
+     * 出库记录
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<InventoryStoreOut> outLogs = new ArrayList<>();
 
 }

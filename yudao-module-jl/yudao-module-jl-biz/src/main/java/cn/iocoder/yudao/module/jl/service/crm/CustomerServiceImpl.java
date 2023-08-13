@@ -1,16 +1,20 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
-import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
-import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
-import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
-import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,7 +34,6 @@ import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -40,6 +43,13 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class CustomerServiceImpl implements CustomerService {
+
+    @Resource
+    private ProjectConstractRepository projectConstractRepository;
+    @Resource
+    private ProjectFundRepository projectFundRepository;
+    @Resource
+    private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
@@ -77,6 +87,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public void toCustomer(ClueToCustomerReqVO updateReqVO) {
+        // 校验存在
+        validateCustomerExists(updateReqVO.getId());
+        // 更新
+        customerRepository.updateToCustomerById(true,updateReqVO.getId());
+    }
+
+    @Override
     public void deleteCustomer(Long id) {
         // 校验存在
         validateCustomerExists(id);
@@ -102,9 +120,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
-        //如果是所有
-        //我的
-        //我的下属
+        //获取attributeUsers
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setCreators(users);
        /* List<Long> creators = new ArrayList<>();
@@ -146,6 +162,10 @@ public class CustomerServiceImpl implements CustomerService {
             List<Predicate> predicates = new ArrayList<>();
 
             predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
@@ -377,6 +397,42 @@ public class CustomerServiceImpl implements CustomerService {
         });
 
         return null;
+    }
+
+    @Override
+    public CustomerStatisticsRespVO getCustomerStatistics(Long id) {
+        //查询已经签订的合同
+        List<ProjectConstract> byCustomerIdAndStatus = projectConstractRepository.findByCustomerIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+        Integer dealCount = byCustomerIdAndStatus.size();
+        //计算客户的成交总金额
+        BigDecimal dealTotalAmount = new BigDecimal(0);
+        for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
+            dealTotalAmount = dealTotalAmount.add(BigDecimal.valueOf(projectConstract.getPrice()));
+        }
+        //查询客户的款项
+        List<ProjectFund> funds = projectFundRepository.findByCustomerId(id);
+        //查询客户的款项记录
+        List<ProjectFundLog> fundLogs = projectFundLogRepository.findByCustomerId(id);
+        //计算客户的款项总额
+        BigDecimal amount = new BigDecimal(0);
+        for (ProjectFund fund : funds) {
+            amount = amount.add(BigDecimal.valueOf(fund.getPrice()));
+        }
+        //计算客户的已付款项总额
+        BigDecimal paidAmount = new BigDecimal(0);
+        for (ProjectFundLog fundLog : fundLogs) {
+            paidAmount = paidAmount.add(BigDecimal.valueOf(fundLog.getPrice()));
+        }
+        //计算客户的欠款总额
+        BigDecimal arrears = amount.subtract(paidAmount);
+        //赋值返回值
+        CustomerStatisticsRespVO customerStatisticsRespVO = new CustomerStatisticsRespVO();
+        customerStatisticsRespVO.setDealCount(dealCount);
+        customerStatisticsRespVO.setDealAmount(dealTotalAmount);
+        customerStatisticsRespVO.setFundAmount(amount);
+        customerStatisticsRespVO.setArrearsAmount(arrears);
+        customerStatisticsRespVO.setPaidAmount(paidAmount);
+        return customerStatisticsRespVO;
     }
 
     private Sort createSort(CustomerPageOrder order) {

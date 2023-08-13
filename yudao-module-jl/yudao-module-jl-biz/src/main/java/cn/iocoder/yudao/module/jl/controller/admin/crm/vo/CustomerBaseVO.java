@@ -25,6 +25,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class CustomerBaseVO {
 
+    private Boolean toCustomer = true;
+
     @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotNull(message = "姓名不能为空")
     private String name;
@@ -43,8 +45,7 @@ public class CustomerBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    @Schema(description = "微信号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "微信号不能为空")
+    @Schema(description = "微信号")
     private String wechat;
 
     @Schema(description = "医生职业级别")

@@ -1,14 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.enums.InventorySupplyOutApprovalEnums;
 import cn.iocoder.yudao.module.jl.mapper.inventory.SupplyOutItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreOutRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.stream.Collectors;
@@ -48,6 +51,9 @@ public class SupplyOutServiceImpl implements SupplyOutService {
     private SupplyOutRepository supplyOutRepository;
 
     @Resource
+    private InventoryStoreOutRepository inventoryStoreOutRepository;
+
+    @Resource
     private SupplyOutItemRepository supplyOutItemRepository;
 
     @Resource
@@ -70,41 +76,46 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         return supplyOut.getId();
     }
 
+
+
     @Override
+    @Transactional
     public Long saveSupplyOut(SupplyOutSaveReqVO saveReqVO) {
 
         Long supplyOutId = saveReqVO.getId();
-
+        Long creator;
         //存在 id，校验存在
         if (supplyOutId != null) {
-            validateSupplyOutExists(supplyOutId);
+            SupplyOut supplyOut = validateSupplyOutExists(supplyOutId);
+            creator = supplyOut.getCreator();
+        } else {
+            creator = null;
         }
 
         // 创建、或更新主表
         SupplyOut supplyOut = supplyOutMapper.toEntity(saveReqVO);
         supplyOut = supplyOutRepository.save(supplyOut);
         Long saveSupplyId = supplyOut.getId();
-        //删除原来的items
-//        supplyOutItemRepository.deleteBySupplyOutId(supplyOut.getId());
 
         //保存新的items
         supplyOutItemRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
             item.setSupplyOutId(saveSupplyId);
-            return supplyOutItemMapper.toEntity(item);
+            return item;
         }).collect(Collectors.toList()));
 
-        //同意出库 更新projectSupply库存
-/*        if(saveReqVO.getStatus() == InventorySupplyOutApprovalEnums.ACCEPT.getStatus()){
-            saveReqVO.getItems().forEach(item->{
-                if(item.getProjectSupplyId()!=null){
-                    Optional<ProjectSupply> projectSupply = projectSupplyRepository.findById(item.getProjectSupplyId());
-                    projectSupply.ifPresent(supply->{
-                        supply.setInQuantity(supply.getInQuantity() + item.getStoreOut());
-                        projectSupplyRepository.save(supply);
-                    });
-                }
-            });
-        }*/
+        //保存出库日志 supplyStoreOut
+        if(supplyOutId != null&&supplyOutId>0&& Objects.equals(saveReqVO.getStatus(), InventorySupplyOutApprovalEnums.ACCEPT.getStatus())){
+            inventoryStoreOutRepository.saveAll(saveReqVO.getItems().stream().map(item -> {
+                InventoryStoreOut inventoryStoreOut = new InventoryStoreOut();
+                inventoryStoreOut.setOutQuantity(item.getOutQuantity());
+                inventoryStoreOut.setMark(item.getMark());
+                inventoryStoreOut.setProjectSupplyId(item.getProjectSupplyId());
+                inventoryStoreOut.setRefId(supplyOutId);
+                inventoryStoreOut.setRefItemId(item.getId());
+                inventoryStoreOut.setApplyUser(creator);
+                return inventoryStoreOut;
+            }).collect(Collectors.toList()));
+        }
 
         // 返回
         return supplyOut.getId();
@@ -127,8 +138,12 @@ public class SupplyOutServiceImpl implements SupplyOutService {
         supplyOutRepository.deleteById(id);
     }
 
-    private void validateSupplyOutExists(Long id) {
-        supplyOutRepository.findById(id).orElseThrow(() -> exception(SUPPLY_OUT_NOT_EXISTS));
+    private SupplyOut validateSupplyOutExists(Long id) {
+        Optional<SupplyOut> byId = supplyOutRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw exception(SUPPLY_OUT_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

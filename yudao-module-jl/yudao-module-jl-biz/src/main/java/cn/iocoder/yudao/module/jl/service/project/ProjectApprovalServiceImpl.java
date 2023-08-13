@@ -1,13 +1,22 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
-import cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants;
-import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
+import cn.iocoder.yudao.module.jl.entity.approval.Approval;
+import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
+import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -31,6 +40,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectApprovalMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectApprovalRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -41,6 +51,14 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
+    /**
+     * OA 对应的流程定义 KEY
+     */
+    public static final String PROCESS_KEY = "PROJECT_STATUS_CHANGE";
+
+    @Resource
+    private ApprovalServiceImpl approvalService;
+
     @Resource
     private ProjectRepository projectRepository;
 
@@ -50,52 +68,63 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private ProjectApprovalMapper projectApprovalMapper;
 
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
     @Override
+    @Transactional
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
         // 插入
         ProjectApproval projectApproval = projectApprovalMapper.toEntity(createReqVO);
-        projectApprovalRepository.save(projectApproval);
+        projectApproval.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
+        ProjectApproval save = projectApprovalRepository.save(projectApproval);
+
+        //同时插入审批表Approval,设置Approval的属性
+//        Approval approval = approvalService.processApproval(createReqVO.getUserList(),ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
+        //修改一下
+//        projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
+
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+
+        // 更新流程实例编号
+        projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+
         // 返回
         return projectApproval.getId();
     }
 
+
+
     @Override
     public void updateProjectApproval(ProjectApprovalUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectApprovalExists(updateReqVO.getId());
-
+        ProjectApproval projectApproval = validateProjectApprovalExists(updateReqVO.getId());
+        projectApproval.setApprovalStage(updateReqVO.getApprovalStage());
 
 
         // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
-        if (Objects.equals(updateReqVO.getApprovalStage(), ProjectCategoryStatusEnums.APPROVAL_SUCCESS.getStatus())) {
+        if (Objects.equals(updateReqVO.getApprovalStage(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
 
-            // 校验projectCategory是否存在,并修改状态
-            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
-                if(Objects.equals(updateReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+            // 校验是否存在,并修改状态
+            projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
+                if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
                     project.setStage(ProjectStageEnums.DOING.getStatus());
                 }else{
-                    project.setStage(updateReqVO.getStage());
+                    project.setStage(projectApproval.getStage());
                 }
-                projectRepository.save(project);
-            },()->{
-                throw exception(PROJECT_NOT_EXISTS);
-            });
-
-        }else{
-            // 如果是开展前审批 则直接变更为此状态
-            // 校验projectCategory是否存在,并修改状态
-            projectRepository.findById(updateReqVO.getProjectId()).ifPresentOrElse(project -> {
-                project.setStage(updateReqVO.getStage());
                 projectRepository.save(project);
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
             });
         }
 
-
         // 更新
-        ProjectApproval updateObj = projectApprovalMapper.toEntity(updateReqVO);
-        projectApprovalRepository.save(updateObj);
+//        ProjectApproval updateObj = projectApprovalMapper.toEntity(projectApproval);
+        projectApprovalRepository.save(projectApproval);
     }
 
     @Override
@@ -106,8 +135,12 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         projectApprovalRepository.deleteById(id);
     }
 
-    private void validateProjectApprovalExists(Long id) {
-        projectApprovalRepository.findById(id).orElseThrow(() -> exception(PROJECT_APPROVAL_NOT_EXISTS));
+    private ProjectApproval validateProjectApprovalExists(Long id) {
+        Optional<ProjectApproval> byId = projectApprovalRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(PROJECT_APPROVAL_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -148,7 +181,6 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             if(pageReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), pageReqVO.getApprovalMark()));
             }
-
             if(pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
             }

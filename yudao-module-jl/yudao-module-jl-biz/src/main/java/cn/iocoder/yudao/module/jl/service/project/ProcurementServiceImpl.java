@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -482,6 +483,7 @@ public class ProcurementServiceImpl implements ProcurementService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void storeIn(StoreInProcurementItemReqVO saveReqVO) {
         // 校验存在
         validateProcurementExists(saveReqVO.getProcurementId());
@@ -523,7 +525,7 @@ public class ProcurementServiceImpl implements ProcurementService {
                     storeInLog.setProjectSupplyId(item.getProjectSupplyId());
                     storeInLog.setInQuantity(storeIn.getInNum());
                     storeInLog.setType(InventoryStoreInTypeEnums.PROCUREMENT.toString());
-                    storeInLog.setMark(storeIn.getMark());
+                    storeInLog.setMark(item.getMark());
                     storeInLog.setStatus(storeIn.getStatus());
                     storeInLog.setRefId(saveReqVO.getProcurementId());
                     storeInLog.setRefItemId(item.getId());
@@ -532,6 +534,7 @@ public class ProcurementServiceImpl implements ProcurementService {
                     storeInLog.setPlaceId(storeIn.getPlaceId());
                     storeInLog.setTemperature(storeIn.getTemperature());
                     storeInLog.setValidDate(storeIn.getValidDate());
+                    storeInLog.setLocationName(storeIn.getLocationName());
                     inventoryStoreInRepository.save(storeInLog);
 
                 }

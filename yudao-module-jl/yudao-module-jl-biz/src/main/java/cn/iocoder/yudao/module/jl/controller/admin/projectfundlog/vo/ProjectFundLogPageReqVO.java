@@ -24,7 +24,11 @@ public class ProjectFundLogPageReqVO extends PageParam {
 
     @Schema(description = "项目 id", example = "10996")
     private Long projectId;
+    @Schema(description = "客户 id")
+    private Long customerId;
 
+    @Schema(description = "合同 id")
+    private Long contractId;
     @Schema(description = "支付凭证上传地址", example = "https://www.iocoder.cn")
     private String receiptUrl;
 
