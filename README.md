@@ -12,3 +12,6 @@ scp yudao-server/target/yudao-server.jar zs:/home/ubuntu/jinglai
 ```bash
 bash deploy.sh
 ```
+# 注意事项
+## 文件上传
+这个是在管理后台页面上可以设置阿里云的key，内部已经封装好对应函数，只需配置即可
