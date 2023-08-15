@@ -67,7 +67,10 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
     @Transactional
     public Long createContractApproval(ContractApprovalCreateReqVO createReqVO) {
         // 插入
+        String bpmProcess = BpmProcessInstanceResultEnum.PROCESS.getResult().toString();
+
         ContractApproval contractApproval = contractApprovalMapper.toEntity(createReqVO);
+        contractApproval.setApprovalStage(bpmProcess);
         ContractApproval save = contractApprovalRepository.save(contractApproval);
 
         // 发起 BPM 流程

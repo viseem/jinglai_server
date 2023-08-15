@@ -67,21 +67,26 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
     @Override
     @Transactional
     public Long createProjectCategoryApproval(ProjectCategoryApprovalCreateReqVO createReqVO) {
+        String bpmProcess = BpmProcessInstanceResultEnum.PROCESS.getResult().toString();
+        String stage;
 
         //如果是数据审核 直接改为数据审核状态  审批是审批的数据通不通过
         if (Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())) {
-            String stage = createReqVO.getStage();
-            projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
-                if(stage !=null){
-                    category.setStage(createReqVO.getStage());
-                }
-                category.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
-                projectCategoryRepository.save(category);
-            });
+            stage = createReqVO.getStage();
+        } else {
+            stage = null;
         }
 
+        projectCategoryRepository.findById(createReqVO.getProjectCategoryId()).ifPresent(category -> {
+            if(stage !=null){
+                category.setStage(createReqVO.getStage());
+            }
+            category.setApprovalStage(bpmProcess);
+            projectCategoryRepository.save(category);
+        });
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
+        projectCategoryApproval.setApprovalStage(bpmProcess);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();
