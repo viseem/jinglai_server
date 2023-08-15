@@ -29,6 +29,13 @@ public interface BpmTaskService {
     PageResult<BpmTaskTodoPageItemRespVO> getTodoTaskPage(Long userId, BpmTaskTodoPageReqVO pageReqVO);
 
     /**
+     * 获得任务的统计数字
+
+     * @return 流程任务分页
+     */
+    BpmTaskStatsRespVO getTaskStats();
+
+    /**
      * 获得已办的流程任务分页
      *
      * @param userId    用户编号
