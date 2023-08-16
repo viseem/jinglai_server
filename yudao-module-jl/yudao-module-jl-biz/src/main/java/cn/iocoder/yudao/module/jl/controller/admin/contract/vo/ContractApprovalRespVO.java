@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contract.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -19,5 +20,7 @@ public class ContractApprovalRespVO extends ContractApprovalBaseVO {
 
 
     private ProjectConstractOnly contract;
+
+    private User user;
 
 }
