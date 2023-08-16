@@ -9,10 +9,12 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.*;
+import org.springframework.core.annotation.Order;
 
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -238,6 +240,7 @@ public class ProjectCategory extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime desc")
     private List<ProjectCategoryApproval> approvalList = new ArrayList<>();
 
     //审批的状态 通过 未通过
