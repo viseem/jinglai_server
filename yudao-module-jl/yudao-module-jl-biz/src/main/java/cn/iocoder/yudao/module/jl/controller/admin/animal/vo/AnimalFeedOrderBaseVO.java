@@ -25,6 +25,9 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "编号")
     private String code;
 
+    @Schema(description = "流程实例id")
+    private String processInstanceId;
+
     @Schema(description = "品系品种", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "品系品种不能为空")
     private String breed;

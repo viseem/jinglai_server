@@ -153,6 +153,13 @@ public class AnimalFeedOrder extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+
+    /**
+     * 流程实例id
+     */
+    @Column(name = "process_instance_id")
+    private String processInstanceId;
+
     /**
      * 项目id
      */

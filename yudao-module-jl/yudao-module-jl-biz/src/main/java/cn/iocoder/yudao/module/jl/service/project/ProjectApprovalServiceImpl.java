@@ -55,10 +55,8 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
      * OA 对应的流程定义 KEY
      */
     public static final String PROCESS_KEY = "PROJECT_STATUS_CHANGE";
-
     @Resource
-    private ApprovalServiceImpl approvalService;
-
+    private BpmProcessInstanceApi processInstanceApi;
     @Resource
     private ProjectRepository projectRepository;
 
@@ -68,8 +66,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private ProjectApprovalMapper projectApprovalMapper;
 
-    @Resource
-    private BpmProcessInstanceApi processInstanceApi;
+
 
     @Override
     @Transactional
