@@ -91,6 +91,16 @@ public class AnimalFeedOrderController {
         return success(animalFeedOrder.map(animalFeedOrderMapper::toDto).orElseThrow(() -> exception(ANIMAL_FEED_ORDER_NOT_EXISTS)));
     }
 
+    //获取动物饲养单的统计信息
+    @GetMapping("/stats/count")
+    @Operation(summary = "获得动物饲养申请单的统计信息")
+    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:query')")
+    public CommonResult<AnimalFeedOrderStatsCountRespVO> getAnimalFeedOrderPage() {
+        AnimalFeedOrderStatsCountRespVO result = animalFeedOrderService.getAnimalFeedOrderStatsCount();
+        return success(result);
+    }
+
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得动物饲养申请单列表")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:query')")

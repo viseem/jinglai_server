@@ -15,10 +15,12 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum AnimalFeedStageEnums implements StringArrayValuable {
-
+    DEFAULT("1", "饲养中"),
     FEEDING("FEEDING", "饲养中"),
     END("END", "饲养结束"),
-    REJECT("REJECT", "拒绝"),
+    APPROVAL_FAIL("3", "拒绝"),
+    APPROVAL_SUCCESS("2", "同意"),
+
     ;
 
     private final String status;

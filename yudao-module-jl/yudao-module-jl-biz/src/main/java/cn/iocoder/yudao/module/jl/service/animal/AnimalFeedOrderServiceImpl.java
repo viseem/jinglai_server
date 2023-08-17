@@ -258,6 +258,22 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
+    public AnimalFeedOrderStatsCountRespVO getAnimalFeedOrderStatsCount(){
+        //获得等待饲养的饲养单数量
+        Long waitingCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.APPROVAL_SUCCESS.getStatus());
+        //获得饲养中的饲养单数量
+        Long feedingCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.FEEDING.getStatus());
+        //获得已完成的饲养单数量
+        Long finishedCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.END.getStatus());
+        //回写数据
+        AnimalFeedOrderStatsCountRespVO respVO = new AnimalFeedOrderStatsCountRespVO();
+        respVO.setWaitingFeedCount(waitingCount);
+        respVO.setFeedingCount(feedingCount);
+        respVO.setEndCount(finishedCount);
+        return respVO;
+    }
+
+    @Override
     public PageResult<AnimalFeedOrder> getAnimalFeedOrderPage(AnimalFeedOrderPageReqVO pageReqVO, AnimalFeedOrderPageOrder orderV0) {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);

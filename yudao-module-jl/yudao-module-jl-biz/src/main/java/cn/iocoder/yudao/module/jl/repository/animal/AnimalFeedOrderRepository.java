@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface AnimalFeedOrderRepository extends JpaRepository<AnimalFeedOrder, Long>, JpaSpecificationExecutor<AnimalFeedOrder> {
+    @Query("select count(a) from AnimalFeedOrder a where a.stage = ?1")
+    long countByStage(String stage);
     @Transactional
     @Modifying
     @Query("update AnimalFeedOrder a set a.stage = ?1 where a.id = ?2")

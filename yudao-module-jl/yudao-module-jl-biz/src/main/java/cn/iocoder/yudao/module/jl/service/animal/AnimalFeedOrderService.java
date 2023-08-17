@@ -72,6 +72,12 @@ public interface AnimalFeedOrderService {
      */
     PageResult<AnimalFeedOrder> getAnimalFeedOrderPage(AnimalFeedOrderPageReqVO pageReqVO, AnimalFeedOrderPageOrder orderV0);
 
+    /*
+    *
+    * 获得动物饲养单的统计信息
+    * */
+    AnimalFeedOrderStatsCountRespVO getAnimalFeedOrderStatsCount();
+
     /**
      * 获得动物饲养申请单列表, 用于 Excel 导出
      *
