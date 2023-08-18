@@ -4,11 +4,15 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
 * AnimalFeedOrderRepository
 *
 */
 public interface AnimalFeedOrderRepository extends JpaRepository<AnimalFeedOrder, Long>, JpaSpecificationExecutor<AnimalFeedOrder> {
+    @Query("select a from AnimalFeedOrder a where a.stage = ?1")
+    List<AnimalFeedOrder> findByStage(String stage);
     @Query("select count(a) from AnimalFeedOrder a where a.stage = ?1")
     long countByStage(String stage);
     @Transactional

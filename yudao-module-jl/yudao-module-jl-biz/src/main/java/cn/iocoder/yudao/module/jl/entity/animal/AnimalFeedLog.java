@@ -20,8 +20,22 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "AnimalFeedLog")
 @Table(name = "jl_animal_feed_log")
+@Builder
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AnimalFeedLog extends BaseEntity {
+
+    @Override
+    public String toString() {
+        return "AnimalFeedLog{" +
+                "id=" + id +
+                ", feedOrderId=" + feedOrderId +
+                ", createTime=" + getCreateTime() + // Assuming createTime is a LocalDateTime or similar
+                ", changeQuantity=" + changeQuantity +
+                ", changeCageQuantity=" + changeCageQuantity +
+                ", quantity=" + quantity +
+                ", cageQuantity=" + cageQuantity +
+                '}';
+    }
 
     /**
      * ID
