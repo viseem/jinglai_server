@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.date.DateUtil;
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
@@ -43,6 +45,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -51,6 +54,13 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProcurementServiceImpl implements ProcurementService {
+
+    /**
+     * OA 对应的流程定义 KEY
+     */
+    public static final String PROCESS_KEY = "PROJECT_PROCUREMENT_AUDIT";
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
 
     @Resource
     private ProjectSupplyRepository projectSupplyRepository;
@@ -112,6 +122,7 @@ public class ProcurementServiceImpl implements ProcurementService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void saveProcurement(ProcurementSaveReqVO saveReqVO) {
         if (saveReqVO.getId() != null) {
             // 存在 id，更新操作
@@ -129,7 +140,19 @@ public class ProcurementServiceImpl implements ProcurementService {
         updateObj = procurementRepository.save(updateObj);
         Long procurementId = updateObj.getId();
 
-        // 删除原有的采购单明细
+        // 如果是传入的状态是等待公司审批，则加入审批流
+        if (ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus().equals(updateObj.getStatus())) {
+            // 发起 BPM 流程
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(procurementId)));
+
+            // 更新流程实例编号
+            procurementRepository.updateProcessInstanceIdById(processInstanceId,procurementId);
+        }
+
+        // 删除原有的采购单明细？
         procurementItemRepository.deleteByProcurementId(procurementId);
 
         // 创建采购单明细

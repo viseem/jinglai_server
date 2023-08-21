@@ -117,6 +117,11 @@ public class Procurement extends BaseEntity {
     @Column(name = "receiver_user_id")
     private String receiverUserId;
 
+    /**
+     * 流程实例id
+     */
+    @Column(name = "process_instance_id")
+    private String processInstanceId;
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
