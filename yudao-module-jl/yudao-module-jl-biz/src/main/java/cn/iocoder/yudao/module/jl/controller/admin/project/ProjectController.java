@@ -97,6 +97,15 @@ public class ProjectController {
         return success(ret);
     }
 
+
+    @GetMapping("/stats")
+    @Operation(summary = "(分页)获得项目管理列表")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectStatsRespVO> getProjectStats(@Valid ProjectPageReqVO pageVO) {
+        ProjectStatsRespVO projectStatsRespVO = projectService.getProjectStats(pageVO);
+        return success(projectStatsRespVO);
+    }
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")

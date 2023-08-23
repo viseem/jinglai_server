@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
@@ -156,6 +157,33 @@ public class ProjectServiceImpl implements ProjectService {
     public List<Project> getProjectList(Collection<Long> ids) {
         return StreamSupport.stream(projectRepository.findAllById(ids).spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProjectStatsRespVO getProjectStats(ProjectPageReqVO pageReqVO){
+        ProjectStatsRespVO respVO = new ProjectStatsRespVO();
+        Map<String,Integer> map = new HashMap<>();
+
+        //项目预开展个数
+        respVO.setPreCount(projectRepository.countByStage(ProjectStageEnums.PRE.getStatus()));
+        map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+        //项目开展个数
+        respVO.setDoingCount(projectRepository.countByStage(ProjectStageEnums.DOING.getStatus()));
+        map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
+        //项目已出库个数
+        respVO.setOutedCount(projectRepository.countByStage(ProjectStageEnums.OUTED.getStatus()));
+        map.put(ProjectStageEnums.OUTED.getStatus(),respVO.getOutedCount());
+        //项目出库中个数
+        respVO.setOutingCount(projectRepository.countByStage(ProjectStageEnums.OUTING.getStatus()));
+        map.put(ProjectStageEnums.OUTING.getStatus(),respVO.getOutingCount());
+        //项目暂停个数
+        respVO.setPauseCount(projectRepository.countByStage(ProjectStageEnums.PAUSE.getStatus()));
+        map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
+
+        respVO.setCountMap(map);
+
+        //赋值给resp的map
+        return respVO;
     }
 
     @Override

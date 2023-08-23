@@ -64,6 +64,14 @@ public interface ProjectService {
     PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
 
     /**
+     * 获得项目数字统计
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目管理分页
+     */
+    ProjectStatsRespVO getProjectStats(ProjectPageReqVO pageReqVO);
+
+    /**
      * 获得项目管理列表, 用于 Excel 导出
      *
      * @param exportReqVO 查询条件

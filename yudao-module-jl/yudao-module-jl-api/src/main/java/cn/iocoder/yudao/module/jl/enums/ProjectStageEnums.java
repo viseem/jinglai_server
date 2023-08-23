@@ -18,6 +18,10 @@ public enum ProjectStageEnums implements StringArrayValuable {
 
     DOING("3", "开展中"),
     DOING_PREVIEW("2", "开展前审批"),
+    PRE("1","预开展"),
+    PAUSE("4","暂停"),
+    OUTED("9","出库"),
+    OUTING("7","出库中"),
     ;
 
     private final String status;
