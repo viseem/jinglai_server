@@ -122,7 +122,7 @@ public class ProcurementController {
         return success(procurementMapper.toPage(pageResult));
     }
 
-    @GetMapping("/stats")
+    @GetMapping("/count-stats")
     @Operation(summary = "(分页)获得项目采购单申请列表")
     @PreAuthorize("@ss.hasPermission('jl:procurement:query')")
     public CommonResult<ProcurementStatsRespVO> getProcurementPage(@Valid ProcurementPageReqVO pageVO) {

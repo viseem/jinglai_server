@@ -38,4 +38,5 @@ public class SalesleadRespVO extends SalesleadBaseVO {
 
     @Schema(description = "客户方案", example = "[]")
     private List<SalesleadCustomerPlanItemVO> customerPlans = new ArrayList<>();
+
 }

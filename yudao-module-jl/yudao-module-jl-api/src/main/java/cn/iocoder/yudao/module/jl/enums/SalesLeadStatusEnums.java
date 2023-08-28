@@ -24,7 +24,8 @@ public enum SalesLeadStatusEnums implements StringArrayValuable {
 /*    CompletedTransaction("4", "已成交"),
     EmergencyProject("5", "临时应急项目"),*/
     LostDeal("4", "丢单"),
-    ToProject("5","已转项目")
+    ToProject("5","已转项目"),
+    NotToProject("50","已转项目"),
     ;
 
     private final String status;

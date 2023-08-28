@@ -69,6 +69,14 @@ public class SalesleadController {
         return success(true);
     }
 
+    @GetMapping("/count-stats")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
+    public CommonResult<SalesleadCountStatsRespVO> getSalesleadCountStats() {
+        SalesleadCountStatsRespVO salesleadCountStats = salesleadService.getSalesleadCountStats();
+        return success(salesleadCountStats);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除销售线索")
     @Parameter(name = "id", description = "编号", required = true)
@@ -108,6 +116,7 @@ public class SalesleadController {
             }
 
         });
+
 
         return success(resp);
     }

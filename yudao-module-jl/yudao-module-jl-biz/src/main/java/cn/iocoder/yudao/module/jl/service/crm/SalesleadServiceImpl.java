@@ -98,6 +98,15 @@ public class SalesleadServiceImpl implements SalesleadService {
     }
 
     @Override
+    public SalesleadCountStatsRespVO getSalesleadCountStats(){
+        //获取未转化为项目的销售线索数量
+        Integer notToProjectCount = salesleadRepository.countByStatusNot(SalesLeadStatusEnums.NotToProject.getStatus());
+        SalesleadCountStatsRespVO salesleadCountStatsRespVO = new SalesleadCountStatsRespVO();
+        salesleadCountStatsRespVO.setNotToProjectCount(notToProjectCount);
+        return salesleadCountStatsRespVO;
+    }
+
+    @Override
     public void updateSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
         if(updateReqVO.getId() != null) {
@@ -243,8 +252,16 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
 
             if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                //如果状态是NOT_TRANSFER，那就查询除了已经转化的线索；如果是其它状态，就查询对应状态的线索
+                if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                }else{
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+
             }
+//                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
