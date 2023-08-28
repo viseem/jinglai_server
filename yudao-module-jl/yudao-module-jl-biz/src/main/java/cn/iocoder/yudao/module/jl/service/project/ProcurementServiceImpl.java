@@ -191,6 +191,25 @@ public class ProcurementServiceImpl implements ProcurementService {
     }
 
     @Override
+    public ProcurementStatsRespVO getProcurementStats(ProcurementPageReqVO pageReqVO){
+        Map<String, Integer> countMap = new HashMap<>();
+        Integer waitingConfirmCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus());
+        Integer waitingAuditCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus());
+        Integer financeCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
+        Integer  waitingStartCount= procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_START_PROCUREMENT.getStatus());
+
+        countMap.put(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus(), waitingConfirmCount);
+        countMap.put(ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus(), waitingAuditCount);
+        countMap.put(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus(), financeCount);
+        countMap.put(ProcurementStatusEnums.WAITING_START_PROCUREMENT.getStatus(), waitingStartCount);
+
+        ProcurementStatsRespVO procurementStatsRespVO = new ProcurementStatsRespVO();
+        procurementStatsRespVO.setCountMap(countMap);
+        return procurementStatsRespVO;
+
+    }
+
+    @Override
     public PageResult<Procurement> getProcurementPage(ProcurementPageReqVO pageReqVO, ProcurementPageOrder orderV0) {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);

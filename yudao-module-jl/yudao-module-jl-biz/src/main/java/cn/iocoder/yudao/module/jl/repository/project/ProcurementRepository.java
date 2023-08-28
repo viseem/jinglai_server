@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Query("select count(p) from Procurement p where p.status = ?1")
+    Integer countByStatus(String status);
     @Transactional
     @Modifying
     @Query("update Procurement p set p.processInstanceId = ?1 where p.id = ?2")

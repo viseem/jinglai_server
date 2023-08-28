@@ -61,6 +61,14 @@ public interface ProcurementService {
     PageResult<Procurement> getProcurementPage(ProcurementPageReqVO pageReqVO, ProcurementPageOrder orderV0);
 
     /**
+     * 获得项目采购单的个数统计
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目采购单申请分页
+     */
+    ProcurementStatsRespVO getProcurementStats(ProcurementPageReqVO pageReqVO);
+
+    /**
      * 获得项目采购单已经支付分页
      *
      * @param pageReqVO 分页查询
