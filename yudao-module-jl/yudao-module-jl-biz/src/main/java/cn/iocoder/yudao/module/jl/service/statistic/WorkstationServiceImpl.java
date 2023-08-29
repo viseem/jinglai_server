@@ -1,15 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationExpCountStatsResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationFinanceCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -36,6 +34,9 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProcurementRepository procurementRepository;
 
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
@@ -75,6 +76,21 @@ public class WorkstationServiceImpl implements WorkstationService {
         //自己的未完成的任务数量
         Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
         resp.setNotCompleteTaskCount(notCompleteTaskCount);
+
+        return resp;
+    }
+
+    @Override
+    public WorkstationFinanceCountStatsResp getFinanceCountStats(){
+        WorkstationFinanceCountStatsResp resp = new WorkstationFinanceCountStatsResp();
+
+        // 全部的未收齐的款项数量
+        Integer notPayCompleteCount = projectFundRepository.countByNotReceivedComplete();
+        resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
+
+        //全部的 未打款采购单数量
+        Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
+        resp.setProcurementNotPayCount(procurementNotPayCount);
 
         return resp;
     }
