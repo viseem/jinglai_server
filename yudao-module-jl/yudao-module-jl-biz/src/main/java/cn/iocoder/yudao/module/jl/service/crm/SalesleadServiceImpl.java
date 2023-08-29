@@ -100,7 +100,7 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Override
     public SalesleadCountStatsRespVO getSalesleadCountStats(){
         //获取未转化为项目的销售线索数量
-        Integer notToProjectCount = salesleadRepository.countByStatusNot(SalesLeadStatusEnums.NotToProject.getStatus());
+        Integer notToProjectCount = salesleadRepository.countByStatusNot(Integer.valueOf(SalesLeadStatusEnums.NotToProject.getStatus()));
         SalesleadCountStatsRespVO salesleadCountStatsRespVO = new SalesleadCountStatsRespVO();
         salesleadCountStatsRespVO.setNotToProjectCount(notToProjectCount);
         return salesleadCountStatsRespVO;
@@ -119,8 +119,8 @@ public class SalesleadServiceImpl implements SalesleadService {
         salesleadRepository.save(updateObj);
         Long salesleadId = updateObj.getId();
 
-        // 更新竞争对手的报价
-        // 删除原有的
+                              // 更新竞争对手的报价
+        // ``               删除原有的
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
         // 再插入
         List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();

@@ -14,6 +14,8 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Query("select count(p) from Project p where p.creator = ?1 and p.status = ?2")
+    Integer countByCreatorAndStatus(Long creator, String status);
     @Query("select count(p) from Project p where p.stage = ?1")
     Integer countByStage(String stage);
 
