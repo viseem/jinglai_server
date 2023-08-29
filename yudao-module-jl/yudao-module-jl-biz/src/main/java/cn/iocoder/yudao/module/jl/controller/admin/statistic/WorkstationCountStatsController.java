@@ -28,10 +28,8 @@ public class WorkstationCountStatsController {
     private WorkstationService workstationService;
 
     @GetMapping("/sale")
-    @Operation(summary = "通过 ID 获得友商")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:competitor:query')")
-    public CommonResult<WorkstationSaleCountStatsResp> getSaleCountStats(@RequestParam("id") Long id) {
+    public CommonResult<WorkstationSaleCountStatsResp> getSaleCountStats() {
         WorkstationSaleCountStatsResp saleCountStats = workstationService.getSaleCountStats();
         return success(saleCountStats);
     }

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
-    @Query("select count(s) from Saleslead s where s.creator = ?1 and s.status <> ?2")
+    @Query("select count(s) from Saleslead s where s.creator = ?1 and (s.status != ?2 or s.status is null)")
     Integer countByCreatorAndStatusNot(Long creator, Integer status);
     @Query("select count(s) from Saleslead s where s.status != ?1")
     Integer countByStatusNot(Integer status);
