@@ -28,8 +28,13 @@ public class WorkstationCountStatsController {
     private WorkstationService workstationService;
 
     @GetMapping("/sale")
-    @PreAuthorize("@ss.hasPermission('jl:competitor:query')")
     public CommonResult<WorkstationSaleCountStatsResp> getSaleCountStats() {
+        WorkstationSaleCountStatsResp saleCountStats = workstationService.getSaleCountStats();
+        return success(saleCountStats);
+    }
+
+    @GetMapping("/project")
+    public CommonResult<WorkstationSaleCountStatsResp> getProjectCountStats() {
         WorkstationSaleCountStatsResp saleCountStats = workstationService.getSaleCountStats();
         return success(saleCountStats);
     }

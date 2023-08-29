@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
@@ -36,12 +37,21 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer notToProjectCount = salesleadRepository.countByCreatorAndStatusNot(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.NotToProject.getStatus()));
         resp.setSalesLeadNotToProjectCount(notToProjectCount);
         // 自己的未收齐的款项数量
-        System.out.println(getLoginUserId()+"====---===="+ProjectFundEnums.ALL_PAY.getStatus());
         Integer notPayCompleteCount = projectFundRepository.countByCreatorAndStatusNot(getLoginUserId(), ProjectFundEnums.ALL_PAY.getStatus());
         resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
         // 自己的未完成的项目数量
         Integer projectNotCompleteCount = projectRepository.countByCreatorAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
         resp.setProjectNotCompleteCount(projectNotCompleteCount);
+        return resp;
+    }
+
+    @Override
+    public WorkstationProjectCountStatsResp getProjectCountStats(){
+        WorkstationProjectCountStatsResp resp = new WorkstationProjectCountStatsResp();
+
+        //自己的未完成的项目数量
+        Integer projectNotCompleteCount = projectRepository.countByManagerIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
+        resp.setNotCompleteProjectCount(projectNotCompleteCount);
         return resp;
     }
 }
