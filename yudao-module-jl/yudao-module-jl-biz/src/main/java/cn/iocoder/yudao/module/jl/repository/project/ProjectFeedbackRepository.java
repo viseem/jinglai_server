@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 *
 */
 public interface ProjectFeedbackRepository extends JpaRepository<ProjectFeedback, Long>, JpaSpecificationExecutor<ProjectFeedback> {
+    @Query("select count(p) from ProjectFeedback p where p.status <> ?1 or p.status is null")
+    Integer countByStatusNot(String status);
     @Transactional
     @Modifying
     @Query("update ProjectFeedback p set p.result = ?1, p.resultUserId = ?2, p.resultTime = ?3, p.status = ?4 where p.id = ?5")

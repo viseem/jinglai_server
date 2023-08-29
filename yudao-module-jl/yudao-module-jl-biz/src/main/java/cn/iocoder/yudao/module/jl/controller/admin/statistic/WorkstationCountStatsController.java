@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
 import cn.iocoder.yudao.module.jl.service.statistic.WorkstationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +35,8 @@ public class WorkstationCountStatsController {
     }
 
     @GetMapping("/project")
-    public CommonResult<WorkstationSaleCountStatsResp> getProjectCountStats() {
-        WorkstationSaleCountStatsResp saleCountStats = workstationService.getSaleCountStats();
-        return success(saleCountStats);
+    public CommonResult<WorkstationProjectCountStatsResp> getProjectCountStats() {
+        WorkstationProjectCountStatsResp projectCountStats = workstationService.getProjectCountStats();
+        return success(projectCountStats);
     }
 }

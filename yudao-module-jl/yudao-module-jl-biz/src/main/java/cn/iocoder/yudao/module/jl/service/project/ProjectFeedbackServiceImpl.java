@@ -1,11 +1,15 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
@@ -50,10 +54,17 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     private ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
+    private ProjectRepository projectRepository;
+
+    @Resource
     private ProjectFeedbackMapper projectFeedbackMapper;
 
     @Override
+    @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
+        //查询项目是否存在
+//        Project project = projectRepository.findById(createReqVO.getProjectCategoryId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
         projectFeedback.setStatus("2");
@@ -224,7 +235,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public void replyFeedback(ProjectFeedbackReplyReqVO replyReqVO) {
         // 校验存在
         validateProjectFeedbackExists(replyReqVO.getId());
-        replyReqVO.setStatus("1");
+        replyReqVO.setStatus(ProjectFeedbackEnums.PROCESSED.getStatus());
         // 更新
         projectFeedbackRepository.replyFeedback(replyReqVO.getResult(), replyReqVO.getResultUserId(), LocalDateTime.now(), replyReqVO.getStatus(), replyReqVO.getId());
     }

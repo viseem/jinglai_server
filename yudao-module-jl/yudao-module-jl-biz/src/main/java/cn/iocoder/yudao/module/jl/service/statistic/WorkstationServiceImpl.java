@@ -2,10 +2,13 @@ package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
+import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,9 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProjectRepository projectRepository;
+
+    @Resource
+    private ProjectFeedbackRepository projectFeedbackRepository;
 
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
@@ -52,6 +58,11 @@ public class WorkstationServiceImpl implements WorkstationService {
         //自己的未完成的项目数量
         Integer projectNotCompleteCount = projectRepository.countByManagerIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
         resp.setNotCompleteProjectCount(projectNotCompleteCount);
+
+        //所有的未处理的反馈数量
+        Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNot(ProjectFeedbackEnums.PROCESSED.getStatus());
+        resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
+
         return resp;
     }
 }
