@@ -1,13 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationExpCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
-import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
-import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -34,6 +33,9 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProjectFeedbackRepository projectFeedbackRepository;
+
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
 
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
@@ -62,6 +64,17 @@ public class WorkstationServiceImpl implements WorkstationService {
         //所有的未处理的反馈数量
         Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNot(ProjectFeedbackEnums.PROCESSED.getStatus());
         resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
+
+        return resp;
+    }
+
+    @Override
+    public WorkstationExpCountStatsResp getExpCountStats(){
+        WorkstationExpCountStatsResp resp = new WorkstationExpCountStatsResp();
+
+        //自己的未完成的任务数量
+        Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
+        resp.setNotCompleteTaskCount(notCompleteTaskCount);
 
         return resp;
     }

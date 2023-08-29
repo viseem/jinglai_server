@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select count(p) from ProjectCategory p where p.operatorId = ?1 and (p.stage <> ?2 or p.stage is null)")
+    Integer countByOperatorIdAndStageNot(Long operatorId, String stage);
     @Transactional
     @Modifying
     @Query("delete from ProjectCategory p where p.labId = ?1")
