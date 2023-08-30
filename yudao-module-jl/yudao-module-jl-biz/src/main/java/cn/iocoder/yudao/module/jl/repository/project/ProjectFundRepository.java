@@ -13,6 +13,8 @@ import java.util.List;
 public interface ProjectFundRepository extends JpaRepository<ProjectFund, Long>, JpaSpecificationExecutor<ProjectFund> {
     @Query("select count(p) from ProjectFund p where p.receivedPrice < p.price")
     Integer countByNotReceivedComplete();
+    @Query("select count(p) from ProjectFund p where p.creator = ?1 and p.receivedPrice < p.price")
+    Integer countByNotReceivedCompleteAndCreator(Long creator);
     @Query("select count(p) from ProjectFund p where p.creator = ?1 and (p.status <> ?2 or p.status is null)")
     Integer countByCreatorAndStatusNot(Long creator, String status);
 

@@ -46,7 +46,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer notToProjectCount = salesleadRepository.countByCreatorAndStatusNot(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.NotToProject.getStatus()));
         resp.setSalesLeadNotToProjectCount(notToProjectCount);
         // 自己的未收齐的款项数量
-        Integer notPayCompleteCount = projectFundRepository.countByCreatorAndStatusNot(getLoginUserId(), ProjectFundEnums.ALL_PAY.getStatus());
+        Integer notPayCompleteCount = projectFundRepository.countByNotReceivedCompleteAndCreator(getLoginUserId());
         resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
         // 自己的未完成的项目数量
         Integer projectNotCompleteCount = projectRepository.countBySalesIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
