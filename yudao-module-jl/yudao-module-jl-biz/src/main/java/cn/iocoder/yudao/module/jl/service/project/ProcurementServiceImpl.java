@@ -246,12 +246,17 @@ public class ProcurementServiceImpl implements ProcurementService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+            //TODO 疑问
+/*            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitCheckIn"), true));
             }
 
             if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitStoreIn"), true));
+            }*/
+
+            if(pageReqVO.getQueryStatus()!=null){
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getQueryStatus()));
             }
 
             if (pageReqVO.getMark() != null) {

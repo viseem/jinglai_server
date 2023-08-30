@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface ProductSendRepository extends JpaRepository<ProductSend, Long>, JpaSpecificationExecutor<ProductSend> {
+    @Query("select count(p) from ProductSend p where p.status <> ?1 or p.status is null")
+    Integer countByStatusNot(String status);
 
 }

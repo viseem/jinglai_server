@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplySendInRepository extends JpaRepository<SupplySendIn, Long>, JpaSpecificationExecutor<SupplySendIn> {
+    @Query("select count(s) from SupplySendIn s where s.status = ?1")
+    Integer countByStatus(String status);
     @Transactional
     @Modifying
     @Query("update SupplySendIn s set s.waitStoreIn = ?2 where s.id = ?1")

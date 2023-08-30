@@ -1,10 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
 
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationExpCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationFinanceCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
 
 /**
  * 友商 Service 接口
@@ -23,5 +20,8 @@ public interface WorkstationService {
 
     //财务人员工作台的数字统计
     WorkstationFinanceCountStatsResp getFinanceCountStats();
+
+    //库管人员工作台的数字统计
+    WorkstationWarehouseCountStatsResp getWarehouseCountStats();
 
 }

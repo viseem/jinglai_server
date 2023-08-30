@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplyPickupRepository extends JpaRepository<SupplyPickup, Long>, JpaSpecificationExecutor<SupplyPickup> {
+    @Query("select count(s) from SupplyPickup s where s.status = ?1")
+    Integer countByStatus(String status);
     @Transactional
     @Modifying
     @Query("update SupplyPickup s set s.waitStoreIn = ?2 where s.id = ?1")

@@ -1,13 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationExpCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationFinanceCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProjectCountStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.inventory.ProductInRepository;
+import cn.iocoder.yudao.module.jl.repository.inventory.ProductSendRepository;
+import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +40,22 @@ public class WorkstationServiceImpl implements WorkstationService {
     private ProcurementRepository procurementRepository;
 
     @Resource
+    private SupplySendInRepository supplySendInRepository;
+
+    @Resource
+    private SupplyPickupRepository supplyPickupRepository;
+
+    @Resource
     private CustomerRepository customerRepository;
+
+    @Resource
+    private ProductInRepository productInRepository;
+
+    @Resource
+    private SupplyOutRepository supplyOutRepository;
+
+    @Resource
+    private ProductSendRepository productSendRepository;
 
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
@@ -98,6 +113,46 @@ public class WorkstationServiceImpl implements WorkstationService {
         //全部的 未打款采购单数量
         Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
         resp.setProcurementNotPayCount(procurementNotPayCount);
+
+        return resp;
+    }
+
+    @Override
+    public WorkstationWarehouseCountStatsResp getWarehouseCountStats(){
+        WorkstationWarehouseCountStatsResp resp = new WorkstationWarehouseCountStatsResp();
+
+        //--------全部的 未签收的单子数量
+        //未签收的采购单数量
+        Integer waitingCheckInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        resp.setWaitingCheckInProcurementCount(waitingCheckInProcurementCount);
+        //未签收的寄来单数量
+        Integer waitingCheckInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        resp.setWaitingCheckInSendInCount(waitingCheckInSendInCount);
+        //未签收的提货单数量
+        Integer waitingCheckInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        resp.setWaitingCheckInPickupCount(waitingCheckInPickupCount);
+
+        //-----------------全部的 未入库的单子数量
+        //未入库的采购单数量
+        Integer waitingInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        resp.setWaitingInProcurementCount(waitingInProcurementCount);
+        //未入库的寄来单数量
+        Integer waitingInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        resp.setWaitingInSendInCount(waitingInSendInCount);
+        //未入库的提货单数量
+        Integer waitingInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        resp.setWaitingInPickupCount(waitingInPickupCount);
+
+        //------------全部的 未入库的申请数量
+        Integer waitingProductInCount = productInRepository.countByStatusNot(InventorySupplyInApprovalEnums.ACCEPT.getStatus());
+        resp.setWaitingProductInCount(waitingProductInCount);
+
+        //-----未出库的物资申请数量
+        Integer waitingSupplyOutCount = supplyOutRepository.countByStatusNot(InventorySupplyOutApprovalEnums.ACCEPT.getStatus());
+        resp.setWaitingSupplyOutCount(waitingSupplyOutCount);
+        //----未出库的寄送单数量
+        Integer waitingSendOutCount = productSendRepository.countByStatusNot(InventorySupplyOutApprovalEnums.ACCEPT.getStatus());
+        resp.setWaitingSendOutCount(waitingSendOutCount);
 
         return resp;
     }
