@@ -240,7 +240,6 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
             }
 
-
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
