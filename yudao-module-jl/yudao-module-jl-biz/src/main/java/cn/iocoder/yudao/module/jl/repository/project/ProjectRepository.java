@@ -24,7 +24,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
 
     @Query("select count(p) from Project p where p.stage = ?1")
     Integer countByStage(String stage);
-
+    @Query("select count(p) from Project p where p.stage = ?1 and p.managerId = ?2")
+    Integer countByStageAndManagerId(String stage, Long managerId);
 
     @Transactional
     @Modifying
