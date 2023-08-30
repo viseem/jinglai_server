@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,8 @@ import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 public class ProjectServiceImpl implements ProjectService {
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
-
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
@@ -188,6 +190,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setManagers(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -197,6 +203,10 @@ public class ProjectServiceImpl implements ProjectService {
         // 创建 Specification
         Specification<Project> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getAttribute()!=null){
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+            }
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));

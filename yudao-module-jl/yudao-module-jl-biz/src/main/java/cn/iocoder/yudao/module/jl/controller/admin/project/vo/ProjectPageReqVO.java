@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,8 +17,13 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectPageReqVO extends PageParam {
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute = DateAttributeTypeEnums.ALL.getStatus();
 
+    @Schema(description = "in 查询 managers")
+    private Long[] managers;
     private Long creator;
+
 
     private List<String> stageArr;
 
