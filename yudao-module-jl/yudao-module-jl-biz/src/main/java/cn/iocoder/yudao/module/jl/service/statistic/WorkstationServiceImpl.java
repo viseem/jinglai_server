@@ -49,7 +49,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer notPayCompleteCount = projectFundRepository.countByCreatorAndStatusNot(getLoginUserId(), ProjectFundEnums.ALL_PAY.getStatus());
         resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
         // 自己的未完成的项目数量
-        Integer projectNotCompleteCount = projectRepository.countByCreatorAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
+        Integer projectNotCompleteCount = projectRepository.countBySalesIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
         resp.setProjectNotCompleteCount(projectNotCompleteCount);
         return resp;
     }

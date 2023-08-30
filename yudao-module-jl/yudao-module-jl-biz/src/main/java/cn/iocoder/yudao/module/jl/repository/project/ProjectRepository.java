@@ -22,6 +22,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     @Query("select count(p) from Project p where p.creator = ?1 and (p.stage <> ?2 or p.stage is null)")
     Integer countByCreatorAndStageNot(Long creator, String stage);
 
+    @Query("select count(p) from Project p where p.salesId = ?1 and (p.stage <> ?2 or p.stage is null)")
+    Integer countBySalesIdAndStageNot(Long creator, String stage);
+
     @Query("select count(p) from Project p where p.stage = ?1")
     Integer countByStage(String stage);
     @Query("select count(p) from Project p where p.stage = ?1 and p.managerId = ?2")
