@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import org.mapstruct.*;
 
 
@@ -26,6 +27,8 @@ public interface ProjectConstractMapper {
     List<ProjectConstractExcelVO> toExcelList(List<ProjectConstract> list);
 
     PageResult<ProjectConstractRespVO> toPage(PageResult<ProjectConstract> page);
+
+    PageResult<ProjectConstractRespVO> toSimplePage(PageResult<ProjectConstractOnly> page);
 
     List<ProjectConstract> toEntityList(List<ProjectConstractItemVO> projectConstracts);
 }

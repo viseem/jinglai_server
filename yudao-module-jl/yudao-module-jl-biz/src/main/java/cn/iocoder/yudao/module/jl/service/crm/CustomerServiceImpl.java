@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
@@ -56,6 +58,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private CustomerRepository customerRepository;
+
+    @Resource
+    private CustomerSimpleRepository customerSimpleRepository;
 
     @Resource
     private CustomerMapper customerMapper;
@@ -268,6 +273,129 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 执行查询
         Page<Customer> page = customerRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+
+    public PageResult<CustomerOnly> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<CustomerOnly> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
+
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getSource() != null) {
+                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
+            }
+
+            if(pageReqVO.getPhone() != null) {
+                predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
+            }
+
+            if(pageReqVO.getEmail() != null) {
+                predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
+            }
+
+            if(pageReqVO.getMark() != null) {
+                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if(pageReqVO.getWechat() != null) {
+                predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
+            }
+
+            if(pageReqVO.getDoctorProfessionalRank() != null) {
+                predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
+            }
+
+            if(pageReqVO.getHospitalDepartment() != null) {
+                predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
+            }
+
+            if(pageReqVO.getAcademicTitle() != null) {
+                predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
+            }
+
+            if(pageReqVO.getAcademicCredential() != null) {
+                predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
+            }
+
+            if(pageReqVO.getHospitalId() != null) {
+                predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
+            }
+
+            if(pageReqVO.getUniversityId() != null) {
+                predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
+            }
+
+            if(pageReqVO.getCompanyId() != null) {
+                predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
+            }
+
+            if(pageReqVO.getProvince() != null) {
+                predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
+            }
+
+            if(pageReqVO.getCity() != null) {
+                predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
+            }
+
+            if(pageReqVO.getArea() != null) {
+                predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
+            }
+
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
+            if(pageReqVO.getDealCount() != null) {
+                predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
+            }
+
+            if(pageReqVO.getDealTotalAmount() != null) {
+                predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
+            }
+
+            if(pageReqVO.getArrears() != null) {
+                predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
+            }
+
+            if(pageReqVO.getLastFollowupTime() != null) {
+                predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
+            }
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
+            }
+
+            if(pageReqVO.getLastFollowupId() != null) {
+                predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
+            }
+
+            if(pageReqVO.getLastSalesleadId() != null) {
+                predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
+            }
+
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<CustomerOnly> page = customerSimpleRepository.findAll(spec, pageable);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
