@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationProje
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.WorkstationSaleCountStatsResp;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
 import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,9 @@ public class WorkstationServiceImpl implements WorkstationService {
     @Resource
     private ProcurementRepository procurementRepository;
 
+    @Resource
+    private CustomerRepository customerRepository;
+
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
         WorkstationSaleCountStatsResp resp = new WorkstationSaleCountStatsResp();
@@ -51,6 +55,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         // 自己的未完成的项目数量
         Integer projectNotCompleteCount = projectRepository.countBySalesIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
         resp.setProjectNotCompleteCount(projectNotCompleteCount);
+        // 自己的未转化为客户的客户数量
+        Integer notToCustomerCount = customerRepository.countByNotToCustomerAndCreator(getLoginUserId());
+        resp.setNot2CustomerCount(notToCustomerCount);
         return resp;
     }
 

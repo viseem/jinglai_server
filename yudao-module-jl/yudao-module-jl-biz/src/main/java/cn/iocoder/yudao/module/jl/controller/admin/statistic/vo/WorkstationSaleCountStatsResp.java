@@ -16,4 +16,6 @@ public class WorkstationSaleCountStatsResp {
     Integer projectDoingCount;
 
     Integer projectNotCompleteCount;
+
+    Integer not2CustomerCount;
 }
