@@ -32,4 +32,6 @@ public class CustomerRespVO extends CustomerBaseVO {
     private Followup lastFollowup;
     private Saleslead lastSaleslead;
     private UserRespVO sales;
+
+    private UserRespVO user;
 }

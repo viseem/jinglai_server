@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -57,8 +56,6 @@ public class CustomerController {
     @Operation(summary = "创建客户")
     @PreAuthorize("@ss.hasPermission('jl:customer:create')")
     public CommonResult<Long> createCustomer(@Valid @RequestBody CustomerCreateReqVO createReqVO) {
-        Long userId = getLoginUserId();
-        createReqVO.setSalesId(userId);
         return success(customerService.createCustomer(createReqVO));
     }
 
@@ -75,6 +72,14 @@ public class CustomerController {
     @PreAuthorize("@ss.hasPermission('jl:customer:update')")
     public CommonResult<Boolean> updateCustomer(@Valid @RequestBody ClueToCustomerReqVO updateReqVO) {
         customerService.toCustomer(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/assign")
+    @Operation(summary = "指派给销售")
+    @PreAuthorize("@ss.hasPermission('jl:customer:update')")
+    public CommonResult<Boolean> updateCustomer(@Valid @RequestBody CustomerAssignToSalesReqVO updateReqVO) {
+        customerService.customerAssign2Sales(updateReqVO);
         return success(true);
     }
 

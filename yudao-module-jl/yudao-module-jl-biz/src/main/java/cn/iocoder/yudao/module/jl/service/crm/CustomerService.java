@@ -35,6 +35,8 @@ public interface CustomerService {
      */
     void toCustomer(@Valid ClueToCustomerReqVO updateReqVO);
 
+    void customerAssign2Sales(@Valid CustomerAssignToSalesReqVO updateReqVO);
+
     /**
      * 删除客户
      *

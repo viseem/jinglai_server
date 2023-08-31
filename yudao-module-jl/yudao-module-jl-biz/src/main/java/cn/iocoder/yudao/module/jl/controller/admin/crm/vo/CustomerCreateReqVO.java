@@ -11,4 +11,6 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class CustomerCreateReqVO extends CustomerBaseVO {
 
+    //是否为公海客户
+    Boolean isSeas = false;
 }

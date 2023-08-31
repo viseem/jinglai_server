@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
@@ -77,6 +78,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
+
+        if(!createReqVO.getIsSeas()){
+            createReqVO.setSalesId(getLoginUserId());
+        }
+
         // 插入
         Customer customer = customerMapper.toEntity(createReqVO);
         customerRepository.save(customer);
@@ -102,6 +108,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public void customerAssign2Sales(CustomerAssignToSalesReqVO updateReqVO) {
+        // 校验存在
+        Customer customer = validateCustomerExists(updateReqVO.getId());
+        customer.setSalesId(updateReqVO.getSalesId());
+        customer.setMark(updateReqVO.getMark());
+        customer.setToCustomer(true);
+        // 更新
+        customerRepository.save(customer);
+    }
+
+    @Override
     public void deleteCustomer(Long id) {
         // 校验存在
         validateCustomerExists(id);
@@ -109,8 +126,13 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.deleteById(id);
     }
 
-    private void validateCustomerExists(Long id) {
-        customerRepository.findById(id).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
+    private Customer validateCustomerExists(Long id) {
+
+        Optional<Customer> byId = customerRepository.findById(id);
+        if(!byId.isPresent()){
+            throw exception(CUSTOMER_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -141,8 +163,11 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<Customer> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-
+            if(!pageReqVO.getAttribute().equals(DateAttributeTypeEnums.SEAS.getStatus())) {
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }else{
+                predicates.add(root.get("salesId").isNull());
+            }
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
@@ -270,7 +295,9 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<CustomerOnly> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-//            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            //增加查询条件 salesId大于0
+            predicates.add(cb.greaterThan(root.get("salesId"), 0));
+
 
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
