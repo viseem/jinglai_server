@@ -136,7 +136,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         String dateStr = DateUtil.format(new Date(), "yyyyMMdd");
         long count = procurementRepository.countByProjectId(saveReqVO.getProjectId());
         updateObj.setCode(dateStr + "-" + updateObj.getProjectId() + "-" + count);
-        updateObj.setWaitCheckIn(true);// 可以在check in列表中看到
+//        updateObj.setWaitCheckIn(true);// 可以在check in列表中看到
         updateObj = procurementRepository.save(updateObj);
         Long procurementId = updateObj.getId();
 
