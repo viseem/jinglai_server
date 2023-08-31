@@ -145,7 +145,18 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public Optional<ProjectConstract> getProjectConstract(Long id) {
-        return projectConstractRepository.findById(id);
+        Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
+        byId.ifPresent(item->{
+            int receivedPrice = 0;
+            if (item.getFundLogs().size() > 0) {
+                receivedPrice = item.getFundLogs().stream()
+                        .mapToInt(ProjectFundLog::getPrice)
+                        .sum();
+            }
+
+            item.setReceivedPrice(receivedPrice);
+        });
+        return byId;
     }
 
     @Override

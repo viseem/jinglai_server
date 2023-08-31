@@ -62,7 +62,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         WorkstationSaleCountStatsResp resp = new WorkstationSaleCountStatsResp();
 
         // 自己的未转化为项目的销售线索数量
-        Integer notToProjectCount = salesleadRepository.countByCreatorAndStatusNot(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.NotToProject.getStatus()));
+        Integer notToProjectCount = salesleadRepository.countByCreatorAndStatusNot(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.ToProject.getStatus()));
         resp.setSalesLeadNotToProjectCount(notToProjectCount);
         // 自己的未收齐的款项数量
         Integer notPayCompleteCount = projectFundRepository.countByNotReceivedCompleteAndCreator(getLoginUserId());
