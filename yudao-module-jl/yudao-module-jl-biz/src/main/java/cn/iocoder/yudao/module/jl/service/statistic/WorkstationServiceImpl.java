@@ -84,8 +84,8 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer projectNotCompleteCount = projectRepository.countByManagerIdAndStageNot(getLoginUserId(), ProjectStageEnums.OUTED.getStatus());
         resp.setNotCompleteProjectCount(projectNotCompleteCount);
 
-        //所有的未处理的反馈数量
-        Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNot(ProjectFeedbackEnums.PROCESSED.getStatus());
+        //自己的未处理的反馈数量
+        Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
         resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
 
         return resp;
