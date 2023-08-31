@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerRespVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -27,7 +28,7 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private ProjectSchedule currentSchedule;
 
-    private Customer customer;
+    private CustomerOnly customer;
 
     private User sales;
 

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -97,7 +98,6 @@ public class ProjectController {
         return success(ret);
     }
 
-
     @GetMapping("/count-stats")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
@@ -112,6 +112,14 @@ public class ProjectController {
     public CommonResult<PageResult<ProjectRespVO>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
         PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
         return success(projectMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/simple-page")
+    @Operation(summary = "(分页)获得项目管理列表")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<PageResult<ProjectRespVO>> getProjectSimplePage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+        PageResult<ProjectOnly> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
+        return success(projectMapper.toSimplePage(pageResult));
     }
 
     @GetMapping("/export-excel")
