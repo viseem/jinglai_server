@@ -36,6 +36,8 @@ import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUser;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -128,33 +130,6 @@ public class CustomerServiceImpl implements CustomerService {
         //获取attributeUsers
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setCreators(users);
-       /* List<Long> creators = new ArrayList<>();
-        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.SUB.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
-            DeptByReqVO dept = new DeptByReqVO();
-            dept.setLeaderUserId(getLoginUserId());
-            DeptDO deptBy = deptService.getDeptBy(dept);
-            if (deptBy != null) {
-                List<DeptDO> deptListByParentIdFromCache = deptService.getDeptListByParentIdFromCache(deptBy.getId(), true);
-                if (deptListByParentIdFromCache != null) {
-                    // Extract the department IDs from the list of DeptDO objects
-                    Collection<Long> departmentIds = deptListByParentIdFromCache.stream()
-                            .map(DeptDO::getId)
-                            .collect(Collectors.toList());
-                    departmentIds.add(deptBy.getId());
-                    // Find users by department IDs
-                    List<User> byDeptIdIn = userRepository.findByDeptIdIn(departmentIds);
-                    creators.addAll(byDeptIdIn.stream().map(User::getId).collect(Collectors.toList()));
-                }
-            }
-        }
-
-        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.MY.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
-            creators.add(getLoginUserId());
-        }
-
-        // Set creators as Long[] type
-        pageReqVO.setCreators(creators.toArray(new Long[0]));*/
-
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -281,6 +256,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     public PageResult<CustomerOnly> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
+        //获取attributeUsers
+//        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//        pageReqVO.setCreators(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -290,6 +269,8 @@ public class CustomerServiceImpl implements CustomerService {
         // 创建 Specification
         Specification<CustomerOnly> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+//            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));

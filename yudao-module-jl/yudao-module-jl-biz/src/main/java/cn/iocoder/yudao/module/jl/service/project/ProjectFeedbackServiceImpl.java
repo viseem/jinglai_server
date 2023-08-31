@@ -37,6 +37,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -116,7 +117,10 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
         //获取attribute
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
         pageReqVO.setCreators(users);
+
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -126,8 +130,13 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 创建 Specification
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            //如果是看自己的
+            if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
+                predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+            }else{
+                //不是看自己的 默认查由自己处理的
+                predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
 
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
