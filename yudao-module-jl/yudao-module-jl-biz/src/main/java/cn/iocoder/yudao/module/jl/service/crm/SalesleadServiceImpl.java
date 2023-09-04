@@ -16,6 +16,7 @@ import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
@@ -88,6 +89,9 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Resource
     private SalesleadCompetitorMapper salesleadCompetitorMapper;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
         // 插入
@@ -154,7 +158,9 @@ public class SalesleadServiceImpl implements SalesleadService {
            project.setStatus(updateReqVO.getStatus());
            project.setType(updateReqVO.getType());
            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
-           projectRepository.save(project);
+//           projectRepository.save(project);
+           projectService.createProject(projectMapper.toCreateDto(project));
+
 
            // 销售线索中保存项目 id
            updateObj.setProjectId(project.getId());

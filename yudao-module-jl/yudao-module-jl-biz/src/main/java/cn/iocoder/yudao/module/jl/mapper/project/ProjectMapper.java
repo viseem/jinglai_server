@@ -16,6 +16,7 @@ public interface ProjectMapper {
     Project toEntity(ProjectUpdateReqVO dto);
 
     ProjectRespVO toDto(Project entity);
+    ProjectCreateReqVO toCreateDto(Project entity);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

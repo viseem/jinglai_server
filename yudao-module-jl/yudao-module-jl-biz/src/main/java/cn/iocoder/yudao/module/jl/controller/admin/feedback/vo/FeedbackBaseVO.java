@@ -18,8 +18,7 @@ public class FeedbackBaseVO {
     @NotNull(message = "内容不能为空")
     private String content;
 
-    @Schema(description = "重要程度：重要紧急 不重要不紧急 重要不紧急", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "重要程度：重要紧急 不重要不紧急 重要不紧急不能为空")
+    @Schema(description = "重要程度：重要紧急 不重要不紧急 重要不紧急")
     private String importance;
 
     @Schema(description = "期望截止日期（排期）")
@@ -32,5 +31,12 @@ public class FeedbackBaseVO {
     @Schema(description = "截图地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
     @NotNull(message = "截图地址不能为空")
     private String fileUrl;
+
+    private String mark;
+
+    private String reply;
+
+    private String type;
+
 
 }

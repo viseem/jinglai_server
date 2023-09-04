@@ -28,6 +28,9 @@ public class FeedbackPageReqVO extends PageParam {
     @Schema(description = "期望截止日期（排期）")
     private String deadline;
 
+    @Schema(description = "是否排期")
+    private Boolean isDeadline;
+
     @Schema(description = "状态：未受理、处理中、已解决", example = "2")
     private String status;
 
