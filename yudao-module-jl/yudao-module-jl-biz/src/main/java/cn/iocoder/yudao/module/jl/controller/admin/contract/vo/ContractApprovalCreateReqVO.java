@@ -11,4 +11,6 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ContractApprovalCreateReqVO extends ContractApprovalBaseVO {
 
+
+
 }

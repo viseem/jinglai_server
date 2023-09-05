@@ -30,6 +30,11 @@ public class ProjectConstractBaseVO {
     @NotNull(message = "合同文件 URL不能为空")
     private String fileUrl;
 
+    @Schema(description = "盖章合同文件 URL")
+    private String stampFileUrl;
+    @Schema(description = "盖章合同文件 URL")
+    private String stampFileName;
+
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
     private String status = ProjectContractStatusEnums.WAIT_SIGN.getStatus();
 

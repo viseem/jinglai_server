@@ -82,6 +82,13 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
         // 更新流程实例编号
         contractApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
 
+        //更新合同的签订文件
+        projectConstractRepository.findById(save.getContractId()).ifPresent(contract -> {
+            contract.setStampFileName(createReqVO.getStampFileName());
+            contract.setStampFileUrl(createReqVO.getStampFileUrl());
+            projectConstractRepository.save(contract);
+        });
+
         // 返回
         return contractApproval.getId();
     }
