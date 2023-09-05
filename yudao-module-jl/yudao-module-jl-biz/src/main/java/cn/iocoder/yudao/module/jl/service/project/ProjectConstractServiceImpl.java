@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
@@ -35,6 +36,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -94,6 +96,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }
         projectConstract.setStatus("1");
         projectConstract.setCustomerId(byId.get().getCustomerId());
+        projectConstract.setSalesId(getLoginUserId());
         projectConstractRepository.save(projectConstract);
         // 返回
         return projectConstract.getId();
@@ -203,7 +206,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(pageReqVO.getProjectId()==null){
+            if(!pageReqVO.getAttribute().equals(DateAttributeTypeEnums.ANY.getStatus())){
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
             }
 

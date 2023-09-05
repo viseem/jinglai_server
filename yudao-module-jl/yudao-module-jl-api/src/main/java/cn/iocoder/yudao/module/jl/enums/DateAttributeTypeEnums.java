@@ -19,7 +19,8 @@ public enum DateAttributeTypeEnums implements StringArrayValuable {
     ALL("ALL", "全部"),
     SUB("SUB", "下属负责的"),
     MY("MY", "我负责的"),
-    SEAS("SEAS", "公海")
+    SEAS("SEAS", "公海"),
+    ANY("ANY", "任何")
     ;
 
     private final String status;
