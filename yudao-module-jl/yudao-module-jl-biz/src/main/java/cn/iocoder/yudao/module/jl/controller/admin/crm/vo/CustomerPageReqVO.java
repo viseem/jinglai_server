@@ -17,7 +17,7 @@ public class CustomerPageReqVO extends PageParam {
 
     private Boolean toCustomer = true;
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DateAttributeTypeEnums.ALL.getStatus();
+    private String attribute = DateAttributeTypeEnums.MY.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;

@@ -3,9 +3,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import liquibase.pro.packaged.R;
 import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +59,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Resource
     private ProjectFundLogRepository projectFundLogRepository;
 
+    @Resource
+    private ProjectRepository projectRepository;
+
     @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
@@ -76,6 +81,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
+        Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
+        if (byId.isEmpty()){
+            throw  exception(PROJECT_NOT_EXISTS);
+        }
+
         // 插入
         createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
@@ -83,6 +93,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
         }
         projectConstract.setStatus("1");
+        projectConstract.setCustomerId(byId.get().getCustomerId());
         projectConstractRepository.save(projectConstract);
         // 返回
         return projectConstract.getId();
@@ -192,8 +203,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            if(pageReqVO.getProjectId()==null){
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
 
             if (pageReqVO.getReceivedStatus() != null) {
                 switch (pageReqVO.getReceivedStatus()) {
@@ -367,7 +379,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 执行查询
         Page<ProjectConstractOnly> page = projectConstractSimpleRepository.findAll(spec, pageable);
 
-        List<ProjectConstractOnly> contracts = page.getContent();
+//        List<ProjectConstractOnly> contracts = page.getContent();
 
         //计算已收金额
 
