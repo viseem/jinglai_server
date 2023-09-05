@@ -245,6 +245,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.or(namePredicate, snPredicate));
             }
 
+            //如果创建时间不为空，查询创建时间在开始时间和结束时间之间的数据
+            if(pageReqVO.getCreateTime() != null){
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
@@ -256,7 +261,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
-
 
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
