@@ -40,6 +40,12 @@ public class ProjectDevice extends BaseEntity {
     private Long id;
 
     /**
+     * 项目id
+     */
+    @Column(name = "project_id", nullable = false )
+    private Long projectId;
+
+    /**
      * 设备id
      */
     @Column(name = "device_id", nullable = false )

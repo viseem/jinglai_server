@@ -96,6 +96,11 @@ public class ProjectDeviceServiceImpl implements ProjectDeviceService {
         Specification<ProjectDevice> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            //如果项目id不为空，查询项目id
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getDeviceId() != null) {
                 predicates.add(cb.equal(root.get("deviceId"), pageReqVO.getDeviceId()));
             }
