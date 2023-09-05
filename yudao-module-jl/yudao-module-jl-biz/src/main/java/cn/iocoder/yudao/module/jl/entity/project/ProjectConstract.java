@@ -102,6 +102,12 @@ public class ProjectConstract extends BaseEntity {
     private Integer realPrice;
 
     /**
+     * 已收金额
+     */
+    @Column(name = "received_price")
+    private Integer receivedPrice;
+
+    /**
      * 签订销售人员
      */
     @Column(name = "sales_id")
@@ -125,11 +131,6 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "is_collect_all")
     private Boolean isCollectAll;
 
-    /*
-     * 已收金额
-     * */
-    @Transient
-    private Integer receivedPrice;
 
 
     /**

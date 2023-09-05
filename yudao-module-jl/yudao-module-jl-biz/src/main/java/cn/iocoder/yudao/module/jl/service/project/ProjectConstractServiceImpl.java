@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.security.access.method.P;
@@ -52,6 +53,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private ProjectConstractSimpleRepository projectConstractSimpleRepository;
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
+
+    @Resource
+    private ProjectFundLogRepository projectFundLogRepository;
+
     @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
@@ -82,7 +87,14 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 返回
         return projectConstract.getId();
     }
-
+    public void processContractReceivedPrice(Long contractId) {
+        List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByContractId(contractId);
+        int priceSum = 0;
+        for (ProjectFundLog log : projectFundLogs) {
+            priceSum += log.getPrice();
+        }
+        projectConstractRepository.updateReceivedPriceById(priceSum,contractId);
+    }
     @Override
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
         // 校验存在
@@ -183,6 +195,29 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
             predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
+            if (pageReqVO.getReceivedStatus() != null) {
+                switch (pageReqVO.getReceivedStatus()) {
+                    case "ALL_PAY":
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("receivedPrice"), root.get("price")));
+                        break;
+                    case "PART":
+                        predicates.add(cb.and(
+                                cb.lessThan(root.get("receivedPrice"), root.get("price")),
+                                cb.greaterThan(root.get("receivedPrice"), 0)
+                        ));
+                        break;
+                    case "NO":
+                        predicates.add(cb.or(
+                                cb.equal(root.get("receivedPrice"), 0),
+                                cb.isNull(root.get("receivedPrice"))
+                        ));
+                        break;
+                    // Add more cases if needed
+                    default:
+                        break;
+                }
+            }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -232,10 +267,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
             }
 
-            if(pageReqVO.getIsCollectAll() != null) {
-                predicates.add(cb.equal(root.get("isCollectAll"), pageReqVO.getIsCollectAll()));
-            }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -243,11 +274,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 执行查询
         Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
         
-        List<ProjectConstract> contracts = page.getContent();
+//        List<ProjectConstract> contracts = page.getContent();
         
         //计算已收金额
 
-        if (contracts.size() > 0) {
+/*        if (contracts.size() > 0) {
             contracts.forEach(item -> {
                 Integer receivedPrice = 0;
                 if (item.getFundLogs().size() > 0) {
@@ -258,7 +289,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
                 item.setReceivedPrice(receivedPrice);
             });
-        }
+        }*/
 
 
 
@@ -327,10 +358,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
             if(pageReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
-            }
-
-            if(pageReqVO.getIsCollectAll() != null) {
-                predicates.add(cb.equal(root.get("isCollectAll"), pageReqVO.getIsCollectAll()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

@@ -17,4 +17,7 @@ public interface ProjectFundLogRepository extends JpaRepository<ProjectFundLog, 
     ProjectFundLog findByProjectFundId(Long projectFundId);
 
     List<ProjectFundLog> findAllByProjectFundId(@NotNull(message = "项目款项主表id不能为空") Long projectFundId);
+
+    List<ProjectFundLog> findAllByContractId(@NotNull(message = "合同id不能为空") Long contractId);
+
 }

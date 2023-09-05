@@ -56,6 +56,9 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private ProjectFundMapper projectFundMapper;
 
     @Resource
+    private ProjectConstractServiceImpl projectConstractService;
+
+    @Resource
     private ProjectFundLogMapper projectFundLogMapper;
 
     @Override
@@ -103,6 +106,9 @@ public class ProjectFundServiceImpl implements ProjectFundService {
             item.setProjectFundId(saveReqVO.getId());
             receivedPrice.updateAndGet(v -> v + item.getPrice());
         }).collect(Collectors.toList()));
+
+        //更新合同已收金额
+        projectConstractService.processContractReceivedPrice(saveReqVO.getContractId());
 
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(saveReqVO);

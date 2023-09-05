@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.projectfundlog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -16,10 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.projectfundlog.vo.*;
@@ -49,6 +46,9 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
     @Resource
     private ProjectFundLogMapper projectFundLogMapper;
 
+    @Resource
+    private ProjectConstractServiceImpl projectConstractService;
+
     @Override
     @Transactional
     public Long createProjectFundLog(ProjectFundLogCreateReqVO createReqVO) {
@@ -63,7 +63,10 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
         projectFundLogRepository.save(projectFundLog);
 
         //更新projectFund的已收金额
-        processReceivedPrice(createReqVO.getProjectFundId());
+        processFundReceivedPrice(createReqVO.getProjectFundId());
+
+        //更新合同已收金额
+        projectConstractService.processContractReceivedPrice(projectFund.getContractId());
 
         // 返回
         return projectFundLog.getId();
@@ -80,16 +83,19 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
         projectFundLogRepository.save(updateObj);
 
         //更新projectFund的已收金额
-        processReceivedPrice(updateReqVO.getProjectFundId());
+        processFundReceivedPrice(updateReqVO.getProjectFundId());
+
+        //更新合同已收金额
+        projectConstractService.processContractReceivedPrice(updateObj.getContractId());
     }
 
-    private void processReceivedPrice(Long updateReqVO) {
-        List<ProjectFundLog> allByProjectFundId = projectFundLogRepository.findAllByProjectFundId(updateReqVO);
+    private void processFundReceivedPrice(Long projectFundId) {
+        List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByProjectFundId(projectFundId);
         int priceSum = 0;
-        for (ProjectFundLog log : allByProjectFundId) {
+        for (ProjectFundLog log : projectFundLogs) {
             priceSum += log.getPrice();
         }
-        projectFundRepository.updateReceivedPriceById(priceSum, updateReqVO);
+        projectFundRepository.updateReceivedPriceById(priceSum, projectFundId);
     }
 
     @Override
