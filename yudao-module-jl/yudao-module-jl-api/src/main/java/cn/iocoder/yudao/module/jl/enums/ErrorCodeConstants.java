@@ -171,4 +171,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode FEEDBACK_NOT_EXISTS = new ErrorCode(1002026000, "晶莱反馈不存在");
 
+    ErrorCode PROJECT_FEEDBACK_FOCUS_NOT_EXISTS = new ErrorCode(1002027000, "晶莱项目反馈关注人员不存在");
+
 }

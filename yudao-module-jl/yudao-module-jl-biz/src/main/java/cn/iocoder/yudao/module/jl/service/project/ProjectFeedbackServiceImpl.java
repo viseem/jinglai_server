@@ -1,11 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.projectfeedback.ProjectFeedbackFocus;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfeedback.ProjectFeedbackFocusRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.mail.dto.MailSendSingleToUserReqDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -50,6 +56,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     private ProjectFeedbackRepository projectFeedbackRepository;
 
     @Resource
+    private ProjectFeedbackFocusRepository projectFeedbackFocusRepository;
+
+    @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
@@ -57,7 +66,8 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
     @Resource
     private ProjectFeedbackMapper projectFeedbackMapper;
-
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
     @Override
     @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
@@ -75,11 +85,28 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
             projectCategoryRepository.updateHasFeedbackById(createReqVO.getProjectCategoryId(), (byte) 1);
         }
 
-        //
+        //保存关注人列表,使用projectFeedbackFocusRepository.saveAll()方法
+/*        projectFeedbackFocusRepository.saveAll(createReqVO.getFocusUserIds().stream().map(focus -> {
+            //发送站内通知
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
+            templateParams.put("detailUrl", getProcessInstanceDetailUrl(reqDTO.getProcessInstanceId()));
+            //发送通知
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    reqDTO.getStartUserId(),
+                    BpmMessageEnum.NOTIFY_WHEN_APPROVAL.getTemplateCode(), templateParams
+            ));
+
+            return new ProjectFeedbackFocus().setProjectFeedbackId(projectFeedback.getId()).setUserId(focus);
+        }).collect(Collectors.toList()));*/
 
         // 返回
         return projectFeedback.getId();
     }
+
+/*    private String getProcessInstanceDetailUrl(String taskId) {
+        return webProperties.getAdminUi().getUrl() + "/link/transfer/taskInstance?id=" + taskId;
+    }*/
 
     @Override
     public void updateProjectFeedback(ProjectFeedbackUpdateReqVO updateReqVO) {
