@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor
-public enum DateAttributeTypeEnums implements StringArrayValuable {
+public enum DataAttributeTypeEnums implements StringArrayValuable {
 
     ALL("ALL", "全部"),
     SUB("SUB", "下属负责的"),

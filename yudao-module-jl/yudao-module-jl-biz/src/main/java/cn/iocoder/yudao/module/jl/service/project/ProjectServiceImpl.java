@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
@@ -206,7 +206,7 @@ public class ProjectServiceImpl implements ProjectService {
                 //项目暂停个数
                 respVO.setPauseCount(projectRepository.countByStage(ProjectStageEnums.PAUSE.getStatus()));
                 map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
-            } else if (pageReqVO.getAttribute().equals(DateAttributeTypeEnums.MY.getStatus())){
+            } else if (pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
                 //项目预开展个数
                 respVO.setPreCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.PRE.getStatus(),getLoginUserId()));
                 map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());

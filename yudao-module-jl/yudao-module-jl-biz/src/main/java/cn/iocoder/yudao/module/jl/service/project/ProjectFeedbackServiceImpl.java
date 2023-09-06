@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -22,10 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 
@@ -64,17 +62,20 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
         //查询项目是否存在
-//        Project project = projectRepository.findById(createReqVO.getProjectCategoryId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
-
+        Project project = projectRepository.findById(createReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+        // 校验是否已经反馈过
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
         projectFeedback.setStatus("2");
+        projectFeedback.setCustomerId(project.getCustomerId());
         projectFeedbackRepository.save(projectFeedback);
 
         // 如果是projectCategory的反馈，则更新projectCategory的字段 TODO 可能会更新失败
         if (createReqVO.getProjectCategoryId() != null && createReqVO.getProjectCategoryId() > 0) {
             projectCategoryRepository.updateHasFeedbackById(createReqVO.getProjectCategoryId(), (byte) 1);
         }
+
+        //
 
         // 返回
         return projectFeedback.getId();
@@ -131,11 +132,13 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             //如果是看自己的
-            if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
-                predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
-            }else{
-                //不是看自己的 默认查由自己处理的
-                predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
+                    predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+                }else{
+                    //不是看自己的 默认查由自己处理的
+                    predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
             }
 
             if (pageReqVO.getProjectId() != null) {

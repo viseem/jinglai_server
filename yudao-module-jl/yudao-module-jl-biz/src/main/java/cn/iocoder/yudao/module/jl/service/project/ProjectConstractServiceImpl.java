@@ -2,14 +2,12 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
-import liquibase.pro.packaged.R;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -206,7 +204,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(!pageReqVO.getAttribute().equals(DateAttributeTypeEnums.ANY.getStatus())){
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
             }
 

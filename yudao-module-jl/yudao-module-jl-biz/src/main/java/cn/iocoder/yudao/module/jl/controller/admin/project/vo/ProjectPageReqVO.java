@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import lombok.*;
 
 import java.time.LocalDate;
