@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractItemVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCompetitor;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
@@ -109,7 +110,8 @@ public class SalesleadServiceImpl implements SalesleadService {
 
         if(updateReqVO.getId() != null) {
             // 校验存在
-            validateSalesleadExists(updateReqVO.getId());
+            Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
+            updateReqVO.setProjectId(saleslead.getProjectId());
         }
 
         // 更新线索
@@ -142,7 +144,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
 
-       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
+       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
            // 1. 创建项目
            Project project = new Project();
            project.setSalesleadId(salesleadId);
@@ -152,13 +154,27 @@ public class SalesleadServiceImpl implements SalesleadService {
            project.setStatus(updateReqVO.getStatus());
            project.setType(updateReqVO.getType());
            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
+
+           if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+               //如果客户不存在，则抛出异常
+               Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
+               project.setName(customer.getName()+"的报价");
+
+           }
+
 //           projectRepository.save(project);
-           projectService.createProject(projectMapper.toCreateDto(project));
+           if(updateReqVO.getProjectId()!=null){
+                project.setId(updateReqVO.getProjectId());
+                projectRepository.save(project);
+           }else{
+               Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
+               // 销售线索中保存项目 id
+               updateObj.setProjectId(projectId);
+               salesleadRepository.save(updateObj);
+           }
 
 
-           // 销售线索中保存项目 id
-           updateObj.setProjectId(project.getId());
-           salesleadRepository.save(updateObj);
+
 
            //不按照类型区分合同传不传，有就传没有不传
            // 2. 保存合同
@@ -191,8 +207,12 @@ public class SalesleadServiceImpl implements SalesleadService {
         salesleadRepository.deleteById(id);
     }
 
-    private void validateSalesleadExists(Long id) {
-        salesleadRepository.findById(id).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
+    private Saleslead validateSalesleadExists(Long id) {
+        Optional<Saleslead> byId = salesleadRepository.findById(id);
+        if(byId.isEmpty()) {
+            throw exception(SALESLEAD_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -221,7 +241,6 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 创建 Specification
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
@@ -235,13 +254,13 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
             }
 
-            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
+/*            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
                 // 待报价的
                 predicates.add(cb.isNull(root.get("quotation")));
             } else if (Objects.equals(pageReqVO.getQuotationStatus(), "2")) {
                 // 已报价的
                 predicates.add(cb.isNotNull(root.get("quotation")));
-            }
+            }*/
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
@@ -250,16 +269,22 @@ public class SalesleadServiceImpl implements SalesleadService {
             if(pageReqVO.getQuotation() != null) {
                 predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
             }
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
-            if(pageReqVO.getStatus() != null) {
-                //如果状态是NOT_TRANSFER，那就查询除了已经转化的线索；如果是其它状态，就查询对应状态的线索
-                if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
-                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
-                }else{
-                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                if(pageReqVO.getStatus() != null) {
+                    //查询未转项目的
+                    if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                        predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                    }else{
+                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                    }
+
                 }
-
             }
+
 //                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
 
 
@@ -279,9 +304,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("lostNote"), pageReqVO.getLostNote()));
             }
 
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-            }
+
 
 
             return cb.and(predicates.toArray(new Predicate[0]));

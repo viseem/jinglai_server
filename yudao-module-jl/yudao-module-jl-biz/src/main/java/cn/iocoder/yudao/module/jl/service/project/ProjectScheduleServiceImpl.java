@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.stream.Collectors;
@@ -334,6 +335,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      * @return
      */
     @Override
+    @Transactional
     public Long saveProjectScheduleCategory(ProjectScheduleCategorySaveReqVO category) {
         if (category.getId() != null) {
             List<Long> categoryIds = new ArrayList<>();
@@ -343,11 +345,14 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             projectCategoryAttachmentRepository.deleteByProjectCategoryIdIn(categoryIds);
         }
 
-        category.setType("schedule");
-
+        category.setType(category.getType());
+        if(category.getType()!=null&&category.getType().equals("quotation")){
+            category.setName("报价");
+            category.setLabId(-1L);
+        }
 
         ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
-        projectCategoryRepository.save(categoryDo);
+        ProjectCategory save = projectCategoryRepository.save(categoryDo);
 
         // 保存收费项
         List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();
@@ -407,7 +412,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
 
 
-        return null;
+        return save.getId();
     }
 
     @Override

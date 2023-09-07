@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
@@ -97,7 +98,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
-        createReqVO.setCode(generateCode());
+        //如果状态，注意这里的状态是销售线索的状态，不是项目的状态
+        if(!createReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+            createReqVO.setCode(generateCode());
+        }
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
 

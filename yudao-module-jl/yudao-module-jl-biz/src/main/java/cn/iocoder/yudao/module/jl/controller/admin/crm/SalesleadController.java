@@ -104,6 +104,7 @@ public class SalesleadController {
 
         PageResult<SalesleadRespVO> resp = salesleadMapper.toPage(pageResult);
 
+/*
         resp.getList().forEach(saleslead -> {
             if (saleslead != null && saleslead.getQuote() != null) {
                 if (saleslead.getQuote().getCategoryList() != null) {
@@ -116,6 +117,7 @@ public class SalesleadController {
             }
 
         });
+*/
 
 
         return success(resp);

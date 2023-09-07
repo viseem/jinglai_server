@@ -3,10 +3,12 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import java.util.*;
 import javax.persistence.*;
@@ -57,12 +59,25 @@ public class ProjectSchedule extends BaseEntity {
      */
     @Column(name = "plan_text", nullable = false )
     private String planText;
+    @Column(name = "current_plan_id", nullable = false )
+    private Long currentPlanId;
 
     /**
      * 实验名目
      */
-    @OneToMany(mappedBy="schedule")
+/*    @OneToMany(mappedBy="schedule")
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonManagedReference
+    private List<ProjectCategory> categoryList;*/
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Where(clause="type = 'schedule'")
+    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategory> categoryList;
+
 }
