@@ -63,6 +63,14 @@ public class ProjectScheduleController {
         return success(projectScheduleService.saveProjectSchedule(saveReqVO));
     }
 
+    @PostMapping("/save-supply-and-chargeitem")
+    @Operation(summary = "保存项目安排单")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
+    public CommonResult<Boolean> saveScheduleSupplyAndChargeItem(@Valid @RequestBody ScheduleSaveSupplyAndChargeItemReqVO saveReqVO) {
+        projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update")
     @Operation(summary = "更新项目安排单")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:update')")

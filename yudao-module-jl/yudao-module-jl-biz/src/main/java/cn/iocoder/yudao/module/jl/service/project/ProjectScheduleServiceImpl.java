@@ -373,10 +373,14 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         return scheduleId;
     }
 
-    /**
-     * @param saveReqVO
-     * @return
-     */
+    @Override
+    public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
+        //批量保存saveReq中的supplyList
+       projectSupplyRepository.saveAll(saveReq.getSupplyList());
+       projectChargeitemRepository.saveAll(saveReq.getChargeList());
+    }
+
+
     @Override
     @Transactional
     public Long saveProjectScheduleCategory(ProjectScheduleCategorySaveReqVO category) {

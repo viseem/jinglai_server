@@ -35,7 +35,7 @@ public interface ProjectScheduleService {
     Long getCategoryOutSourceCostByScheduleId(Long id);
 
     Long saveProjectSchedule(@Valid ProjectScheduleSaveReqVO saveReqVO);
-
+    void saveScheduleSupplyAndChargeItem(@Valid ScheduleSaveSupplyAndChargeItemReqVO saveReqVO);
     Long saveProjectScheduleCategory(@Valid ProjectScheduleCategorySaveReqVO saveReqVO);
 
     /**
