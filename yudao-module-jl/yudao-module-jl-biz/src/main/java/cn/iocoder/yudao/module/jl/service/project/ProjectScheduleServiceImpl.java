@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCat
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
@@ -463,7 +464,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
             System.out.println("supplyQuotation:"+supplyQuotation+"chargeQuotation:"+chargeQuotation);
 
-            salesleadRepository.updateQuotationByProjectId(supplyQuotation+chargeQuotation,save.getProjectId());
+            salesleadRepository.updateQuotationAndStatusByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation, Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
         }
 
 

@@ -26,6 +26,6 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
 
     @Transactional
     @Modifying
-    @Query("update Saleslead s set s.quotation = ?1 where s.projectId = ?2")
-    void updateQuotationByProjectId(Long quotation, Long projectId);
+    @Query("update Saleslead s set s.quotation = ?2,s.status = ?3 where s.projectId = ?1")
+    void updateQuotationAndStatusByProjectId(Long projectId,Long quotation, Integer status);
 }
