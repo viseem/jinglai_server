@@ -24,6 +24,10 @@ public interface ProjectScheduleService {
 
     Long getChargeItemCostByScheduleId(Long id);
 
+    Long getSupplyQuotationByScheduleId(Long id);
+
+    Long getChargeItemQuotationByScheduleId(Long id);
+
     Long getProcurementCostByScheduleId(Long id);
 
     Long getReimburseCostByScheduleId(Long id);

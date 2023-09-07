@@ -76,7 +76,7 @@ public class ProjectChargeitem extends BaseEntity {
      * 单价
      */
     @Column(name = "unit_fee", nullable = false )
-    private String unitFee;
+    private Integer unitFee;
 
     /**
      * 单量

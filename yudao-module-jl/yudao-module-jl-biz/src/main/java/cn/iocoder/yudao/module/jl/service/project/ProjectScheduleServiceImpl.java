@@ -102,6 +102,11 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
+    private final SalesleadRepository salesleadRepository;
+
+    public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
+        this.salesleadRepository = salesleadRepository;
+    }
 
     @Override
     public Long createProjectSchedule(ProjectScheduleCreateReqVO createReqVO) {
@@ -122,7 +127,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         // 计算物资的成本
         List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByScheduleId(id);
-
         for (ProjectSupply projectSupply : projectSupplyList) {
             if (projectSupply.getBuyPrice() != null) {
                 cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
@@ -145,6 +149,44 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
             if (projectChargeitem.getBuyPrice() != null) {
                 cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyQuotationByScheduleId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByScheduleId(id);
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getUnitFee() != null) {
+                cost += projectSupply.getUnitFee().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemQuotationByScheduleId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByScheduleId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getUnitFee() != null) {
+                cost += projectChargeitem.getUnitFee().longValue() * projectChargeitem.getQuantity();
             }
         }
 
@@ -346,13 +388,16 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         }
 
         category.setType(category.getType());
+        //TODO 改为enum
         if(category.getType()!=null&&category.getType().equals("quotation")){
             category.setName("报价");
             category.setLabId(-1L);
+
         }
 
         ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
         ProjectCategory save = projectCategoryRepository.save(categoryDo);
+
 
         // 保存收费项
         List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();
@@ -409,7 +454,17 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             List<ProjectCategoryAttachment> projectCategoryAttachments = projectCategoryAttachmentMapper.toEntity(projectAttachmentList);
             projectCategoryAttachmentRepository.saveAll(projectCategoryAttachments);
         }
+        //TODO 改为enum
 
+        if(category.getType()!=null&&category.getType().equals("quotation")){
+            //核算对应项目的商机的公司报价总价
+            Long supplyQuotation = getSupplyQuotationByScheduleId(save.getScheduleId());
+            Long chargeQuotation = getChargeItemQuotationByScheduleId(save.getScheduleId());
+
+            System.out.println("supplyQuotation:"+supplyQuotation+"chargeQuotation:"+chargeQuotation);
+
+            salesleadRepository.updateQuotationByProjectId(supplyQuotation+chargeQuotation,save.getProjectId());
+        }
 
 
         return save.getId();
