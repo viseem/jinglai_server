@@ -462,8 +462,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             Long supplyQuotation = getSupplyQuotationByScheduleId(save.getScheduleId());
             Long chargeQuotation = getChargeItemQuotationByScheduleId(save.getScheduleId());
 
-            System.out.println("supplyQuotation:"+supplyQuotation+"chargeQuotation:"+chargeQuotation);
-
             salesleadRepository.updateQuotationAndStatusByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation, Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
         }
 

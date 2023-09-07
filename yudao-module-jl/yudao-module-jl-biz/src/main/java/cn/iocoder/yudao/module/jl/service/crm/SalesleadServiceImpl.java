@@ -271,6 +271,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
             }else{
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
