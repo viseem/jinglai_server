@@ -162,18 +162,19 @@ public class SalesleadServiceImpl implements SalesleadService {
 
            }
 
-//           projectRepository.save(project);
            if(updateReqVO.getProjectId()!=null){
-                project.setId(updateReqVO.getProjectId());
-                projectRepository.save(project);
+               project = projectRepository.findById(updateReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+               project.setCode(projectService.generateCode());
+               project.setName(updateReqVO.getProjectName());
+               project.setStatus(updateReqVO.getStatus());
+               project.setType(updateReqVO.getType());
+               projectRepository.save(project);
            }else{
                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
                // 销售线索中保存项目 id
                updateObj.setProjectId(projectId);
                salesleadRepository.save(updateObj);
            }
-
-
 
 
            //不按照类型区分合同传不传，有就传没有不传
@@ -183,10 +184,10 @@ public class SalesleadServiceImpl implements SalesleadService {
            if(projectConstracts != null && projectConstracts.size() > 0) {
                // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
                projectConstracts.forEach(projectConstract -> {
-                   projectConstract.setProjectId(project.getId());
+                   projectConstract.setProjectId(updateReqVO.getProjectId());
                    projectConstract.setCustomerId(updateReqVO.getCustomerId());
                    projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
-                   projectConstract.setName(project.getName());
+                   projectConstract.setName(updateReqVO.getProjectName());
                });
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
                projectConstractRepository.saveAll(contracts);
