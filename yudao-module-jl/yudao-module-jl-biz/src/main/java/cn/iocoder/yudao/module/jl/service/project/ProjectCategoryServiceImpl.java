@@ -226,7 +226,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
 
-            if(pageReqVO.getType() != null) {
+            //TODO all换成enum
+
+            if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 

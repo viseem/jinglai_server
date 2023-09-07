@@ -88,6 +88,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
         resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
 
+        //自己的未报价的线索数量
+        Integer notQuotationCount = salesleadRepository.countByManagerIdAndStatus(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.QUOTATION.getStatus()));
+        resp.setNotQuotationCount(notQuotationCount);
         return resp;
     }
 
