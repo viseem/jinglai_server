@@ -14,7 +14,7 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
-    @Query("select count(p) from Project p where p.managerId = ?1 and (p.stage <> ?2 or p.stage is null)")
+    @Query("select count(p) from Project p where p.managerId = ?1 and (p.stage <> ?2 or p.stage is null) and p.code is not null")
     Integer countByManagerIdAndStageNot(Long managerId, String stage);
     @Query("select count(p) from Project p where p.creator = ?1 and p.stage = ?2")
     Integer countByCreatorAndStage(Long creator, String stage);
@@ -22,7 +22,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     @Query("select count(p) from Project p where p.creator = ?1 and (p.stage <> ?2 or p.stage is null)")
     Integer countByCreatorAndStageNot(Long creator, String stage);
 
-    @Query("select count(p) from Project p where p.salesId = ?1 and (p.stage <> ?2 or p.stage is null)")
+    @Query("select count(p) from Project p where p.salesId = ?1 and (p.stage <> ?2 or p.stage is null) and p.code is not null")
     Integer countBySalesIdAndStageNot(Long creator, String stage);
 
     @Query("select count(p) from Project p where p.stage = ?1")

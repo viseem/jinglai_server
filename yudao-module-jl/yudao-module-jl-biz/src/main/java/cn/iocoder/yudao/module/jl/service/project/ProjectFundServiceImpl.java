@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
@@ -11,6 +12,7 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -257,6 +259,8 @@ public class ProjectFundServiceImpl implements ProjectFundService {
             projectFunds.forEach(ProjectFundServiceImpl::processFundLogs);
         }
 
+
+
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
@@ -264,6 +268,9 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private static void processFundLogs(ProjectFund item) {
         if (item.getItems().size() > 0) {
             item.setLatestFundLog(item.getItems().get(0));
+            //计算已开票的金额,通过item.getReceipts()获取所有的发票，然后计算所有已开发票(actualDate不为空)的金额
+            BigDecimal totalReceiptPrice = item.getReceipts().stream().filter(receipt -> receipt.getActualDate() != null).map(CrmReceipt::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+            item.setReceiptPrice(totalReceiptPrice);
         }
     }
 

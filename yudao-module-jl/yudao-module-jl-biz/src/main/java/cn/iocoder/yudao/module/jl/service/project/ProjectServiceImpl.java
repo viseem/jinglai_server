@@ -255,6 +255,9 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
             }
 
+            //默认查询code不为空的
+            predicates.add(cb.isNotNull(root.get("code")));
+
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
             }
