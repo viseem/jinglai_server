@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.repository.inventory.ProductInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.ProductSendRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import org.jetbrains.annotations.Contract;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -110,7 +111,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         WorkstationFinanceCountStatsResp resp = new WorkstationFinanceCountStatsResp();
 
         // 全部的未收齐的款项数量
-        Integer notPayCompleteCount = projectFundRepository.countByNotReceivedComplete();
+        Integer notPayCompleteCount = projectFundRepository.countByStatusNot(ContractFundStatusEnums.COMPLETE.getStatus());
         resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
 
         //全部的 未打款采购单数量
