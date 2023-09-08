@@ -11,6 +11,10 @@ import java.util.List;
 *
 */
 public interface ProjectFundRepository extends JpaRepository<ProjectFund, Long>, JpaSpecificationExecutor<ProjectFund> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectFund p set p.status = ?1 where p.id = ?2")
+    int updateStatusById(String status, Long id);
     @Query("select count(p) from ProjectFund p where p.receivedPrice < p.price")
     Integer countByNotReceivedComplete();
     @Query("select count(p) from ProjectFund p where p.creator = ?1 and p.receivedPrice < p.price")

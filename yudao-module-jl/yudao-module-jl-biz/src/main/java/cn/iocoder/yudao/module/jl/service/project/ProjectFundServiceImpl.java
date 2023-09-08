@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
@@ -118,12 +119,8 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.save(updateObj);
     }
 
-    public void updateProjectFundPayment(ProjectFundPaymentUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProjectFundExists(updateReqVO.getId());
-        // 更新
-        ProjectFund updateObj = projectFundMapper.toEntity(updateReqVO);
-        projectFundRepository.save(updateObj);
+    public void updateProjectFundStatus(ProjectFundPaymentUpdateReqVO updateReqVO) {
+        projectFundRepository.updateStatusById(updateReqVO.getStatus(),updateReqVO.getId());
     }
 
 
@@ -171,7 +168,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         Specification<ProjectFund> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getAttribute()!=null){
+            if(pageReqVO.getAttribute()!=null&& !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
             }
 
@@ -182,8 +179,8 @@ public class ProjectFundServiceImpl implements ProjectFundService {
                 predicates.add();
             }*/
 
-            if (pageReqVO.getStatus() != null) {
-                switch (pageReqVO.getStatus()) {
+            if (pageReqVO.getPayStatus() != null) {
+                switch (pageReqVO.getPayStatus()) {
                     case "ALL_PAY":
                         predicates.add(cb.greaterThanOrEqualTo(root.get("receivedPrice"), root.get("price")));
                         break;
@@ -205,7 +202,9 @@ public class ProjectFundServiceImpl implements ProjectFundService {
                 }
             }
 
-
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.equal(root.get("name"), pageReqVO.getName()));
             }
@@ -225,7 +224,6 @@ public class ProjectFundServiceImpl implements ProjectFundService {
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
-
 
 
             if(pageReqVO.getPaidTime() != null) {
@@ -268,10 +266,11 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private static void processFundLogs(ProjectFund item) {
         if (item.getItems().size() > 0) {
             item.setLatestFundLog(item.getItems().get(0));
-            //计算已开票的金额,通过item.getReceipts()获取所有的发票，然后计算所有已开发票(actualDate不为空)的金额
-            BigDecimal totalReceiptPrice = item.getReceipts().stream().filter(receipt -> receipt.getActualDate() != null).map(CrmReceipt::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-            item.setReceiptPrice(totalReceiptPrice);
         }
+        //计算已开票的金额,通过item.getReceipts()获取所有的发票，然后计算所有已开发票(actualDate不为空)的金额
+        BigDecimal totalReceiptPrice = item.getReceipts().stream().filter(receipt -> receipt.getActualDate() != null).map(CrmReceipt::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println(totalReceiptPrice+"-----------totalReceiptPrice");
+        item.setReceiptPrice(totalReceiptPrice);
     }
 
     @Override

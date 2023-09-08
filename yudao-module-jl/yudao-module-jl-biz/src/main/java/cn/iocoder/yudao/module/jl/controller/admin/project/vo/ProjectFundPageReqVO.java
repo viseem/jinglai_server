@@ -40,8 +40,10 @@ public class ProjectFundPageReqVO extends PageParam {
     @Schema(description = "合同 id", example = "27211")
     private Long contractId;
 
-    @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
+    @Schema(description = "", example = "2")
     private String status;
+    @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
+    private String payStatus;
 
     @Schema(description = "支付时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
@@ -49,7 +51,7 @@ public class ProjectFundPageReqVO extends PageParam {
 
     @Schema(description = "支付的截止时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDate[] deadline;
+    private LocalDateTime[] deadline;
 
     @Schema(description = "支付凭证上传地址", example = "https://www.iocoder.cn")
     private String receiptUrl;

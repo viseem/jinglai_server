@@ -17,7 +17,7 @@ public class ProjectConstractPageReqVO extends PageParam {
 
 
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DataAttributeTypeEnums.MY.getStatus();
+    private String attribute = DataAttributeTypeEnums.ANY.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;
