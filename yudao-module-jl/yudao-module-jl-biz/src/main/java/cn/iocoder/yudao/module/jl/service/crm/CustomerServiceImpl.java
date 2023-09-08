@@ -162,11 +162,13 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<Customer> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
-                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-            }else{
-                predicates.add(root.get("salesId").isNull());
-            }
+           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+               if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
+                   predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+               }else{
+                   predicates.add(root.get("salesId").isNull());
+               }
+           }
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
