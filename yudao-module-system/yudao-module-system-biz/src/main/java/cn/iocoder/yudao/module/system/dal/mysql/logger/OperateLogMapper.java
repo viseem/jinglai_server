@@ -18,6 +18,7 @@ public interface OperateLogMapper extends BaseMapperX<OperateLogDO> {
     default PageResult<OperateLogDO> selectPage(OperateLogPageReqVO reqVO, Collection<Long> userIds) {
         LambdaQueryWrapperX<OperateLogDO> query = new LambdaQueryWrapperX<OperateLogDO>()
                 .likeIfPresent(OperateLogDO::getModule, reqVO.getModule())
+                .likeIfPresent(OperateLogDO::getJavaMethodArgs, reqVO.getArgs())
                 .inIfPresent(OperateLogDO::getUserId, userIds)
                 .eqIfPresent(OperateLogDO::getType, reqVO.getType())
                 .betweenIfPresent(OperateLogDO::getStartTime, reqVO.getStartTime());
