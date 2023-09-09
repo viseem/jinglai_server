@@ -28,6 +28,8 @@ public interface ProjectConstractService {
      */
     void updateProjectConstract(@Valid ProjectConstractUpdateReqVO updateReqVO);
 
+    void updateProjectConstractPayStatus(@Valid ProjectConstractUpdatePayStatusReqVO updateReqVO);
+
     /**
      * 更新项目合同
      *

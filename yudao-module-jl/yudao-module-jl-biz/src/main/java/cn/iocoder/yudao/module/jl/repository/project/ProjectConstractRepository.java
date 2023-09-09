@@ -13,6 +13,10 @@ import java.util.List;
 public interface ProjectConstractRepository extends JpaRepository<ProjectConstract, Long>, JpaSpecificationExecutor<ProjectConstract> {
     @Transactional
     @Modifying
+    @Query("update ProjectConstract p set p.payStatus = ?1 where p.id = ?2")
+    int updatePayStatusById(String payStatus, Long id);
+    @Transactional
+    @Modifying
     @Query("update ProjectConstract p set p.receivedPrice = ?1 where p.id = ?2")
     int updateReceivedPriceById(Integer receivedPrice, Long id);
     @Query("select p from ProjectConstract p where p.customerId = ?1 and p.status = ?2")

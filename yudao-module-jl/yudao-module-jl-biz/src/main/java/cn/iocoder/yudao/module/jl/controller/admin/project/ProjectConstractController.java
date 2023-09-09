@@ -58,6 +58,14 @@ public class ProjectConstractController {
         return success(true);
     }
 
+    @PutMapping("/update-paystatus")
+    @Operation(summary = "更新项目合同支付状态")
+    @PreAuthorize("@ss.hasPermission('jl:project-constract:update')")
+    public CommonResult<Boolean> updateProjectConstract(@Valid @RequestBody ProjectConstractUpdatePayStatusReqVO updateReqVO) {
+        projectConstractService.updateProjectConstractPayStatus(updateReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update-field")
     @Operation(summary = "更新项目合同")
     @PreAuthorize("@ss.hasPermission('jl:project-constract:update')")

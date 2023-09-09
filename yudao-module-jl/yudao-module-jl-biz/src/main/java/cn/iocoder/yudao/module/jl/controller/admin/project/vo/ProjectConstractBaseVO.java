@@ -38,6 +38,7 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
     private String status = ProjectContractStatusEnums.WAIT_SIGN.getStatus();
 
+    private String payStatus;
     @Schema(description = "合同类型", example = "1")
     private String type;
 

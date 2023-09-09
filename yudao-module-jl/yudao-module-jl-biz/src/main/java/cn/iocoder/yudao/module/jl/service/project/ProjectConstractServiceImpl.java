@@ -117,6 +117,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     }
 
     @Override
+    public void updateProjectConstractPayStatus(ProjectConstractUpdatePayStatusReqVO updateReqVO) {
+        projectConstractRepository.updatePayStatusById(updateReqVO.getPayStatus(),updateReqVO.getId());
+    }
+
+    @Override
     public void updateFieldProjectConstract(ProjectConstractUpdateFieldReqVO updateReqVO) {
         // 校验存在
         ProjectConstract projectConstract = validateProjectConstractExists(updateReqVO.getId());

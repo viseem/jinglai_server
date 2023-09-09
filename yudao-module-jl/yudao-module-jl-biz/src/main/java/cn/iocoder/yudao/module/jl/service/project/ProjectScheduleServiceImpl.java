@@ -254,6 +254,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
 
 
+
+
     /**
      * @param saveReqVO
      * @return
@@ -380,6 +382,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
        projectChargeitemRepository.saveAll(saveReq.getChargeList());
     }
 
+    @Override
+    public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO){
+        salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
+        return null;
+    }
+
 
     @Override
     @Transactional
@@ -466,7 +474,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             Long supplyQuotation = getSupplyQuotationByScheduleId(save.getScheduleId());
             Long chargeQuotation = getChargeItemQuotationByScheduleId(save.getScheduleId());
 
-            salesleadRepository.updateQuotationAndStatusByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation, Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
+            salesleadRepository.updateQuotationByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation);
         }
 
 
