@@ -179,4 +179,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_PERSON_NOT_EXISTS = new ErrorCode(1002030000, "项目人员不存在");
 
+    ErrorCode FINANCE_PAYMENT_NOT_EXISTS = new ErrorCode(1002031000, "财务打款不存在");
+
 }
