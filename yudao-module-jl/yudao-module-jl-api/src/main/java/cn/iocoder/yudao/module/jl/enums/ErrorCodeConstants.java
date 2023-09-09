@@ -175,4 +175,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_PLAN_NOT_EXISTS = new ErrorCode(1002028000, "项目实验方案不存在");
 
+    ErrorCode WORK_DURATION_NOT_EXISTS = new ErrorCode(1002029000, "工时不存在");
+
 }
