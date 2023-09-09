@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
@@ -58,6 +61,9 @@ public class ProjectServiceImpl implements ProjectService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @Resource
+    private ProjectPersonRepository projectPersonRepository;
+
+    @Resource
     private ProjectRepository projectRepository;
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
@@ -76,7 +82,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     public ProjectServiceImpl(UserRepository userRepository,
-                              ProjectConstractRepository projectConstractRepository) {
+                              ProjectConstractRepository projectConstractRepository
+                              ) {
         this.userRepository = userRepository;
         this.projectConstractRepository = projectConstractRepository;
     }
@@ -122,12 +129,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
         Project project = validateProjectExists(updateReqVO.getId());
 /*        if(project.getCode()==null|| project.getCode().equals("")){
             updateReqVO.setCode(generateCode());
         }*/
+
+        //删除旧的人员
+        projectPersonRepository.deleteByProjectId(updateReqVO.getId());
+        //处理persons，添加新的人员
+        projectPersonRepository.saveAll(updateReqVO.getPersons());
+
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

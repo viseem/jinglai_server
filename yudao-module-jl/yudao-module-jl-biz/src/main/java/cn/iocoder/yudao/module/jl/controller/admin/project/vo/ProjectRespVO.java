@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.entity.projectperson.ProjectPerson;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -61,4 +62,6 @@ public class ProjectRespVO extends ProjectBaseVO {
     private ProjectApproval latestApproval;
 
     private List<ProjectCategoryOnly> categoryList;
+
+    private List<ProjectPerson> persons;
 }

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -39,6 +40,8 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 public class ProjectController {
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ProjectPersonRepository projectPersonRepository;
 
     @Resource
     private ProjectScheduleService projectScheduleService;
@@ -94,6 +97,8 @@ public class ProjectController {
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
         ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
 
+        //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
+        ret.setPersons(projectPersonRepository.findByProjectId(id));
 
         return success(ret);
     }

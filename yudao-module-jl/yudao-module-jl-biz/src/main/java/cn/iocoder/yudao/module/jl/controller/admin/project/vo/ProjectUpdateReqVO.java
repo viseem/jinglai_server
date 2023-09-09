@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.projectperson.ProjectPerson;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -14,5 +15,8 @@ public class ProjectUpdateReqVO extends ProjectBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "29196")
     @NotNull(message = "ID不能为空")
     private Long id;
+
+
+    private List<ProjectPerson> persons;
 
 }

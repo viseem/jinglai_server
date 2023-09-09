@@ -177,4 +177,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode WORK_DURATION_NOT_EXISTS = new ErrorCode(1002029000, "工时不存在");
 
+    ErrorCode PROJECT_PERSON_NOT_EXISTS = new ErrorCode(1002030000, "项目人员不存在");
+
 }
