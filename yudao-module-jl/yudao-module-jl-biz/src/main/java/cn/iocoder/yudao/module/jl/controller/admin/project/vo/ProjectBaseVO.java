@@ -26,6 +26,11 @@ public class ProjectBaseVO {
     @Schema(description = "当前安排单 id", example = "15320")
     private Long currentScheduleId;
 
+    private String processInstanceId;
+    private String outboundApplyResult;
+
+    private Long outboundUserId;
+
     @Schema(description = "销售线索 id", example = "15320")
     private Long salesleadId;
 

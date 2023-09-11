@@ -28,6 +28,9 @@ public interface ProjectService {
      */
     void updateProject(@Valid ProjectUpdateReqVO updateReqVO);
 
+
+    void projectOutboundApply(@Valid ProjectOutboundApplyReqVO updateReqVO);
+
     /**
      * 设置项目的主安排单
      */

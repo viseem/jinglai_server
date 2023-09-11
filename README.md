@@ -10,7 +10,7 @@ scp yudao-server/target/yudao-server.jar zs:/home/ubuntu/jinglai
 
 运行以下命令
 ```bash
-bash deploy.sh。
+bash deploy.sh
 ```
 # 注意事项
 ## 文件上传

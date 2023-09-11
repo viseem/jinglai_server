@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -67,6 +69,11 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectRepository projectRepository;
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
+
+    public static final String PROCESS_KEY = "PROJECT_OUTBOUND_APPLY";
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
     @PostConstruct
     public void ProjectServiceImpl(){
         Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
@@ -126,6 +133,23 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 返回
         return project.getId();
+    }
+
+    @Override
+    @Transactional
+    public void projectOutboundApply(ProjectOutboundApplyReqVO outboundApplyReqVO){
+        // 校验存在
+        validateProjectExists(outboundApplyReqVO.getProjectId());
+
+        //加入审批流
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(outboundApplyReqVO.getProjectId())));
+
+        //更新出库状态、流程实例id、申请人
+        projectRepository.updateStageAndProcessInstanceIdAndApplyUserById(outboundApplyReqVO.getProjectId(),ProjectStageEnums.OUTING.getStatus(),processInstanceId,getLoginUserId());
+
     }
 
     @Override

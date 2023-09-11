@@ -39,6 +39,19 @@ public class Project extends BaseEntity {
     @Column(name = "id", nullable = false )
     private Long id;
 
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
+    /*
+    * 项目出库申请结果
+    * */
+
+    @Column(name = "outbound_apply_result", nullable = false )
+    private String outboundApplyResult;
+
+    @Column(name = "outbound_user_id", nullable = false )
+    private Long outboundUserId;
+
 
     /**
      * 项目编号

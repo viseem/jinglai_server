@@ -21,7 +21,7 @@ public enum ProjectStageEnums implements StringArrayValuable {
     PRE("1","预开展"),
     PAUSE("4","暂停"),
     OUTED("9","出库"),
-    OUTING("7","出库中"),
+    OUTING("7","出库审批"),
     ;
 
     private final String status;
