@@ -86,6 +86,14 @@ public class ProjectScheduleController {
         return success(true);
     }
 
+    @PutMapping("/update-by-content-html")
+    @Operation(summary = "更新项目安排单")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:update')")
+    public CommonResult<Boolean> updateSchedulePlanByContentHtml(@Valid @RequestBody ProjectScheduleUpdatePlanReqVO updateReqVO) {
+        projectScheduleService.updateSchedulePlanByContentHtml(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目安排单")
     @Parameter(name = "id", description = "编号", required = true)

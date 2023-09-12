@@ -491,6 +491,23 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     }
 
     @Override
+    @Transactional
+    public void updateSchedulePlanByContentHtml(ProjectScheduleUpdatePlanReqVO updateReqVO){
+        ProjectSchedule projectSchedule = validateProjectScheduleExists(updateReqVO.getScheduleId());
+
+        //把projectSchedule的planText字符串中等于updateReqVO的contentHtml的 替换为 updateReqVO的newContentHtml
+        String planText = projectSchedule.getPlanText();
+        String contentHtml = updateReqVO.getContentHtml();
+        String newContentHtml = updateReqVO.getNewContentHtml();
+        String replace = planText.replace(contentHtml, newContentHtml);
+        projectScheduleRepository.updatePlanTextById(replace,updateReqVO.getScheduleId());
+
+        //更新projectCategory的content
+        projectCategoryRepository.updateContentById(updateReqVO.getProjectCategoryContent(), updateReqVO.getProjectCategoryId());
+
+    }
+
+    @Override
     public void deleteProjectSchedule(Long id) {
         // 校验存在
         validateProjectScheduleExists(id);
@@ -498,8 +515,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectScheduleRepository.deleteById(id);
     }
 
-    private void validateProjectScheduleExists(Long id) {
-        projectScheduleRepository.findById(id).orElseThrow(() -> exception(PROJECT_SCHEDULE_NOT_EXISTS));
+    private ProjectSchedule validateProjectScheduleExists(Long id) {
+        Optional<ProjectSchedule> byId = projectScheduleRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(PROJECT_SCHEDULE_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

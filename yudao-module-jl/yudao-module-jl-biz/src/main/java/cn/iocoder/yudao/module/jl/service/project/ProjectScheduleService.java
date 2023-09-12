@@ -47,6 +47,12 @@ public interface ProjectScheduleService {
      */
     void updateProjectSchedule(@Valid ProjectScheduleUpdateReqVO updateReqVO);
 
+    /*
+    * 通过category的content更新安排单的方案
+    *
+    * */
+    void updateSchedulePlanByContentHtml(@Valid ProjectScheduleUpdatePlanReqVO updateReqVO);
+
     /**
      * 删除项目安排单
      *
