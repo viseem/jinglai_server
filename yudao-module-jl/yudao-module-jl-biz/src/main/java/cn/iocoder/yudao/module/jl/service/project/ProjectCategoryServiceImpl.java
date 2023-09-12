@@ -151,6 +151,20 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    public void deleteSoftProjectCategory(Long id){
+        // 校验存在
+        validateProjectCategoryExists(id);
+        // 删除
+        projectCategoryRepository.deleteById(id);
+    }
+
+    @Override
+    public void restoreDeletedProjectCategory(Long id){
+
+        projectCategoryRepository.updateDeletedById(false,id);
+    }
+
+    @Override
     public void deleteProjectCategoryBy(ProjectCategoryDeleteByReqVO deleteByReqVO) {
         if (deleteByReqVO.getLabId()!=null){
             projectCategoryRepository.deleteByLabId(deleteByReqVO.getLabId());

@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategory")
 @Table(name = "jl_project_category")
+@SQLDelete(sql = "UPDATE jl_project_category SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ProjectCategory extends BaseEntity {
 
     /**

@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import org.hibernate.annotations.SQLDelete;
 
 /**
  * 项目的实验名目 Service 接口
@@ -35,6 +36,14 @@ public interface ProjectCategoryService {
      * @param id 编号
      */
     void deleteProjectCategory(Long id);
+
+    /*
+    *
+    * 软删除项目的实验名目
+    * */
+    void deleteSoftProjectCategory(Long id);
+
+    void restoreDeletedProjectCategory(Long id);
 
     /**
      * 按照 条件 删除项目的实验名目
