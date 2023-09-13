@@ -12,4 +12,6 @@ public class WorkstationFinanceCountStatsResp {
     Integer projectFundNotPayCompleteCount;
     Integer procurementNotPayCount;
 
+    Integer financePaymentNotPayCount;
+
 }

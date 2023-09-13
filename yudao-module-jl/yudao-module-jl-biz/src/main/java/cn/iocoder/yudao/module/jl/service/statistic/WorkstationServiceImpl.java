@@ -1,15 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectFeedback;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.ProductInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.ProductSendRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.SupplyOutRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
-import org.jetbrains.annotations.Contract;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -57,6 +56,11 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProductSendRepository productSendRepository;
+    private final FinancePaymentRepository financePaymentRepository;
+
+    public WorkstationServiceImpl(FinancePaymentRepository financePaymentRepository) {
+        this.financePaymentRepository = financePaymentRepository;
+    }
 
     @Override
     public WorkstationSaleCountStatsResp getSaleCountStats() {
@@ -117,6 +121,11 @@ public class WorkstationServiceImpl implements WorkstationService {
         //全部的 未打款采购单数量
         Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
         resp.setProcurementNotPayCount(procurementNotPayCount);
+
+        //全部的 为打款的打款单数量
+        Integer integer = financePaymentRepository.countByAuditStatusNot(FinancePaymentEnums.PAYED.getStatus());
+        resp.setFinancePaymentNotPayCount(integer);
+
 
         return resp;
     }
