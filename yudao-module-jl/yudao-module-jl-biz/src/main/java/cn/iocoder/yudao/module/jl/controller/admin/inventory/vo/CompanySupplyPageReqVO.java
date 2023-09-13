@@ -22,6 +22,12 @@ public class CompanySupplyPageReqVO extends PageParam {
     @Schema(description = "名称", example = "芋艿")
     private String name;
 
+    @Schema(description = "品牌", example = "芋艿")
+    private String brand;
+
+    @Schema(description = "货号", example = "芋艿")
+    private String productCode;
+
     @Schema(description = "规则/单位")
     private String feeStandard;
 

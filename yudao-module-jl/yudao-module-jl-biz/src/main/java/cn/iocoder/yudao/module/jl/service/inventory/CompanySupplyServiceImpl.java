@@ -98,6 +98,14 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
+            if(pageReqVO.getBrand() != null) {
+                predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
+            }
+
+            if(pageReqVO.getProductCode() != null) {
+                predicates.add(cb.like(root.get("productCode"), "%" + pageReqVO.getProductCode() + "%"));
+            }
+
             if(pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
             }

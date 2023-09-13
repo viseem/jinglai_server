@@ -269,7 +269,6 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         }
         //计算已开票的金额,通过item.getReceipts()获取所有的发票，然后计算所有已开发票(actualDate不为空)的金额
         BigDecimal totalReceiptPrice = item.getReceipts().stream().filter(receipt -> receipt.getActualDate() != null).map(CrmReceipt::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-        System.out.println(totalReceiptPrice+"-----------totalReceiptPrice");
         item.setReceiptPrice(totalReceiptPrice);
     }
 

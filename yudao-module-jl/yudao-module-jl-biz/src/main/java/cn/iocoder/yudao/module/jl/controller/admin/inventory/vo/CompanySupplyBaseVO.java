@@ -61,4 +61,6 @@ public class CompanySupplyBaseVO {
     @Schema(description = "物资快照地址", example = "https://www.iocoder.cn")
     private String fileUrl;
 
+    private String brand;
+    private String productCode;
 }

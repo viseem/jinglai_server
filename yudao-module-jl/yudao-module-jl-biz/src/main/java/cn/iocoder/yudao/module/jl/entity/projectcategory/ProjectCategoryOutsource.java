@@ -1,8 +1,12 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -10,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -139,4 +144,25 @@ public class ProjectCategoryOutsource extends BaseEntity {
      */
     @Column(name = "files")
     private String files;
+
+    //--------额外信息 不在表中
+    /*
+    * 已打款金额
+    * */
+    @Transient
+    private BigDecimal paidPrice;
+
+    // ---------------------级联表
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @Where(clause = "type = '1'")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<FinancePayment> payments = new ArrayList<>();
+
+
 }

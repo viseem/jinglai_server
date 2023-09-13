@@ -127,4 +127,16 @@ public class CompanySupply extends BaseEntity {
     @Column(name = "file_url")
     private String fileUrl;
 
+    /*
+    * 品牌
+    * */
+    @Column(name = "brand")
+    private String brand;
+
+    /*
+     * 货号
+     * */
+    @Column(name = "product_code")
+    private String productCode;
+
 }
