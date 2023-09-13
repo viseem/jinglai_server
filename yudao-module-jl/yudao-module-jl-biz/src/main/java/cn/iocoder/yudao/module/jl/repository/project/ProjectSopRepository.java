@@ -13,6 +13,10 @@ import java.util.Collection;
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
     @Transactional
     @Modifying
+    @Query("update ProjectSop p set p.deleted = ?1 where p.projectCategoryId = ?2")
+    int updateDeletedByProjectCategoryId(Boolean deleted, Long projectCategoryId);
+    @Transactional
+    @Modifying
     @Query("delete from ProjectSop p where p.projectCategoryId = ?1")
     int deleteByProjectCategoryId(Long projectCategoryId);
     @Transactional

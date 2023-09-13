@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface ProjectSupplyRepository extends JpaRepository<ProjectSupply, Long>, JpaSpecificationExecutor<ProjectSupply> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectSupply p set p.deleted = ?1 where p.projectCategoryId = ?2")
+    int updateDeletedByProjectCategoryId(Boolean deleted, Long projectCategoryId);
     @Query("select p from ProjectSupply p where p.scheduleId = ?1")
     List<ProjectSupply> findByScheduleId(Long scheduleId);
     @Transactional

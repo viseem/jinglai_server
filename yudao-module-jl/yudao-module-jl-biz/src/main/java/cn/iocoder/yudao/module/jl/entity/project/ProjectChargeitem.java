@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.*;
 import javax.persistence.*;
@@ -23,6 +25,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectChargeitem")
 @Table(name = "jl_project_chargeitem")
+@SQLDelete(sql = "UPDATE jl_project_chargeitem SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ProjectChargeitem extends BaseEntity {
 
     /**

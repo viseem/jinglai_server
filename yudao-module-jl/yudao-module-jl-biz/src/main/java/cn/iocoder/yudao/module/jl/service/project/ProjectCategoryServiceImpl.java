@@ -154,14 +154,32 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public void deleteSoftProjectCategory(Long id){
         // 校验存在
         validateProjectCategoryExists(id);
+
+        //软删除物资
+        projectSupplyRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除收费项
+        projectChargeitemRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除sop
+        projectSopRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除attachment
+        projectCategoryAttachmentRepository.updateDeletedByProjectCategoryId(true,id);
+
         // 删除
         projectCategoryRepository.deleteById(id);
     }
 
     @Override
     public void restoreDeletedProjectCategory(Long id){
-
         projectCategoryRepository.updateDeletedById(false,id);
+
+        //软删除物资 恢复
+        projectSupplyRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除收费项 恢复
+        projectChargeitemRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除sop 恢复
+        projectSopRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除attachment 恢复
+        projectCategoryAttachmentRepository.updateDeletedByProjectCategoryId(false,id);
     }
 
     @Override

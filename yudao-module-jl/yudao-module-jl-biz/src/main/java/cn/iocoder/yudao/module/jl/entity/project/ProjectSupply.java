@@ -9,13 +9,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.*;
 
 import java.util.*;
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -29,6 +28,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectSupply")
 @Table(name = "jl_project_supply")
+@SQLDelete(sql = "UPDATE jl_project_supply SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ProjectSupply extends BaseEntity {
 
     /**
