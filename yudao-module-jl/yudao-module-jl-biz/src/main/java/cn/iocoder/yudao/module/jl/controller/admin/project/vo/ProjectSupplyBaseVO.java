@@ -22,8 +22,7 @@ public class ProjectSupplyBaseVO {
     @NotNull(message = "选中的实验名目 id不能为空")
     private Long projectCategoryId;
 
-    @Schema(description = "原始的实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "18163")
-    @NotNull(message = "原始的实验名目 id不能为空")
+    @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
     @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15603")
@@ -61,6 +60,9 @@ public class ProjectSupplyBaseVO {
     private String mark;
 
     private String brand;
+
+    private String productCode;
+
 
     private String type;
 
