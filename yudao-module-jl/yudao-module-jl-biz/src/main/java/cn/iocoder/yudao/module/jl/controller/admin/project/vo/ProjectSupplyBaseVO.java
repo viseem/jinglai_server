@@ -43,7 +43,9 @@ public class ProjectSupplyBaseVO {
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
-    private String unitFee;
+    private Integer unitFee;
+
+    private Integer officialPrice;
 
     @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单量不能为空")

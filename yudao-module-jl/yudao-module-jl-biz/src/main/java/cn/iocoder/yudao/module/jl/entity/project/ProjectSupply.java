@@ -109,6 +109,12 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "buy_price", nullable = false)
     private Integer buyPrice = 0;
 
+    /*
+    * 官网价
+    * */
+    private Integer officialPrice = 0;
+
+
     /**
      * 数量
      */
