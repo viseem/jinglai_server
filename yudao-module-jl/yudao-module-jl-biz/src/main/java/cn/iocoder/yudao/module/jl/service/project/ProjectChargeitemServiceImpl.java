@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,10 +44,33 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
     @Override
     public Long createProjectChargeitem(ProjectChargeitemCreateReqVO createReqVO) {
         // 插入
         ProjectChargeitem projectChargeitem = projectChargeitemMapper.toEntity(createReqVO);
+
+        //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
+        if (createReqVO.getProjectCategoryType().equals("account")){
+            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
+            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
+            if(byProjectIdAndType!=null){
+                projectChargeitem.setProjectCategoryId(byProjectIdAndType.getId());
+            }else{
+                ProjectCategory projectCategory = new ProjectCategory();
+                projectCategory.setProjectId(createReqVO.getProjectId());
+                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
+                projectCategory.setType(createReqVO.getProjectCategoryType());
+                projectCategory.setLabId(-2L);
+                projectCategory.setName("出库增减项");
+                ProjectCategory save = projectCategoryRepository.save(projectCategory);
+                projectChargeitem.setProjectCategoryId(save.getId());
+            }
+
+        }
+
         projectChargeitemRepository.save(projectChargeitem);
         // 返回
         return projectChargeitem.getId();

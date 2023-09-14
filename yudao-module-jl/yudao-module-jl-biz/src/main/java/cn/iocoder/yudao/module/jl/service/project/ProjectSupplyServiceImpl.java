@@ -58,7 +58,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
         if (createReqVO.getProjectCategoryType().equals("account")){
-            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getType());
+            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
             //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
             if(byProjectIdAndType!=null){
                 projectSupply.setProjectCategoryId(byProjectIdAndType.getId());
@@ -72,7 +72,6 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 ProjectCategory save = projectCategoryRepository.save(projectCategory);
                 projectSupply.setProjectCategoryId(save.getId());
             }
-
         }
         projectSupplyRepository.save(projectSupply);
 
