@@ -24,8 +24,7 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
-    @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15603")
-    @NotNull(message = "物资 id不能为空")
+    @Schema(description = "物资 id")
     private Long supplyId;
 
     private Long projectId;
