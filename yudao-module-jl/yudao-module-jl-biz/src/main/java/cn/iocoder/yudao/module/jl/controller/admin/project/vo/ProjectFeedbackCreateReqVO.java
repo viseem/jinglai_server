@@ -11,4 +11,7 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProjectFeedbackCreateReqVO extends ProjectFeedbackBaseVO {
 
+    //关注人列表
+    private List<Long> focusUserIds;
+
 }

@@ -94,8 +94,25 @@ public class CompanySupplyServiceImpl implements CompanySupplyService {
         Specification<CompanySupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            //如果source不为空：source=1，查询projectId为空的数据；source=2，查询projectId不为空的数据
+            if(pageReqVO.getSource() != null) {
+                if(pageReqVO.getSource().equals("1")) {
+                    predicates.add(cb.isNull(root.get("projectId")));
+                } else if(pageReqVO.getSource().equals("2")) {
+                    predicates.add(cb.isNotNull(root.get("projectId")));
+                }
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getBrand() != null) {
+                predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
+            }
+
+            if(pageReqVO.getProductCode() != null) {
+                predicates.add(cb.like(root.get("productCode"), "%" + pageReqVO.getProductCode() + "%"));
             }
 
             if(pageReqVO.getFeeStandard() != null) {

@@ -27,6 +27,8 @@ public interface SalesleadService {
      */
     void updateSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
 
+    SalesleadCountStatsRespVO getSalesleadCountStats();
+
     /**
      * 删除销售线索
      *

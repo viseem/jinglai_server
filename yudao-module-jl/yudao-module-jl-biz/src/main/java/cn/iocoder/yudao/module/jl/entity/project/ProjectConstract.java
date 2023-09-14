@@ -78,10 +78,25 @@ public class ProjectConstract extends BaseEntity {
     private String fileUrl;
 
     /**
+     * 盖章合同文件 URL
+     */
+    @Column(name = "stamp_file_url", nullable = false)
+    private String stampFileUrl;
+
+    /**
+     * 盖章合同文件 NAME
+     */
+    @Column(name = "stamp_file_name", nullable = false)
+    private String stampFileName;
+
+    /**
      * 合同状态：起效、失效、其它
      */
     @Column(name = "status")
     private String status;
+
+    @Column(name = "pay_status")
+    private String payStatus;
 
     /**
      * 合同类型
@@ -100,6 +115,12 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "real_price")
     private Integer realPrice;
+
+    /**
+     * 已收金额
+     */
+    @Column(name = "received_price")
+    private Integer receivedPrice;
 
     /**
      * 签订销售人员
@@ -125,11 +146,6 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "is_collect_all")
     private Boolean isCollectAll;
 
-    /*
-     * 已收金额
-     * */
-    @Transient
-    private Integer receivedPrice;
 
 
     /**

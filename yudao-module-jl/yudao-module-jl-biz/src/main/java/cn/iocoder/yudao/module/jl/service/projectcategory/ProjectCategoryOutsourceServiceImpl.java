@@ -1,8 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
+import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -144,9 +148,17 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
 
         // 执行查询
         Page<ProjectCategoryOutsource> page = projectCategoryOutsourceRepository.findAll(spec, pageable);
+        List<ProjectCategoryOutsource> outsources = page.getContent();
+        outsources.forEach(this::processItem);
+
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processItem(ProjectCategoryOutsource item) {
+        BigDecimal reduce = item.getPayments().stream().filter(payment -> Objects.equals(payment.getAuditStatus(), FinancePaymentEnums.PAYED.getStatus())).map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        item.setPaidPrice(reduce);
     }
 
     @Override

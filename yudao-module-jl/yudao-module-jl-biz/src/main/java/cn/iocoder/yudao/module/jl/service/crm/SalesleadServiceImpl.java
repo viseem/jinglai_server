@@ -1,12 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractItemVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCompetitor;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
@@ -15,11 +14,8 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
-import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
-import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
-import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
-import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -88,6 +84,9 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Resource
     private SalesleadCompetitorMapper salesleadCompetitorMapper;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
         // 插入
@@ -98,11 +97,21 @@ public class SalesleadServiceImpl implements SalesleadService {
     }
 
     @Override
+    public SalesleadCountStatsRespVO getSalesleadCountStats(){
+        //获取未转化为项目的销售线索数量
+        Integer notToProjectCount = salesleadRepository.countByStatusNot(Integer.valueOf(SalesLeadStatusEnums.NotToProject.getStatus()));
+        SalesleadCountStatsRespVO salesleadCountStatsRespVO = new SalesleadCountStatsRespVO();
+        salesleadCountStatsRespVO.setNotToProjectCount(notToProjectCount);
+        return salesleadCountStatsRespVO;
+    }
+
+    @Override
     public void updateSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
         if(updateReqVO.getId() != null) {
             // 校验存在
-            validateSalesleadExists(updateReqVO.getId());
+            Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
+            updateReqVO.setProjectId(saleslead.getProjectId());
         }
 
         // 更新线索
@@ -110,8 +119,8 @@ public class SalesleadServiceImpl implements SalesleadService {
         salesleadRepository.save(updateObj);
         Long salesleadId = updateObj.getId();
 
-        // 更新竞争对手的报价
-        // 删除原有的
+                              // 更新竞争对手的报价
+        // ``               删除原有的
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
         // 再插入
         List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();
@@ -135,7 +144,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
 
-       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
+       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
            // 1. 创建项目
            Project project = new Project();
            project.setSalesleadId(salesleadId);
@@ -145,11 +154,28 @@ public class SalesleadServiceImpl implements SalesleadService {
            project.setStatus(updateReqVO.getStatus());
            project.setType(updateReqVO.getType());
            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
-           projectRepository.save(project);
 
-           // 销售线索中保存项目 id
-           updateObj.setProjectId(project.getId());
-           salesleadRepository.save(updateObj);
+           if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+               //如果客户不存在，则抛出异常
+               Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
+               project.setName(customer.getName()+"的报价");
+
+           }
+
+           if(updateReqVO.getProjectId()!=null){
+               project = projectRepository.findById(updateReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+               project.setCode(projectService.generateCode());
+               project.setName(updateReqVO.getProjectName());
+               project.setStatus(updateReqVO.getStatus());
+               project.setType(updateReqVO.getType());
+               projectRepository.save(project);
+           }else{
+               Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
+               // 销售线索中保存项目 id
+               updateObj.setProjectId(projectId);
+               salesleadRepository.save(updateObj);
+           }
+
 
            //不按照类型区分合同传不传，有就传没有不传
            // 2. 保存合同
@@ -158,10 +184,10 @@ public class SalesleadServiceImpl implements SalesleadService {
            if(projectConstracts != null && projectConstracts.size() > 0) {
                // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
                projectConstracts.forEach(projectConstract -> {
-                   projectConstract.setProjectId(project.getId());
+                   projectConstract.setProjectId(updateReqVO.getProjectId());
                    projectConstract.setCustomerId(updateReqVO.getCustomerId());
                    projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
-                   projectConstract.setName(project.getName());
+                   projectConstract.setName(updateReqVO.getProjectName());
                });
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
                projectConstractRepository.saveAll(contracts);
@@ -182,8 +208,12 @@ public class SalesleadServiceImpl implements SalesleadService {
         salesleadRepository.deleteById(id);
     }
 
-    private void validateSalesleadExists(Long id) {
-        salesleadRepository.findById(id).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
+    private Saleslead validateSalesleadExists(Long id) {
+        Optional<Saleslead> byId = salesleadRepository.findById(id);
+        if(byId.isEmpty()) {
+            throw exception(SALESLEAD_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -212,7 +242,6 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 创建 Specification
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
             if(pageReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
@@ -226,13 +255,13 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
             }
 
-            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
+/*            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
                 // 待报价的
                 predicates.add(cb.isNull(root.get("quotation")));
             } else if (Objects.equals(pageReqVO.getQuotationStatus(), "2")) {
                 // 已报价的
                 predicates.add(cb.isNotNull(root.get("quotation")));
-            }
+            }*/
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
@@ -241,10 +270,27 @@ public class SalesleadServiceImpl implements SalesleadService {
             if(pageReqVO.getQuotation() != null) {
                 predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
             }
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
 
-            if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                if(pageReqVO.getStatus() != null) {
+                    //查询未转项目的
+                    if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                        predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                    }else{
+                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                    }
+
+                }
             }
+
+//                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
@@ -262,9 +308,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("lostNote"), pageReqVO.getLostNote()));
             }
 
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-            }
+
 
 
             return cb.and(predicates.toArray(new Predicate[0]));

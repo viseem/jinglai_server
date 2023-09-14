@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -26,6 +28,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategoryAttachment")
 @Table(name = "jl_project_category_attachment")
+@SQLDelete(sql = "UPDATE jl_project_category_attachment SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectCategoryAttachment extends BaseEntity {
 

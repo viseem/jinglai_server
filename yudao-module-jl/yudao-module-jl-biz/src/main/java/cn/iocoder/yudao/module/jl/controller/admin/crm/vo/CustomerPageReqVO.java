@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
@@ -17,7 +17,7 @@ public class CustomerPageReqVO extends PageParam {
 
     private Boolean toCustomer = true;
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DateAttributeTypeEnums.ALL.getStatus();
+    private String attribute = DataAttributeTypeEnums.MY.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;

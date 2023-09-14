@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -38,6 +40,8 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 public class ProjectController {
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ProjectPersonRepository projectPersonRepository;
 
     @Resource
     private ProjectScheduleService projectScheduleService;
@@ -50,6 +54,15 @@ public class ProjectController {
     @PreAuthorize("@ss.hasPermission('jl:project:create')")
     public CommonResult<Long> createProject(@Valid @RequestBody ProjectCreateReqVO createReqVO) {
         return success(projectService.createProject(createReqVO));
+    }
+
+    //发起出库申请 其实就是改个状态，还是单独写个接口吧
+    @PutMapping("/outbound-apply")
+    @Operation(summary = "项目出库申请")
+    @PreAuthorize("@ss.hasPermission('jl:project:update')")
+    public CommonResult<Boolean> projectOutboundApply(@Valid @RequestBody ProjectOutboundApplyReqVO updateReqVO) {
+        projectService.projectOutboundApply(updateReqVO);
+        return success(true);
     }
 
     @PutMapping("/update")
@@ -93,8 +106,18 @@ public class ProjectController {
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
         ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
 
+        //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
+        ret.setPersons(projectPersonRepository.findByProjectId(id));
 
         return success(ret);
+    }
+
+    @GetMapping("/count-stats")
+    @Operation(summary = "(分页)获得项目管理列表")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectStatsRespVO> getProjectStats(@Valid ProjectPageReqVO pageVO) {
+        ProjectStatsRespVO projectStatsRespVO = projectService.getProjectStats(pageVO);
+        return success(projectStatsRespVO);
     }
 
     @GetMapping("/page")
@@ -103,6 +126,14 @@ public class ProjectController {
     public CommonResult<PageResult<ProjectRespVO>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
         PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
         return success(projectMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/simple-page")
+    @Operation(summary = "(分页)获得项目管理列表")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<PageResult<ProjectRespVO>> getProjectSimplePage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+        PageResult<ProjectOnly> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
+        return success(projectMapper.toSimplePage(pageResult));
     }
 
     @GetMapping("/export-excel")

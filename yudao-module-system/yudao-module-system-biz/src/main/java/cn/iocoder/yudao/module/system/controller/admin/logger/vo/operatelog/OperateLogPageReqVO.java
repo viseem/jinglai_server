@@ -16,6 +16,8 @@ public class OperateLogPageReqVO extends PageParam {
     @Schema(description = "操作模块,模拟匹配", example = "订单")
     private String module;
 
+    private String args;
+
     @Schema(description = "用户昵称,模拟匹配", example = "芋道")
     private String userNickname;
 

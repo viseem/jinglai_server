@@ -11,4 +11,5 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProjectChargeitemCreateReqVO extends ProjectChargeitemBaseVO {
 
+    private String projectCategoryType;
 }

@@ -168,4 +168,17 @@ public interface ErrorCodeConstants {
     ErrorCode APPROVAL_NOT_EXISTS = new ErrorCode(2056000001, "审批不存在");
     ErrorCode APPROVAL_PROGRESS_NOT_EXISTS = new ErrorCode(2056000002, "审批流程不存在");
     ErrorCode CONTRACT_APPROVAL_NOT_EXISTS = new ErrorCode(2056100001, "合同状态变更记录不存在");
+
+    ErrorCode FEEDBACK_NOT_EXISTS = new ErrorCode(1002026000, "晶莱反馈不存在");
+
+    ErrorCode PROJECT_FEEDBACK_FOCUS_NOT_EXISTS = new ErrorCode(1002027000, "晶莱项目反馈关注人员不存在");
+
+    ErrorCode PROJECT_PLAN_NOT_EXISTS = new ErrorCode(1002028000, "项目实验方案不存在");
+
+    ErrorCode WORK_DURATION_NOT_EXISTS = new ErrorCode(1002029000, "工时不存在");
+
+    ErrorCode PROJECT_PERSON_NOT_EXISTS = new ErrorCode(1002030000, "项目人员不存在");
+
+    ErrorCode FINANCE_PAYMENT_NOT_EXISTS = new ErrorCode(1002031000, "财务打款不存在");
+
 }

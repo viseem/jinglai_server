@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.entity.inventory;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -126,5 +128,35 @@ public class CompanySupply extends BaseEntity {
      */
     @Column(name = "file_url")
     private String fileUrl;
+
+    /*
+    * 品牌
+    * */
+    @Column(name = "brand")
+    private String brand;
+
+    /*
+     * 货号
+     * */
+    @Column(name = "product_code")
+    private String productCode;
+
+    //------级联信息
+    /*
+    * 级联项目
+    * */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
+    /*
+    * 级联项目物资
+    * */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_supply_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectSupply projectSupply;
 
 }

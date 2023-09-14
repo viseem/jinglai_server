@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.framework.security.core.util;
 
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.security.core.LoginUser;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import org.springframework.lang.Nullable;
@@ -10,8 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.singleton;
 
 /**
  * 安全服务工具类
@@ -69,6 +75,7 @@ public class SecurityFrameworkUtils {
         }
         return authentication.getPrincipal() instanceof LoginUser ? (LoginUser) authentication.getPrincipal() : null;
     }
+
 
     /**
      * 获得当前用户的编号，从上下文中

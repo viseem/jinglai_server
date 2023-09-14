@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -8,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -56,8 +56,6 @@ public class CustomerController {
     @Operation(summary = "创建客户")
     @PreAuthorize("@ss.hasPermission('jl:customer:create')")
     public CommonResult<Long> createCustomer(@Valid @RequestBody CustomerCreateReqVO createReqVO) {
-        Long userId = getLoginUserId();
-        createReqVO.setSalesId(userId);
         return success(customerService.createCustomer(createReqVO));
     }
 
@@ -74,6 +72,14 @@ public class CustomerController {
     @PreAuthorize("@ss.hasPermission('jl:customer:update')")
     public CommonResult<Boolean> updateCustomer(@Valid @RequestBody ClueToCustomerReqVO updateReqVO) {
         customerService.toCustomer(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/assign")
+    @Operation(summary = "指派给销售")
+    @PreAuthorize("@ss.hasPermission('jl:customer:update')")
+    public CommonResult<Boolean> updateCustomer(@Valid @RequestBody CustomerAssignToSalesReqVO updateReqVO) {
+        customerService.customerAssign2Sales(updateReqVO);
         return success(true);
     }
 
@@ -101,6 +107,14 @@ public class CustomerController {
     public CommonResult<PageResult<CustomerRespVO>> getCustomerPage(@Valid CustomerPageReqVO pageVO, @Valid CustomerPageOrder orderV0) {
         PageResult<Customer> pageResult = customerService.getCustomerPage(pageVO, orderV0);
         return success(customerMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/simple-page")
+    @Operation(summary = "(分页)获得客户列表 simple")
+    @PreAuthorize("@ss.hasPermission('jl:customer:query')")
+    public CommonResult<PageResult<CustomerRespVO>> getCustomerSimplePage(@Valid CustomerPageReqVO pageVO, @Valid CustomerPageOrder orderV0) {
+        PageResult<CustomerOnly> pageResult = customerService.getCustomerSimplePage(pageVO, orderV0);
+        return success(customerMapper.toPageSimple(pageResult));
     }
 
     @GetMapping("/export-excel")

@@ -18,12 +18,10 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectSupplyBaseVO {
 
-    @Schema(description = "选中的实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6131")
-    @NotNull(message = "选中的实验名目 id不能为空")
+    @Schema(description = "选中的实验名目 id")
     private Long projectCategoryId;
 
-    @Schema(description = "原始的实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "18163")
-    @NotNull(message = "原始的实验名目 id不能为空")
+    @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
     @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15603")
@@ -44,7 +42,9 @@ public class ProjectSupplyBaseVO {
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
-    private String unitFee;
+    private Integer unitFee;
+
+    private Integer officialPrice;
 
     @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单量不能为空")
@@ -61,6 +61,9 @@ public class ProjectSupplyBaseVO {
     private String mark;
 
     private String brand;
+
+    private String productCode;
+
 
     private String type;
 

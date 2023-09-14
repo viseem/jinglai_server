@@ -65,11 +65,11 @@ public class ProjectFundController {
         return success(true);
     }
 
-    @PutMapping("/update-payment")
+    @PutMapping("/update-status")
     @Operation(summary = "更新项目款项 支付信息")
     @PreAuthorize("@ss.hasPermission('jl:project-fund:update')")
     public CommonResult<Boolean> updateProjectFundPayment(@Valid @RequestBody ProjectFundPaymentUpdateReqVO updateReqVO) {
-        projectFundService.updateProjectFundPayment(updateReqVO);
+        projectFundService.updateProjectFundStatus(updateReqVO);
         return success(true);
     }
 

@@ -1,11 +1,22 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.projectfeedback.ProjectFeedbackFocus;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfeedback.ProjectFeedbackFocusRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.mail.dto.MailSendSingleToUserReqDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
@@ -18,10 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 
@@ -33,6 +41,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -47,16 +56,28 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     private ProjectFeedbackRepository projectFeedbackRepository;
 
     @Resource
+    private ProjectFeedbackFocusRepository projectFeedbackFocusRepository;
+
+    @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
-    private ProjectFeedbackMapper projectFeedbackMapper;
+    private ProjectRepository projectRepository;
 
+    @Resource
+    private ProjectFeedbackMapper projectFeedbackMapper;
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
     @Override
+    @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
+        //查询项目是否存在
+        Project project = projectRepository.findById(createReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+        // 校验是否已经反馈过
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
         projectFeedback.setStatus("2");
+        projectFeedback.setCustomerId(project.getCustomerId());
         projectFeedbackRepository.save(projectFeedback);
 
         // 如果是projectCategory的反馈，则更新projectCategory的字段 TODO 可能会更新失败
@@ -64,9 +85,28 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
             projectCategoryRepository.updateHasFeedbackById(createReqVO.getProjectCategoryId(), (byte) 1);
         }
 
+        //保存关注人列表,使用projectFeedbackFocusRepository.saveAll()方法
+/*        projectFeedbackFocusRepository.saveAll(createReqVO.getFocusUserIds().stream().map(focus -> {
+            //发送站内通知
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
+            templateParams.put("detailUrl", getProcessInstanceDetailUrl(reqDTO.getProcessInstanceId()));
+            //发送通知
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    reqDTO.getStartUserId(),
+                    BpmMessageEnum.NOTIFY_WHEN_APPROVAL.getTemplateCode(), templateParams
+            ));
+
+            return new ProjectFeedbackFocus().setProjectFeedbackId(projectFeedback.getId()).setUserId(focus);
+        }).collect(Collectors.toList()));*/
+
         // 返回
         return projectFeedback.getId();
     }
+
+/*    private String getProcessInstanceDetailUrl(String taskId) {
+        return webProperties.getAdminUi().getUrl() + "/link/transfer/taskInstance?id=" + taskId;
+    }*/
 
     @Override
     public void updateProjectFeedback(ProjectFeedbackUpdateReqVO updateReqVO) {
@@ -105,7 +145,10 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
         //获取attribute
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
         pageReqVO.setCreators(users);
+
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -115,8 +158,15 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 创建 Specification
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            //如果是看自己的
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
+                    predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+                }else{
+                    //不是看自己的 默认查由自己处理的
+                    predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
+            }
 
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
@@ -224,7 +274,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public void replyFeedback(ProjectFeedbackReplyReqVO replyReqVO) {
         // 校验存在
         validateProjectFeedbackExists(replyReqVO.getId());
-        replyReqVO.setStatus("1");
+        replyReqVO.setStatus(ProjectFeedbackEnums.PROCESSED.getStatus());
         // 更新
         projectFeedbackRepository.replyFeedback(replyReqVO.getResult(), replyReqVO.getResultUserId(), LocalDateTime.now(), replyReqVO.getStatus(), replyReqVO.getId());
     }

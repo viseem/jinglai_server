@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategorySupplier
 import io.swagger.v3.oas.annotations.media.Schema;
 import liquibase.hub.model.Project;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 项目实验委外 Response VO")
@@ -21,5 +23,7 @@ public class ProjectCategoryOutsourceRespVO extends ProjectCategoryOutsourceBase
 
     private ProjectCategoryOnly projectCategory;
     private ProjectCategorySupplier supplier;
+
+    private BigDecimal paidPrice;
 
 }

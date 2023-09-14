@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.projectfundlog.vo.ProjectFundLogRespVO;
+import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
@@ -8,6 +9,8 @@ import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,10 +32,14 @@ public class ProjectFundRespVO extends ProjectFundBaseVO {
 
     private List<ProjectFundLog> items;
 
+    private List<CrmReceipt> receipts;
+
     private ProjectFundLog latestFundLog;
 
     // 已收款项
     private Integer receivedPrice;
+
+    private BigDecimal receiptPrice;
 
     private User user;
 }

@@ -14,11 +14,10 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor
-public enum DateAttributeTypeEnums implements StringArrayValuable {
+public enum ProjectFeedbackEnums implements StringArrayValuable {
 
-    ALL("ALL", "全部"),
-    SUB("SUB", "下属负责的"),
-    MY("MY", "我负责的"),
+    PROCESSED("1", "已处理"),
+    NOT_PROCESS("2", "未处理"),
     ;
 
     private final String status;

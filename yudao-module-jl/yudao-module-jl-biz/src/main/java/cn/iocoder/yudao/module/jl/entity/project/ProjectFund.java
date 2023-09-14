@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectBaseVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import javax.persistence.*;
@@ -75,6 +77,9 @@ public class ProjectFund extends BaseEntity {
      */
     private Integer receivedPrice = 0;
 
+    @Transient
+    private BigDecimal receiptPrice = BigDecimal.valueOf(0.00);
+
     /**
      * 项目 id
      */
@@ -108,7 +113,7 @@ public class ProjectFund extends BaseEntity {
      * 支付的截止时间
      */
     @Column(name = "deadline")
-    private String deadline;
+    private LocalDateTime deadline;
 
     /**
      * 支付凭证上传地址
@@ -158,5 +163,15 @@ public class ProjectFund extends BaseEntity {
 
     @Transient
     private ProjectFundLog latestFundLog;
+
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "fund_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CrmReceipt> receipts = new ArrayList<>();
 
 }

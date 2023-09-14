@@ -4,10 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import lombok.*;
 import org.hibernate.annotations.NotFound;
@@ -113,6 +110,12 @@ public class Saleslead extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User manager;
+
     @OneToOne(fetch = FetchType.EAGER, optional=true)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name="quotation", referencedColumnName="id", insertable = false, updatable = false)
@@ -140,4 +143,5 @@ public class Saleslead extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
     private List<SalesleadCustomerPlan> customerPlans;
+
 }

@@ -74,6 +74,24 @@ public class ProjectCategoryController {
         return success(true);
     }
 
+    @DeleteMapping("/delete-soft")
+    @Operation(summary = "通过 ID 删除项目的实验名目")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('jl:project-category:delete')")
+    public CommonResult<Boolean> deleteSoftProjectCategory(@RequestParam("id") Long id) {
+        projectCategoryService.deleteSoftProjectCategory(id);
+        return success(true);
+    }
+
+    @DeleteMapping("/restore-deleted")
+    @Operation(summary = "通过 ID 删除项目的实验名目")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('jl:project-category:delete')")
+    public CommonResult<Boolean> restoreDeletedProjectCategory(@RequestParam("id") Long id) {
+        projectCategoryService.restoreDeletedProjectCategory(id);
+        return success(true);
+    }
+
 
     @PostMapping("/delete-by")
     @Operation(summary = "按照条件删除项目的 实验名目")

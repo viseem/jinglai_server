@@ -22,6 +22,9 @@ public class ProjectDevicePageReqVO extends PageParam {
     @Schema(description = "设备id", example = "26582")
     private Long deviceId;
 
+    private Long projectId;
+
+
     @Schema(description = "设备名称", example = "赵六")
     private String name;
 

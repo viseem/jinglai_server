@@ -23,6 +23,8 @@ public class ProjectDeviceBaseVO {
     @NotNull(message = "设备id不能为空")
     private Long deviceId;
 
+    private Long projectId;
+
     @Schema(description = "设备名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "设备名称不能为空")
     private String name;

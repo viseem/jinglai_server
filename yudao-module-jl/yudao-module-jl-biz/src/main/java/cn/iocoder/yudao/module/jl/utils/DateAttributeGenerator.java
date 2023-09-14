@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.utils;
 
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
@@ -28,7 +28,7 @@ public class DateAttributeGenerator {
 
     public Long[] processAttributeUsers(String attribute) {
         List<Long> creators = new ArrayList<>();
-        if (Objects.equals(attribute, DateAttributeTypeEnums.SUB.getStatus()) || Objects.equals(attribute, DateAttributeTypeEnums.ALL.getStatus())) {
+        if (Objects.equals(attribute, DataAttributeTypeEnums.SUB.getStatus()) || Objects.equals(attribute, DataAttributeTypeEnums.ALL.getStatus())) {
             DeptByReqVO dept = new DeptByReqVO();
             dept.setLeaderUserId(getLoginUserId());
             DeptDO deptBy = deptService.getDeptBy(dept);
@@ -47,11 +47,11 @@ public class DateAttributeGenerator {
             }
         }
 
-        if (Objects.equals(attribute, DateAttributeTypeEnums.SUB.getStatus())) {
+        if (Objects.equals(attribute, DataAttributeTypeEnums.SUB.getStatus())) {
             creators.remove(getLoginUserId());
         }
 
-        if (Objects.equals(attribute, DateAttributeTypeEnums.MY.getStatus()) || Objects.equals(attribute, DateAttributeTypeEnums.ALL.getStatus())) {
+        if (Objects.equals(attribute, DataAttributeTypeEnums.MY.getStatus()) || Objects.equals(attribute, DataAttributeTypeEnums.ALL.getStatus())) {
             creators.add(getLoginUserId());
         }
 

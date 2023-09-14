@@ -39,7 +39,7 @@ public interface ProjectFundService {
      *
      * @param updateReqVO 更新信息
      */
-    void updateProjectFundPayment(@Valid ProjectFundPaymentUpdateReqVO updateReqVO);
+    void updateProjectFundStatus(@Valid ProjectFundPaymentUpdateReqVO updateReqVO);
 
     /**
      * 删除项目款项

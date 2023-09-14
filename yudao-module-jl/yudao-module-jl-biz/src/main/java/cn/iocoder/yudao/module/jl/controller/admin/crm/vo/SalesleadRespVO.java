@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteOrSche
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteRespVO;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -27,6 +28,8 @@ public class SalesleadRespVO extends SalesleadBaseVO {
 
     private ProjectQuoteRespVO quote;
 
+    private User manager;
+
     @Schema(description = "折扣前总价", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long totalPrice = 0L;
 
@@ -38,4 +41,5 @@ public class SalesleadRespVO extends SalesleadBaseVO {
 
     @Schema(description = "客户方案", example = "[]")
     private List<SalesleadCustomerPlanItemVO> customerPlans = new ArrayList<>();
+
 }

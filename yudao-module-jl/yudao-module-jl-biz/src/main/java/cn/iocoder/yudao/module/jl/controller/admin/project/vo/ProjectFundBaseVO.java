@@ -45,7 +45,7 @@ public class ProjectFundBaseVO {
     private Integer sort;
 
     @Schema(description = "支付的截止时间")
-    private String deadline;
+    private LocalDateTime deadline;
 
 
 }

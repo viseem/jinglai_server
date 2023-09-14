@@ -3,11 +3,13 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
+import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,7 +25,6 @@ import javax.persistence.criteria.Predicate;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
@@ -46,11 +47,34 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     @Resource
     private ProjectSupplyMapper projectSupplyMapper;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
     @Override
+    @Transactional
     public Long createProjectSupply(ProjectSupplyCreateReqVO createReqVO) {
         // 插入
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
+
+        //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
+        if (createReqVO.getProjectCategoryType().equals("account")){
+            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
+            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
+            if(byProjectIdAndType!=null){
+                projectSupply.setProjectCategoryId(byProjectIdAndType.getId());
+            }else{
+                ProjectCategory projectCategory = new ProjectCategory();
+                projectCategory.setProjectId(createReqVO.getProjectId());
+                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
+                projectCategory.setType(createReqVO.getProjectCategoryType());
+                projectCategory.setLabId(-2L);
+                projectCategory.setName("出库增减项");
+                ProjectCategory save = projectCategoryRepository.save(projectCategory);
+                projectSupply.setProjectCategoryId(save.getId());
+            }
+        }
         projectSupplyRepository.save(projectSupply);
+
         // 返回
         return projectSupply.getId();
     }

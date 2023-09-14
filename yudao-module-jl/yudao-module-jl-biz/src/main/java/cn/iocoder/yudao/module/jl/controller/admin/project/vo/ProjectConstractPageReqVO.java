@@ -1,8 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.enums.DateAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
-import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +17,7 @@ public class ProjectConstractPageReqVO extends PageParam {
 
 
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DateAttributeTypeEnums.ALL.getStatus();
+    private String attribute = DataAttributeTypeEnums.ANY.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;
@@ -41,6 +40,10 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "合同状态：起效、失效、其它", example = "2")
     private String status;
 
+    @Schema(description = "合同收款状态", example = "2")
+    private String receivedStatus;
+
+
     @Schema(description = "合同类型", example = "1")
     private String type;
 
@@ -55,9 +58,6 @@ public class ProjectConstractPageReqVO extends PageParam {
 
     @Schema(description = "合同文件名", example = "芋艿")
     private String fileName;
-
-    @Schema(description = "是否收齐")
-    private Boolean isCollectAll;
 
     @Schema(description = "关键字", example = "芋艿")
     private String keyword;

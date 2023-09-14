@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 
 /**
  * 项目管理 Service 接口
@@ -26,6 +27,9 @@ public interface ProjectService {
      * @param updateReqVO 更新信息
      */
     void updateProject(@Valid ProjectUpdateReqVO updateReqVO);
+
+
+    void projectOutboundApply(@Valid ProjectOutboundApplyReqVO updateReqVO);
 
     /**
      * 设置项目的主安排单
@@ -62,6 +66,22 @@ public interface ProjectService {
      * @return 项目管理分页
      */
     PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+
+    /**
+     * 获得项目管理分页simple
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目管理分页
+     */
+    PageResult<ProjectOnly> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+
+    /**
+     * 获得项目数字统计
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目管理分页
+     */
+    ProjectStatsRespVO getProjectStats(ProjectPageReqVO pageReqVO);
 
     /**
      * 获得项目管理列表, 用于 Excel 导出

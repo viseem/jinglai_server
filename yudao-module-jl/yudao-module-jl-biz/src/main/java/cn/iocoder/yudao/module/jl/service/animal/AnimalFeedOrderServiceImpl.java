@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
@@ -40,6 +43,7 @@ import cn.iocoder.yudao.module.jl.mapper.animal.AnimalFeedOrderMapper;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -53,6 +57,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_ANIMAL_FEED_ORDER.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_ANIMAL_FEED_ORDER.getKeyTemplate();
 
+    /**
+     * OA 对应的流程定义 KEY
+     */
+    public static final String PROCESS_KEY = "ANIMAL_FEED_AUDIT";
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
 
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
@@ -104,6 +114,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
+    @Transactional
     public void saveAnimalFeedOrder(AnimalFeedOrderSaveReqVO saveReqVO) {
         // 校验存在
         // 更新
@@ -111,6 +122,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             saveReqVO.setCode(generateCode());
         }
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(saveReqVO);
+        saveObj.setStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
@@ -121,6 +133,15 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             item.setBreed(saveObj.getBreed());
             return item;
         }).collect(Collectors.toList()));
+
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
+
+        // 更新流程实例编号
+        animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId,saveObj.getId());
 
     }
 
@@ -234,6 +255,22 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     public List<AnimalFeedOrder> getAnimalFeedOrderList(Collection<Long> ids) {
         return StreamSupport.stream(animalFeedOrderRepository.findAllById(ids).spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AnimalFeedOrderStatsCountRespVO getAnimalFeedOrderStatsCount(){
+        //获得等待饲养的饲养单数量
+        Long waitingCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.APPROVAL_SUCCESS.getStatus());
+        //获得饲养中的饲养单数量
+        Long feedingCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.FEEDING.getStatus());
+        //获得已完成的饲养单数量
+        Long finishedCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.END.getStatus());
+        //回写数据
+        AnimalFeedOrderStatsCountRespVO respVO = new AnimalFeedOrderStatsCountRespVO();
+        respVO.setWaitingFeedCount(waitingCount);
+        respVO.setFeedingCount(feedingCount);
+        respVO.setEndCount(finishedCount);
+        return respVO;
     }
 
     @Override

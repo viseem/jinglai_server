@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 
 /**
  * 项目合同 Service 接口
@@ -26,6 +27,8 @@ public interface ProjectConstractService {
      * @param updateReqVO 更新信息
      */
     void updateProjectConstract(@Valid ProjectConstractUpdateReqVO updateReqVO);
+
+    void updateProjectConstractPayStatus(@Valid ProjectConstractUpdatePayStatusReqVO updateReqVO);
 
     /**
      * 更新项目合同
@@ -64,6 +67,14 @@ public interface ProjectConstractService {
      * @return 项目合同分页
      */
     PageResult<ProjectConstract> getProjectConstractPage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0);
+
+    /**
+     * 获得项目合同分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目合同分页
+     */
+    PageResult<ProjectConstractOnly> getProjectConstractSimplePage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0);
 
     /**
      * 获得项目合同列表, 用于 Excel 导出

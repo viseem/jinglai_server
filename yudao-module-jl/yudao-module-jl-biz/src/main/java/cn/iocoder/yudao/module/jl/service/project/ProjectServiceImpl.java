@@ -1,15 +1,26 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
@@ -45,13 +56,24 @@ import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 public class ProjectServiceImpl implements ProjectService {
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
-
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
 
     @Resource
+    private ProjectPersonRepository projectPersonRepository;
+
+    @Resource
     private ProjectRepository projectRepository;
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
+
+    public static final String PROCESS_KEY = "PROJECT_OUTBOUND_APPLY";
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
     @PostConstruct
     public void ProjectServiceImpl(){
         Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
@@ -67,7 +89,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     public ProjectServiceImpl(UserRepository userRepository,
-                              ProjectConstractRepository projectConstractRepository) {
+                              ProjectConstractRepository projectConstractRepository
+                              ) {
         this.userRepository = userRepository;
         this.projectConstractRepository = projectConstractRepository;
     }
@@ -89,7 +112,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
-        createReqVO.setCode(generateCode());
+        //如果状态，注意这里的状态是销售线索的状态，不是项目的状态
+        if(!createReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+            createReqVO.setCode(generateCode());
+        }
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
 
@@ -110,12 +136,36 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
+    public void projectOutboundApply(ProjectOutboundApplyReqVO outboundApplyReqVO){
+        // 校验存在
+        validateProjectExists(outboundApplyReqVO.getProjectId());
+
+        //加入审批流
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(outboundApplyReqVO.getProjectId())));
+
+        //更新出库状态、流程实例id、申请人
+        projectRepository.updateStageAndProcessInstanceIdAndApplyUserById(outboundApplyReqVO.getProjectId(),ProjectStageEnums.OUTING.getStatus(),processInstanceId,getLoginUserId());
+
+    }
+
+    @Override
+    @Transactional
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
         Project project = validateProjectExists(updateReqVO.getId());
 /*        if(project.getCode()==null|| project.getCode().equals("")){
             updateReqVO.setCode(generateCode());
         }*/
+
+        //删除旧的人员
+        projectPersonRepository.deleteByProjectId(updateReqVO.getId());
+        //处理persons，添加新的人员
+        projectPersonRepository.saveAll(updateReqVO.getPersons());
+
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);
@@ -159,7 +209,76 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public ProjectStatsRespVO getProjectStats(ProjectPageReqVO pageReqVO){
+        ProjectStatsRespVO respVO = new ProjectStatsRespVO();
+        Map<String,Integer> map = new HashMap<>();
+
+
+        if(pageReqVO.getSalesId()!=null){
+            //项目预开展个数
+            respVO.setPreCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.PRE.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+            //项目开展个数
+            respVO.setDoingCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.DOING.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
+            //项目已出库个数
+            respVO.setOutedCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.OUTED.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.OUTED.getStatus(),respVO.getOutedCount());
+            //项目出库中个数
+            respVO.setOutingCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.OUTING.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.OUTING.getStatus(),respVO.getOutingCount());
+            //项目暂停个数
+            respVO.setPauseCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.PAUSE.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
+        }else{
+
+            if(pageReqVO.getAttribute()== null){
+                //项目预开展个数
+                respVO.setPreCount(projectRepository.countByStage(ProjectStageEnums.PRE.getStatus()));
+                map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+                //项目开展个数
+                respVO.setDoingCount(projectRepository.countByStage(ProjectStageEnums.DOING.getStatus()));
+                map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
+                //项目已出库个数
+                respVO.setOutedCount(projectRepository.countByStage(ProjectStageEnums.OUTED.getStatus()));
+                map.put(ProjectStageEnums.OUTED.getStatus(),respVO.getOutedCount());
+                //项目出库中个数
+                respVO.setOutingCount(projectRepository.countByStage(ProjectStageEnums.OUTING.getStatus()));
+                map.put(ProjectStageEnums.OUTING.getStatus(),respVO.getOutingCount());
+                //项目暂停个数
+                respVO.setPauseCount(projectRepository.countByStage(ProjectStageEnums.PAUSE.getStatus()));
+                map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
+            } else if (pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
+                //项目预开展个数
+                respVO.setPreCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.PRE.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+                //项目开展个数
+                respVO.setDoingCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.DOING.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
+                //项目已出库个数
+                respVO.setOutedCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.OUTED.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.OUTED.getStatus(),respVO.getOutedCount());
+                //项目出库中个数
+                respVO.setOutingCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.OUTING.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.OUTING.getStatus(),respVO.getOutingCount());
+                //项目暂停个数
+                respVO.setPauseCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.PAUSE.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
+            }
+        }
+
+        respVO.setCountMap(map);
+
+        //赋值给resp的map
+        return respVO;
+    }
+
+    @Override
     public PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setManagers(users);
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -169,6 +288,13 @@ public class ProjectServiceImpl implements ProjectService {
         // 创建 Specification
         Specification<Project> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getAttribute()!=null){
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+            }
+
+            //默认查询code不为空的
+            predicates.add(cb.isNotNull(root.get("code")));
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
@@ -181,7 +307,6 @@ public class ProjectServiceImpl implements ProjectService {
             if(pageReqVO.getSalesleadId() != null) {
                 predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
             }
-
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
@@ -236,6 +361,95 @@ public class ProjectServiceImpl implements ProjectService {
         Page<Project> page = projectRepository.findAll(spec, pageable);
         page.forEach(this::processProjectItem);
 
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+
+    @Override
+    public PageResult<ProjectOnly> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setManagers(users);
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProjectOnly> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getAttribute()!=null){
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+            }
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
+            }
+
+            if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
+                predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
+            }
+
+            if(pageReqVO.getSalesleadId() != null) {
+                predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
+            }
+
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
+
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
+            if(pageReqVO.getStartDate() != null) {
+                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
+            }
+            if(pageReqVO.getEndDate() != null) {
+                predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
+            }
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+            }
+
+            if(pageReqVO.getParticipants() != null) {
+                predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
+            if(pageReqVO.getProcurementerId() != null) {
+                predicates.add(cb.equal(root.get("procurementerId"), pageReqVO.getProcurementerId()));
+            }
+            if(pageReqVO.getInventorierId() != null) {
+                predicates.add(cb.equal(root.get("inventorierId"), pageReqVO.getInventorierId()));
+            }
+            if(pageReqVO.getExperId() != null) {
+                predicates.add(cb.equal(root.get("experId"), pageReqVO.getExperId()));
+            }
+/*            if(pageReqVO.getExpersId() != null) {
+                predicates.add(cb.in(root.get("experIds"), pageReqVO.getExpersId()));
+            }*/
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<ProjectOnly> page = projectSimpleRepository.findAll(spec, pageable);
+//        page.forEach(this::processProjectItem);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -309,6 +523,8 @@ public class ProjectServiceImpl implements ProjectService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

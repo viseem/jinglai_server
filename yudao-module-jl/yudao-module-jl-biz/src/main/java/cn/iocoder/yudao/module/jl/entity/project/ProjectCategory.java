@@ -9,10 +9,12 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.*;
+import org.springframework.core.annotation.Order;
 
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -27,6 +29,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectCategory")
 @Table(name = "jl_project_category")
+@SQLDelete(sql = "UPDATE jl_project_category SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ProjectCategory extends BaseEntity {
 
     /**
@@ -198,7 +202,7 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验物资
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
@@ -238,6 +242,7 @@ public class ProjectCategory extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime desc")
     private List<ProjectCategoryApproval> approvalList = new ArrayList<>();
 
     //审批的状态 通过 未通过

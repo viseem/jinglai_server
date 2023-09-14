@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -57,6 +58,14 @@ public class ProjectConstractController {
         return success(true);
     }
 
+    @PutMapping("/update-paystatus")
+    @Operation(summary = "更新项目合同支付状态")
+    @PreAuthorize("@ss.hasPermission('jl:project-constract:update')")
+    public CommonResult<Boolean> updateProjectConstract(@Valid @RequestBody ProjectConstractUpdatePayStatusReqVO updateReqVO) {
+        projectConstractService.updateProjectConstractPayStatus(updateReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update-field")
     @Operation(summary = "更新项目合同")
     @PreAuthorize("@ss.hasPermission('jl:project-constract:update')")
@@ -89,6 +98,14 @@ public class ProjectConstractController {
     public CommonResult<PageResult<ProjectConstractRespVO>> getProjectConstractPage(@Valid ProjectConstractPageReqVO pageVO, @Valid ProjectConstractPageOrder orderV0) {
         PageResult<ProjectConstract> pageResult = projectConstractService.getProjectConstractPage(pageVO, orderV0);
         return success(projectConstractMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/simple-page")
+    @Operation(summary = "(分页)获得项目合同列表")
+    @PreAuthorize("@ss.hasPermission('jl:project-constract:query')")
+    public CommonResult<PageResult<ProjectConstractRespVO>> getProjectConstractSimplePage(@Valid ProjectConstractPageReqVO pageVO, @Valid ProjectConstractPageOrder orderV0) {
+        PageResult<ProjectConstractOnly> pageResult = projectConstractService.getProjectConstractSimplePage(pageVO, orderV0);
+        return success(projectConstractMapper.toSimplePage(pageResult));
     }
 
     @GetMapping("/export-excel")

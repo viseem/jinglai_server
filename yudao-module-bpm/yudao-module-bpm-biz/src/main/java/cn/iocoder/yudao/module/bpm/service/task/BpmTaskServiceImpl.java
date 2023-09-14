@@ -41,6 +41,7 @@ import java.util.*;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.*;
 
 /**
@@ -68,6 +69,14 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     private BpmTaskExtMapper taskExtMapper;
     @Resource
     private BpmMessageService messageService;
+
+    @Override
+    public BpmTaskStatsRespVO getTaskStats() {
+        //获取当前登录用户 待办任务的数量
+        long todoCount = taskService.createTaskQuery().taskAssignee(String.valueOf(getLoginUserId())).count();
+        //返回
+        return new BpmTaskStatsRespVO().setTodoCount(todoCount);
+    }
 
     @Override
     public PageResult<BpmTaskTodoPageItemRespVO> getTodoTaskPage(Long userId, BpmTaskTodoPageReqVO pageVO) {

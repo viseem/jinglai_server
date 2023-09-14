@@ -56,6 +56,13 @@ public class ProjectScheduleController {
         return success(projectScheduleService.saveProjectScheduleCategory(saveReqVO));
     }
 
+    @PostMapping("/is-quotation")
+    @Operation(summary = "完成报价")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
+    public CommonResult<Long> updateScheduleSaleslead(@Valid @RequestBody ProjectScheduleSaledleadsUpdateReqVO saveReqVO) {
+        return success(projectScheduleService.updateScheduleSaleslead(saveReqVO));
+    }
+
     @PostMapping("/save")
     @Operation(summary = "保存项目安排单")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
@@ -63,11 +70,27 @@ public class ProjectScheduleController {
         return success(projectScheduleService.saveProjectSchedule(saveReqVO));
     }
 
+    @PostMapping("/save-supply-and-chargeitem")
+    @Operation(summary = "保存项目安排单")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:create')")
+    public CommonResult<Boolean> saveScheduleSupplyAndChargeItem(@Valid @RequestBody ScheduleSaveSupplyAndChargeItemReqVO saveReqVO) {
+        projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update")
     @Operation(summary = "更新项目安排单")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:update')")
     public CommonResult<Boolean> updateProjectSchedule(@Valid @RequestBody ProjectScheduleUpdateReqVO updateReqVO) {
         projectScheduleService.updateProjectSchedule(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-by-content-html")
+    @Operation(summary = "更新项目安排单")
+    @PreAuthorize("@ss.hasPermission('jl:project-schedule:update')")
+    public CommonResult<Boolean> updateSchedulePlanByContentHtml(@Valid @RequestBody ProjectScheduleUpdatePlanReqVO updateReqVO) {
+        projectScheduleService.updateSchedulePlanByContentHtml(updateReqVO);
         return success(true);
     }
 

@@ -151,6 +151,38 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    public void deleteSoftProjectCategory(Long id){
+        // 校验存在
+        validateProjectCategoryExists(id);
+
+        //软删除物资
+        projectSupplyRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除收费项
+        projectChargeitemRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除sop
+        projectSopRepository.updateDeletedByProjectCategoryId(true,id);
+        //软删除attachment
+        projectCategoryAttachmentRepository.updateDeletedByProjectCategoryId(true,id);
+
+        // 删除
+        projectCategoryRepository.deleteById(id);
+    }
+
+    @Override
+    public void restoreDeletedProjectCategory(Long id){
+        projectCategoryRepository.updateDeletedById(false,id);
+
+        //软删除物资 恢复
+        projectSupplyRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除收费项 恢复
+        projectChargeitemRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除sop 恢复
+        projectSopRepository.updateDeletedByProjectCategoryId(false,id);
+        //软删除attachment 恢复
+        projectCategoryAttachmentRepository.updateDeletedByProjectCategoryId(false,id);
+    }
+
+    @Override
     public void deleteProjectCategoryBy(ProjectCategoryDeleteByReqVO deleteByReqVO) {
         if (deleteByReqVO.getLabId()!=null){
             projectCategoryRepository.deleteByLabId(deleteByReqVO.getLabId());
@@ -226,7 +258,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
 
-            if(pageReqVO.getType() != null) {
+            //TODO all换成enum
+
+            if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
@@ -358,6 +392,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

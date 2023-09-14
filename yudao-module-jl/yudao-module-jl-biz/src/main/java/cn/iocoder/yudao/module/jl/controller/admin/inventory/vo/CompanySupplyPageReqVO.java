@@ -14,6 +14,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CompanySupplyPageReqVO extends PageParam {
+    @Schema(description = "来源", example = "1：录入 2：转入")
+    private String source;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
@@ -21,6 +23,12 @@ public class CompanySupplyPageReqVO extends PageParam {
 
     @Schema(description = "名称", example = "芋艿")
     private String name;
+
+    @Schema(description = "品牌", example = "芋艿")
+    private String brand;
+
+    @Schema(description = "货号", example = "芋艿")
+    private String productCode;
 
     @Schema(description = "规则/单位")
     private String feeStandard;

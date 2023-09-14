@@ -34,6 +34,9 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "id", nullable = false )
     private Long id;
 
+    @Column(name="to_customer", nullable = false)
+    private Boolean toCustomer;
+
     /**
      * 姓名
      */

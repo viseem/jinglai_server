@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
@@ -34,6 +37,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -58,6 +62,9 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Resource
+    private CustomerSimpleRepository customerSimpleRepository;
+
+    @Resource
     private CustomerMapper customerMapper;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -70,6 +77,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
+
+        if(!createReqVO.getIsSeas()){
+            createReqVO.setSalesId(getLoginUserId());
+        }
+
         // 插入
         Customer customer = customerMapper.toEntity(createReqVO);
         customerRepository.save(customer);
@@ -95,6 +107,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public void customerAssign2Sales(CustomerAssignToSalesReqVO updateReqVO) {
+        // 校验存在
+        Customer customer = validateCustomerExists(updateReqVO.getId());
+        customer.setSalesId(updateReqVO.getSalesId());
+        customer.setMark(updateReqVO.getMark());
+        customer.setToCustomer(true);
+        // 更新
+        customerRepository.save(customer);
+    }
+
+    @Override
     public void deleteCustomer(Long id) {
         // 校验存在
         validateCustomerExists(id);
@@ -102,8 +125,13 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.deleteById(id);
     }
 
-    private void validateCustomerExists(Long id) {
-        customerRepository.findById(id).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
+    private Customer validateCustomerExists(Long id) {
+
+        Optional<Customer> byId = customerRepository.findById(id);
+        if(!byId.isPresent()){
+            throw exception(CUSTOMER_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -123,33 +151,6 @@ public class CustomerServiceImpl implements CustomerService {
         //获取attributeUsers
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setCreators(users);
-       /* List<Long> creators = new ArrayList<>();
-        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.SUB.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
-            DeptByReqVO dept = new DeptByReqVO();
-            dept.setLeaderUserId(getLoginUserId());
-            DeptDO deptBy = deptService.getDeptBy(dept);
-            if (deptBy != null) {
-                List<DeptDO> deptListByParentIdFromCache = deptService.getDeptListByParentIdFromCache(deptBy.getId(), true);
-                if (deptListByParentIdFromCache != null) {
-                    // Extract the department IDs from the list of DeptDO objects
-                    Collection<Long> departmentIds = deptListByParentIdFromCache.stream()
-                            .map(DeptDO::getId)
-                            .collect(Collectors.toList());
-                    departmentIds.add(deptBy.getId());
-                    // Find users by department IDs
-                    List<User> byDeptIdIn = userRepository.findByDeptIdIn(departmentIds);
-                    creators.addAll(byDeptIdIn.stream().map(User::getId).collect(Collectors.toList()));
-                }
-            }
-        }
-
-        if (Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.MY.getStatus()) || Objects.equals(pageReqVO.getAttribute(), DateAttributeTypeEnums.ALL.getStatus())) {
-            creators.add(getLoginUserId());
-        }
-
-        // Set creators as Long[] type
-        pageReqVO.setCreators(creators.toArray(new Long[0]));*/
-
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -161,8 +162,13 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<Customer> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-
+           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+               if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
+                   predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+               }else{
+                   predicates.add(root.get("salesId").isNull());
+               }
+           }
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
@@ -268,6 +274,137 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 执行查询
         Page<Customer> page = customerRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+
+    public PageResult<CustomerOnly> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
+
+        //获取attributeUsers
+//        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//        pageReqVO.setCreators(users);
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<CustomerOnly> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            //增加查询条件 salesId大于0
+            predicates.add(cb.greaterThan(root.get("salesId"), 0));
+
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
+
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getSource() != null) {
+                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
+            }
+
+            if(pageReqVO.getPhone() != null) {
+                predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
+            }
+
+            if(pageReqVO.getEmail() != null) {
+                predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
+            }
+
+            if(pageReqVO.getMark() != null) {
+                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if(pageReqVO.getWechat() != null) {
+                predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
+            }
+
+            if(pageReqVO.getDoctorProfessionalRank() != null) {
+                predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
+            }
+
+            if(pageReqVO.getHospitalDepartment() != null) {
+                predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
+            }
+
+            if(pageReqVO.getAcademicTitle() != null) {
+                predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
+            }
+
+            if(pageReqVO.getAcademicCredential() != null) {
+                predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
+            }
+
+            if(pageReqVO.getHospitalId() != null) {
+                predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
+            }
+
+            if(pageReqVO.getUniversityId() != null) {
+                predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
+            }
+
+            if(pageReqVO.getCompanyId() != null) {
+                predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
+            }
+
+            if(pageReqVO.getProvince() != null) {
+                predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
+            }
+
+            if(pageReqVO.getCity() != null) {
+                predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
+            }
+
+            if(pageReqVO.getArea() != null) {
+                predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
+            }
+
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
+            if(pageReqVO.getDealCount() != null) {
+                predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
+            }
+
+            if(pageReqVO.getDealTotalAmount() != null) {
+                predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
+            }
+
+            if(pageReqVO.getArrears() != null) {
+                predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
+            }
+
+            if(pageReqVO.getLastFollowupTime() != null) {
+                predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
+            }
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
+            }
+
+            if(pageReqVO.getLastFollowupId() != null) {
+                predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
+            }
+
+            if(pageReqVO.getLastSalesleadId() != null) {
+                predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
+            }
+
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<CustomerOnly> page = customerSimpleRepository.findAll(spec, pageable);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

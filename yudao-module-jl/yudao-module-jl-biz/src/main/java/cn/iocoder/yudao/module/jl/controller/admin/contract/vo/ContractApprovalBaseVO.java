@@ -46,4 +46,8 @@ public class ContractApprovalBaseVO {
     @Schema(description = "变更前结算金额", example = "811")
     private Integer originRealPrice;
 
+
+    private String stampFileUrl;
+    private String stampFileName;
+
 }

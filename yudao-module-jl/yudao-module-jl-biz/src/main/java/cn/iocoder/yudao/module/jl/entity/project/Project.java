@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,6 +38,19 @@ public class Project extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false )
     private Long id;
+
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
+    /*
+    * 项目出库申请结果
+    * */
+
+    @Column(name = "outbound_apply_result", nullable = false )
+    private String outboundApplyResult;
+
+    @Column(name = "outbound_user_id", nullable = false )
+    private Long outboundUserId;
 
 
     /**
@@ -169,7 +183,7 @@ public class Project extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Customer customer;
+    private CustomerOnly customer;
 
 
     /**

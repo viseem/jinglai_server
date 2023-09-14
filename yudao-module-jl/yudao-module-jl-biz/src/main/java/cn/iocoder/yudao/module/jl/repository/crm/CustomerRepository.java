@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
+    @Query("select count(c) from Customer c where c.salesId = ?1 and (c.toCustomer = false or c.toCustomer is null)")
+    Integer countByNotToCustomerAndCreator(Long creator);
     @Transactional
     @Modifying
     @Query("update Customer c set c.toCustomer = ?1 where c.id = ?2")

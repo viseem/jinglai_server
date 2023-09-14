@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 
 /**
  * 客户 Service 接口
@@ -33,6 +34,8 @@ public interface CustomerService {
      * @param updateReqVO 更新信息
      */
     void toCustomer(@Valid ClueToCustomerReqVO updateReqVO);
+
+    void customerAssign2Sales(@Valid CustomerAssignToSalesReqVO updateReqVO);
 
     /**
      * 删除客户
@@ -64,6 +67,14 @@ public interface CustomerService {
      * @return 客户分页
      */
     PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0);
+
+    /**
+     * 获得客户分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 客户分页
+     */
+    PageResult<CustomerOnly> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0);
 
     /**
      * 获得客户列表, 用于 Excel 导出
