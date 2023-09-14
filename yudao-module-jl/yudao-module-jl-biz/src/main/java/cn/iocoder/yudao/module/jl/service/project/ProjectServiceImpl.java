@@ -113,8 +113,10 @@ public class ProjectServiceImpl implements ProjectService {
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
         //如果状态，注意这里的状态是销售线索的状态，不是项目的状态
-        if(!createReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
-            createReqVO.setCode(generateCode());
+        if(createReqVO.getStatus()!=null){
+            if(!createReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                createReqVO.setCode(generateCode());
+            }
         }
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
