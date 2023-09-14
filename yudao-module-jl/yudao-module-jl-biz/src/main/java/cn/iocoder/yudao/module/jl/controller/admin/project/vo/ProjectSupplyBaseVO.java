@@ -18,8 +18,7 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectSupplyBaseVO {
 
-    @Schema(description = "选中的实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "6131")
-    @NotNull(message = "选中的实验名目 id不能为空")
+    @Schema(description = "选中的实验名目 id")
     private Long projectCategoryId;
 
     @Schema(description = "原始的实验名目 id")

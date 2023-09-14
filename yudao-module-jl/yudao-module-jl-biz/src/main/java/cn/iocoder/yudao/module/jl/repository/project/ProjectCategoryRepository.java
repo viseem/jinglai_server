@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select p from ProjectCategory p where p.projectId = ?1 and p.type = ?2")
+    ProjectCategory findByProjectIdAndType(Long projectId, String type);
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.deleted = ?1 where p.id = ?2")
