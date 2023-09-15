@@ -384,6 +384,9 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<ProjectOnly> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            //默认查询code不为空的
+            predicates.add(cb.isNotNull(root.get("code")));
+
             if(pageReqVO.getAttribute()!=null){
                 predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
             }

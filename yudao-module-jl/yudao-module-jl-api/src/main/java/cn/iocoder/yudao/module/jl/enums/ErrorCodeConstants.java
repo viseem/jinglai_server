@@ -181,4 +181,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode FINANCE_PAYMENT_NOT_EXISTS = new ErrorCode(1002031000, "财务打款不存在");
 
+    ErrorCode PROJECT_DOCUMENT_NOT_EXISTS = new ErrorCode(1002032000, "项目文档不存在");
+
 }

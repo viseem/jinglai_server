@@ -50,6 +50,8 @@ public class ProjectOnly extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    private String code;
+
     /**
      * 项目开展阶段
      */
