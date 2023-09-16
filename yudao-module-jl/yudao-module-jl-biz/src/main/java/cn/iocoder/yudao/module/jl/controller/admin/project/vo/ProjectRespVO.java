@@ -35,6 +35,8 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private User manager;
 
+    private User user;
+
     private User procurementer;
     private User intentorier;
     private User exper;

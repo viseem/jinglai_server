@@ -139,13 +139,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void projectOutboundApply(ProjectOutboundApplyReqVO outboundApplyReqVO){
         // 校验存在
-        validateProjectExists(outboundApplyReqVO.getProjectId());
+        Project project = validateProjectExists(outboundApplyReqVO.getProjectId());
 
         //加入审批流
         Map<String, Object> processInstanceVariables = new HashMap<>();
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(outboundApplyReqVO.getProjectId())));
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(outboundApplyReqVO.getProjectId())).setVariables(new HashMap<>() {{
+                            put("projectSalesId", project.getSalesId());
+                        }}));
 
         //更新出库状态、流程实例id、申请人
         projectRepository.updateStageAndProcessInstanceIdAndApplyUserById(outboundApplyReqVO.getProjectId(),ProjectStageEnums.OUTING.getStatus(),processInstanceId,getLoginUserId());

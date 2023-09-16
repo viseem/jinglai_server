@@ -242,4 +242,10 @@ public class Project extends BaseEntity {
     @Where(clause = "type = 'schedule'")
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
     private List<ProjectCategoryOnly> categoryList;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 }
