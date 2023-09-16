@@ -7,14 +7,14 @@ import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.*;
 
 import java.time.LocalDate;
 import java.util.*;
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -226,7 +226,7 @@ public class Project extends BaseEntity {
     * 查询审批列表
     * */
     //排序
-    @OrderBy("createTime desc")
+/*    @OrderBy("createTime desc")
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
@@ -234,11 +234,12 @@ public class Project extends BaseEntity {
     private List<ProjectApproval> approvals = new ArrayList<>();
 
     @Transient
-    private ProjectApproval latestApproval;
+    private ProjectApproval latestApproval;*/
 
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
+    @Where(clause = "type = 'schedule'")
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
     private List<ProjectCategoryOnly> categoryList;
 }
