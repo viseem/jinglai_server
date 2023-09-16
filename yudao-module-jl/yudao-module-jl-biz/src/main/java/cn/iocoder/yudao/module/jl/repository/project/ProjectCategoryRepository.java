@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select p from ProjectCategory p where p.projectId = ?1 and p.scheduleId = ?2 and p.type = ?3")
+    ProjectCategory findByProjectIdAndScheduleIdAndType(Long projectId, Long scheduleId, String type);
     @Query("select p from ProjectCategory p where p.projectId = ?1 and p.type = ?2")
     ProjectCategory findByProjectIdAndType(Long projectId, String type);
     @Transactional

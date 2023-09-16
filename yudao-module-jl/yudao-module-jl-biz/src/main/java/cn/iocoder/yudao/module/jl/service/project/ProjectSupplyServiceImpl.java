@@ -57,8 +57,17 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        if (createReqVO.getProjectCategoryType().equals("account")){
-            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
+        if (createReqVO.getProjectCategoryType().equals("account")||createReqVO.getProjectCategoryType().equals("only")){
+            ProjectCategory byProjectIdAndType = null;
+
+            if(createReqVO.getProjectCategoryType().equals("account")){
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
+            }
+
+            if(createReqVO.getProjectCategoryType().equals("only")){
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndScheduleIdAndType(createReqVO.getProjectId(),createReqVO.getScheduleId(), createReqVO.getProjectCategoryType());
+            }
+
             //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
             if(byProjectIdAndType!=null){
                 projectSupply.setProjectCategoryId(byProjectIdAndType.getId());

@@ -259,9 +259,13 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             //TODO all换成enum
-
-            if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            System.out.println("-------------"+pageReqVO.getTypes());
+            if(pageReqVO.getTypes()!=null&&pageReqVO.getTypes().size()>0){
+                predicates.add(root.get("type").in(pageReqVO.getTypes()));
+            }else{
+                if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
+                    predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+                }
             }
 
             if(pageReqVO.getCategoryType() != null) {
