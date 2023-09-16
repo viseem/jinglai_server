@@ -3,7 +3,10 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -12,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.lang.reflect.Field;
@@ -62,6 +67,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Resource
     private ProjectRepository projectRepository;
 
+    @Resource
+    private ProjectDocumentServiceImpl projectDocumentService;
+
     @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
@@ -80,6 +88,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private ProjectConstractMapper projectConstractMapper;
 
     @Override
+    @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
         Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
         if (byId.isEmpty()){
@@ -96,6 +105,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstract.setCustomerId(byId.get().getCustomerId());
         projectConstract.setSalesId(getLoginUserId());
         projectConstractRepository.save(projectConstract);
+
+        //projectDocument存一份
+        projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+
         // 返回
         return projectConstract.getId();
     }

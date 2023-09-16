@@ -141,6 +141,12 @@ public class ProjectConstract extends BaseEntity {
     private String fileName;
 
     /**
+     * 合同关联的文档id
+     */
+    @Column(name = "project_document_id")
+    private Long projectDocumentId;
+
+    /**
      * 是否收齐
      */
     @Column(name = "is_collect_all")

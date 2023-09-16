@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectDocumentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -58,6 +60,8 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
     private final ProjectConstractRepository projectConstractRepository;
+    @Resource
+    private ProjectDocumentServiceImpl projectDocumentService;
 
     public ContractApprovalServiceImpl(ProjectConstractRepository projectConstractRepository) {
         this.projectConstractRepository = projectConstractRepository;
@@ -104,12 +108,15 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
         if (Objects.equals(updateReqVO.getApprovalStage(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
             // 校验是否存在,并修改状态
             projectConstractRepository.findById(contractApproval.getContractId()).ifPresentOrElse(contract -> {
+                projectDocumentService.updateProjectDocumentWithoutReq(contract.getProjectDocumentId(),contract.getStampFileName(),contract.getStampFileUrl());
                 contract.setStatus(contractApproval.getStage());
                 contract.setRealPrice(contractApproval.getRealPrice());
                 projectConstractRepository.save(contract);
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
             });
+            //修改文档库的文件
+
         }
 
         // 更新

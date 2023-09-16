@@ -41,6 +41,20 @@ public class ProjectDocumentServiceImpl implements ProjectDocumentService {
     @Resource
     private ProjectDocumentMapper projectDocumentMapper;
 
+
+    @Override
+    public Long createProjectDocumentWithoutReq(Long projectId,String fileName,String fileUrl,String type){
+        // 插入
+        ProjectDocument  projectDocument = new ProjectDocument();
+        projectDocument.setProjectId(projectId);
+        projectDocument.setFileName(fileName);
+        projectDocument.setFileUrl(fileUrl);
+        projectDocument.setType(type);
+        projectDocumentRepository.save(projectDocument);
+        // 返回
+        return projectDocument.getId();
+    }
+
     @Override
     public Long createProjectDocument(ProjectDocumentCreateReqVO createReqVO) {
         // 插入
@@ -60,6 +74,16 @@ public class ProjectDocumentServiceImpl implements ProjectDocumentService {
     }
 
     @Override
+    public void updateProjectDocumentWithoutReq(Long projectDocumentId,String fileName,String fileUrl) {
+        // 校验存在
+        ProjectDocument projectDocument = validateProjectDocumentExists(projectDocumentId);
+        projectDocument.setFileName(fileName);
+        projectDocument.setFileUrl(fileUrl);
+        // 更新
+        projectDocumentRepository.save(projectDocument);
+    }
+
+    @Override
     public void deleteProjectDocument(Long id) {
         // 校验存在
         validateProjectDocumentExists(id);
@@ -67,8 +91,12 @@ public class ProjectDocumentServiceImpl implements ProjectDocumentService {
         projectDocumentRepository.deleteById(id);
     }
 
-    private void validateProjectDocumentExists(Long id) {
-        projectDocumentRepository.findById(id).orElseThrow(() -> exception(PROJECT_DOCUMENT_NOT_EXISTS));
+    private ProjectDocument validateProjectDocumentExists(Long id) {
+        Optional<ProjectDocument> byId = projectDocumentRepository.findById(id);
+        if(byId.isEmpty()){
+            throw  exception(PROJECT_DOCUMENT_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

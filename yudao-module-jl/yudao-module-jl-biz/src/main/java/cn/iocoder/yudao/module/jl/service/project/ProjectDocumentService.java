@@ -20,12 +20,23 @@ public interface ProjectDocumentService {
      */
     Long createProjectDocument(@Valid ProjectDocumentCreateReqVO createReqVO);
 
+
+    /*
+    *
+    * */
+    Long createProjectDocumentWithoutReq(Long projectId,String fileName,String fileUrl,String type);
+
     /**
      * 更新项目文档
      *
      * @param updateReqVO 更新信息
      */
     void updateProjectDocument(@Valid ProjectDocumentUpdateReqVO updateReqVO);
+
+    /*
+     *
+     * */
+    void updateProjectDocumentWithoutReq(Long projectId,String fileName,String fileUrl);
 
     /**
      * 删除项目文档
