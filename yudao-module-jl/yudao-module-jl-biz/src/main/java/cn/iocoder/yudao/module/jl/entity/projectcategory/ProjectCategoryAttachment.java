@@ -84,4 +84,10 @@ public class ProjectCategoryAttachment extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
+    /**
+     * 项目文档id
+     */
+    @Column(name = "project_document_id")
+    private Long projectDocumentId;
 }
