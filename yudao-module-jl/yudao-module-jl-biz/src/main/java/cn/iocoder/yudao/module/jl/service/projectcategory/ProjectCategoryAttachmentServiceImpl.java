@@ -71,7 +71,7 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
         ProjectCategoryAttachment save = projectCategoryAttachmentRepository.save(projectCategoryAttachment);
 
         // 如果是实验类型的数据，则存一份到projectDocument
-        if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.Exp.getStatus())){
+        if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.EXP.getStatus())){
             projectDocumentService.createProjectDocumentWithoutReq(byId.get().getProjectId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.EXP_DATA.getStatus());
         }
 
@@ -95,7 +95,9 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
         ProjectCategoryAttachment projectCategoryAttachment = validateProjectCategoryAttachmentExists(id);
 
         //删除projectDocument的数据
-        projectDocumentService.deleteProjectDocument(projectCategoryAttachment.getProjectDocumentId());
+        if(projectCategoryAttachment.getProjectDocumentId()!=null){
+            projectDocumentService.deleteProjectDocument(projectCategoryAttachment.getProjectDocumentId());
+        }
 
         // 删除
         projectCategoryAttachmentRepository.deleteById(id);

@@ -17,7 +17,7 @@ import java.util.List;
 public enum ProjectCategoryAttachmentEnums implements StringArrayValuable {
 
     ExpLog("ExpLog", "实验记录的附件"),
-    Exp("Exp", "实验附件"),
+    EXP("EXP", "实验附件"),
     ;
 
     private final String status;
