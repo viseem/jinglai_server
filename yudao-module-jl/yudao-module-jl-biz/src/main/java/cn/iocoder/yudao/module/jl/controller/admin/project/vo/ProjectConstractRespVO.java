@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.contract.ContractApproval;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
@@ -32,4 +33,6 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
     private List<ProjectFundLog> fundLogs;
 
     private List<ProjectFund> funds;
+
+    private ContractApproval latestApproval;
 }

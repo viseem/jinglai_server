@@ -104,10 +104,13 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstract.setStatus("1");
         projectConstract.setCustomerId(byId.get().getCustomerId());
         projectConstract.setSalesId(getLoginUserId());
-        projectConstractRepository.save(projectConstract);
+        ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
 
         //projectDocument存一份
-        projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+        Long projectDocumentId = projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(), createReqVO.getFileName(), createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+
+        //更新document id
+        projectConstractRepository.updateProjectDocumentIdById(projectDocumentId, projectContractSave.getId());
 
         // 返回
         return projectConstract.getId();
@@ -326,6 +329,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             });
         }*/
 
+        page.getContent().forEach(contract->{
+            if(contract.getApprovalList().size()>0){
+                contract.setLatestApproval(contract.getApprovalList().get(0));
+            }
+        });
 
 
         // 转换为 PageResult 并返回

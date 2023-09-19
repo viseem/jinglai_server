@@ -108,9 +108,11 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
         if (Objects.equals(updateReqVO.getApprovalStage(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
             // 校验是否存在,并修改状态
             projectConstractRepository.findById(contractApproval.getContractId()).ifPresentOrElse(contract -> {
-                projectDocumentService.updateProjectDocumentWithoutReq(contract.getProjectDocumentId(),contract.getStampFileName(),contract.getStampFileUrl());
+                if(contract.getProjectDocumentId()!=null){
+                    projectDocumentService.updateProjectDocumentWithoutReq(contract.getProjectDocumentId(),contract.getStampFileName(),contract.getStampFileUrl());
+                }
                 contract.setStatus(contractApproval.getStage());
-                contract.setRealPrice(contractApproval.getRealPrice());
+//                contract.setRealPrice(contractApproval.getRealPrice());
                 projectConstractRepository.save(contract);
             },()->{
                 throw exception(PROJECT_NOT_EXISTS);
