@@ -59,12 +59,14 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
         if (createReqVO.getProjectCategoryType().equals("account")||createReqVO.getProjectCategoryType().equals("only")){
             ProjectCategory byProjectIdAndType = null;
+            String  projectCategoryName = "出库增减项";
 
             if(createReqVO.getProjectCategoryType().equals("account")){
                 byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
             }
 
             if(createReqVO.getProjectCategoryType().equals("only")){
+                projectCategoryName = "独立报价";
                 byProjectIdAndType = projectCategoryRepository.findByProjectIdAndScheduleIdAndType(createReqVO.getProjectId(),createReqVO.getScheduleId(), createReqVO.getProjectCategoryType());
             }
 
@@ -74,10 +76,11 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
             }else{
                 ProjectCategory projectCategory = new ProjectCategory();
                 projectCategory.setProjectId(createReqVO.getProjectId());
+                projectCategory.setScheduleId(createReqVO.getScheduleId());
                 projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
                 projectCategory.setType(createReqVO.getProjectCategoryType());
                 projectCategory.setLabId(-2L);
-                projectCategory.setName("出库增减项");
+                projectCategory.setName(projectCategoryName);
                 ProjectCategory save = projectCategoryRepository.save(projectCategory);
                 projectSupply.setProjectCategoryId(save.getId());
             }

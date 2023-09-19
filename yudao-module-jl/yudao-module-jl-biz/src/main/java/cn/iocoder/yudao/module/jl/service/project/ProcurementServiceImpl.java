@@ -443,6 +443,7 @@ public class ProcurementServiceImpl implements ProcurementService {
      * @param saveReqVO
      */
     @Override
+    @Transactional
     public void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO) {
         // 校验存在
         validateProcurementExists(saveReqVO.getProcurementId());
@@ -460,6 +461,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             procurementPaymentRepository.saveAll(payments);
         }
+
+        //更新子项item的状态
+        procurementItemRepository.updateStatusByProcurementId(ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString(), saveReqVO.getProcurementId());
 
         // 更新状态
         procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString());

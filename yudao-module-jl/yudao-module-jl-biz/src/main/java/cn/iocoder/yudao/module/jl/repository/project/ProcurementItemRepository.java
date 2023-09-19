@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface ProcurementItemRepository extends JpaRepository<ProcurementItem, Long>, JpaSpecificationExecutor<ProcurementItem> {
+    @Transactional
+    @Modifying
+    @Query("update ProcurementItem p set p.status = ?1 where p.procurementId = ?2")
+    int updateStatusByProcurementId(String status, Long procurementId);
     @Query("select p from ProcurementItem p where p.scheduleId = ?1")
     List<ProcurementItem> findByScheduleId(Long scheduleId);
     @Transactional
