@@ -185,4 +185,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode AUDIT_CONFIG_NOT_EXISTS = new ErrorCode(1002033000, "审批配置不存在");
 
+    ErrorCode TASK_RELATION_NOT_EXISTS = new ErrorCode(1002034000, "任务关系依赖不存在");
+
 }

@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
+import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -48,4 +49,6 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     private List<ProjectCategoryLog> logs;
 
     private LaboratoryLab lab;
+
+    private  List<TaskRelation> relations;
 }
