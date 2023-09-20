@@ -6,8 +6,10 @@ import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.enums.ApprovalTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.auditconfig.AuditConfigRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.*;
 
@@ -50,6 +53,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprovalService {
     public static final String PROCESS_KEY = "PROJECT_CATEGORY_STATUS_CHANGE";
+
+    @Resource
+    NeedAuditHandler needAuditHandler;
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
@@ -84,6 +90,8 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             category.setApprovalStage(bpmProcess);
             projectCategoryRepository.save(category);
         });
+
+
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         projectCategoryApproval.setApprovalStage(bpmProcess);
@@ -101,6 +109,9 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
         }else{
             //如果不是数据审核,则直接修改状态
+        }
+
+        if(!createReqVO.getNeedAudit()){
             projectCategoryApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
             projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
         }

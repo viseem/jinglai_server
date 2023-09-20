@@ -183,4 +183,6 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_DOCUMENT_NOT_EXISTS = new ErrorCode(1002032000, "项目文档不存在");
 
+    ErrorCode AUDIT_CONFIG_NOT_EXISTS = new ErrorCode(1002033000, "审批配置不存在");
+
 }

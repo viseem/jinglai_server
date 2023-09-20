@@ -12,6 +12,8 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalBaseVO {
 
+    private Boolean needAudit;
+
     @Schema(description = "变更前状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "变更前状态")
     private String originStage;
