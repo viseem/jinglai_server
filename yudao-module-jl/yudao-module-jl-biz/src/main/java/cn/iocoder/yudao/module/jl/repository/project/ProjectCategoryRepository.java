@@ -11,6 +11,10 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectCategory p set p.stage = ?1 where p.id = ?2")
+    int updateStageById(String stage, Long id);
     @Query("select p from ProjectCategory p where p.projectId = ?1 and p.scheduleId = ?2 and p.type = ?3")
     ProjectCategory findByProjectIdAndScheduleIdAndType(Long projectId, Long scheduleId, String type);
     @Query("select p from ProjectCategory p where p.projectId = ?1 and p.type = ?2")

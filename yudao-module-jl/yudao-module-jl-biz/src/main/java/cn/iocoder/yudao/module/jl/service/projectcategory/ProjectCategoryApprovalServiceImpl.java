@@ -88,14 +88,22 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         projectCategoryApproval.setApprovalStage(bpmProcess);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
-        // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
-        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
 
-        // 更新流程实例编号
-        projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+        // 如果是数据审核 才加入审核流程
+        if(Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
+            // 发起 BPM 流程
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+
+            // 更新流程实例编号
+            projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+        }else{
+            //如果不是数据审核,则直接修改状态
+            projectCategoryApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
+            projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
+        }
 
 
 /*        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.EXP_PROGRESS.getStatus(), save.getId(),save.getStageMark());
@@ -145,8 +153,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             if(finalStage!=null){
                 category.setStage(finalStage);
             }
-//            category.setApprovalStage(updateReqVO.getApprovalStage());
-//            category.setRequestStage(projectCategoryApproval.getStage());
             projectCategoryRepository.save(category);
         },()->{
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
