@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -42,10 +43,14 @@ public class ProjectApprovalController {
     @Resource
     private ProjectApprovalMapper projectApprovalMapper;
 
+    @Resource
+    private NeedAuditHandler needAuditHandler;
+
     @PostMapping("/create")
     @Operation(summary = "创建项目的状态变更记录")
     @PreAuthorize("@ss.hasPermission('jl:project-approval:create')")
-    public CommonResult<Long> createProjectApproval(@Valid @RequestBody ProjectApprovalCreateReqVO createReqVO) {
+    public CommonResult<Long> createProjectApproval(@Valid @RequestBody ProjectApprovalCreateReqVO createReqVO,HttpServletRequest request) {
+        createReqVO.setNeedAudit(needAuditHandler.needAudit(request,createReqVO.getStage()));
         return success(projectApprovalService.createProjectApproval(createReqVO));
     }
 

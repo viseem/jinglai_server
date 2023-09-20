@@ -97,8 +97,7 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
         projectCategoryApproval.setApprovalStage(bpmProcess);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
 
-        // 如果是数据审核 才加入审核流程
-        if(Objects.equals(createReqVO.getStage(), ProjectCategoryStatusEnums.DATA_CHECK.getStatus())){
+        if(createReqVO.getNeedAudit()){
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
             String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
@@ -108,10 +107,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             // 更新流程实例编号
             projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
         }else{
-            //如果不是数据审核,则直接修改状态
-        }
-
-        if(!createReqVO.getNeedAudit()){
             projectCategoryApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
             projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
         }

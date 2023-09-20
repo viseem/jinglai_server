@@ -14,6 +14,8 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectApprovalBaseVO {
 
+    private Boolean needAudit;
+
     @Schema(description = "原状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "原状态")
     private String originStage;
