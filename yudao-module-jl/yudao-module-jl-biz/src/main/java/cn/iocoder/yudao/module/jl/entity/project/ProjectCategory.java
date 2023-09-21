@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelation;
+import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
@@ -221,11 +222,11 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验SOP
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectSop> sopList;
+    private List<ProjectSop> sopList = new ArrayList<>();
 
     /**
      * 实验名目的附件
@@ -277,5 +278,5 @@ public class ProjectCategory extends BaseEntity {
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<TaskRelation> relations = new ArrayList<>();
+    private List<TaskRelationOnly> relations = new ArrayList<>();
 }

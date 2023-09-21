@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelation;
+import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -50,5 +51,5 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private LaboratoryLab lab;
 
-    private  List<TaskRelation> relations;
+    private  List<TaskRelationOnly> relations;
 }
