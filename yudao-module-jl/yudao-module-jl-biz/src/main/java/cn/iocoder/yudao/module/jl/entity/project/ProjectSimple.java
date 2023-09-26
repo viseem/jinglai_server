@@ -1,21 +1,14 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDate;
-import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目管理 Entity
@@ -24,9 +17,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProjectOnly")
+@Entity(name = "ProjectSimple")
 @Table(name = "jl_project_base")
-public class ProjectOnly extends BaseEntity {
+public class ProjectSimple extends BaseEntity {
 
     /**
      * ID
@@ -129,12 +122,10 @@ public class ProjectOnly extends BaseEntity {
     @Column(name = "current_schedule_id")
     private Long currentScheduleId;
 
-    /**
-     * 级联出客户信息
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
-
+    @Transient
+    private Integer completePercent;
+    @Transient
+    private Integer completeCount;
+    @Transient
+    private Integer allCount;
 }

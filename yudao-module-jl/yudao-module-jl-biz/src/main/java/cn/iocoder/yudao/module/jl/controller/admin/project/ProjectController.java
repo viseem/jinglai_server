@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -123,16 +122,16 @@ public class ProjectController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
-    public CommonResult<PageResult<ProjectRespVO>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
-        PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
-        return success(projectMapper.toPage(pageResult));
+    public CommonResult<PageResult<ProjectSimple>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+        PageResult<ProjectSimple> pageResult = projectService.getProjectPage(pageVO, orderV0);
+        return success(pageResult);
     }
 
     @GetMapping("/simple-page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<PageResult<ProjectRespVO>> getProjectSimplePage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
-        PageResult<ProjectOnly> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
+        PageResult<ProjectSimple> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
         return success(projectMapper.toSimplePage(pageResult));
     }
 

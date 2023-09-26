@@ -1,12 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+
 import javax.validation.constraints.*;
 
 /**

@@ -1,20 +1,14 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
 
-import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目采购单打款 Entity
@@ -48,7 +42,7 @@ public class ProcurementPayment extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 采购单id

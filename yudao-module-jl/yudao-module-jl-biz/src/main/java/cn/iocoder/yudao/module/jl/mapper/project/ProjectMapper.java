@@ -4,7 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import org.mapstruct.*;
 
 
@@ -24,7 +24,9 @@ public interface ProjectMapper {
 
     List<ProjectExcelVO> toExcelList(List<Project> list);
 
-    PageResult<ProjectRespVO> toPage(PageResult<Project> page);
-    PageResult<ProjectRespVO> toSimplePage(PageResult<ProjectOnly> page);
+    PageResult<ProjectRespVO> toPage(PageResult<ProjectSimple> page);
+
+
+    PageResult<ProjectRespVO> toSimplePage(PageResult<ProjectSimple> page);
 
 }

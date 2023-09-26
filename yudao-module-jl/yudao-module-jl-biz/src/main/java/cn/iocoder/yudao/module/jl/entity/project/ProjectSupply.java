@@ -3,10 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
-import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
-import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -15,9 +12,6 @@ import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目中的实验名目的物资项 Entity
@@ -69,7 +63,7 @@ public class ProjectSupply extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
 
 

@@ -2,15 +2,14 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectScheduleRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -40,7 +39,6 @@ import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -89,10 +87,11 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     public ProjectServiceImpl(UserRepository userRepository,
-                              ProjectConstractRepository projectConstractRepository
-                              ) {
+                              ProjectConstractRepository projectConstractRepository,
+                              ProjectCategoryRepository projectCategoryRepository) {
         this.userRepository = userRepository;
         this.projectConstractRepository = projectConstractRepository;
+        this.projectCategoryRepository = projectCategoryRepository;
     }
 
 
@@ -107,6 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectScheduleMapper projectScheduleMapper;
     private final UserRepository userRepository;
     private final ProjectConstractRepository projectConstractRepository;
+    private final ProjectCategoryRepository projectCategoryRepository;
 
 
     @Override
@@ -276,7 +276,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+    public PageResult<ProjectSimple> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
 
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setManagers(users);
@@ -288,7 +288,7 @@ public class ProjectServiceImpl implements ProjectService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<Project> spec = (root, query, cb) -> {
+        Specification<ProjectSimple> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getAttribute()!=null){
@@ -302,7 +302,7 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
             }
 
-            if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
+            if(pageReqVO.getStageArr() != null&& !pageReqVO.getStageArr().isEmpty()) {
                 predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
             }
 
@@ -360,16 +360,30 @@ public class ProjectServiceImpl implements ProjectService {
         };
 
         // 执行查询
-        Page<Project> page = projectRepository.findAll(spec, pageable);
-//        page.forEach(this::processProjectItem);
+        Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
+        page.forEach(this::processProjectSimpleItem);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
+    private void processProjectSimpleItem(ProjectSimple project) {
+        long completeCount = projectCategoryRepository.countByProjectIdAndStageAndType(
+                project.getId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()
+        );
+        long allCount = projectCategoryRepository.countByProjectIdAndType(project.getId());
+        project.setAllCount((int) allCount);
+        project.setCompleteCount((int) completeCount);
+        //计算百分比
+        if(allCount>0){
+            project.setCompletePercent((int) (completeCount*100/allCount));
+        }
+
+    }
+
 
     @Override
-    public PageResult<ProjectOnly> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+    public PageResult<ProjectSimple> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
 
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setManagers(users);
@@ -381,7 +395,7 @@ public class ProjectServiceImpl implements ProjectService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectOnly> spec = (root, query, cb) -> {
+        Specification<ProjectSimple> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             //默认查询code不为空的
@@ -453,7 +467,7 @@ public class ProjectServiceImpl implements ProjectService {
         };
 
         // 执行查询
-        Page<ProjectOnly> page = projectSimpleRepository.findAll(spec, pageable);
+        Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
 //        page.forEach(this::processProjectItem);
 
         // 转换为 PageResult 并返回

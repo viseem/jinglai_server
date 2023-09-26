@@ -1,22 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * 实验产品入库 Entity

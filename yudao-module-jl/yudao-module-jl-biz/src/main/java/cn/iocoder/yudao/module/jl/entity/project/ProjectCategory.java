@@ -5,22 +5,17 @@ import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
-import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelation;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.*;
-import org.springframework.core.annotation.Order;
 
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目的实验名目 Entity
@@ -61,7 +56,7 @@ public class ProjectCategory extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 安排单 id

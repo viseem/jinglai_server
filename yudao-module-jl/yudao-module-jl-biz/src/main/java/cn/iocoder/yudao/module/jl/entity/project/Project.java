@@ -43,8 +43,8 @@ public class Project extends BaseEntity {
     private String processInstanceId;
 
     /*
-    * 项目出库申请结果
-    * */
+     * 项目出库申请结果
+     * */
 
     @Column(name = "outbound_apply_result", nullable = false )
     private String outboundApplyResult;
@@ -107,38 +107,6 @@ public class Project extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
-    /**
-     * 采购负责人
-     */
-    @Column(name = "procurementer_id")
-    private Long procurementerId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "procurementer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User procurementer;
-
-    /**
-     * 库管负责人
-     */
-    @Column(name = "inventorier_id")
-    private Long inventorierId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "inventorier_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User intentorier;
-
-    /**
-     * 实验负责人
-     */
-    @Column(name = "exper_id")
-    private Long experId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User exper;
 
     /**
      * 实验员
@@ -223,8 +191,8 @@ public class Project extends BaseEntity {
     private List<ProjectFundLog> fundLogs = new ArrayList<>();
 
     /*
-    * 查询审批列表
-    * */
+     * 查询审批列表
+     * */
     //排序
 /*    @OrderBy("createTime desc")
     @OneToMany(fetch = FetchType.LAZY)

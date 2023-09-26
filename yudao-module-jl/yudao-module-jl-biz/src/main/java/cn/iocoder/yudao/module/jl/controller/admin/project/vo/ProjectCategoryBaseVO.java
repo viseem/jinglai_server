@@ -1,23 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 
 /**

@@ -11,6 +11,12 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select count(1) from ProjectCategory p where p.projectId = ?1 and p.stage = ?2 and p.type = 'schedule'")
+    long countByProjectIdAndStageAndType(Long projectId, String stage);
+    @Query("select count(1) from ProjectCategory p where p.projectId = ?1 and p.type = 'schedule'")
+    long countByProjectIdAndType(Long projectId);
+    @Query("select count(1) from ProjectCategory p where p.stage = ?1")
+    long countByStage(String stage);
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.stage = ?1 where p.id = ?2")

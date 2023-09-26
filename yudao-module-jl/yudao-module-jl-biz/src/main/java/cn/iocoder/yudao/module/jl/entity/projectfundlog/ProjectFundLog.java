@@ -4,21 +4,15 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import java.util.*;
+
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目款项 Entity
@@ -76,7 +70,7 @@ public class ProjectFundLog extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 支付凭证上传地址

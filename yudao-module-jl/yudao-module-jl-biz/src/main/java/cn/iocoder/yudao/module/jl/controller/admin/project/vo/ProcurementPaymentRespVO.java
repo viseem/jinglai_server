@@ -1,8 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.project.Supplier;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -23,5 +22,5 @@ public class ProcurementPaymentRespVO extends ProcurementPaymentBaseVO {
 
     private Procurement procurement;
 
-    private ProjectOnly project;
+    private ProjectSimple project;
 }

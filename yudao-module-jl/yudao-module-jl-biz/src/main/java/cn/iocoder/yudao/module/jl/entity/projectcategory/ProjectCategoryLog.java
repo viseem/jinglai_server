@@ -1,24 +1,16 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目实验名目的操作日志 Entity
@@ -53,7 +45,7 @@ public class ProjectCategoryLog extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 实验名目 id
