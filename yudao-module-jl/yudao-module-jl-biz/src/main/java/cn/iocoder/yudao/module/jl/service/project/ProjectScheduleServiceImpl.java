@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -490,6 +491,19 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectScheduleRepository.save(updateObj);
     }
 
+
+    public String replaceCustomTaskString(String originString, String replacement, Long categoryId) {
+        // 创建一个正则表达式，匹配符合特定模式的子串
+        String regexPattern = "<a\\sdata-w-e-type=\"taskDom\"\\sdata-w-e-id=\"" + categoryId + "\".*?<\\/a>";
+        Pattern pattern = Pattern.compile(regexPattern, Pattern.DOTALL);
+
+        // 使用正则表达式的 replace 方法替换匹配的子串
+        String result = pattern.matcher(originString).replaceAll(replacement);
+
+        return result;
+    }
+
+
     @Override
     @Transactional
     public void updateSchedulePlanByContentHtml(ProjectScheduleUpdatePlanReqVO updateReqVO){
@@ -497,9 +511,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         //把projectSchedule的planText字符串中等于updateReqVO的contentHtml的 替换为 updateReqVO的newContentHtml
         String planText = projectSchedule.getPlanText();
-        String contentHtml = updateReqVO.getContentHtml();
+//        String contentHtml = updateReqVO.getContentHtml();
         String newContentHtml = updateReqVO.getNewContentHtml();
-        String replace = planText.replace(contentHtml, newContentHtml);
+        if(newContentHtml.equals(updateReqVO.getProjectCategoryId().toString())){
+            newContentHtml = updateReqVO.getProjectCategoryContent();
+        }
+        String replace = replaceCustomTaskString(planText,newContentHtml,updateReqVO.getProjectCategoryId());
         projectScheduleRepository.updatePlanTextById(replace,updateReqVO.getScheduleId());
 
         //更新projectCategory的content

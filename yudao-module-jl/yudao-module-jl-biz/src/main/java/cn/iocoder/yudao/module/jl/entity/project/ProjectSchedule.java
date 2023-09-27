@@ -73,11 +73,11 @@ public class ProjectSchedule extends BaseEntity {
     /**
      * 查询款项列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Where(clause="type = 'schedule'")
     @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategory> categoryList;
+    private List<ProjectCategory> categoryList;*/
 
 }
