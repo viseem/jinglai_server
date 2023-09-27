@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -113,9 +114,9 @@ public class ProjectCategoryController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目的实验名目列表")
     @PreAuthorize("@ss.hasPermission('jl:project-category:query')")
-    public CommonResult<PageResult<ProjectCategoryRespVO>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
-        PageResult<ProjectCategory> pageResult = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
-        return success(projectCategoryMapper.toPage(pageResult));
+    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+        return success(pageResult);
     }
 
     @GetMapping("/export-excel")

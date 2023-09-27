@@ -1,13 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
@@ -47,6 +45,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectCategorySimpleRepository projectCategorySimpleRepository;
 
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
@@ -220,7 +221,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
-    public PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
+    public PageResult<ProjectCategorySimple> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -228,7 +229,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategory> spec = (root, query, cb) -> {
+        Specification<ProjectCategorySimple> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
 
@@ -307,11 +308,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         };
 
         // 执行查询
-        Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
-        List<ProjectCategory> content = page.getContent();
+        Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
+        List<ProjectCategorySimple> content = page.getContent();
 
         if(content!=null&&content.size()>0){
-            content.forEach(this::processProjectCategoryItem);
+            content.forEach(this::processProjectCategorySimpleItem);
         }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -322,13 +323,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         if (!approvalList.isEmpty()) {
             Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-
-/*            String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
-            String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);*/
-
             projectCategory.setLatestApproval(latestApproval.orElse(null));
-//            projectCategory.setApprovalStage(approvalStage);
-//            projectCategory.setRequestStage(requestStage);
+        }
+    }
+
+    private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
+        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+        if (!approvalList.isEmpty()) {
+            Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
+                    .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
+            projectCategory.setLatestApproval(latestApproval.orElse(null));
         }
     }
 
