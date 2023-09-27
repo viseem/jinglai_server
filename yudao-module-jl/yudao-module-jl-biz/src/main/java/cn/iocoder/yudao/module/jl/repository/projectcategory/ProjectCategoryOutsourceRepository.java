@@ -13,4 +13,6 @@ public interface ProjectCategoryOutsourceRepository extends JpaRepository<Projec
     @Query("select p from ProjectCategoryOutsource p where p.scheduleId = ?1")
     List<ProjectCategoryOutsource> findByScheduleId(Long scheduleId);
 
+    @Query("select p from ProjectCategoryOutsource p where p.projectId = ?1")
+    List<ProjectCategoryOutsource> findByProjectId(Long projectId);
 }

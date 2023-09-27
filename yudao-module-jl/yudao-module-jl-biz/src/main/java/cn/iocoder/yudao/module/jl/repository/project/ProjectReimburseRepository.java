@@ -13,4 +13,7 @@ public interface ProjectReimburseRepository extends JpaRepository<ProjectReimbur
     @Query("select p from ProjectReimburse p where p.scheduleId = ?1")
     List<ProjectReimburse> findByScheduleId(Long scheduleId);
 
+    @Query("select p from ProjectReimburse p where p.projectId = ?1")
+    List<ProjectReimburse> findByProjectId(Long projectId);
+
 }

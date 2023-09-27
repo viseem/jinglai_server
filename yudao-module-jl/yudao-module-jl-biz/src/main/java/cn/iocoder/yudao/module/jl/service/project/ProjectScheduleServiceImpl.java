@@ -253,7 +253,141 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         return cost;
     }
 
+    //---------------计算各类成本 通过projectId
 
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyCostByProjectId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByProjectId(id);
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getBuyPrice() != null) {
+                cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByProjectId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getBuyPrice() != null) {
+                cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyQuotationByProjectId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByProjectId(id);
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getUnitFee() != null) {
+                cost += projectSupply.getUnitFee().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemQuotationByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByProjectId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getUnitFee() != null) {
+                cost += projectChargeitem.getUnitFee().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的采购成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getProcurementCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算采购的成本 TODO 没有projectID
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByScheduleId(id);
+        for (ProcurementItem procurementItem : procurementItemList) {
+            if(procurementItem.getBuyPrice() != null) {
+                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            }
+
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getReimburseCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算报销的成本
+        List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByProjectId(id );
+        for (ProjectReimburse projectReimburse : projectReimburseList) {
+            if(projectReimburse.getPrice() != null) {
+                cost += projectReimburse.getPrice().longValue();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getCategoryOutSourceCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算委外的成本
+        List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByProjectId(id);
+        for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
+            if(projectCategoryOutsource.getBuyPrice() != null) {
+                cost += projectCategoryOutsource.getBuyPrice();
+            }
+        }
+
+        return cost;
+    }
 
 
 

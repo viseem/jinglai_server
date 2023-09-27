@@ -34,6 +34,21 @@ public interface ProjectScheduleService {
 
     Long getCategoryOutSourceCostByScheduleId(Long id);
 
+
+    Long getSupplyCostByProjectId(Long id);
+
+    Long getChargeItemCostByProjectId(Long id);
+
+    Long getSupplyQuotationByProjectId(Long id);
+
+    Long getChargeItemQuotationByProjectId(Long id);
+
+    Long getProcurementCostByProjectId(Long id);
+
+    Long getReimburseCostByProjectId(Long id);
+
+    Long getCategoryOutSourceCostByProjectId(Long id);
+
     Long saveProjectSchedule(@Valid ProjectScheduleSaveReqVO saveReqVO);
     void saveScheduleSupplyAndChargeItem(@Valid ScheduleSaveSupplyAndChargeItemReqVO saveReqVO);
     Long saveProjectScheduleCategory(@Valid ProjectScheduleCategorySaveReqVO saveReqVO);

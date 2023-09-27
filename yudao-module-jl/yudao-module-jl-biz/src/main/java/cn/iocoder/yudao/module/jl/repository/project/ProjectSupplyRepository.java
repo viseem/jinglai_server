@@ -18,6 +18,9 @@ public interface ProjectSupplyRepository extends JpaRepository<ProjectSupply, Lo
     int updateDeletedByProjectCategoryId(Boolean deleted, Long projectCategoryId);
     @Query("select p from ProjectSupply p where p.scheduleId = ?1")
     List<ProjectSupply> findByScheduleId(Long scheduleId);
+
+    @Query("select p from ProjectSupply p where p.projectId = ?1")
+    List<ProjectSupply> findByProjectId(Long projectId);
     @Transactional
     @Modifying
     @Query("delete from ProjectSupply p where p.projectCategoryId = ?1")

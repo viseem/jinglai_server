@@ -22,6 +22,9 @@ public interface ProjectChargeitemRepository extends JpaRepository<ProjectCharge
     int deleteByProjectCategoryId(Long projectCategoryId);
     @Query("select p from ProjectChargeitem p where p.scheduleId = ?1")
     List<ProjectChargeitem> findByScheduleId(Long scheduleId);
+
+    @Query("select p from ProjectChargeitem p where p.projectId = ?1")
+    List<ProjectChargeitem> findByProjectId(Long projectId);
     @Transactional
     @Modifying
     @Query("delete from ProjectChargeitem p where p.projectCategoryId in ?1")

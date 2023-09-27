@@ -98,15 +98,33 @@ public class ProjectController {
         ProjectRespVO ret = project.map(projectMapper::toDto).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
 
         // 计算各类成本
-        Long currentScheduleId =ret.getCurrentScheduleId();
+/*        Long currentScheduleId =ret.getCurrentScheduleId();
+        ret.setSupplyCost(projectScheduleService.getSupplyCostByScheduleId(currentScheduleId));
+        ret.setChargeItemCost(projectScheduleService.getChargeItemCostByScheduleId(currentScheduleId));
+        ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByScheduleId(currentScheduleId));
+        ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
+        ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));*/
+
+        //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
+        ret.setPersons(projectPersonRepository.findByProjectId(id));
+
+        return success(ret);
+    }
+
+    @GetMapping("/cost-stats")
+    @Operation(summary = "通过 ID 获得项目管理")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectCostStatsRespVO> getProjectCostStats(@RequestParam("id") Long id) {
+        Project project = projectService.getProject(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+        // 计算各类成本
+        Long currentScheduleId =project.getCurrentScheduleId();
+        ProjectCostStatsRespVO ret = new ProjectCostStatsRespVO();
         ret.setSupplyCost(projectScheduleService.getSupplyCostByScheduleId(currentScheduleId));
         ret.setChargeItemCost(projectScheduleService.getChargeItemCostByScheduleId(currentScheduleId));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByScheduleId(currentScheduleId));
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
         ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
-
-        //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
-        ret.setPersons(projectPersonRepository.findByProjectId(id));
 
         return success(ret);
     }
