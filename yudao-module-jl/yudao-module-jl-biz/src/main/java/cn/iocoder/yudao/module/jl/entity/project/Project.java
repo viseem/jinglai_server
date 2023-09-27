@@ -177,18 +177,18 @@ public class Project extends BaseEntity {
     /**
      * 查询合同列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstractOnly> contracts = new ArrayList<>();
+    private List<ProjectConstractOnly> contracts = new ArrayList<>();*/
 
     /**
      * 查询款项列表
      */
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFundLog> fundLogs = new ArrayList<>();
+    private List<ProjectFundLog> fundLogs = new ArrayList<>();*/
 
     /*
      * 查询审批列表

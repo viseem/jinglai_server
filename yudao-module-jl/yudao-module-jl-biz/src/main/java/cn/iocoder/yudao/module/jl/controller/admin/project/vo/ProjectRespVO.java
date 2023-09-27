@@ -52,8 +52,8 @@ public class ProjectRespVO extends ProjectBaseVO {
     @Schema(description = "报销的成本")
     private Long reimbursementCost;
 
-    private List<ProjectConstractOnly> contracts = new ArrayList<>();
-    private List<ProjectFundLog> fundLogs = new ArrayList<>();
+//    private List<ProjectConstractOnly> contracts = new ArrayList<>();
+//    private List<ProjectFundLog> fundLogs = new ArrayList<>();
 
     private ProjectApproval latestApproval;
 
