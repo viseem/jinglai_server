@@ -204,12 +204,12 @@ public class Project extends BaseEntity {
     @Transient
     private ProjectApproval latestApproval;*/
 
-    @OneToMany(fetch = FetchType.LAZY)
+ /*   @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Where(clause = "type = 'schedule'")
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    private List<ProjectCategoryOnly> categoryList;
+    private List<ProjectCategoryOnly> categoryList;*/
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

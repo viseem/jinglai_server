@@ -57,7 +57,7 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private ProjectApproval latestApproval;
 
-    private List<ProjectCategoryOnly> categoryList;
+//    private List<ProjectCategoryOnly> categoryList;
 
     private List<ProjectPerson> persons;
 }
