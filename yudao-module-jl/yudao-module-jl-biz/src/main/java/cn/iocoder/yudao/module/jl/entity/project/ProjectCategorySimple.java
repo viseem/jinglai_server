@@ -269,13 +269,10 @@ public class ProjectCategorySimple extends BaseEntity {
     /*
     * 依赖项
     * */
-    /**
-     * 查询款项列表
-     */
- /*   @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<TaskRelationOnly> relations = new ArrayList<>();*/
+    private List<TaskRelationOnly> relations = new ArrayList<>();
 }
