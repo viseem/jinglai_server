@@ -82,6 +82,10 @@ public class CustomerServiceImpl implements CustomerService {
             createReqVO.setSalesId(getLoginUserId());
         }
 
+        if(createReqVO.getIsSeas()){
+            createReqVO.setToCustomer(false);
+        }
+
         // 插入
         Customer customer = customerMapper.toEntity(createReqVO);
         customerRepository.save(customer);

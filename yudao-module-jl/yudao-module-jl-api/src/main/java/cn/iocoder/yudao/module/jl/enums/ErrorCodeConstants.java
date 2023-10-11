@@ -187,4 +187,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode TASK_RELATION_NOT_EXISTS = new ErrorCode(1002034000, "任务关系依赖不存在");
 
+
+    // ========== AUTH 模块 1004003000 ==========
+
+    ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
+
 }
