@@ -8,6 +8,10 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerCreateReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
+import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.member.controller.app.auth.vo.*;
 import cn.iocoder.yudao.module.member.convert.auth.AuthConvert;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
@@ -33,10 +37,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.CUSTOMER_NOT_EXISTS;
 import static cn.iocoder.yudao.module.member.enums.ErrorCodeConstants.*;
 
 /**
@@ -66,6 +72,15 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     private PasswordEncoder passwordEncoder;
     @Resource
     private MemberUserMapper userMapper;
+
+
+
+    @Resource
+    private CustomerRepository customerRepository;
+
+    @Resource
+    private CustomerService customerService;
+
 
     @Override
     public AppAuthLoginRespVO login(AppAuthLoginReqVO reqVO) {
@@ -141,6 +156,62 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
         // 创建 Token 令牌，记录登录日志
         return createTokenAfterLoginSuccess(user, user.getMobile(), LoginLogTypeEnum.LOGIN_SOCIAL);
+    }
+
+
+    @Override
+    public JLAppLoginRespVO loginByPhoneCode(@Valid JLAppLoginByPhoneReqVO reqVO) {
+        WxMaPhoneNumberInfo phoneNumberInfo;
+
+        if(reqVO.getPhone()==null){
+            try {
+                phoneNumberInfo = wxMaService.getUserService().getNewPhoneNoInfo(reqVO.getPhoneCode());
+            } catch (Exception exception) {
+                throw exception(AUTH_WEIXIN_MINI_APP_PHONE_CODE_ERROR);
+            }
+
+        }else{
+            phoneNumberInfo=new WxMaPhoneNumberInfo();
+            phoneNumberInfo.setPhoneNumber(reqVO.getPhone());
+        }
+
+
+        Long customerId = null;
+
+        JLAppLoginRespVO respVO = new JLAppLoginRespVO();
+
+        //根据手机号查询用户信息，如果没有则创建用户
+        Customer findCustomer = customerRepository.findByPhone(phoneNumberInfo.getPhoneNumber());
+        if (findCustomer==null){
+            //创建用户
+            CustomerCreateReqVO createReqVO = new CustomerCreateReqVO();
+            createReqVO.setPhone(phoneNumberInfo.getPhoneNumber());
+            createReqVO.setName("");
+            createReqVO.setSource("SELF_WX");
+            createReqVO.setIsSeas(true);
+            Long customer = customerService.createCustomer(createReqVO);
+            customerId=customer;
+        } else {
+            customerId=findCustomer.getId();
+        }
+
+        //查询用户信息，并返回
+        Customer customer = customerRepository.findById(customerId).orElseGet(() -> {
+            throw exception(CUSTOMER_NOT_EXISTS);
+        });
+        respVO.setName(customer.getName());
+        respVO.setPhone(customer.getPhone());
+
+        //设置token
+        // 插入登陆日志
+//            createLoginLog(user.getId(), mobile, logType, LoginResultEnum.SUCCESS);
+        // 创建 Token 令牌
+        OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.createAccessToken(new OAuth2AccessTokenCreateReqDTO()
+                .setUserId(customerId).setUserType(UserTypeEnum.MEMBER.getValue())
+                .setClientId(OAuth2ClientConstants.CLIENT_ID_DEFAULT));
+
+        respVO.setToken(accessTokenRespDTO.getAccessToken());
+        return respVO;
     }
 
     private AppAuthLoginRespVO createTokenAfterLoginSuccess(MemberUserDO user, String mobile, LoginLogTypeEnum logType) {

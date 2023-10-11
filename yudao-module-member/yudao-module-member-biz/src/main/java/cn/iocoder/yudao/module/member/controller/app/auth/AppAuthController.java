@@ -118,4 +118,11 @@ public class AppAuthController {
         return success(authService.weixinMiniAppLogin(reqVO));
     }
 
+    @PostMapping("/login-by-phonecode")
+    @Operation(summary = "小程序登录")
+    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+    public CommonResult<JLAppLoginRespVO> loginByPhone(@Valid @RequestBody JLAppLoginByPhoneReqVO reqVO) {
+        return success(authService.loginByPhoneCode(reqVO));
+    }
+
 }

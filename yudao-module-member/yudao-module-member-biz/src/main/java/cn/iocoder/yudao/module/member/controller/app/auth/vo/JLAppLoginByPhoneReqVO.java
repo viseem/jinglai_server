@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.jl.controller.admin.auth.vo;
+package cn.iocoder.yudao.module.member.controller.app.auth.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

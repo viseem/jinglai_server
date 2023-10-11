@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -338,6 +339,85 @@ public class ProjectServiceImpl implements ProjectService {
 
             if(pageReqVO.getParticipants() != null) {
                 predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
+            if(pageReqVO.getProcurementerId() != null) {
+                predicates.add(cb.equal(root.get("procurementerId"), pageReqVO.getProcurementerId()));
+            }
+            if(pageReqVO.getInventorierId() != null) {
+                predicates.add(cb.equal(root.get("inventorierId"), pageReqVO.getInventorierId()));
+            }
+            if(pageReqVO.getExperId() != null) {
+                predicates.add(cb.equal(root.get("experId"), pageReqVO.getExperId()));
+            }
+/*            if(pageReqVO.getExpersId() != null) {
+                predicates.add(cb.in(root.get("experIds"), pageReqVO.getExpersId()));
+            }*/
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
+        page.forEach(this::processProjectSimpleItem);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProjectSimple> getCustomerProjectPage(CustomerProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProjectSimple> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
+            }
+
+            if(pageReqVO.getStageArr() != null&& !pageReqVO.getStageArr().isEmpty()) {
+                predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
+            }
+
+            if(pageReqVO.getSalesleadId() != null) {
+                predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
+            }
+
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
+
+            if(pageReqVO.getType() != null) {
+                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            }
+
+            if(pageReqVO.getStartDate() != null) {
+                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
+            }
+            if(pageReqVO.getEndDate() != null) {
+                predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
+            }
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
             }
 
             if(pageReqVO.getCustomerId() != null) {

@@ -34,6 +34,7 @@ import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 @Tag(name = "管理后台 - 客户")
 @RestController
 @RequestMapping("/jl/customer")
+//------------------客户先当成用户
 @Validated
 public class CustomerController {
 
