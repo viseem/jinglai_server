@@ -14,6 +14,7 @@ public interface CustomerMapper {
     Customer toEntity(CustomerCreateReqVO dto);
 
     Customer toEntity(CustomerUpdateReqVO dto);
+    CustomerOnly toAppEntity(AppCustomerUpdateReqVO dto);
 
     CustomerRespVO toDto(Customer entity);
 

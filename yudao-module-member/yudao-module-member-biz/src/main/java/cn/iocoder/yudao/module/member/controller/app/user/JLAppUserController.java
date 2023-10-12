@@ -3,14 +3,24 @@ package cn.iocoder.yudao.module.member.controller.app.user;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.AppCustomerUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageOrder;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectPageOrder;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.AppProject;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,13 +49,25 @@ public class JLAppUserController {
     @Resource
     AppProjectRepository appProjectRepository;
 
-    @PostMapping("/project-page")
-    @Operation(summary = "(分页)获得项目管理列表")
-    public CommonResult<PageResult<ProjectSimple>> getProjectPage(@Valid @RequestBody CustomerProjectPageReqVO pageVO, @Valid @RequestBody ProjectPageOrder orderV0) {
+    @Resource
+    ProjectConstractService projectConstractService;
+
+
+    @Resource
+    CustomerService customerService;
+
+    private Long validLoginUser(){
         Long loginUserId = WebFrameworkUtils.getLoginUserId();
         if (loginUserId == null) {
             throw exception(UNAUTHORIZED);
         }
+        return loginUserId;
+    }
+
+    @PostMapping("/project-page")
+    @Operation(summary = "客户 项目列表")
+    public CommonResult<PageResult<ProjectSimple>> getProjectPage(@Valid @RequestBody CustomerProjectPageReqVO pageVO, @Valid @RequestBody ProjectPageOrder orderV0) {
+        Long loginUserId = validLoginUser();
         pageVO.setCustomerId(loginUserId);
 
         PageResult<ProjectSimple> pageResult = projectService.getCustomerProjectPage(pageVO, orderV0);
@@ -54,7 +76,7 @@ public class JLAppUserController {
 
 
     @GetMapping("/project-detail")
-    @Operation(summary = "(分页)获得项目管理列表")
+    @Operation(summary = "客户 项目详情")
     public CommonResult<AppProject> getProjectDetail(@RequestParam("id") Long id) {
         AppProject appProject = appProjectRepository.findById(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
 
@@ -70,11 +92,30 @@ public class JLAppUserController {
 
         appProject.setCompleteCount(completeCount);
         appProject.setAllCount(appProject.getCategoryList().size());
-        appProject.setCompletePercent((completeCount*100/allCount));
+        if(allCount!=0){
+            appProject.setCompletePercent((completeCount*100/allCount));
+        }
 
         return success(appProject);
     }
 
+
+    @PostMapping("/contract-page")
+    @Operation(summary = "客户 合同列表")
+    public CommonResult<PageResult<ProjectConstract>> getContractPage(@Valid @RequestBody ProjectConstractPageReqVO pageVO, @Valid @RequestBody ProjectConstractPageOrder orderV0) {
+        PageResult<ProjectConstract> projectConstractPage = projectConstractService.getProjectConstractPage(pageVO, orderV0);
+        return success(projectConstractPage);
+    }
+
+    @PostMapping("/update")
+    //实际上更新的是customer表的信息
+    @Operation(summary = "更新信息")
+    public CommonResult<CustomerOnly> updateCustomer(@Valid @RequestBody AppCustomerUpdateReqVO updateReqVO) {
+        Long loginUserId = validLoginUser();
+        updateReqVO.setId(loginUserId);
+        CustomerOnly customerOnly = customerService.updateAppCustomer(updateReqVO);
+        return success(customerOnly);
+    }
 
 }
 

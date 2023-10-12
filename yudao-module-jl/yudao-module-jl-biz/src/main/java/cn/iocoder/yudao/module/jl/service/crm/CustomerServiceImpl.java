@@ -13,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -103,6 +104,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerOnly updateAppCustomer(AppCustomerUpdateReqVO updateReqVO) {
+        // 校验存在
+        CustomerOnly customer = validateSimpleCustomerExists(updateReqVO.getId());
+        //copy对象
+        BeanUtils.copyProperties(updateReqVO,customer);
+        // 更新
+        return customerSimpleRepository.save(customer);
+    }
+
+    @Override
     public void toCustomer(ClueToCustomerReqVO updateReqVO) {
         // 校验存在
         validateCustomerExists(updateReqVO.getId());
@@ -132,6 +143,15 @@ public class CustomerServiceImpl implements CustomerService {
     private Customer validateCustomerExists(Long id) {
 
         Optional<Customer> byId = customerRepository.findById(id);
+        if(!byId.isPresent()){
+            throw exception(CUSTOMER_NOT_EXISTS);
+        }
+        return byId.get();
+    }
+
+    private CustomerOnly validateSimpleCustomerExists(Long id) {
+
+        Optional<CustomerOnly> byId = customerSimpleRepository.findById(id);
         if(!byId.isPresent()){
             throw exception(CUSTOMER_NOT_EXISTS);
         }
