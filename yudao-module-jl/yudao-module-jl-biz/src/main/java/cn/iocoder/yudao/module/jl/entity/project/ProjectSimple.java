@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -121,6 +123,12 @@ public class ProjectSimple extends BaseEntity {
      */
     @Column(name = "current_schedule_id")
     private Long currentScheduleId;
+
+/*    @OneToOne(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "saleslead_id",  insertable = false, updatable = false)
+    private Saleslead saleslead;*/
 
     @Transient
     private Integer completePercent;

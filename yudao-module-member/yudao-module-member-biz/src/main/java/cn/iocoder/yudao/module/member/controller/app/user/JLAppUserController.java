@@ -8,17 +8,13 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerPr
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageOrder;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectPageOrder;
-import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.AppProject;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
