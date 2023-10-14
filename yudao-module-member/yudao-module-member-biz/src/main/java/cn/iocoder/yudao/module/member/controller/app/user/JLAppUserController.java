@@ -103,6 +103,8 @@ public class JLAppUserController {
     @PostMapping("/contract-page")
     @Operation(summary = "客户 合同列表")
     public CommonResult<PageResult<ProjectConstract>> getContractPage(@Valid @RequestBody ProjectConstractPageReqVO pageVO, @Valid @RequestBody ProjectConstractPageOrder orderV0) {
+        Long loginUserId = validLoginUser();
+        pageVO.setCustomerId(loginUserId);
         PageResult<ProjectConstract> projectConstractPage = projectConstractService.getProjectConstractPage(pageVO, orderV0);
         return success(projectConstractPage);
     }
