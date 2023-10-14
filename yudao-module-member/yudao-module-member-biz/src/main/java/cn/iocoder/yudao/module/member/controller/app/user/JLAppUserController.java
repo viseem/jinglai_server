@@ -9,12 +9,11 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPa
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectPageOrder;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
-import cn.iocoder.yudao.module.jl.entity.project.AppProject;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
@@ -30,6 +29,7 @@ import javax.validation.Valid;
 import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.UNAUTHORIZED;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CATEGORY_NOT_EXISTS;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EXISTS;
 
 @Tag(name = "用户 APP - 用户个人中心")
@@ -44,6 +44,10 @@ public class JLAppUserController {
 
     @Resource
     AppProjectRepository appProjectRepository;
+
+    @Resource
+    ProjectCategoryRepository projectCategoryRepository;
+
 
     @Resource
     ProjectConstractService projectConstractService;
@@ -72,7 +76,7 @@ public class JLAppUserController {
 
 
     @GetMapping("/project-detail")
-    @Operation(summary = "客户 项目详情")
+    @Operation(summary = "APP 项目详情")
     public CommonResult<AppProject> getProjectDetail(@RequestParam("id") Long id) {
         AppProject appProject = appProjectRepository.findById(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
 
@@ -111,6 +115,14 @@ public class JLAppUserController {
         updateReqVO.setId(loginUserId);
         CustomerOnly customerOnly = customerService.updateAppCustomer(updateReqVO);
         return success(customerOnly);
+    }
+
+
+    @GetMapping("/category-detail")
+    @Operation(summary = "APP 实验详情")
+    public CommonResult<ProjectCategory> getProjectCategoryDetail(@RequestParam("id") Long id) {
+        ProjectCategory projectCategory = projectCategoryRepository.findById(id).orElseThrow(() -> exception(PROJECT_CATEGORY_NOT_EXISTS));
+        return success(projectCategory);
     }
 
 }
