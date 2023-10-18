@@ -133,7 +133,6 @@ public class JLAppUserController {
         return success(customerOnly);
     }
 
-
     @GetMapping("/category-detail")
     @Operation(summary = "APP 实验详情")
     public CommonResult<ProjectCategory> getProjectCategoryDetail(@RequestParam("id") Long id) {

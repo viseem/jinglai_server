@@ -35,5 +35,6 @@ public class CmsArticleBaseVO {
     private String coverUrl;
 
     private String link;
+    private String type;
 
 }

@@ -85,4 +85,10 @@ public class CmsArticle extends BaseEntity {
      */
     @Column(name = "link", nullable = false )
     private String link;
+
+    /**
+     * 类型
+     */
+    @Column(name = "type", nullable = false )
+    private String type;
 }
