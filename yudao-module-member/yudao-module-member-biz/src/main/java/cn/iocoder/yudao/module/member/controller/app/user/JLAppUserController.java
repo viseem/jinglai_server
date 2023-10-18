@@ -3,17 +3,24 @@ package cn.iocoder.yudao.module.member.controller.app.user;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageOrder;
+import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticleRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.AppCustomerUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageOrder;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectPageOrder;
+import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.cmsarticle.CmsArticleMapper;
+import cn.iocoder.yudao.module.jl.repository.cmsarticle.CmsArticleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
+import cn.iocoder.yudao.module.jl.service.cmsarticle.CmsArticleService;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
@@ -48,13 +55,20 @@ public class JLAppUserController {
     @Resource
     ProjectCategoryRepository projectCategoryRepository;
 
-
     @Resource
     ProjectConstractService projectConstractService;
 
-
     @Resource
     CustomerService customerService;
+
+    @Resource
+    CmsArticleService cmsArticleService;
+
+    @Resource
+    CmsArticleRepository cmsArticleRepository;
+
+    @Resource
+    private CmsArticleMapper cmsArticleMapper;
 
     private Long validLoginUser(){
         Long loginUserId = WebFrameworkUtils.getLoginUserId();
@@ -125,6 +139,20 @@ public class JLAppUserController {
     public CommonResult<ProjectCategory> getProjectCategoryDetail(@RequestParam("id") Long id) {
         ProjectCategory projectCategory = projectCategoryRepository.findById(id).orElseThrow(() -> exception(PROJECT_CATEGORY_NOT_EXISTS));
         return success(projectCategory);
+    }
+
+    @PostMapping("/article-page")
+    @Operation(summary = "APP 文章列表")
+    public CommonResult<PageResult<CmsArticleRespVO>> getArticlePage(@Valid @RequestBody CmsArticlePageReqVO pageVO, @Valid @RequestBody CmsArticlePageOrder orderV0) {
+        PageResult<CmsArticle> pageResult = cmsArticleService.getCmsArticlePage(pageVO, orderV0);
+        return success(cmsArticleMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/article-detail")
+    @Operation(summary = "APP 文章详情")
+    public CommonResult<CmsArticle> getArticleDetail(@RequestParam("id") Long id) {
+        CmsArticle cmsArticle = cmsArticleRepository.findById(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+        return success(cmsArticle);
     }
 
 }

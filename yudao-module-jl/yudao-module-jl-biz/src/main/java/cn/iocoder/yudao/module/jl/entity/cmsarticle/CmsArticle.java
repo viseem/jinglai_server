@@ -55,6 +55,19 @@ public class CmsArticle extends BaseEntity {
     @Column(name = "look_count")
     private Integer lookCount;
 
+    @Transient
+    private String lookCountStr;
+    // 格式化lookCount赋值给lookCountStr,如果超过10000则显示x.x万
+    public String getLookCountStr() {
+        System.out.println("lookCountStr--------------====");
+        if (lookCount > 10000) {
+            this.lookCountStr = lookCount / 10000 + "." + lookCount % 10000 / 1000 + "w";
+        } else {
+            this.lookCountStr = lookCount.toString();
+        }
+        return this.lookCountStr;
+    }
+
     /**
      * 排序
      */
@@ -66,4 +79,10 @@ public class CmsArticle extends BaseEntity {
      */
     @Column(name = "cover_url", nullable = false )
     private String coverUrl;
+
+    /**
+     * 链接
+     */
+    @Column(name = "link", nullable = false )
+    private String link;
 }

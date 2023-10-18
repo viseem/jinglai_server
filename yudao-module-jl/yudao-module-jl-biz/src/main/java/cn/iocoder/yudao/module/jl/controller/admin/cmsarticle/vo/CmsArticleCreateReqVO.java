@@ -10,5 +10,5 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CmsArticleCreateReqVO extends CmsArticleBaseVO {
-
+    private String content;
 }

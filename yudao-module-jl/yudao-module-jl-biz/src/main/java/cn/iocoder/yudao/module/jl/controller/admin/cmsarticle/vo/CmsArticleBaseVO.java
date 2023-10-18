@@ -21,12 +21,11 @@ public class CmsArticleBaseVO {
     @Schema(description = "副标题")
     private String subTitle;
 
-    @Schema(description = "内容", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "内容不能为空")
-    private String content;
-
     @Schema(description = "浏览次数", example = "8375")
     private Integer lookCount;
+
+    @Schema(description = "浏览次数string", example = "8375")
+    private String lookCountStr;
 
     @Schema(description = "排序")
     private Integer sort=0;
@@ -34,5 +33,7 @@ public class CmsArticleBaseVO {
     @Schema(description = "封面", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "封面不能为空")
     private String coverUrl;
+
+    private String link;
 
 }

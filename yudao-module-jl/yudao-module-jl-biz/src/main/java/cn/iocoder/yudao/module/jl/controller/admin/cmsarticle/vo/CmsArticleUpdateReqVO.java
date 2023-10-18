@@ -15,4 +15,6 @@ public class CmsArticleUpdateReqVO extends CmsArticleBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    private String content;
+
 }
