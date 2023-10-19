@@ -56,6 +56,18 @@ public class ProjectConstractOnly extends BaseEntity {
     private String fileUrl;
 
     /**
+     * 盖章合同文件 URL
+     */
+    @Column(name = "stamp_file_url", nullable = false)
+    private String stampFileUrl;
+
+    /**
+     * 盖章合同文件 NAME
+     */
+    @Column(name = "stamp_file_name", nullable = false)
+    private String stampFileName;
+
+    /**
      * 合同状态：起效、失效、其它
      */
     @Column(name = "status")

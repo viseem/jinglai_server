@@ -6,6 +6,9 @@ import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCompetitor;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
@@ -14,10 +17,14 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -87,6 +94,9 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Resource
     private ProjectServiceImpl projectService;
 
+    @Resource
+    private ProjectConstractServiceImpl contractServiceImpl;
+
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
         // 插入
@@ -106,6 +116,7 @@ public class SalesleadServiceImpl implements SalesleadService {
     }
 
     @Override
+    @Transactional
     public void updateSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
         if(updateReqVO.getId() != null) {
@@ -171,6 +182,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                projectRepository.save(project);
            }else{
                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
+               System.out.println("projectid--"+projectId);
                // 销售线索中保存项目 id
                updateObj.setProjectId(projectId);
                salesleadRepository.save(updateObj);
@@ -180,7 +192,21 @@ public class SalesleadServiceImpl implements SalesleadService {
            //不按照类型区分合同传不传，有就传没有不传
            // 2. 保存合同
            // 遍历 updateReqVO.getProjectConstracts(), 创建合同
-           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
+           if(updateReqVO.getStatus().equals(ProjectTypeEnums.NormalProject.getStatus())){
+               ProjectConstract contract = new ProjectConstract();
+               contract.setProjectId(updateObj.getProjectId());
+               contract.setCustomerId(updateObj.getCustomerId());
+               contract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+               contract.setName(updateReqVO.getProjectName());
+               contract.setStampFileName(updateReqVO.getContractStampFileName());
+               contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());
+               contract.setPrice(updateReqVO.getContractPrice());
+               contract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
+               contract.setSn(contractServiceImpl.generateCode());
+               projectConstractRepository.save(contract);
+           }
+
+/*           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
            if(projectConstracts != null && projectConstracts.size() > 0) {
                // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
                projectConstracts.forEach(projectConstract -> {
@@ -191,7 +217,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                });
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
                projectConstractRepository.saveAll(contracts);
-           }
+           }*/
        }
 
 

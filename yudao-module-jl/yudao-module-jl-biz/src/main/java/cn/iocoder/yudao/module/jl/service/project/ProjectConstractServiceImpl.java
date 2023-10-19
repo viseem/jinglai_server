@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
@@ -101,7 +102,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         if (projectConstract.getRealPrice()==null){
             projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
         }
-        projectConstract.setStatus("1");
+//        projectConstract.setStatus("1");
+        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
+        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
+        projectConstract.setStampFileName(createReqVO.getFileName());
         projectConstract.setCustomerId(byId.get().getCustomerId());
         projectConstract.setSalesId(getLoginUserId());
         ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
