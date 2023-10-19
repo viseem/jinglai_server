@@ -205,20 +205,20 @@ public class ProjectCategorySimple extends BaseEntity {
     /**
      * 实验物资
      */
-/*    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
-    private List<ProjectSupply> supplyList;*/
+    private List<ProjectSupply> supplyList;
 
     /**
      * 实验收费项
      */
-/*    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference
-    private List<ProjectChargeitem> chargeList;*/
+    private List<ProjectChargeitem> chargeList;
 
     /**
      * 实验SOP

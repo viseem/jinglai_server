@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteOrSche
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteRespVO;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -34,7 +35,7 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     private Long totalPrice = 0L;
 
     @Schema(description = "项目信息", example = "{}")
-    private Project project;
+    private ProjectSimple project;
 
     @Schema(description = "竞争对手报价", example = "[]")
     private List<SalesleadCompetitorItemVO> competitorQuotations = new ArrayList<>();

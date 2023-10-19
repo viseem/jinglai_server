@@ -10,6 +10,8 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -129,6 +131,14 @@ public class ProjectSimple extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id",  insertable = false, updatable = false)
     private Saleslead saleslead;*/
+
+    /**
+     * 查询合同列表
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectConstractOnly> contracts = new ArrayList<>();
 
     @Transient
     private Integer completePercent;

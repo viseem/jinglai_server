@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 
@@ -132,7 +133,7 @@ public class Saleslead extends BaseEntity {
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName="id", insertable = false, updatable = false)
-    private Project project;
+    private ProjectSimple project;
 
     @OneToMany
     @NotFound(action = NotFoundAction.IGNORE)
