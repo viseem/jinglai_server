@@ -7,14 +7,14 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.*;
 
 import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectFund")
 @Table(name = "jl_project_fund")
+@DynamicUpdate
 public class ProjectFund extends BaseEntity {
 
     /**
@@ -144,6 +145,14 @@ public class ProjectFund extends BaseEntity {
      */
     @Column(name = "pay_mark")
     private String payMark;
+
+
+    /**
+     * 实际到款日期
+     */
+    @Column(name = "actual_payment_time", nullable = false )
+    private LocalDateTime actualPaymentTime;
+
 
     /**
      * 打款明细

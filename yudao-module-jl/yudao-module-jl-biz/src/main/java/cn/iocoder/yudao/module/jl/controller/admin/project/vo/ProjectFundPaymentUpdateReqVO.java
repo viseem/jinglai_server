@@ -23,4 +23,13 @@ public class ProjectFundPaymentUpdateReqVO {
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
     private String status;
 
+
+    private String mark;
+
+    @Schema(description = "支付时间", example = "2021-08-01 00:00:00")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime actualPaymentTime;
+
+    @Schema(description = "支付金额", example = "1000")
+    private Long actualPaymentAmount=0L;
 }

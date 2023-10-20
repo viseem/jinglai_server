@@ -189,6 +189,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode CMS_ARTICLE_NOT_EXISTS = new ErrorCode(1002034000, "文章不存在");
 
+    ErrorCode PROJECT_FUND_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1002035000, "变更日志不存在");
 
 
     // ========== AUTH 模块 1004003000 ==========

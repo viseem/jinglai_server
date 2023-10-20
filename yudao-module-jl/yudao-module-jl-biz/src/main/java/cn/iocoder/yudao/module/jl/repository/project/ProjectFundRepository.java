@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -11,10 +12,16 @@ import java.util.List;
 *
 */
 public interface ProjectFundRepository extends JpaRepository<ProjectFund, Long>, JpaSpecificationExecutor<ProjectFund> {
+    @Query("select p from ProjectFund p where p.actualPaymentTime between ?1 and ?2")
+    List<ProjectFund> findByActualPaymentTimeBetween(LocalDateTime actualPaymentTimeStart, LocalDateTime actualPaymentTimeEnd);
     @Transactional
     @Modifying
-    @Query("update ProjectFund p set p.status = ?1 where p.id = ?2")
-    int updateStatusById(String status, Long id);
+    @Query("update ProjectFund p set p.actualPaymentTime = ?1 where p.id = ?2")
+    int updateActualPaymentTimeById(LocalDateTime actualPaymentTime, Long id);
+    @Transactional
+    @Modifying
+    @Query("update ProjectFund p set p.status = ?1 , p.payMark = ?2 where p.id = ?3")
+    int updateStatusAndPayMarkById(String status,String mark, Long id);
     @Query("select count(p) from ProjectFund p where p.receivedPrice < p.price")
     Integer countByNotReceivedComplete();
     @Query("select count(p) from ProjectFund p where p.creator = ?1 and p.receivedPrice < p.price")

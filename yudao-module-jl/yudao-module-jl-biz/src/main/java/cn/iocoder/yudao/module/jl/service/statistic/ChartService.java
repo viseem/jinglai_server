@@ -2,6 +2,10 @@ package cn.iocoder.yudao.module.jl.service.statistic;
 
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartContractStatsReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartContractStatsResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartRefundStatsReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartRefundStatsResp;
 
 /**
  * 友商 Service 接口
@@ -9,19 +13,11 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
  */
 public interface ChartService {
 
-    // 销售工作台的数字统计
-    WorkstationSaleCountStatsResp getSaleCountStats();
 
-    //项目工作台的数字统计
-    WorkstationProjectCountStatsResp getProjectCountStats();
+    // 回款统计
+    ChartRefundStatsResp getRefundStats(ChartRefundStatsReqVO reqVO);
 
-    //实验人员工作台的数字统计
-    WorkstationExpCountStatsResp getExpCountStats();
-
-    //财务人员工作台的数字统计
-    WorkstationFinanceCountStatsResp getFinanceCountStats();
-
-    //库管人员工作台的数字统计
-    WorkstationWarehouseCountStatsResp getWarehouseCountStats();
+    // 合同统计
+    ChartContractStatsResp getContractStats(ChartContractStatsReqVO reqVO);
 
 }

@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.projectfundchangelog.ProjectFundChangeLog;
 import org.mapstruct.*;
 
 
@@ -14,6 +15,10 @@ public interface ProjectFundMapper {
 
     ProjectFund toEntity(ProjectFundSaveReqVO dto);
     ProjectFund toEntity(ProjectFundUpdateReqVO dto);
+
+    ProjectFundChangeLog toChangeEntity(ProjectFundUpdateReqVO dto);
+    ProjectFundChangeLog entityToChangeEntity(ProjectFund dto);
+
 
     ProjectFund toEntity(ProjectFundPaymentUpdateReqVO dto);
 

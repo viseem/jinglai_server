@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import com.google.errorprone.annotations.FormatMethod;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -39,13 +40,17 @@ public class ProjectFundBaseVO {
     @Schema(description = "客户 id")
     private Long customerId;
     @Schema(description = "支付状态(未支付，部分支付，完全支付)", example = "2")
-    private String status;
+    private String status= ProjectFundEnums.UNBILL_UNPAID.getStatus();
 
     @Schema(description = "排序")
     private Integer sort;
 
     @Schema(description = "支付的截止时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime deadline;
 
+    @Schema(description = "支付的截止时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime actualPaymentTime;
 
 }

@@ -128,6 +128,11 @@ public class ProjectFundOnly extends BaseEntity {
     @Column(name = "pay_mark")
     private String payMark;
 
+    /**
+     * 实际到款日期
+     */
+    @Column(name = "actual_payment_time", nullable = false )
+    private LocalDateTime actualPaymentTime;
 
     @Transient
     private ProjectFundLog latestFundLog;

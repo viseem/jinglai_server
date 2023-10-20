@@ -2,9 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.projectfundchangelog.ProjectFundChangeLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfundchangelog.ProjectFundChangeLogRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private ProjectConstractServiceImpl projectConstractService;
 
     @Resource
-    private ProjectFundLogMapper projectFundLogMapper;
+    private ProjectFundChangeLogRepository projectFundChangeLogRepository;
 
     @Override
     public Long createProjectFund(ProjectFundCreateReqVO createReqVO) {
@@ -84,12 +86,17 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     }
 
     @Override
+    @Transactional
     public void updateProjectFund(ProjectFundUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectFundExists(updateReqVO.getId());
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(updateReqVO);
         projectFundRepository.save(updateObj);
+
+        // 写入变更日志 projectFundChangeLog
+//        ProjectFundChangeLog changeEntity = projectFundMapper.toChangeEntity(updateReqVO);
+//        projectFundChangeLogRepository.save();
     }
 
     @Override
@@ -119,8 +126,31 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.save(updateObj);
     }
 
+    @Override
+    @Transactional
     public void updateProjectFundStatus(ProjectFundPaymentUpdateReqVO updateReqVO) {
-        projectFundRepository.updateStatusById(updateReqVO.getStatus(),updateReqVO.getId());
+//        projectFundRepository.updateStatusAndPayMarkById(updateReqVO.getStatus(),updateReqVO.getMark(),updateReqVO.getId());
+//        projectFundRepository.updateActualPaymentTimeById(updateReqVO.getActualPaymentTime(),updateReqVO.getId());
+        // 校验存在
+        ProjectFund projectFund = validateProjectFundExists(updateReqVO.getId());
+        projectFund.setStatus(updateReqVO.getStatus());
+        projectFund.setPayMark(updateReqVO.getMark());
+        projectFund.setActualPaymentTime(updateReqVO.getActualPaymentTime());
+        projectFundRepository.save(projectFund);
+        // 写入变更日志 projectFundChangeLog
+        /*ProjectFund projectFund = validateProjectFundExists(updateReqVO.getId());
+        ProjectFundChangeLog changeEntity = projectFundMapper.entityToChangeEntity(projectFund);
+        changeEntity.setProjectFundId(updateReqVO.getId());
+        changeEntity.setStatus(updateReqVO.getStatus());
+        changeEntity.setActualPaymentTime(updateReqVO.getActualPaymentTime());
+        // 默认实际支付金额为计划金额
+        changeEntity.setActualPaymentAmount(projectFund.getPrice());
+
+        changeEntity.setOriginStatus(projectFund.getStatus());
+        changeEntity.setChangeType("1");
+        changeEntity.setMark(updateReqVO.getMark());
+        changeEntity.setSalesId(projectFund.getCreator());
+        projectFundChangeLogRepository.save(changeEntity);*/
     }
 
 
@@ -132,8 +162,12 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.deleteById(id);
     }
 
-    private void validateProjectFundExists(Long id) {
-        projectFundRepository.findById(id).orElseThrow(() -> exception(PROJECT_FUND_NOT_EXISTS));
+    private ProjectFund validateProjectFundExists(Long id) {
+        Optional<ProjectFund> byId = projectFundRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw exception(PROJECT_FUND_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
