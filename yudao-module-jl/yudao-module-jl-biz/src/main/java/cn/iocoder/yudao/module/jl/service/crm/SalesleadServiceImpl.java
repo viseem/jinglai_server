@@ -192,7 +192,8 @@ public class SalesleadServiceImpl implements SalesleadService {
            //不按照类型区分合同传不传，有就传没有不传
            // 2. 保存合同
            // 遍历 updateReqVO.getProjectConstracts(), 创建合同
-           if(updateReqVO.getType().equals(ProjectTypeEnums.NormalProject.getStatus())){
+           System.out.println("---------"+updateReqVO.getType());
+           if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
                ProjectConstract contract = new ProjectConstract();
                contract.setProjectId(updateObj.getProjectId());
                contract.setCustomerId(updateObj.getCustomerId());
