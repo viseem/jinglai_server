@@ -8,9 +8,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageR
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticleRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.AppCustomerUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageOrder;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractPageReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectPageOrder;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
@@ -22,6 +20,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.service.cmsarticle.CmsArticleService;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
+import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +47,9 @@ public class JLAppUserController {
 
     @Resource
     ProjectService projectService;
+
+    @Resource
+    ProjectCategoryService projectCategoryService;
 
     @Resource
     AppProjectRepository appProjectRepository;
@@ -88,6 +90,12 @@ public class JLAppUserController {
         return success(pageResult);
     }
 
+    @PostMapping("/project-category-page")
+    @Operation(summary = "客户 项目列表")
+    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid @RequestBody ProjectCategoryPageReqVO pageVO, @Valid @RequestBody ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategorySimple> projectCategoryPage = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+        return success(projectCategoryPage);
+    }
 
     @GetMapping("/project-detail")
     @Operation(summary = "APP 项目详情")
