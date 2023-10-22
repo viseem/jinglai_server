@@ -13,5 +13,6 @@ import java.util.List;
 public class ProjectScheduleSaledleadsUpdateReqVO {
     @Schema(description = "项目id", example = "1", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
-
+    @Schema(description = "安排单id", example = "1", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long scheduleId;
 }

@@ -90,7 +90,7 @@ public class ProjectFundOnly extends BaseEntity {
      * 支付的截止时间
      */
     @Column(name = "deadline")
-    private LocalDate deadline;
+    private LocalDateTime deadline;
 
     /**
      * 支付凭证上传地址

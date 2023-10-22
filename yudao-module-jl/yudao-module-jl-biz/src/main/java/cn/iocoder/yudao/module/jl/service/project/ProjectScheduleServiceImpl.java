@@ -511,6 +511,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     }
 
     @Override
+    @Transactional
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
         //批量保存saveReq中的supplyList
        projectSupplyRepository.saveAll(saveReq.getSupplyList());
@@ -518,8 +519,10 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     }
 
     @Override
+    @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO){
         salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
+        accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
         return null;
     }
 
@@ -605,16 +608,21 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         //TODO 改为enum
 
         if(category.getType()!=null&&category.getType().equals("quotation")){
-            //核算对应项目的商机的公司报价总价
-            Long supplyQuotation = getSupplyQuotationByScheduleId(save.getScheduleId());
-            Long chargeQuotation = getChargeItemQuotationByScheduleId(save.getScheduleId());
-
-            salesleadRepository.updateQuotationByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation);
+            accountSalesleadQuotation(save.getScheduleId(),save.getProjectId());
         }
 
 
         return save.getId();
     }
+
+    private void accountSalesleadQuotation(Long scheduleId,Long projectId) {
+        //核算对应项目的商机的公司报价总价
+        Long supplyQuotation = getSupplyQuotationByScheduleId(scheduleId);
+        Long chargeQuotation = getChargeItemQuotationByScheduleId(scheduleId);
+
+        salesleadRepository.updateQuotationByProjectId(projectId,supplyQuotation+chargeQuotation);
+    }
+
 
     @Override
     public void updateProjectSchedule(ProjectScheduleUpdateReqVO updateReqVO) {

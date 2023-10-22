@@ -14,6 +14,8 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 public class ScheduleSaveSupplyAndChargeItemReqVO {
+
+
     @Schema(description = "收费项", example = "[]")
     private List<ProjectChargeitem> chargeList;
 
