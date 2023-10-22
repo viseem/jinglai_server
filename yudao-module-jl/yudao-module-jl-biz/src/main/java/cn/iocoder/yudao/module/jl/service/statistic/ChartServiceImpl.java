@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,9 @@ public class ChartServiceImpl implements ChartService {
     @Resource
     SalesleadRepository salesleadRepository;
 
+    @Resource
+    ProjectSimpleRepository projectSimpleRepository;
+
 
 
     @Override
@@ -53,6 +57,15 @@ public class ChartServiceImpl implements ChartService {
         List<Saleslead> list = salesleadRepository.findAll(spec);
         ChartSalesleadStatsResp resp = new ChartSalesleadStatsResp();
         resp.setList(list);
+        return resp;
+    }
+
+    @Override
+    public ChartProjectStatsResp getProjectStats(ChartProjectStatsReqVO reqVO) {
+        Specification<ProjectSimple> spec = getCommonSpec(reqVO,null,"createTime");
+        List<ProjectSimple> all = projectSimpleRepository.findAll(spec);
+        ChartProjectStatsResp resp = new ChartProjectStatsResp();
+        resp.setList(all);
         return resp;
     }
 

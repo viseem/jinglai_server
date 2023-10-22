@@ -20,4 +20,7 @@ public interface ChartService {
     // 商机统计
     ChartSalesleadStatsResp getSalesleadStats(ChartSalesleadStatsReqVO reqVO);
 
+    // 项目统计
+    ChartProjectStatsResp getProjectStats(ChartProjectStatsReqVO reqVO);
+
 }

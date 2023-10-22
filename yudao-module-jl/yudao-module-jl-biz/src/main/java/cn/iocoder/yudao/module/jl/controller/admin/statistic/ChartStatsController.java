@@ -44,4 +44,10 @@ public class ChartStatsController {
         return success(res);
     }
 
+    @GetMapping("/project")
+    public CommonResult<ChartProjectStatsResp> getStats(@Valid ChartProjectStatsReqVO reqVO) {
+        ChartProjectStatsResp res = chartService.getProjectStats(reqVO);
+        return success(res);
+    }
+
 }
