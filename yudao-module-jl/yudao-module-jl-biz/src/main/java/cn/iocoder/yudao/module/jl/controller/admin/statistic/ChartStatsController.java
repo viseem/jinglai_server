@@ -2,10 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartContractStatsReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartContractStatsResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartRefundStatsReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.ChartRefundStatsResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.*;
 import cn.iocoder.yudao.module.jl.service.statistic.ChartService;
 import cn.iocoder.yudao.module.jl.service.statistic.WorkstationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +38,10 @@ public class ChartStatsController {
         return success(contractStats);
     }
 
-
+    @GetMapping("/saleslead")
+    public CommonResult<ChartSalesleadStatsResp> getStats(@Valid ChartSalesleadStatsReqVO reqVO) {
+        ChartSalesleadStatsResp res = chartService.getSalesleadStats(reqVO);
+        return success(res);
+    }
 
 }

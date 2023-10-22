@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.*;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +31,9 @@ public class ChartServiceImpl implements ChartService {
     @Resource
     ProjectConstractOnlyRepository projectConstractOnlyRepository;
 
+    @Resource
+    SalesleadRepository salesleadRepository;
+
 
 
     @Override
@@ -43,22 +48,35 @@ public class ChartServiceImpl implements ChartService {
     }
 
     @Override
+    public ChartSalesleadStatsResp getSalesleadStats(ChartSalesleadStatsReqVO reqVO) {
+        Specification<Saleslead> spec = getCommonSpec(reqVO,null,"createTime");
+        List<Saleslead> list = salesleadRepository.findAll(spec);
+        ChartSalesleadStatsResp resp = new ChartSalesleadStatsResp();
+        resp.setList(list);
+        return resp;
+    }
+
+    @Override
     public ChartContractStatsResp getContractStats(ChartContractStatsReqVO reqVO) {
         Specification<ProjectConstractOnly> spec = getCommonSpec(reqVO,null,null);
         List<ProjectConstractOnly> all = projectConstractOnlyRepository.findAll(spec);
         ChartContractStatsResp resp = new ChartContractStatsResp();
-        resp.setContractList(all);
+        resp.setList(all);
         return resp;
     }
 
     @NotNull
     private <T> Specification<T> getCommonSpec(ChartBaseReqVO reqVO, String attributeKey,String timeKey) {
 
-        LocalDateTime currentDay = reqVO.getEndTime();
 
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            //如果传入了年份，并且不是今年
+            if(reqVO.getYear()!=null&&reqVO.getYear().getYear()!=LocalDateTime.now().getYear()){
+                reqVO.setStartTime(reqVO.getYear().with(TemporalAdjusters.firstDayOfYear()).withHour(0).withMinute(0).withSecond(0));
+                reqVO.setEndTime(reqVO.getYear().with(TemporalAdjusters.lastDayOfYear()).withHour(23).withMinute(59).withSecond(59));
+            }
 
 /*            if(reqVO.getIsToNow()){
                 //小于等于currentDay
@@ -71,6 +89,7 @@ public class ChartServiceImpl implements ChartService {
                     predicates.add(cb.between(root.get(timeKey==null?"createTime":timeKey), reqVO.getStartTime(), currentDay));
                 }
             }*/
+            predicates.add(cb.between(root.get(timeKey==null?"createTime":timeKey), reqVO.getStartTime(), reqVO.getEndTime()));
 
 
             if (!reqVO.getIsAllAttribute()) {
