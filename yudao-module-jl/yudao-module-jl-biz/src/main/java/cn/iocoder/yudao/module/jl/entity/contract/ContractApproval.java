@@ -91,6 +91,18 @@ public class ContractApproval extends BaseEntity {
     @Column(name = "origin_real_price")
     private Integer originRealPrice;
 
+    /**
+     * 合同变更前金额
+     */
+    @Column(name = "origin_price")
+    private Integer originPrice;
+
+    /**
+     * 合同变更金额
+     */
+    @Column(name = "price")
+    private Long price;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
