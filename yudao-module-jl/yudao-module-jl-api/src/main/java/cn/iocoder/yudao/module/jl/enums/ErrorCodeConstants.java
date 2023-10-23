@@ -191,6 +191,10 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_FUND_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1002035000, "变更日志不存在");
 
+    ErrorCode SUBJECT_GROUP_NOT_EXISTS = new ErrorCode(1002036000, "专题小组不存在");
+    ErrorCode SUBJECT_GROUP_MEMBER_NOT_EXISTS = new ErrorCode(1002036100, "专题小组成员不存在");
+
+
 
     // ========== AUTH 模块 1004003000 ==========
 
