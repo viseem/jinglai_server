@@ -13,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -172,9 +173,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
-        //获取attributeUsers
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        pageReqVO.setCreators(users);
+
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -183,16 +182,45 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<Customer> spec = (root, query, cb) -> {
+        Specification<Customer> spec = getCustomerSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Customer> page = customerRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private <T>Specification<T> getCustomerSpecification(CustomerPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+            //获取attributeUsers
+            Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+            pageReqVO.setCreators(users);
+
+            //如果不是any，则都是in查询
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
+
+            if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
+                predicates.add(root.get("salesId").isNull());
+            }else{
+                predicates.add(cb.greaterThan(root.get("salesId"), 0));
+            }
+
+/*           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-               }else{
+               }
+
+               if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
                    predicates.add(root.get("salesId").isNull());
                }
-           }
+           }*/
+            System.out.println("111-----");
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
@@ -279,10 +307,10 @@ public class CustomerServiceImpl implements CustomerService {
 
             if(pageReqVO.getLastFollowupTime() != null) {
                 predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
-            } 
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
+/*            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
+            }*/
 
             if(pageReqVO.getLastFollowupId() != null) {
                 predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
@@ -295,12 +323,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Customer> page = customerRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
 
@@ -317,115 +340,7 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<CustomerOnly> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            //增加查询条件 salesId大于0
-            predicates.add(cb.greaterThan(root.get("salesId"), 0));
-
-
-            if(pageReqVO.getToCustomer() != null) {
-                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
-            }
-
-            if(pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
-            }
-
-            if(pageReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
-            }
-
-            if(pageReqVO.getPhone() != null) {
-                predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
-            }
-
-            if(pageReqVO.getEmail() != null) {
-                predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
-            }
-
-            if(pageReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
-            }
-
-            if(pageReqVO.getWechat() != null) {
-                predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
-            }
-
-            if(pageReqVO.getDoctorProfessionalRank() != null) {
-                predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
-            }
-
-            if(pageReqVO.getHospitalDepartment() != null) {
-                predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
-            }
-
-            if(pageReqVO.getAcademicTitle() != null) {
-                predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
-            }
-
-            if(pageReqVO.getAcademicCredential() != null) {
-                predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
-            }
-
-            if(pageReqVO.getHospitalId() != null) {
-                predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
-            }
-
-            if(pageReqVO.getUniversityId() != null) {
-                predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
-            }
-
-            if(pageReqVO.getCompanyId() != null) {
-                predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
-            }
-
-            if(pageReqVO.getProvince() != null) {
-                predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
-            }
-
-            if(pageReqVO.getCity() != null) {
-                predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
-            }
-
-            if(pageReqVO.getArea() != null) {
-                predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
-            }
-
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
-
-            if(pageReqVO.getDealCount() != null) {
-                predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
-            }
-
-            if(pageReqVO.getDealTotalAmount() != null) {
-                predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
-            }
-
-            if(pageReqVO.getArrears() != null) {
-                predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
-            }
-
-            if(pageReqVO.getLastFollowupTime() != null) {
-                predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
-            }
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }
-
-            if(pageReqVO.getLastFollowupId() != null) {
-                predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
-            }
-
-            if(pageReqVO.getLastSalesleadId() != null) {
-                predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<CustomerOnly> spec = getCustomerSpecification(pageReqVO);
 
         // 执行查询
         Page<CustomerOnly> page = customerSimpleRepository.findAll(spec, pageable);
