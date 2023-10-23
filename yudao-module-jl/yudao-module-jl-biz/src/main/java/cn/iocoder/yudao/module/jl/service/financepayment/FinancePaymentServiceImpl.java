@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.service.financepayment;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import org.springframework.stereotype.Service;
@@ -57,17 +59,18 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
     public Long createFinancePayment(FinancePaymentCreateReqVO createReqVO) {
         // 插入
         FinancePayment financePayment = financePaymentMapper.toEntity(createReqVO);
+        financePayment.setAuditStatus(BpmProcessInstanceResultEnum.APPROVE.getResult().toString());
         financePaymentRepository.save(financePayment);
 
         // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
+/*        Map<String, Object> processInstanceVariables = new HashMap<>();
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(financePayment.getId())));
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(financePayment.getId())));*/
 
 
         //更新流程实例id
-        financePaymentRepository.updateProcessInstanceIdById(processInstanceId, financePayment.getId());
+//        financePaymentRepository.updateProcessInstanceIdById(processInstanceId, financePayment.getId());
 
         // 返回
         return financePayment.getId();
