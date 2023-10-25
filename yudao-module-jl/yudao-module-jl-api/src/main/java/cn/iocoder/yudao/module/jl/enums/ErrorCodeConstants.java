@@ -196,6 +196,11 @@ public interface ErrorCodeConstants {
 
 
 
+    ErrorCode REMINDER_NOT_EXISTS = new ErrorCode(1002037000, "提醒事项不存在");
+    ErrorCode CONTRACT_FUND_LOG_NOT_EXISTS = new ErrorCode(1002038000, "合同收款记录不存在");
+    ErrorCode CONTRACT_INVOICE_LOG_NOT_EXISTS = new ErrorCode(1002039000, "合同发票记录不存在");
+
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");

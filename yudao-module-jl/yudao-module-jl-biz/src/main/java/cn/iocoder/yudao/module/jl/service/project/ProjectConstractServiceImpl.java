@@ -184,7 +184,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstractRepository.deleteById(id);
     }
 
-    private ProjectConstract validateProjectConstractExists(Long id) {
+    public ProjectConstract validateProjectConstractExists(Long id) {
         Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
         if (byId.isEmpty()){
             throw exception(PROJECT_CONSTRACT_NOT_EXISTS);
