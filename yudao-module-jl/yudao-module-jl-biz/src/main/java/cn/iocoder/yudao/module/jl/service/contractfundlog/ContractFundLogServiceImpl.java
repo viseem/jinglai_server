@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.contractfundlog;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,8 +43,16 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     @Resource
     private ContractFundLogMapper contractFundLogMapper;
 
+    @Resource
+    private ProjectConstractServiceImpl projectConstractService;
+
     @Override
     public Long createContractFundLog(ContractFundLogCreateReqVO createReqVO) {
+        //查询合同是否存在
+        ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
+        createReqVO.setProjectId(projectConstract.getProjectId());
+        createReqVO.setCustomerId(projectConstract.getCustomerId());
+
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
         contractFundLogRepository.save(contractFundLog);

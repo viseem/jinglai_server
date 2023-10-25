@@ -52,12 +52,10 @@ public class ContractFundLogBaseVO {
     @NotNull(message = "合同id不能为空")
     private Long contractId;
 
-    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "4295")
-    @NotNull(message = "项目id不能为空")
+    @Schema(description = "项目id")
     private Long projectId;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11060")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
 }
