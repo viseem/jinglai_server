@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.laboratory;
 
+import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -42,10 +45,12 @@ public class SupplyServiceImpl implements SupplyService {
     private SupplyMapper supplyMapper;
 
     @Override
+    @Transactional
     public Long createSupply(SupplyCreateReqVO createReqVO) {
         // 插入
         Supply supply = supplyMapper.toEntity(createReqVO);
         supplyRepository.save(supply);
+
         // 返回
         return supply.getId();
     }

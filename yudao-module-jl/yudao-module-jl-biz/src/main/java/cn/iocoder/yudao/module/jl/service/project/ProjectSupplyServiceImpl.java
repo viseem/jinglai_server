@@ -50,6 +50,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
+
+    @Resource
+    private ProjectScheduleServiceImpl projectScheduleService;
+
     @Override
     @Transactional
     public Long createProjectSupply(ProjectSupplyCreateReqVO createReqVO) {
@@ -87,14 +91,23 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         }
         projectSupplyRepository.save(projectSupply);
 
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(createReqVO.getScheduleId(),createReqVO.getProjectId());
+
         // 返回
         return projectSupply.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectSupply(ProjectSupplyUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectSupplyExists(updateReqVO.getId());
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
+
+
         // 更新
         ProjectSupply updateObj = projectSupplyMapper.toEntity(updateReqVO);
         projectSupplyRepository.save(updateObj);

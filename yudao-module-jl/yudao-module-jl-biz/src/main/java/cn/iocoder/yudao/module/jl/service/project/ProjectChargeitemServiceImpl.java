@@ -47,6 +47,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
+    @Resource
+    private ProjectScheduleServiceImpl projectScheduleService;
+
     @Override
     public Long createProjectChargeitem(ProjectChargeitemCreateReqVO createReqVO) {
         // 插入
@@ -82,6 +85,10 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         }
 
         projectChargeitemRepository.save(projectChargeitem);
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(createReqVO.getScheduleId(),createReqVO.getProjectId());
+
         // 返回
         return projectChargeitem.getId();
     }
@@ -90,6 +97,10 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     public void updateProjectChargeitem(ProjectChargeitemUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectChargeitemExists(updateReqVO.getId());
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
+
         // 更新
         ProjectChargeitem updateObj = projectChargeitemMapper.toEntity(updateReqVO);
         projectChargeitemRepository.save(updateObj);

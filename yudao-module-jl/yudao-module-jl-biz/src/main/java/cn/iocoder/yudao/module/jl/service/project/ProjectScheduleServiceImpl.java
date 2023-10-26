@@ -516,6 +516,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         //批量保存saveReq中的supplyList
        projectSupplyRepository.saveAll(saveReq.getSupplyList());
        projectChargeitemRepository.saveAll(saveReq.getChargeList());
+
+//        accountSalesleadQuotation(saveReq.getScheduleId(),saveReq.getProjectId());
+
     }
 
     @Override
@@ -611,11 +614,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             accountSalesleadQuotation(save.getScheduleId(),save.getProjectId());
         }
 
-
+        // 修改报价金额
+        accountSalesleadQuotation(save.getScheduleId(),save.getProjectId());
         return save.getId();
     }
 
-    private void accountSalesleadQuotation(Long scheduleId,Long projectId) {
+    public void accountSalesleadQuotation(Long scheduleId,Long projectId) {
         //核算对应项目的商机的公司报价总价
         Long supplyQuotation = getSupplyQuotationByScheduleId(scheduleId);
         Long chargeQuotation = getChargeItemQuotationByScheduleId(scheduleId);
