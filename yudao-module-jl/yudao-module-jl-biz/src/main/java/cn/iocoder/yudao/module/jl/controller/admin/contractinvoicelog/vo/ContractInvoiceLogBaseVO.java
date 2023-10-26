@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -112,4 +113,5 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "状态")
     private String status;
 
+    private ProjectConstractOnly contract;
 }

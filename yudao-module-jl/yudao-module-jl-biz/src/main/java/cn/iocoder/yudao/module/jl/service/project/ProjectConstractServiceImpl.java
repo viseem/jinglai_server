@@ -1,11 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -66,6 +68,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
     private ProjectRepository projectRepository;
 
     @Resource
@@ -123,6 +128,14 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByContractId(contractId);
         int priceSum = 0;
         for (ProjectFundLog log : projectFundLogs) {
+            priceSum += log.getPrice();
+        }
+        projectConstractRepository.updateReceivedPriceById(priceSum,contractId);
+    }
+    public void processContractReceivedPrice2(Long contractId) {
+        List<ContractFundLog> projectFundLogs = contractFundLogRepository.findAllByContractId(contractId);
+        int priceSum = 0;
+        for (ContractFundLog log : projectFundLogs) {
             priceSum += log.getPrice();
         }
         projectConstractRepository.updateReceivedPriceById(priceSum,contractId);

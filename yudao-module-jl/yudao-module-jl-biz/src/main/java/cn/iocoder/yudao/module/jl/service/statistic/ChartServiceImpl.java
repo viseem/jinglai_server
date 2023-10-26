@@ -1,10 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.chart.*;
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +31,10 @@ import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUti
 public class ChartServiceImpl implements ChartService {
 
     @Resource
-    ProjectFundOnlyRepository projectFundOnlyRepository;
+    ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    ContractInvoiceLogRepository contractInvoiceLogRepository;
 
     @Resource
     ProjectConstractOnlyRepository projectConstractOnlyRepository;
@@ -42,12 +49,23 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartRefundStatsResp getRefundStats(ChartRefundStatsReqVO reqVO) {
-        Specification<ProjectFundOnly> spec = getCommonSpec(reqVO,null,"actualPaymentTime");
+        Specification<ContractFundLog> spec = getCommonSpec(reqVO,null,"paidTime");
 
-        List<ProjectFundOnly> fundList = projectFundOnlyRepository.findAll(spec);
+        List<ContractFundLog> fundList = contractFundLogRepository.findAll(spec);
 
         ChartRefundStatsResp resp = new ChartRefundStatsResp();
         resp.setFundList(fundList);
+        return resp;
+    }
+
+    @Override
+    public ChartInvoiceStatsResp getInvoiceStats(ChartInvoiceStatsReqVO reqVO) {
+        Specification<ContractInvoiceLog> spec = getCommonSpec(reqVO,null,"date");
+
+        List<ContractInvoiceLog> list = contractInvoiceLogRepository.findAll(spec);
+
+        ChartInvoiceStatsResp resp = new ChartInvoiceStatsResp();
+        resp.setInvoiceList(list);
         return resp;
     }
 

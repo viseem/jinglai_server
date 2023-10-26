@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -58,4 +59,5 @@ public class ContractFundLogBaseVO {
     @Schema(description = "客户id")
     private Long customerId;
 
+    private ProjectConstractOnly contract;
 }

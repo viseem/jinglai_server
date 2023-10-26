@@ -14,6 +14,9 @@ public interface ChartService {
     // 回款统计
     ChartRefundStatsResp getRefundStats(ChartRefundStatsReqVO reqVO);
 
+    // 开票统计
+    ChartInvoiceStatsResp getInvoiceStats(ChartInvoiceStatsReqVO reqVO);
+
     // 合同统计
     ChartContractStatsResp getContractStats(ChartContractStatsReqVO reqVO);
 

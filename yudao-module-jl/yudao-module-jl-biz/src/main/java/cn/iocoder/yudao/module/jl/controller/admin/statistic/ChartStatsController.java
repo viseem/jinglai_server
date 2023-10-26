@@ -31,6 +31,13 @@ public class ChartStatsController {
         ChartRefundStatsResp refundStats = chartService.getRefundStats(reqVO);
         return success(refundStats);
     }
+
+    @GetMapping("/invoice")
+    public CommonResult<ChartInvoiceStatsResp> getStats(@Valid ChartInvoiceStatsReqVO reqVO) {
+        ChartInvoiceStatsResp stats = chartService.getInvoiceStats(reqVO);
+        return success(stats);
+    }
+
     @GetMapping("/contract")
     public CommonResult<ChartContractStatsResp> getStats(@Valid ChartContractStatsReqVO reqVO) {
         ChartContractStatsResp contractStats = chartService.getContractStats(reqVO);

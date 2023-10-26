@@ -220,7 +220,6 @@ public class CustomerServiceImpl implements CustomerService {
                    predicates.add(root.get("salesId").isNull());
                }
            }*/
-            System.out.println("111-----");
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
