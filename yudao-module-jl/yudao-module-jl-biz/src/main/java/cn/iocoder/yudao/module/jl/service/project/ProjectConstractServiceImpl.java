@@ -134,10 +134,13 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     }
     public void processContractReceivedPrice2(Long contractId) {
         List<ContractFundLog> projectFundLogs = contractFundLogRepository.findAllByContractId(contractId);
+        System.out.println("projectFundLogs---"+projectFundLogs);
         int priceSum = 0;
         for (ContractFundLog log : projectFundLogs) {
+            System.out.println("log------------======="+log.getPrice());
             priceSum += log.getPrice();
         }
+        System.out.println("price-------"+priceSum);
         projectConstractRepository.updateReceivedPriceById(priceSum,contractId);
     }
     @Override
@@ -208,16 +211,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public Optional<ProjectConstract> getProjectConstract(Long id) {
         Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
-        byId.ifPresent(item->{
-            int receivedPrice = 0;
-            if (item.getFundLogs().size() > 0) {
-                receivedPrice = item.getFundLogs().stream()
-                        .mapToInt(ProjectFundLog::getPrice)
-                        .sum();
-            }
-
-            item.setReceivedPrice(receivedPrice);
-        });
         return byId;
     }
 

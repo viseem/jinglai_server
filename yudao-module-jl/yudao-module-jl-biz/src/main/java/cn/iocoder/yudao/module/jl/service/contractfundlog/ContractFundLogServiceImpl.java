@@ -72,6 +72,8 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         // 校验存在
         validateContractFundLogExists(updateReqVO.getId());
 
+        System.out.println("id---"+updateReqVO.getContractId());
+
         projectConstractService.processContractReceivedPrice2(updateReqVO.getContractId());
 
         // 更新
