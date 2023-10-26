@@ -517,7 +517,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
        projectSupplyRepository.saveAll(saveReq.getSupplyList());
        projectChargeitemRepository.saveAll(saveReq.getChargeList());
 
-//        accountSalesleadQuotation(saveReq.getScheduleId(),saveReq.getProjectId());
+       // 更新报价金额
+       accountSalesleadQuotation(saveReq.getScheduleId(),saveReq.getProjectId());
 
     }
 

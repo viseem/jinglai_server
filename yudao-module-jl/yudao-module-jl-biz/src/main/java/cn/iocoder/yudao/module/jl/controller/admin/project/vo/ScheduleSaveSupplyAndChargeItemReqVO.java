@@ -14,7 +14,12 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 public class ScheduleSaveSupplyAndChargeItemReqVO {
-
+    @Schema(description = "安排单id", example = "[]",requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "安排单id不能为空")
+    private Long scheduleId;
+    @Schema(description = "项目id", example = "[]",requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "项目id不能为空")
+    private Long projectId;
 
     @Schema(description = "收费项", example = "[]")
     private List<ProjectChargeitem> chargeList;
