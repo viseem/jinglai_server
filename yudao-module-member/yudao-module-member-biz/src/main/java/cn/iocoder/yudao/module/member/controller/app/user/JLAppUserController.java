@@ -214,7 +214,7 @@ public class JLAppUserController {
         BeanUtils.copyProperties(reqVO,createReqVO);
         createReqVO.setCustomerId(loginUserId);
         //设置负责人为销售人员
-        createReqVO.setUserId(project.getSalesId());
+        createReqVO.setUserId(project.getManagerId());
         Long projectFeedback = projectFeedbackService.createProjectFeedback(createReqVO);
         return success(projectFeedback);
     }
