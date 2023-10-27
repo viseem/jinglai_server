@@ -59,7 +59,6 @@ public class CmsArticle extends BaseEntity {
     private String lookCountStr;
     // 格式化lookCount赋值给lookCountStr,如果超过10000则显示x.x万
     public String getLookCountStr() {
-        System.out.println("lookCountStr--------------====");
         if (lookCount > 10000) {
             this.lookCountStr = lookCount / 10000 + "." + lookCount % 10000 / 1000 + "w";
         } else {
