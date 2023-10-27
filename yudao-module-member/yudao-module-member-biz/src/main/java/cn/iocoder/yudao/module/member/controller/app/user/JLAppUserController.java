@@ -3,27 +3,41 @@ package cn.iocoder.yudao.module.member.controller.app.user;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDevicePageOrder;
+import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDevicePageReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDeviceRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageOrder;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticleRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.AppCustomerUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentCreateReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentPageOrder;
+import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentPageReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentRespVO;
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
 import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.visitappointment.VisitAppointment;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.asset.AssetDeviceMapper;
 import cn.iocoder.yudao.module.jl.mapper.cmsarticle.CmsArticleMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
+import cn.iocoder.yudao.module.jl.mapper.visitappointment.VisitAppointmentMapper;
 import cn.iocoder.yudao.module.jl.repository.cmsarticle.CmsArticleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
+import cn.iocoder.yudao.module.jl.repository.visitappointment.VisitAppointmentRepository;
+import cn.iocoder.yudao.module.jl.service.asset.AssetDeviceServiceImpl;
 import cn.iocoder.yudao.module.jl.service.cmsarticle.CmsArticleService;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.jl.service.project.*;
+import cn.iocoder.yudao.module.jl.service.visitappointment.VisitAppointmentServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import liquibase.pro.packaged.R;
@@ -82,6 +96,21 @@ public class JLAppUserController {
 
     @Resource
     private ProjectFeedbackMapper projectFeedbackMapper;
+
+    @Resource
+    private VisitAppointmentServiceImpl visitAppointmentService;
+
+    @Resource
+    private VisitAppointmentRepository visitAppointmentRepository;
+
+    @Resource
+    private VisitAppointmentMapper visitAppointmentMapper;
+
+    @Resource
+    private AssetDeviceServiceImpl assetDeviceService;
+
+    @Resource
+    private AssetDeviceMapper assetDeviceMapper;
 
     private Long validLoginUser(){
         Long loginUserId = WebFrameworkUtils.getLoginUserId();
@@ -178,7 +207,7 @@ public class JLAppUserController {
     * */
     @PostMapping("/feedback")
     @Operation(summary = "客户 发起反馈")
-    public CommonResult<Long> getProjectPage(@Valid @RequestBody AppProjectFeedbackBaseVO reqVO) {
+    public CommonResult<Long> getFeedbackPage(@Valid @RequestBody AppProjectFeedbackBaseVO reqVO) {
         Long loginUserId = validLoginUser();
         Project project = projectService.validateProjectExists(reqVO.getProjectId());
         ProjectFeedbackCreateReqVO createReqVO = new ProjectFeedbackCreateReqVO();
@@ -204,5 +233,42 @@ public class JLAppUserController {
         ProjectFeedback projectFeedback = projectFeedbackRepository.findById(id).orElseThrow(() -> exception(PROJECT_FEEDBACK_NOT_EXISTS));
         return success(projectFeedback);
     }
+
+    /*
+    * 到访预约
+    * */
+    @PostMapping("/visit")
+    @Operation(summary = "客户 发起到访")
+    public CommonResult<Long> getVisitPage(@Valid @RequestBody VisitAppointmentCreateReqVO reqVO) {
+        Long loginUserId = validLoginUser();
+        reqVO.setCustomerId(loginUserId);
+        Long id = visitAppointmentService.createVisitAppointment(reqVO);
+        return success(id);
+    }
+
+    @PostMapping("/visit-page")
+    @Operation(summary = "客户 到访记录")
+    public CommonResult<PageResult<VisitAppointmentRespVO>> getVisitPage(@Valid @RequestBody VisitAppointmentPageReqVO pageVO, @Valid @RequestBody VisitAppointmentPageOrder orderV0) {
+        PageResult<VisitAppointment> visitAppointmentPage = visitAppointmentService.getVisitAppointmentPage(pageVO, orderV0);
+        return success(visitAppointmentMapper.toPage(visitAppointmentPage));
+    }
+
+    @GetMapping("/visit-detail")
+    @Operation(summary = "APP 到访详情")
+    public CommonResult<VisitAppointment> getVisitDetail(@RequestParam("id") Long id) {
+        VisitAppointment visitAppointment = visitAppointmentRepository.findById(id).orElseThrow(() -> exception(VISIT_APPOINTMENT_NOT_EXISTS));
+        return success(visitAppointment);
+    }
+
+    /*
+    * 设备
+    * */
+    @PostMapping("/device-page")
+    @Operation(summary = "客户 公司设备列表")
+    public CommonResult<PageResult<AssetDeviceRespVO>> getDevicePage(@Valid @RequestBody AssetDevicePageReqVO pageVO, @Valid @RequestBody AssetDevicePageOrder orderV0) {
+        PageResult<AssetDevice> assetDevicePage = assetDeviceService.getAssetDevicePage(pageVO, orderV0);
+        return success(assetDeviceMapper.toPage(assetDevicePage));
+    }
+
 }
 

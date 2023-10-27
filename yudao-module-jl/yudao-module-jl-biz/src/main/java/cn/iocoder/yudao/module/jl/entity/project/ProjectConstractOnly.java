@@ -85,6 +85,12 @@ public class ProjectConstractOnly extends BaseEntity {
     @Column(name = "price")
     private Long price;
 
+    /**
+     * 已收金额
+     */
+    @Column(name = "received_price")
+    private Long receivedPrice;
+
 
     /**
      * 结算金额

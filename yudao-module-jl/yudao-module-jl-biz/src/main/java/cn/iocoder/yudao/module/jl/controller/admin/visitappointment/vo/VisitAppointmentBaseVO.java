@@ -35,8 +35,7 @@ public class VisitAppointmentBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime visitTime;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11048")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
 }
