@@ -190,7 +190,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.deleteById(id);
     }
 
-    private Project validateProjectExists(Long id) {
+    public Project validateProjectExists(Long id) {
         Optional<Project> byId = projectRepository.findById(id);
         if(byId.isEmpty()){
             throw exception(PROJECT_NOT_EXISTS);

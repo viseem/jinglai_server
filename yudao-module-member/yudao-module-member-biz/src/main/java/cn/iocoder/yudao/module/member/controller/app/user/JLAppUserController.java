@@ -12,20 +12,23 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.cmsarticle.CmsArticleMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
 import cn.iocoder.yudao.module.jl.repository.cmsarticle.CmsArticleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 import cn.iocoder.yudao.module.jl.service.cmsarticle.CmsArticleService;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
-import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryService;
-import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
-import cn.iocoder.yudao.module.jl.service.project.ProjectService;
+import cn.iocoder.yudao.module.jl.service.project.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import liquibase.pro.packaged.R;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,8 +38,7 @@ import javax.validation.Valid;
 import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.UNAUTHORIZED;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CATEGORY_NOT_EXISTS;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 @Tag(name = "用户 APP - 用户个人中心")
 @RestController
@@ -46,7 +48,7 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EX
 public class JLAppUserController {
 
     @Resource
-    ProjectService projectService;
+    ProjectServiceImpl projectService;
 
     @Resource
     ProjectCategoryService projectCategoryService;
@@ -71,6 +73,15 @@ public class JLAppUserController {
 
     @Resource
     private CmsArticleMapper cmsArticleMapper;
+
+    @Resource
+    private ProjectFeedbackServiceImpl projectFeedbackService;
+
+    @Resource
+    private ProjectFeedbackRepository projectFeedbackRepository;
+
+    @Resource
+    private ProjectFeedbackMapper projectFeedbackMapper;
 
     private Long validLoginUser(){
         Long loginUserId = WebFrameworkUtils.getLoginUserId();
@@ -162,5 +173,36 @@ public class JLAppUserController {
         return success(cmsArticle);
     }
 
+    /*
+    * 反馈
+    * */
+    @PostMapping("/feedback")
+    @Operation(summary = "客户 发起反馈")
+    public CommonResult<Long> getProjectPage(@Valid @RequestBody AppProjectFeedbackBaseVO reqVO) {
+        Long loginUserId = validLoginUser();
+        Project project = projectService.validateProjectExists(reqVO.getProjectId());
+        ProjectFeedbackCreateReqVO createReqVO = new ProjectFeedbackCreateReqVO();
+        BeanUtils.copyProperties(reqVO,createReqVO);
+        createReqVO.setCustomerId(loginUserId);
+        //设置负责人为销售人员
+        createReqVO.setUserId(project.getSalesId());
+        Long projectFeedback = projectFeedbackService.createProjectFeedback(createReqVO);
+        return success(projectFeedback);
+    }
+
+    @PostMapping("/feedback-page")
+    @Operation(summary = "APP 反馈列表")
+    public CommonResult<PageResult<ProjectFeedbackRespVO>> getArticlePage(@Valid @RequestBody ProjectFeedbackPageReqVO pageVO, @Valid @RequestBody ProjectFeedbackPageOrder orderV0) {
+        pageVO.setAttribute(DataAttributeTypeEnums.ANY.getStatus());
+        PageResult<ProjectFeedback> projectFeedbackPage = projectFeedbackService.getProjectFeedbackPage(pageVO, orderV0);
+        return success(projectFeedbackMapper.toPage(projectFeedbackPage));
+    }
+
+    @GetMapping("/feedback-detail")
+    @Operation(summary = "APP 反馈详情")
+    public CommonResult<ProjectFeedback> getFeedbackDetail(@RequestParam("id") Long id) {
+        ProjectFeedback projectFeedback = projectFeedbackRepository.findById(id).orElseThrow(() -> exception(PROJECT_FEEDBACK_NOT_EXISTS));
+        return success(projectFeedback);
+    }
 }
 

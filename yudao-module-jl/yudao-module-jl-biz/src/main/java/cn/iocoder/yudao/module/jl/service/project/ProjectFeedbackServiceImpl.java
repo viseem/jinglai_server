@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.projectfeedback.ProjectFeedbackFocus;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -76,7 +77,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 校验是否已经反馈过
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
-        projectFeedback.setStatus("2");
+        projectFeedback.setStatus(ProjectFeedbackEnums.NOT_PROCESS.getStatus());
         projectFeedback.setCustomerId(project.getCustomerId());
         projectFeedbackRepository.save(projectFeedback);
 
