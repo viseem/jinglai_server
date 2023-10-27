@@ -40,10 +40,24 @@ public class ContractInvoiceLog extends BaseEntity {
     private Long id;
 
     /**
-     * 发票申请编号
+     * 发票编号
      */
     @Column(name = "code", nullable = false )
     private String code;
+
+    /**
+     * 文件地址
+     */
+    @Column(name = "file_url", nullable = false )
+    private String fileUrl;
+
+
+    /**
+     * 文件名字
+     */
+    @Column(name = "file_name", nullable = false )
+    private String fileName;
+
 
     /**
      * 客户id

@@ -24,6 +24,12 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "发票申请编号")
     private String code;
 
+    @Schema(description = "开票凭证", requiredMode = Schema.RequiredMode.REQUIRED, example = "397")
+    @NotNull(message = "开票凭证不能为空")
+    private String fileUrl;
+
+    private String fileName;
+
     @Schema(description = "客户id")
     private Long customerId;
 
@@ -38,8 +44,9 @@ public class ContractInvoiceLogBaseVO {
     @NotNull(message = "开票金额不能为空")
     private Long price;
 
-    @Schema(description = "开票日期")
+    @Schema(description = "开票日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    @NotNull(message = "开票时间不能为空")
     private LocalDateTime date;
 
     @Schema(description = "开票类型：增值税专用发票", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

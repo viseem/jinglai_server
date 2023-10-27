@@ -165,6 +165,8 @@ public class SalesleadServiceImpl implements SalesleadService {
            project.setStatus(updateReqVO.getStatus());
            project.setType(updateReqVO.getType());
            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
+           project.setManagerId(updateReqVO.getManagerId());
+           System.out.println("getManagerId------"+updateReqVO.getManagerId());
 
            if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
                //如果客户不存在，则抛出异常
