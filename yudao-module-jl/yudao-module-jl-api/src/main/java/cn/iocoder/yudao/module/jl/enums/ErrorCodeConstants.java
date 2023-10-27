@@ -200,6 +200,8 @@ public interface ErrorCodeConstants {
     ErrorCode CONTRACT_FUND_LOG_NOT_EXISTS = new ErrorCode(1002038000, "合同收款记录不存在");
     ErrorCode CONTRACT_INVOICE_LOG_NOT_EXISTS = new ErrorCode(1002039000, "合同发票记录不存在");
 
+    ErrorCode VISIT_APPOINTMENT_NOT_EXISTS = new ErrorCode(1002040000, "到访预约不存在");
+
 
     // ========== AUTH 模块 1004003000 ==========
 
