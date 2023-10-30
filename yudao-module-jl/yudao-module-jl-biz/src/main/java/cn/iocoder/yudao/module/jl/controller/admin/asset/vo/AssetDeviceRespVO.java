@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.asset.vo;
 
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -19,4 +20,5 @@ public class AssetDeviceRespVO extends AssetDeviceBaseVO {
 
 
     private User manager;
+
 }

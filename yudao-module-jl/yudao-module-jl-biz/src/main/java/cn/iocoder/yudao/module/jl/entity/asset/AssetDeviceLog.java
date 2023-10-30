@@ -7,8 +7,11 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import org.apache.tomcat.jni.Local;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+
+import java.time.LocalDateTime;
 
 /**
  * 公司资产（设备）预约 Entity
@@ -53,13 +56,13 @@ public class AssetDeviceLog extends BaseEntity {
      * 开始时间
      */
     @Column(name = "start_date", nullable = false )
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束时间
      */
     @Column(name = "end_date", nullable = false )
-    private String endDate;
+    private LocalDateTime endDate;
 
     /**
      * 项目id
@@ -84,5 +87,11 @@ public class AssetDeviceLog extends BaseEntity {
      */
     @Column(name = "project_device_id")
     private Long projectDeviceId;
+
+
+    /*
+    * 预约的客户id
+    * */
+    private Long customerId;
 
 }

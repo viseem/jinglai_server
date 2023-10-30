@@ -196,12 +196,14 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            System.out.println("attribute----"+pageReqVO.getAttribute());
+
             //获取attributeUsers
             Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
             pageReqVO.setCreators(users);
 
             //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
                 predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
             }
 

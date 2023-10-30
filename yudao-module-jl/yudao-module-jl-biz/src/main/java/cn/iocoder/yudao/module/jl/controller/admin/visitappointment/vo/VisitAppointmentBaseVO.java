@@ -38,4 +38,6 @@ public class VisitAppointmentBaseVO {
     @Schema(description = "客户id")
     private Long customerId;
 
+    private Long deviceLogId;
+
 }

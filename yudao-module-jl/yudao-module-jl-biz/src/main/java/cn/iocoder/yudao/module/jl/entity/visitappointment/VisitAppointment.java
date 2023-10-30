@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.visitappointment;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -67,5 +72,17 @@ public class VisitAppointment extends BaseEntity {
      */
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
+
+    /**
+     * 设备预约记录id
+     */
+    @Column(name = "device_log_id", nullable = false )
+    private Long deviceLogId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "device_log_id", insertable = false, updatable = false)
+    private AssetDeviceLog deviceLog;
 
 }

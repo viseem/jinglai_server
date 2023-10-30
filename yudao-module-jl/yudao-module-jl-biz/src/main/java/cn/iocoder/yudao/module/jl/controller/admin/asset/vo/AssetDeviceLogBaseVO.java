@@ -29,12 +29,12 @@ public class AssetDeviceLogBaseVO {
     @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "开始时间不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String startDate;
+    private LocalDateTime startDate;
 
     @Schema(description = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "结束时间不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
@@ -45,4 +45,5 @@ public class AssetDeviceLogBaseVO {
     @Schema(description = "项目设备id", example = "29474")
     private Long projectDeviceId;
 
+    private Long customerId;
 }

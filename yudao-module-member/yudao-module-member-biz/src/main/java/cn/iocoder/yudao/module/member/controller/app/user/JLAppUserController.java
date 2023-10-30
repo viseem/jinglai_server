@@ -3,9 +3,7 @@ package cn.iocoder.yudao.module.member.controller.app.user;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
-import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDevicePageOrder;
-import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDevicePageReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.AssetDeviceRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.asset.vo.*;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageOrder;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticlePageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.cmsarticle.vo.CmsArticleRespVO;
@@ -17,12 +15,15 @@ import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppo
 import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppointmentRespVO;
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
 import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.visitappointment.VisitAppointment;
+import cn.iocoder.yudao.module.jl.enums.AssetDeviceUseTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.asset.AssetDeviceMapper;
 import cn.iocoder.yudao.module.jl.mapper.cmsarticle.CmsArticleMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
@@ -33,6 +34,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 import cn.iocoder.yudao.module.jl.repository.visitappointment.VisitAppointmentRepository;
+import cn.iocoder.yudao.module.jl.service.asset.AssetDeviceLogServiceImpl;
 import cn.iocoder.yudao.module.jl.service.asset.AssetDeviceServiceImpl;
 import cn.iocoder.yudao.module.jl.service.cmsarticle.CmsArticleService;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
@@ -43,6 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import liquibase.pro.packaged.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -105,6 +108,9 @@ public class JLAppUserController {
 
     @Resource
     private VisitAppointmentMapper visitAppointmentMapper;
+
+    @Resource
+    private AssetDeviceLogServiceImpl assetDeviceLogService;
 
     @Resource
     private AssetDeviceServiceImpl assetDeviceService;
@@ -239,16 +245,33 @@ public class JLAppUserController {
     * */
     @PostMapping("/visit")
     @Operation(summary = "客户 发起到访")
+    @Transactional
     public CommonResult<Long> getVisitPage(@Valid @RequestBody VisitAppointmentCreateReqVO reqVO) {
         Long loginUserId = validLoginUser();
         reqVO.setCustomerId(loginUserId);
         Long id = visitAppointmentService.createVisitAppointment(reqVO);
+
+        //如果有设备id，则保存设备的预约记录
+        if(reqVO.getDeviceId()!=null&&reqVO.getDeviceId()>0){
+            AssetDeviceLogCreateReqVO deviceCreateVO = new AssetDeviceLogCreateReqVO();
+            deviceCreateVO.setDeviceId(reqVO.getDeviceId());
+            deviceCreateVO.setMark(reqVO.getDeviceMark());
+            deviceCreateVO.setStartDate(reqVO.getDeviceStartTime());
+            deviceCreateVO.setEndDate(reqVO.getDeviceEndTime());
+            deviceCreateVO.setUseType(AssetDeviceUseTypeEnums.APPOINTMENT.getStatus());
+            deviceCreateVO.setCustomerId(loginUserId);
+            Long assetDeviceLog = assetDeviceLogService.createAssetDeviceLog(deviceCreateVO);
+            visitAppointmentRepository.updateDeviceLogIdById(assetDeviceLog,id);
+
+        }
         return success(id);
     }
 
     @PostMapping("/visit-page")
     @Operation(summary = "客户 到访记录")
     public CommonResult<PageResult<VisitAppointmentRespVO>> getVisitPage(@Valid @RequestBody VisitAppointmentPageReqVO pageVO, @Valid @RequestBody VisitAppointmentPageOrder orderV0) {
+        Long loginUserId = validLoginUser();
+        pageVO.setCustomerId(loginUserId);
         PageResult<VisitAppointment> visitAppointmentPage = visitAppointmentService.getVisitAppointmentPage(pageVO, orderV0);
         return success(visitAppointmentMapper.toPage(visitAppointmentPage));
     }
@@ -260,6 +283,13 @@ public class JLAppUserController {
         return success(visitAppointment);
     }
 
+    @GetMapping("/visit/delete")
+    @Operation(summary = "APP 到访删除")
+    public CommonResult<Long> deleteVisit(@RequestParam("id") Long id) {
+        visitAppointmentRepository.deleteById(id);
+        return success(1L);
+    }
+
     /*
     * 设备
     * */
@@ -268,6 +298,13 @@ public class JLAppUserController {
     public CommonResult<PageResult<AssetDeviceRespVO>> getDevicePage(@Valid @RequestBody AssetDevicePageReqVO pageVO, @Valid @RequestBody AssetDevicePageOrder orderV0) {
         PageResult<AssetDevice> assetDevicePage = assetDeviceService.getAssetDevicePage(pageVO, orderV0);
         return success(assetDeviceMapper.toPage(assetDevicePage));
+    }
+
+    @PostMapping("/device-log")
+    @Operation(summary = "客户 公司设备预约记录")
+    public CommonResult<PageResult<AssetDeviceLog>> getDevicePage(@Valid @RequestBody AssetDeviceLogPageReqVO pageVO, @Valid @RequestBody AssetDeviceLogPageOrder orderV0) {
+        PageResult<AssetDeviceLog> assetDeviceLogPage = assetDeviceLogService.getAssetDeviceLogPage(pageVO, orderV0);
+        return success(assetDeviceLogPage);
     }
 
 }
