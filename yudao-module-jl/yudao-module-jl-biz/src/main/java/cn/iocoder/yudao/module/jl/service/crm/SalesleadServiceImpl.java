@@ -180,7 +180,9 @@ public class SalesleadServiceImpl implements SalesleadService {
                project.setCode(projectService.generateCode());
                project.setName(updateReqVO.getProjectName());
                project.setStatus(updateReqVO.getStatus());
-               project.setType(updateReqVO.getType());
+               if(updateReqVO.getType()!=null){
+                   project.setType(updateReqVO.getType());
+               }
                projectRepository.save(project);
            }else{
                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
