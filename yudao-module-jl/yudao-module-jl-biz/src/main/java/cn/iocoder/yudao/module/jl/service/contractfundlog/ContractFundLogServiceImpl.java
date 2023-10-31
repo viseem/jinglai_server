@@ -57,11 +57,12 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         createReqVO.setProjectId(projectConstract.getProjectId());
         createReqVO.setCustomerId(projectConstract.getCustomerId());
 
-        projectConstractService.processContractReceivedPrice2(createReqVO.getContractId());
-
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
         contractFundLogRepository.save(contractFundLog);
+
+        projectConstractService.processContractReceivedPrice2(createReqVO.getContractId());
+
         // 返回
         return contractFundLog.getId();
     }
@@ -82,15 +83,23 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     }
 
     @Override
+    @Transactional
     public void deleteContractFundLog(Long id) {
         // 校验存在
-        validateContractFundLogExists(id);
+        ContractFundLog contractFundLog = validateContractFundLogExists(id);
         // 删除
         contractFundLogRepository.deleteById(id);
+
+        projectConstractService.processContractReceivedPrice2(contractFundLog.getContractId());
     }
 
-    private void validateContractFundLogExists(Long id) {
-        contractFundLogRepository.findById(id).orElseThrow(() -> exception(CONTRACT_FUND_LOG_NOT_EXISTS));
+    private ContractFundLog validateContractFundLogExists(Long id) {
+        Optional<ContractFundLog> byId = contractFundLogRepository.findById(id);
+
+        if (byId.isEmpty()){
+            throw exception(CONTRACT_FUND_LOG_NOT_EXISTS);
+        }
+        return byId.orElse(null);
     }
 
     @Override
