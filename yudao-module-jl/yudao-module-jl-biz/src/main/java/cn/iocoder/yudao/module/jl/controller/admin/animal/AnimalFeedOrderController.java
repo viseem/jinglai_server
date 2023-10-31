@@ -59,7 +59,7 @@ public class AnimalFeedOrderController {
 
     @PutMapping("/save")
     @Operation(summary = "更新动物饲养申请单")
-    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:update')")
+    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:create')")
     public CommonResult<Boolean> saveAnimalFeedOrder(@Valid @RequestBody AnimalFeedOrderSaveReqVO saveReqVO) {
         animalFeedOrderService.saveAnimalFeedOrder(saveReqVO);
         return success(true);
