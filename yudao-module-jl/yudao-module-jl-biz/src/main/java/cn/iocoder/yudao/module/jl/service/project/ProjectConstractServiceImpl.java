@@ -107,10 +107,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         if (projectConstract.getRealPrice()==null){
             projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
         }
-        projectConstract.setStatus("1");
+        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
 //        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
-//        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
-//        projectConstract.setStampFileName(createReqVO.getFileName());
+        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
+        projectConstract.setStampFileName(createReqVO.getFileName());
         projectConstract.setCustomerId(byId.get().getCustomerId());
         projectConstract.setSalesId(getLoginUserId());
         ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
