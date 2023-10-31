@@ -80,6 +80,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
 
+        // 查询手机号是否存在
+        CustomerOnly byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
+        if(byPhone!=null){
+            return 0L;
+        }
+
         if(!createReqVO.getIsSeas()){
             createReqVO.setSalesId(getLoginUserId());
         }
