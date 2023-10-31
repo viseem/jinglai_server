@@ -175,8 +175,13 @@ public class ProcurementServiceImpl implements ProcurementService {
         procurementRepository.deleteById(id);
     }
 
-    private void validateProcurementExists(Long id) {
-        procurementRepository.findById(id).orElseThrow(() -> exception(PROCUREMENT_NOT_EXISTS));
+    private Procurement validateProcurementExists(Long id) {
+        Optional<Procurement> byId = procurementRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROCUREMENT_NOT_EXISTS);
+        }
+
+        return byId.get();
     }
 
     @Override
@@ -446,7 +451,7 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Transactional
     public void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO) {
         // 校验存在
-        validateProcurementExists(saveReqVO.getProcurementId());
+        Procurement procurement = validateProcurementExists(saveReqVO.getProcurementId());
 
         // 删除先前的付款信息
         procurementPaymentRepository.deleteByProcurementId(saveReqVO.getProcurementId());
@@ -455,7 +460,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (saveReqVO.getPayments() != null && saveReqVO.getPayments().size() > 0) {
             List<ProcurementPayment> payments = saveReqVO.getPayments().stream().map(payment -> {
                 payment.setProcurementId(saveReqVO.getProcurementId());
-                payment.setProjectId(saveReqVO.getProjectId());
+                payment.setProjectId(procurement.getProjectId());
                 return procurementPaymentMapper.toEntity(payment);
             }).collect(Collectors.toList());
 
@@ -467,6 +472,7 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 更新状态
         procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString());
+        procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(),true);
     }
 
     /**

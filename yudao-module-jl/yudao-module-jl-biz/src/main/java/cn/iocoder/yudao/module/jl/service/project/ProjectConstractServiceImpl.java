@@ -235,8 +235,15 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }else{
+
+                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
             }
 
             if (pageReqVO.getReceivedStatus() != null) {
@@ -287,9 +294,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }
 
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));

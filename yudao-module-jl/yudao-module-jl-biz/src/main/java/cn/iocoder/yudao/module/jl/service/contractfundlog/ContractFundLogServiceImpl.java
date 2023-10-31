@@ -77,11 +77,11 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
         System.out.println("id---"+updateReqVO.getContractId());
 
-        projectConstractService.processContractReceivedPrice2(updateReqVO.getContractId());
-
         // 更新
         ContractFundLog updateObj = contractFundLogMapper.toEntity(updateReqVO);
         contractFundLogRepository.save(updateObj);
+
+        projectConstractService.processContractReceivedPrice2(updateReqVO.getContractId());
     }
 
     @Override

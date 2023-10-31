@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.crm;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
@@ -10,6 +11,8 @@ import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -65,6 +68,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private CustomerSimpleRepository customerSimpleRepository;
+
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
 
     @Resource
     private CustomerMapper customerMapper;
@@ -484,7 +490,11 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerStatisticsRespVO getCustomerStatistics(Long id) {
         //查询已经签订的合同
         List<ProjectConstract> byCustomerIdAndStatus = projectConstractRepository.findByCustomerIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
-        Integer dealCount = byCustomerIdAndStatus.size();
+
+        // 项目个数
+        List<ProjectSimple> byCodeNotNull = projectSimpleRepository.findByCodeNotNullAndCustomerId(id);
+        Integer dealCount = byCodeNotNull.size();
+
         //计算客户的成交总金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
