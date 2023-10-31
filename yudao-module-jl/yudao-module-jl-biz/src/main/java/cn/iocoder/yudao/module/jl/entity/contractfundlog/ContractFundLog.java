@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.contractfundlog;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -102,6 +103,12 @@ public class ContractFundLog extends BaseEntity {
      */
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
 
 
     @OneToOne(fetch = FetchType.EAGER)

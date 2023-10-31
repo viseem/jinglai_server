@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -60,4 +61,6 @@ public class ContractFundLogBaseVO {
     private Long customerId;
 
     private ProjectConstractOnly contract;
+
+    private CustomerOnly customer;
 }
