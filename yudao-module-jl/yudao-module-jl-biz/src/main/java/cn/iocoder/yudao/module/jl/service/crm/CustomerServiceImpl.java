@@ -202,8 +202,6 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            System.out.println("attribute----"+pageReqVO.getAttribute());
-
             //获取attributeUsers
             Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
             pageReqVO.setCreators(users);

@@ -124,7 +124,6 @@ public class ChartServiceImpl implements ChartService {
 
 
             if (!reqVO.getIsAllAttribute()) {
-                System.out.println("-------------------"+getLoginUserId());
                  predicates.add(cb.equal(root.get(attributeKey==null?"creator":attributeKey), getLoginUserId()));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
