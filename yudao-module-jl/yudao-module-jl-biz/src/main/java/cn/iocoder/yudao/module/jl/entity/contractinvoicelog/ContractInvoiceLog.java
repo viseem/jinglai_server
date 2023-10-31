@@ -84,6 +84,13 @@ public class ContractInvoiceLog extends BaseEntity {
     @Column(name = "contract_id", nullable = false )
     private Long contractId;
 
+
+    /*
+     * 销售id
+     * */
+    @Column(name = "sales_id", nullable = false )
+    private Long salesId;
+
     /**
      * 开票金额
      */

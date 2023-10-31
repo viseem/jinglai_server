@@ -60,6 +60,9 @@ public class ContractFundLogBaseVO {
     @Schema(description = "客户id")
     private Long customerId;
 
+    @Schema(description = "销售id")
+    private Long salesId;
+
     private ProjectConstractOnly contract;
 
     private CustomerOnly customer;

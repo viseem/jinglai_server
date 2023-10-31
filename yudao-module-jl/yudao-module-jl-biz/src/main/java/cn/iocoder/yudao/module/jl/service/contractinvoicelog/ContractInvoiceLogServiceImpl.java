@@ -52,11 +52,13 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     public Long createContractInvoiceLog(ContractInvoiceLogCreateReqVO createReqVO) {
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
-        createReqVO.setProjectId(projectConstract.getProjectId());
-        createReqVO.setCustomerId(projectConstract.getCustomerId());
+
 
         // 插入
         ContractInvoiceLog contractInvoiceLog = contractInvoiceLogMapper.toEntity(createReqVO);
+        contractInvoiceLog.setProjectId(projectConstract.getProjectId());
+        contractInvoiceLog.setCustomerId(projectConstract.getCustomerId());
+        contractInvoiceLog.setSalesId(projectConstract.getSalesId());
         contractInvoiceLogRepository.save(contractInvoiceLog);
         // 返回
         return contractInvoiceLog.getId();

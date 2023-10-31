@@ -104,6 +104,12 @@ public class ContractFundLog extends BaseEntity {
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
 
+    /*
+    * 销售id
+    * */
+    @Column(name = "sales_id", nullable = false )
+    private Long salesId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

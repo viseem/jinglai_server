@@ -54,11 +54,13 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     public Long createContractFundLog(ContractFundLogCreateReqVO createReqVO) {
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
-        createReqVO.setProjectId(projectConstract.getProjectId());
-        createReqVO.setCustomerId(projectConstract.getCustomerId());
 
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
+        contractFundLog.setProjectId(projectConstract.getProjectId());
+        contractFundLog.setCustomerId(projectConstract.getCustomerId());
+        contractFundLog.setSalesId(projectConstract.getSalesId());
+
         contractFundLogRepository.save(contractFundLog);
 
         projectConstractService.processContractReceivedPrice2(createReqVO.getContractId());

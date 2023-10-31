@@ -130,8 +130,6 @@ public class SalesleadServiceImpl implements SalesleadService {
         salesleadRepository.save(updateObj);
         Long salesleadId = updateObj.getId();
 
-                              // 更新竞争对手的报价
-        // ``               删除原有的
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
         // 再插入
         List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();
@@ -201,7 +199,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                ProjectConstract contract = new ProjectConstract();
                contract.setProjectId(updateObj.getProjectId());
                contract.setCustomerId(updateObj.getCustomerId());
-               contract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+               contract.setSalesId(getLoginUserId()); // 线索的销售人员 id
                contract.setName(updateReqVO.getProjectName());
                contract.setStampFileName(updateReqVO.getContractStampFileName());
                contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());

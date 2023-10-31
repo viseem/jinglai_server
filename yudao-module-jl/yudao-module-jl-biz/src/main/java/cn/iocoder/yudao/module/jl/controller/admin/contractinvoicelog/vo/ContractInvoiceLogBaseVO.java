@@ -37,6 +37,9 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "项目id")
     private Long projectId;
 
+    @Schema(description = "销售id")
+    private Long salesId;
+
     @Schema(description = "合同id", requiredMode = Schema.RequiredMode.REQUIRED, example = "397")
     @NotNull(message = "合同id不能为空")
     private Long contractId;

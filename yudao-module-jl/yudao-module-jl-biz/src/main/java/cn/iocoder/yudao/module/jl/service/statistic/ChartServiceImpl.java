@@ -49,7 +49,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartRefundStatsResp getRefundStats(ChartRefundStatsReqVO reqVO) {
-        Specification<ContractFundLog> spec = getCommonSpec(reqVO,null,"paidTime");
+        Specification<ContractFundLog> spec = getCommonSpec(reqVO,"salesId","paidTime");
 
         List<ContractFundLog> fundList = contractFundLogRepository.findAll(spec);
 
@@ -60,7 +60,7 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartInvoiceStatsResp getInvoiceStats(ChartInvoiceStatsReqVO reqVO) {
-        Specification<ContractInvoiceLog> spec = getCommonSpec(reqVO,null,"date");
+        Specification<ContractInvoiceLog> spec = getCommonSpec(reqVO,"salesId","date");
 
         List<ContractInvoiceLog> list = contractInvoiceLogRepository.findAll(spec);
 
@@ -124,6 +124,7 @@ public class ChartServiceImpl implements ChartService {
 
 
             if (!reqVO.getIsAllAttribute()) {
+                System.out.println("-------------------"+getLoginUserId());
                  predicates.add(cb.equal(root.get(attributeKey==null?"creator":attributeKey), getLoginUserId()));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
