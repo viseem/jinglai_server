@@ -223,11 +223,11 @@ public class ProjectCategorySimple extends BaseEntity {
     /**
      * 实验SOP
      */
-/*    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectSop> sopList = new ArrayList<>();*/
+    private List<ProjectSop> sopList = new ArrayList<>();
 
     /**
      * 实验名目的附件
