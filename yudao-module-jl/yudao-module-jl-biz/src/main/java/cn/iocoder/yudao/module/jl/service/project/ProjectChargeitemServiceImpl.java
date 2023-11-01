@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -94,28 +96,39 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     }
 
     @Override
+    @Transactional
     public void updateProjectChargeitem(ProjectChargeitemUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectChargeitemExists(updateReqVO.getId());
 
-        //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
+
 
         // 更新
         ProjectChargeitem updateObj = projectChargeitemMapper.toEntity(updateReqVO);
         projectChargeitemRepository.save(updateObj);
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
     }
 
     @Override
+    @Transactional
     public void deleteProjectChargeitem(Long id) {
         // 校验存在
-        validateProjectChargeitemExists(id);
+        ProjectChargeitem projectChargeitem = validateProjectChargeitemExists(id);
         // 删除
         projectChargeitemRepository.deleteById(id);
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(projectChargeitem.getScheduleId(),projectChargeitem.getProjectId());
     }
 
-    private void validateProjectChargeitemExists(Long id) {
-        projectChargeitemRepository.findById(id).orElseThrow(() -> exception(PROJECT_CHARGEITEM_NOT_EXISTS));
+    private ProjectChargeitem validateProjectChargeitemExists(Long id) {
+        Optional<ProjectChargeitem> byId = projectChargeitemRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_CHARGEITEM_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -47,6 +49,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
     @Resource
     private ProjectConstractServiceImpl projectConstractService;
+
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Override
     public Long createContractInvoiceLog(ContractInvoiceLogCreateReqVO createReqVO) {
@@ -107,6 +112,13 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         // 创建 Specification
         Specification<ContractInvoiceLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            //如果不是any，则都是in查询
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            }
+
 
             if(pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));

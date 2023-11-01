@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +15,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ContractFundLogPageReqVO extends PageParam {
+
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute = DataAttributeTypeEnums.MY.getStatus();
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

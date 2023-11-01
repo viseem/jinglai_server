@@ -32,6 +32,7 @@ public class DateAttributeGenerator {
             DeptByReqVO dept = new DeptByReqVO();
             dept.setLeaderUserId(getLoginUserId());
             DeptDO deptBy = deptService.getDeptBy(dept);
+
             if (deptBy != null) {
                 List<DeptDO> deptListByParentIdFromCache = deptService.getDeptListByParentIdFromCache(deptBy.getId(), true);
                 if (deptListByParentIdFromCache != null) {

@@ -102,27 +102,34 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     @Transactional
     public void updateProjectSupply(ProjectSupplyUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectSupplyExists(updateReqVO.getId());
-
-        //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
-
+        ProjectSupply projectSupply = validateProjectSupplyExists(updateReqVO.getId());
 
         // 更新
         ProjectSupply updateObj = projectSupplyMapper.toEntity(updateReqVO);
         projectSupplyRepository.save(updateObj);
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(projectSupply.getScheduleId(),projectSupply.getProjectId());
     }
 
     @Override
+    @Transactional
     public void deleteProjectSupply(Long id) {
         // 校验存在
-        validateProjectSupplyExists(id);
+        ProjectSupply projectSupply = validateProjectSupplyExists(id);
         // 删除
         projectSupplyRepository.deleteById(id);
+
+        //更新报价金额
+        projectScheduleService.accountSalesleadQuotation(projectSupply.getScheduleId(),projectSupply.getProjectId());
     }
 
-    private void validateProjectSupplyExists(Long id) {
-        projectSupplyRepository.findById(id).orElseThrow(() -> exception(PROJECT_SUPPLY_NOT_EXISTS));
+    private ProjectSupply validateProjectSupplyExists(Long id) {
+        Optional<ProjectSupply> byId = projectSupplyRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_SUPPLY_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
