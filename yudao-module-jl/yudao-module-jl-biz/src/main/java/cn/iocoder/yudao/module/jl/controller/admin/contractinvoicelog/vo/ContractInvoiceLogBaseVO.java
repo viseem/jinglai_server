@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -25,8 +27,7 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "发票申请编号")
     private String code;
 
-    @Schema(description = "开票凭证", requiredMode = Schema.RequiredMode.REQUIRED, example = "397")
-    @NotNull(message = "开票凭证不能为空")
+    @Schema(description = "开票凭证")
     private String fileUrl;
 
     private String fileName;
@@ -48,9 +49,8 @@ public class ContractInvoiceLogBaseVO {
     @NotNull(message = "开票金额不能为空")
     private Long price;
 
-    @Schema(description = "开票日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "开票日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    @NotNull(message = "开票时间不能为空")
     private LocalDateTime date;
 
     @Schema(description = "开票类型：增值税专用发票", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
@@ -122,7 +122,7 @@ public class ContractInvoiceLogBaseVO {
     private Long receivedPrice=0L;
 
     @Schema(description = "状态")
-    private String status;
+    private String status = ContractInvoiceStatusEnums.NOT_INVOICE.getStatus();
 
     private ProjectConstractOnly contract;
 
