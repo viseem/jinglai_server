@@ -27,6 +27,13 @@ public interface SalesleadService {
      */
     void updateSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
 
+    /**
+     * 更新销售线索
+     *
+     * @param updateReqVO 更新信息
+     */
+    void saveSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
+
     SalesleadCountStatsRespVO getSalesleadCountStats();
 
     /**

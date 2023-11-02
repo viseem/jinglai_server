@@ -40,6 +40,9 @@ public class SalesleadBaseVO {
     @Schema(description = "项目id", example = "8951")
     private Long projectId;
 
+    @Schema(description = "项目的负责人", example = "26885")
+    private Long projectManagerId;
+
     @Schema(description = "业务类型", example = "2")
     private String businessType;
 

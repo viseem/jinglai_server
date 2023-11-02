@@ -61,11 +61,19 @@ public class SalesleadController {
 //        return success(salesLeadId);
 //    }
 
-    @PutMapping("/save")
+    @PutMapping("/update")
     @Operation(summary = "保存销售线索")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> updateSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
         salesleadService.updateSaleslead(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/save")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> saveSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
+        salesleadService.saveSaleslead(updateReqVO);
         return success(true);
     }
 

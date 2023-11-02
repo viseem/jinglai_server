@@ -152,62 +152,105 @@ public class SalesleadServiceImpl implements SalesleadService {
             salesleadCustomerPlanRepository.saveAll(plans);
         }
 
+        //设置customer updateLastSalesleadIdById
+        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
 
-       if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
-           // 1. 创建项目
-           Project project = new Project();
-           project.setSalesleadId(salesleadId);
-           project.setCustomerId(updateReqVO.getCustomerId());
-           project.setName(updateReqVO.getProjectName());
-           project.setStage("1");
-           project.setStatus(updateReqVO.getStatus());
-           project.setType(updateReqVO.getType());
-           project.setSalesId(getLoginUserId()); // 线索的销售人员 id
-           project.setManagerId(updateReqVO.getManagerId());
-           System.out.println("getManagerId------"+updateReqVO.getManagerId());
+    }
 
-           if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
-               //如果客户不存在，则抛出异常
-               Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
-               project.setName(customer.getName()+"的报价");
+    @Override
+    @Transactional
+    public void saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
-           }
+        if(updateReqVO.getId() != null) {
+            // 校验存在
+            Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
+            updateReqVO.setProjectId(saleslead.getProjectId());
+        }
 
-           if(updateReqVO.getProjectId()!=null){
-               project = projectRepository.findById(updateReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
-               project.setCode(projectService.generateCode());
-               project.setName(updateReqVO.getProjectName());
-               project.setStatus(updateReqVO.getStatus());
-               if(updateReqVO.getType()!=null){
-                   project.setType(updateReqVO.getType());
-               }
-               projectRepository.save(project);
-           }else{
-               Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
-               System.out.println("projectid--"+projectId);
-               // 销售线索中保存项目 id
-               updateObj.setProjectId(projectId);
-               salesleadRepository.save(updateObj);
-           }
+        // 更新线索
+        Saleslead updateObj = salesleadMapper.toEntity(updateReqVO);
+        salesleadRepository.save(updateObj);
+        Long salesleadId = updateObj.getId();
+
+        salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
+        // 再插入
+        List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();
+        if(competitorQuotations != null && competitorQuotations.size() > 0) {
+            // 遍历 competitorQuotations，将它的 salesleadId 字段设置为 updateObj.getId()
+            competitorQuotations.forEach(competitorQuotation -> competitorQuotation.setSalesleadId(salesleadId));
+            List<SalesleadCompetitor> quotations = salesleadCompetitorMapper.toEntityList(competitorQuotations);
+            salesleadCompetitorRepository.saveAll(quotations);
+        }
+
+        // 更新客户方案
+        // 删除原有的
+        salesleadCustomerPlanRepository.deleteBySalesleadId(salesleadId);
+        // 再插入
+        List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
+        if(customerPlans != null && customerPlans.size() > 0) {
+            // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
+            customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
+            List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
+            salesleadCustomerPlanRepository.saveAll(plans);
+        }
 
 
-           //不按照类型区分合同传不传，有就传没有不传
-           // 2. 保存合同
-           // 遍历 updateReqVO.getProjectConstracts(), 创建合同
-           System.out.println("---------"+updateReqVO.getType());
-           if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
-               ProjectConstract contract = new ProjectConstract();
-               contract.setProjectId(updateObj.getProjectId());
-               contract.setCustomerId(updateObj.getCustomerId());
-               contract.setSalesId(getLoginUserId()); // 线索的销售人员 id
-               contract.setName(updateReqVO.getProjectName());
-               contract.setStampFileName(updateReqVO.getContractStampFileName());
-               contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());
-               contract.setPrice(updateReqVO.getContractPrice());
-               contract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
-               contract.setSn(contractServiceImpl.generateCode());
-               projectConstractRepository.save(contract);
-           }
+        if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+            // 1. 创建项目
+            Project project = new Project();
+            project.setSalesleadId(salesleadId);
+            project.setCustomerId(updateReqVO.getCustomerId());
+            project.setName(updateReqVO.getProjectName());
+            project.setStage("1");
+            project.setStatus(updateReqVO.getStatus());
+            project.setType(updateReqVO.getType());
+            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
+            project.setManagerId(updateReqVO.getProjectManagerId()==null?updateReqVO.getManagerId():updateReqVO.getProjectManagerId());
+            System.out.println("getManagerId------"+updateReqVO.getManagerId());
+
+            if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                //如果客户不存在，则抛出异常
+                Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
+                project.setName(customer.getName()+"的报价");
+
+            }
+
+            if(updateReqVO.getProjectId()!=null){
+                project = projectRepository.findById(updateReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+                project.setCode(projectService.generateCode());
+                project.setName(updateReqVO.getProjectName());
+                project.setStatus(updateReqVO.getStatus());
+                project.setManagerId(updateReqVO.getProjectManagerId()==null?project.getManagerId():updateReqVO.getProjectManagerId());
+                if(updateReqVO.getType()!=null){
+                    project.setType(updateReqVO.getType());
+                }
+                projectRepository.save(project);
+            }else{
+                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
+                System.out.println("projectid--"+projectId);
+                // 销售线索中保存项目 id
+                updateObj.setProjectId(projectId);
+                salesleadRepository.save(updateObj);
+            }
+
+
+            //不按照类型区分合同传不传，有就传没有不传
+            // 2. 保存合同
+            // 遍历 updateReqVO.getProjectConstracts(), 创建合同
+            System.out.println("---------"+updateReqVO.getType());
+            if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
+                ProjectConstract contract = new ProjectConstract();
+                contract.setProjectId(updateObj.getProjectId());
+                contract.setCustomerId(updateObj.getCustomerId());
+                contract.setSalesId(getLoginUserId()); // 线索的销售人员 id
+                contract.setName(updateReqVO.getProjectName());
+                contract.setStampFileName(updateReqVO.getContractStampFileName());
+                contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());
+                contract.setPrice(updateReqVO.getContractPrice());
+                contract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
+                contract.setSn(contractServiceImpl.generateCode());
+                projectConstractRepository.save(contract);
+            }
 
 /*           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
            if(projectConstracts != null && projectConstracts.size() > 0) {
@@ -221,7 +264,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
                projectConstractRepository.saveAll(contracts);
            }*/
-       }
+        }
 
 
         //设置customer updateLastSalesleadIdById
