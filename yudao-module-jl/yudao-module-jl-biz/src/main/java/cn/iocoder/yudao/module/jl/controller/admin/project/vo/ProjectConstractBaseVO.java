@@ -36,8 +36,11 @@ public class ProjectConstractBaseVO {
     private String status = ProjectContractStatusEnums.WAIT_SIGN.getStatus();
 
     private String payStatus;
-    @Schema(description = "合同类型", example = "1")
+    @Schema(description = "合同业务类型", example = "1")
     private String type;
+
+    @Schema(description = "合同类型", example = "1")
+    private String contractType;
 
     @Schema(description = "合同金额", example = "30614")
     private Long price;

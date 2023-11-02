@@ -108,6 +108,21 @@ public class ProjectFeedback extends BaseEntity {
     @Column(name = "result_user_id")
     private Long resultUserId;
 
+
+    /**
+     * 期望解决日期
+     */
+    @Column(name = "deadline")
+    private LocalDateTime deadline;
+
+    /*
+    * 紧急程度
+    * */
+    @Column(name = "level")
+    private String level;
+
+
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)

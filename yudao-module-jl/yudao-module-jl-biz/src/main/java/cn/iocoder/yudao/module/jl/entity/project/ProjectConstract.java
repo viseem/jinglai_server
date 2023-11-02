@@ -94,10 +94,16 @@ public class ProjectConstract extends BaseEntity {
     private String payStatus;
 
     /**
-     * 合同类型
+     * 合同业务类型
      */
     @Column(name = "type")
     private String type;
+
+    /**
+     * 合同类型
+     */
+    @Column(name = "contract_type")
+    private String contractType;
 
     /**
      * 合同金额

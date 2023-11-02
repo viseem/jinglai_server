@@ -3,11 +3,15 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 项目反馈 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -53,6 +57,14 @@ public class ProjectFeedbackBaseVO {
     @Schema(description = "处理时间")
     private LocalDateTime resultTime;
 
+
+
     @Schema(description = "处理人 id")
     private Long resultUserId;
+
+    //时间格式化
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime deadline;
+
+    private String level;
 }
