@@ -23,8 +23,7 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 
-    @Schema(description = "合同文件 URL", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
-    @NotNull(message = "合同文件 URL不能为空")
+    @Schema(description = "合同文件 URL")
     private String fileUrl;
 
     @Schema(description = "盖章合同文件 URL")
@@ -62,5 +61,7 @@ public class ProjectConstractBaseVO {
 
     @Schema(description = "是否收齐", example = "芋艿")
     private Boolean isCollectAll;
+
+    private Integer receivedPrice;
 
 }
