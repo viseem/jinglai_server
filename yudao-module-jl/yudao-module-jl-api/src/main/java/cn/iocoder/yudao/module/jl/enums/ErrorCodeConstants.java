@@ -202,6 +202,8 @@ public interface ErrorCodeConstants {
 
     ErrorCode VISIT_APPOINTMENT_NOT_EXISTS = new ErrorCode(1002040000, "到访预约不存在");
 
+    ErrorCode PROJECT_QUOTATION_NOT_EXISTS = new ErrorCode(1002050000, "项目报价不存在");
+
 
     // ========== AUTH 模块 1004003000 ==========
 
