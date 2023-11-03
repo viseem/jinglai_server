@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvoiceLog, Long>, JpaSpecificationExecutor<ContractInvoiceLog> {
+    @Query("select count(c) from ContractInvoiceLog c where c.status <> ?1")
+    Integer countByStatusNot(String status);
 
 }

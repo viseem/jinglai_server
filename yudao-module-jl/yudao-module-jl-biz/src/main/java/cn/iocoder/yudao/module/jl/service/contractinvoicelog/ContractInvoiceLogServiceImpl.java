@@ -31,6 +31,7 @@ import cn.iocoder.yudao.module.jl.mapper.contractinvoicelog.ContractInvoiceLogMa
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -58,6 +59,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
+        // 如果status不为空，则记录auditId为当前登录用户
+        if(createReqVO.getStatus()!=null){
+            createReqVO.setAuditId(getLoginUserId());
+        }
 
         // 插入
         ContractInvoiceLog contractInvoiceLog = contractInvoiceLogMapper.toEntity(createReqVO);
@@ -73,6 +78,12 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     public void updateContractInvoiceLog(ContractInvoiceLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateContractInvoiceLogExists(updateReqVO.getId());
+
+        // 如果status不为空，则记录auditId为当前登录用户
+        if(updateReqVO.getStatus()!=null){
+            updateReqVO.setAuditId(getLoginUserId());
+        }
+
         // 更新
         ContractInvoiceLog updateObj = contractInvoiceLogMapper.toEntity(updateReqVO);
         contractInvoiceLogRepository.save(updateObj);
@@ -119,6 +130,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
             }
 
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            }
 
             if(pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));

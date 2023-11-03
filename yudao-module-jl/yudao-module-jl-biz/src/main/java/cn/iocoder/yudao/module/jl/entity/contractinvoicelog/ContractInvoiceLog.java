@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.contractinvoicelog;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -241,10 +242,34 @@ public class ContractInvoiceLog extends BaseEntity {
     @Column(name = "status", nullable = false )
     private String status;
 
+    /**
+     * 状态修改的人
+     */
+    @Column(name = "audit_id")
+    private Long auditId;
+
+    /**
+     * 附件地址
+     */
+    @Column(name = "attachment_url", nullable = false )
+    private String attachmentUrl;
+
+    /**
+     * 文件名字
+     */
+    @Column(name = "attachment_name", nullable = false )
+    private String attachmentName;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectConstractOnly contract;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "audit_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User auditor;
 
 }

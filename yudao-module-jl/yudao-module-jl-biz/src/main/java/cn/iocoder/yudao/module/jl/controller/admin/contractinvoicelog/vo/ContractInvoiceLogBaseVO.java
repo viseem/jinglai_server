@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +32,11 @@ public class ContractInvoiceLogBaseVO {
     private String fileUrl;
 
     private String fileName;
+
+    @Schema(description = "附件")
+    private String attachmentUrl;
+
+    private String attachmentName;
 
     @Schema(description = "客户id")
     private Long customerId;
@@ -124,7 +130,13 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "状态")
     private String status = ContractInvoiceStatusEnums.NOT_INVOICE.getStatus();
 
+    @Schema(description = "核验人")
+    private Long auditId;
+
     private ProjectConstractOnly contract;
 
     private CustomerOnly customer;
+
+    private User auditor;
+
 }

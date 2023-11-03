@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
 import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -56,6 +59,13 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProductSendRepository productSendRepository;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
     private final FinancePaymentRepository financePaymentRepository;
 
     public WorkstationServiceImpl(FinancePaymentRepository financePaymentRepository) {
@@ -114,9 +124,13 @@ public class WorkstationServiceImpl implements WorkstationService {
     public WorkstationFinanceCountStatsResp getFinanceCountStats(){
         WorkstationFinanceCountStatsResp resp = new WorkstationFinanceCountStatsResp();
 
-        // 全部的未收齐的款项数量
-        Integer notPayCompleteCount = projectFundRepository.countByStatusNot(ContractFundStatusEnums.COMPLETE.getStatus());
-        resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
+        // 全部的 合同收款 未核验的
+        Integer contractFundNotAuditCount = contractFundLogRepository.countByStatusNot(ContractFundStatusEnums.AUDITED.getStatus());
+        resp.setContractFundNotAuditCount(contractFundNotAuditCount);
+
+        //全部的 合同发票 未核验的
+        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus());
+        resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
 
         //全部的 未打款采购单数量
         Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());

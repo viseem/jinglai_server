@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.contractfundlog;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -110,17 +111,34 @@ public class ContractFundLog extends BaseEntity {
     @Column(name = "sales_id", nullable = false )
     private Long salesId;
 
+    /*
+     * 销售id
+     * */
+    @Column(name = "audit_id", nullable = false )
+    private Long auditId;
+
+    /*
+     * 状态
+     * */
+    @Column(name = "status", nullable = false )
+    private String status;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CustomerOnly customer;
 
-
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectConstractOnly contract;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "audit_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User auditor;
 
 }

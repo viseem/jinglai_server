@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -27,20 +29,17 @@ public class ContractFundLogBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    @Schema(description = "凭证地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
-    @NotNull(message = "凭证地址不能为空")
+    @Schema(description = "凭证地址")
     private String fileUrl;
 
-    @Schema(description = "凭证", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋艿")
-    @NotNull(message = "凭证不能为空")
+    @Schema(description = "凭证")
     private String fileName;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "支付日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "支付日期不能为空")
+    @Schema(description = "支付日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime paidTime;
 
@@ -63,7 +62,15 @@ public class ContractFundLogBaseVO {
     @Schema(description = "销售id")
     private Long salesId;
 
+    @Schema(description = "状态")
+    private String status = ContractFundStatusEnums.NOT_AUDIT.getStatus();
+
+    @Schema(description = "状态")
+    private Long auditId;
+
     private ProjectConstractOnly contract;
 
     private CustomerOnly customer;
+
+    private User auditor;
 }

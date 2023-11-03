@@ -57,4 +57,6 @@ public class ContractFundLogPageReqVO extends PageParam {
     @Schema(description = "客户id", example = "11060")
     private Long customerId;
 
+    private String status;
+
 }

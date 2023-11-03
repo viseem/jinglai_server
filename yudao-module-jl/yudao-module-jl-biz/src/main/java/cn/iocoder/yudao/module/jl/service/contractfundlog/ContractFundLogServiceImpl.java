@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.contractfundlog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -31,6 +32,7 @@ import cn.iocoder.yudao.module.jl.mapper.contractfundlog.ContractFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -60,6 +62,11 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
+        // 如果status不为空，则记录auditId为当前登录用户
+        if(createReqVO.getStatus()!=null){
+            createReqVO.setAuditId(getLoginUserId());
+        }
+
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
         contractFundLog.setProjectId(projectConstract.getProjectId());
@@ -80,7 +87,11 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         // 校验存在
         validateContractFundLogExists(updateReqVO.getId());
 
-        System.out.println("id---"+updateReqVO.getContractId());
+
+        // 如果status不为空，则记录auditId为当前登录用户
+        if(updateReqVO.getStatus()!=null){
+            updateReqVO.setAuditId(getLoginUserId());
+        }
 
         // 更新
         ContractFundLog updateObj = contractFundLogMapper.toEntity(updateReqVO);
@@ -142,6 +153,10 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
             if(pageReqVO.getPrice() != null) {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
             if(pageReqVO.getMark() != null) {
