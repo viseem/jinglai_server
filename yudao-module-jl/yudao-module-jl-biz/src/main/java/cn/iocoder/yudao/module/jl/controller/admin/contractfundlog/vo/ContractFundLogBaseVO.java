@@ -22,9 +22,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ContractFundLogBaseVO {
 
-    @Schema(description = "金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "31742")
-    @NotNull(message = "金额不能为空")
+    @Schema(description = "核验金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "31742")
+    @NotNull(message = "核验金额不能为空")
     private Long price;
+
+    @Schema(description = "金额")
+    private Long receivedPrice;
 
     @Schema(description = "备注")
     private String mark;

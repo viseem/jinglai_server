@@ -40,10 +40,16 @@ public class ContractFundLog extends BaseEntity {
     private Long id;
 
     /**
-     * 金额
+     * 核验金额
      */
     @Column(name = "price", nullable = false )
     private Long price;
+
+    /*
+     * 实际金额
+     * */
+    @Column(name = "received_price", nullable = false )
+    private Long receivedPrice;
 
     /**
      * 备注
