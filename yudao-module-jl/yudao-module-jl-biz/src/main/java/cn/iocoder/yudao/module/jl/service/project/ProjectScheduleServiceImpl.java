@@ -57,11 +57,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
 
-    @Resource
-    private ProjectQuoteRepository projectQuoteRepository;
-
-    @Resource
-    private ProjectQuoteMapper projectQuoteMapper;
 
     @Resource
     private ProjectSopRepository projectSopRepository;
@@ -77,9 +72,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectSupplyRepository projectSupplyRepository;
-
-    @Resource
-    private ProcurementRepository procurementRepository;
 
     @Resource
     private ProjectReimburseRepository projectReimburseRepository;
@@ -104,6 +96,10 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
+
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     private final SalesleadRepository salesleadRepository;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
@@ -513,9 +509,28 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Override
     @Transactional
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
+
+        if(saveReq.getProjectCategoryType()!=null){
+            ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(saveReq.getProjectCategoryType(), saveReq.getProjectId(), saveReq.getScheduleId());
+
+            saveReq.getSupplyList().forEach(supply -> {
+                supply.setProjectCategoryId(projectCategory.getId());
+                supply.setProjectId(saveReq.getProjectId());
+                supply.setScheduleId(saveReq.getScheduleId());
+            });
+
+            saveReq.getChargeList().forEach(charge -> {
+                charge.setProjectCategoryId(projectCategory.getId());
+                charge.setProjectId(saveReq.getProjectId());
+                charge.setScheduleId(saveReq.getScheduleId());
+            });
+        }
+
         //批量保存saveReq中的supplyList
        projectSupplyRepository.saveAll(saveReq.getSupplyList());
        projectChargeitemRepository.saveAll(saveReq.getChargeList());
+
+
 
        // 更新报价金额
        accountSalesleadQuotation(saveReq.getScheduleId(),saveReq.getProjectId());

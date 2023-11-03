@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
-import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
@@ -12,7 +11,6 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,6 +52,9 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     @Resource
     private ProjectScheduleServiceImpl projectScheduleService;
 
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     @Override
     @Transactional
     public Long createProjectSupply(ProjectSupplyCreateReqVO createReqVO) {
@@ -61,34 +62,8 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        if (createReqVO.getProjectCategoryType().equals("account")||createReqVO.getProjectCategoryType().equals("only")){
-            ProjectCategory byProjectIdAndType = null;
-            String  projectCategoryName = "出库增减项";
-
-            if(createReqVO.getProjectCategoryType().equals("account")){
-                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
-            }
-
-            if(createReqVO.getProjectCategoryType().equals("only")){
-                projectCategoryName = "独立报价";
-                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndScheduleIdAndType(createReqVO.getProjectId(),createReqVO.getScheduleId(), createReqVO.getProjectCategoryType());
-            }
-
-            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
-            if(byProjectIdAndType!=null){
-                projectSupply.setProjectCategoryId(byProjectIdAndType.getId());
-            }else{
-                ProjectCategory projectCategory = new ProjectCategory();
-                projectCategory.setProjectId(createReqVO.getProjectId());
-                projectCategory.setScheduleId(createReqVO.getScheduleId());
-                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
-                projectCategory.setType(createReqVO.getProjectCategoryType());
-                projectCategory.setLabId(-2L);
-                projectCategory.setName(projectCategoryName);
-                ProjectCategory save = projectCategoryRepository.save(projectCategory);
-                projectSupply.setProjectCategoryId(save.getId());
-            }
-        }
+        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getScheduleId());
+        projectSupply.setProjectCategoryId(projectCategory.getId());
         projectSupplyRepository.save(projectSupply);
 
         //更新报价金额
@@ -97,6 +72,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 返回
         return projectSupply.getId();
     }
+
 
     @Override
     @Transactional

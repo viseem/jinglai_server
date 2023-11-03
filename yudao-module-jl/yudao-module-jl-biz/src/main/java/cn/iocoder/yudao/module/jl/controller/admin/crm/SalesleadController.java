@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +49,9 @@ public class SalesleadController {
     private CustomerService customerService;
 
     @Resource
+    private SalesleadRepository salesleadRepository;
+
+    @Resource
     private SalesleadMapper salesleadMapper;
 
 //    @PostMapping("/create")
@@ -66,6 +70,14 @@ public class SalesleadController {
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> updateSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
         salesleadService.updateSaleslead(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-manager")
+    @Operation(summary = "商机报价转给别人")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> updateSalesleadManager(@Valid @RequestBody SalesleadUpdateManagerVO updateReqVO) {
+        salesleadRepository.updateManagerIdById(updateReqVO.getManagerId(), updateReqVO.getId());
         return success(true);
     }
 

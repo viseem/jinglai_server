@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.repository.project.*;
@@ -149,6 +150,40 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectCategoryAttachmentRepository.deleteByProjectCategoryId(id);
         // 删除
         projectCategoryRepository.deleteById(id);
+    }
+
+    public ProjectCategory processQuotationProjectCategory(String categoryType,Long projectId,Long scheduleId) {
+        if (categoryType.equals("account")|| categoryType.equals("only")){
+            ProjectCategory byProjectIdAndType = null;
+            String  projectCategoryName = "出库增减项";
+
+            if(categoryType.equals("account")){
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(projectId, categoryType);
+            }
+
+            if(categoryType.equals("only")){
+                projectCategoryName = "独立报价";
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndScheduleIdAndType(projectId,scheduleId, categoryType);
+            }
+
+            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
+            if(byProjectIdAndType!=null){
+                return byProjectIdAndType;
+            }else{
+                ProjectCategory projectCategory = new ProjectCategory();
+                projectCategory.setProjectId(projectId);
+                projectCategory.setScheduleId(scheduleId);
+                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
+                projectCategory.setType(categoryType);
+                projectCategory.setLabId(-2L);
+                projectCategory.setName(projectCategoryName);
+                ProjectCategory save = projectCategoryRepository.save(projectCategory);
+                return save;
+            }
+        }else{
+            throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+        }
+
     }
 
     @Override

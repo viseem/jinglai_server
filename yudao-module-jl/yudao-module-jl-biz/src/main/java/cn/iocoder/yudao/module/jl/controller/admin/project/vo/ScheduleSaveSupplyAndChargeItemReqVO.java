@@ -21,6 +21,8 @@ public class ScheduleSaveSupplyAndChargeItemReqVO {
     @NotNull(message = "项目id不能为空")
     private Long projectId;
 
+    private String projectCategoryType;
+
     @Schema(description = "收费项", example = "[]")
     private List<ProjectChargeitem> chargeList;
 

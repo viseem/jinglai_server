@@ -12,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.managerId = ?1 where s.id = ?2")
+    int updateManagerIdById(Long managerId, Long id);
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.status = ?1 where s.projectId = ?2")
     int updateStatusByProjectId(Integer status, Long projectId);
     @Query("select count(s) from Saleslead s where s.managerId = ?1 and s.status = ?2")
