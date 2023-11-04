@@ -61,13 +61,12 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         ProjectChargeitem projectChargeitem = projectChargeitemMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getScheduleId());
+        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
         projectChargeitem.setProjectCategoryId(projectCategory.getId());
 
         projectChargeitemRepository.save(projectChargeitem);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(createReqVO.getScheduleId(),createReqVO.getProjectId());
 
         // 返回
         return projectChargeitem.getId();
@@ -86,7 +85,6 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         projectChargeitemRepository.save(updateObj);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
     }
 
     @Override
@@ -98,7 +96,6 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         projectChargeitemRepository.deleteById(id);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(projectChargeitem.getScheduleId(),projectChargeitem.getProjectId());
     }
 
     private ProjectChargeitem validateProjectChargeitemExists(Long id) {

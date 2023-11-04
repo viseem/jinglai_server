@@ -30,6 +30,7 @@ public class ProjectSupplyBaseVO {
     private Long projectId;
 
     private Long scheduleId;
+    private Long quotationId;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "名称不能为空")

@@ -69,6 +69,9 @@ public interface ProjectService {
      */
     PageResult<ProjectSimple> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
 
+    ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO);
+
+
     /**
      * 获得项目管理分页
      *

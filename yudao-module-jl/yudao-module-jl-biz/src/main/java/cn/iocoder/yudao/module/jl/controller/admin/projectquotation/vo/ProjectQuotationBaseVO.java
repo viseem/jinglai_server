@@ -14,8 +14,7 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectQuotationBaseVO {
 
-    @Schema(description = "版本号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "版本号不能为空")
+    @Schema(description = "版本号")
     private String code;
 
     @Schema(description = "备注")
@@ -28,8 +27,7 @@ public class ProjectQuotationBaseVO {
     @NotNull(message = "项目id不能为空")
     private Long projectId;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "22455")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
 }

@@ -3,8 +3,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSchedule;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
@@ -36,7 +35,6 @@ import javax.persistence.criteria.Predicate;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
@@ -89,10 +87,14 @@ public class ProjectServiceImpl implements ProjectService {
 
     public ProjectServiceImpl(UserRepository userRepository,
                               ProjectConstractRepository projectConstractRepository,
-                              ProjectCategoryRepository projectCategoryRepository) {
+                              ProjectCategoryRepository projectCategoryRepository,
+                              ProjectSupplyRepository projectSupplyRepository,
+                              ProjectChargeitemRepository projectChargeitemRepository) {
         this.userRepository = userRepository;
         this.projectConstractRepository = projectConstractRepository;
         this.projectCategoryRepository = projectCategoryRepository;
+        this.projectSupplyRepository = projectSupplyRepository;
+        this.projectChargeitemRepository = projectChargeitemRepository;
     }
 
 
@@ -108,6 +110,8 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final ProjectConstractRepository projectConstractRepository;
     private final ProjectCategoryRepository projectCategoryRepository;
+    private final ProjectSupplyRepository projectSupplyRepository;
+    private final ProjectChargeitemRepository projectChargeitemRepository;
 
 
     @Override
@@ -140,7 +144,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void projectOutboundApply(ProjectOutboundApplyReqVO outboundApplyReqVO){
         // 校验存在
-        Project project = validateProjectExists(outboundApplyReqVO.getProjectId());
+        ProjectSimple project = validateProjectExists(outboundApplyReqVO.getProjectId());
 
         //加入审批流
         Map<String, Object> processInstanceVariables = new HashMap<>();
@@ -159,7 +163,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
-        Project project = validateProjectExists(updateReqVO.getId());
+        ProjectSimple project = validateProjectExists(updateReqVO.getId());
 /*        if(project.getCode()==null|| project.getCode().equals("")){
             updateReqVO.setCode(generateCode());
         }*/
@@ -190,8 +194,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.deleteById(id);
     }
 
-    public Project validateProjectExists(Long id) {
-        Optional<Project> byId = projectRepository.findById(id);
+    public ProjectSimple validateProjectExists(Long id) {
+        Optional<ProjectSimple> byId = projectSimpleRepository.findById(id);
         if(byId.isEmpty()){
             throw exception(PROJECT_NOT_EXISTS);
         }
@@ -273,6 +277,16 @@ public class ProjectServiceImpl implements ProjectService {
         respVO.setCountMap(map);
 
         //赋值给resp的map
+        return respVO;
+    }
+
+    @Override
+    public ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO){
+        ProjectSupplyAndChargeRespVO respVO = new ProjectSupplyAndChargeRespVO();
+        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(reqVO.getQuotationId());
+        respVO.setSupplyList(byQuotationId);
+        List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(reqVO.getQuotationId());
+        respVO.setChargeList(byQuotationId1);
         return respVO;
     }
 

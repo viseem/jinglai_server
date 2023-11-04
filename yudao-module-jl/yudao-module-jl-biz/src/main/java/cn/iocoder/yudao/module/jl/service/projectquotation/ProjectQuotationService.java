@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.service.projectquotation;
 
 import java.util.*;
 import javax.validation.*;
+
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -26,6 +28,21 @@ public interface ProjectQuotationService {
      * @param updateReqVO 更新信息
      */
     void updateProjectQuotation(@Valid ProjectQuotationUpdateReqVO updateReqVO);
+
+    /**
+     * 更新项目报价
+     *
+     * @param updateReqVO 更新信息
+     */
+    void saveProjectQuotation(@Valid ProjectQuotationSaveReqVO updateReqVO);
+
+    /**
+     * 更新项目报价
+     *
+     * @param updateReqVO 更新信息
+     */
+    Long updateProjectQuotationPlan(@Valid ProjectQuotationUpdatePlanReqVO updateReqVO);
+
 
     /**
      * 删除项目报价

@@ -70,11 +70,11 @@ public class ProjectCategorySimple extends BaseEntity {
     @Column(name = "schedule_id")
     private Long scheduleId;
 
-/*    @ManyToOne
-    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectSchedule schedule;*/
+    /**
+     * 安排单 id
+     */
+    @Column(name = "quotation_id")
+    private Long quotationId;
 
     /**
      * 类型，报价/安排单
@@ -196,55 +196,6 @@ public class ProjectCategorySimple extends BaseEntity {
     @Column(name = "has_feedback", nullable = false)
     private Byte hasFeedback;
 
-/*    @ManyToOne
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    @JoinColumn(name = "quote_id", insertable = false, updatable = false)
-    private ProjectQuote quote;*/
-
-    /**
-     * 实验物资
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    private List<ProjectSupply> supplyList;
-
-    /**
-     * 实验收费项
-     */
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.JOIN)
-    @JsonManagedReference
-    private List<ProjectChargeitem> chargeList;
-
-    /**
-     * 实验SOP
-     */
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectSop> sopList = new ArrayList<>();
-
-    /**
-     * 实验名目的附件
-     */
-/*    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryAttachment> attachmentList;*/
-
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @OrderBy("createTime desc")
-    private List<ProjectCategoryApproval> approvalList = new ArrayList<>();
 
     //审批的状态 通过 未通过
     @Column(name = "approval_stage")
@@ -256,23 +207,4 @@ public class ProjectCategorySimple extends BaseEntity {
     @Transient
     private ProjectCategoryApproval latestApproval;
 
-    //实验记录
-    /**
-     * 查询实验记录列表
-     */
-/*    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryLog> logs;*/
-
-    /*
-    * 依赖项
-    * */
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "task_id", insertable = false, updatable = false)
-    @Where(clause = "level = 2")
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<TaskRelationOnly> relations = new ArrayList<>();
 }

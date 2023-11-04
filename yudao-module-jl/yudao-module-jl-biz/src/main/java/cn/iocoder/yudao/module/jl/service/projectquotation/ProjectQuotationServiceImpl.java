@@ -1,7 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.projectquotation;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ScheduleSaveSupplyAndChargeItemReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,6 +51,20 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     @Resource
     private ProjectQuotationMapper projectQuotationMapper;
 
+    @Resource
+    private ProjectScheduleServiceImpl projectScheduleService;
+
+    @Resource
+    private ProjectServiceImpl projectService;
+
+    @Resource
+    private ProjectRepository projectRepository;
+
+    @Resource
+    private ProjectSupplyRepository projectSupplyRepository;
+    @Resource
+    private ProjectChargeitemRepository projectChargeitemRepository;
+
     @Override
     public Long createProjectQuotation(ProjectQuotationCreateReqVO createReqVO) {
         // 插入
@@ -60,9 +84,60 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
+    @Transactional
+    public void saveProjectQuotation(ProjectQuotationSaveReqVO updateReqVO) {
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
+        updateReqVO.setCustomerId(projectSimple.getCustomerId());
+
+        if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
+            updateReqVO.setCode("默认");
+        }
+        ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
+        ProjectQuotation save = projectQuotationRepository.save(updateObj);
+
+        // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
+        if(projectSimple.getCurrentQuotationId()!=null || updateReqVO.getId()!=null){
+            projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
+        }
+
+        ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
+        saveReqVO.setProjectId(save.getProjectId());
+        saveReqVO.setSupplyList(updateReqVO.getSupplyList());
+        saveReqVO.setChargeList(updateReqVO.getChargeList());
+        saveReqVO.setProjectCategoryType("only");
+        saveReqVO.setProjectQuotationId(save.getId());
+        projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
+
+
+    }
+
+    @Override
+    public Long updateProjectQuotationPlan(ProjectQuotationUpdatePlanReqVO updateReqVO){
+        if(updateReqVO.getId()==null){
+            // 校验存在
+            ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
+            updateReqVO.setCustomerId(projectSimple.getCustomerId());
+            ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
+            ProjectQuotation save = projectQuotationRepository.save(updateObj);
+            updateReqVO.setId(save.getId());
+        }
+        projectQuotationRepository.updatePlanTextById(updateReqVO.getPlanText(), updateReqVO.getId());
+
+        return updateReqVO.getId();
+    }
+
+    @Override
+    @Transactional
     public void deleteProjectQuotation(Long id) {
         // 校验存在
         validateProjectQuotationExists(id);
+
+        //删除supply
+        projectSupplyRepository.deleteByQuotationId(id);
+        //删除chargeitem
+        projectChargeitemRepository.deleteByQuotationId(id);
+
         // 删除
         projectQuotationRepository.deleteById(id);
     }

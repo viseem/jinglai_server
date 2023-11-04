@@ -14,6 +14,10 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Transactional
+    @Modifying
+    @Query("update Project p set p.currentQuotationId = ?1 where p.id = ?2")
+    int updateCurrentQuotationIdById(Long currentQuotationId, Long id);
     @Query("select p from Project p where p.code is not null")
     List<Project> findByCodeNotNull();
     @Transactional

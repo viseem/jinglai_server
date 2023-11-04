@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
@@ -64,11 +65,11 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "schedule_id")
     private Long scheduleId;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectSchedule schedule;
+    /**
+     * 报价 id
+     */
+    @Column(name = "quotation_id")
+    private Long quotationId;
 
     /**
      * 类型，报价/安排单
@@ -113,14 +114,6 @@ public class ProjectCategory extends BaseEntity {
      */
     @Column(name = "operator_ids")
     private String operatorIds;
-
-    /**
-     * JPA 级联出 user 实验负责人
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User operator;
 
     /**
      * 客户需求
@@ -197,6 +190,14 @@ public class ProjectCategory extends BaseEntity {
     private ProjectQuote quote;
 
     /**
+     * JPA 级联出 user 实验负责人
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User operator;
+
+    /**
      * 实验物资
      */
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
@@ -232,15 +233,6 @@ public class ProjectCategory extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryAttachment> attachmentList;
 
-    /**
-     * 查询款项列表
-     */
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @OrderBy("createTime desc")
-    private List<ProjectCategoryApproval> approvalList = new ArrayList<>();
 
     //审批的状态 通过 未通过
     @Column(name = "approval_stage")
@@ -262,16 +254,14 @@ public class ProjectCategory extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryLog> logs;
 
+
     /*
     * 依赖项
     * */
-    /**
-     * 查询款项列表
-     */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<TaskRelationOnly> relations = new ArrayList<>();
+    private List<TaskRelationOnly> relations = new ArrayList<>();*/
 }

@@ -13,4 +13,6 @@ public class ProjectSupplyCreateReqVO extends ProjectSupplyBaseVO {
 
     @Schema(description = "category类型不能为空", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private String projectCategoryType;
+
+    private Long projectQuotationId;
 }

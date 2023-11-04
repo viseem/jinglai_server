@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectReimburse;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +45,10 @@ public class ProjectQuotationController {
     @Resource
     private ProjectQuotationMapper projectQuotationMapper;
 
+    @Resource
+    private ProjectRepository projectRepository;
+
+
     @PostMapping("/create")
     @Operation(summary = "创建项目报价")
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:create')")
@@ -55,6 +62,30 @@ public class ProjectQuotationController {
     public CommonResult<Boolean> updateProjectQuotation(@Valid @RequestBody ProjectQuotationUpdateReqVO updateReqVO) {
         projectQuotationService.updateProjectQuotation(updateReqVO);
         return success(true);
+    }
+
+    @PutMapping("/update-version")
+    @Operation(summary = "更新项目报价")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Boolean> updateProjectQuotationVersion(@Valid @RequestBody ProjectQuotationUpdateReqVO updateReqVO) {
+        projectRepository.updateCurrentQuotationIdById(updateReqVO.getId(),updateReqVO.getProjectId());
+        return success(true);
+    }
+
+    @PutMapping("/save")
+    @Operation(summary = "这个是保存、存为新版本按钮")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Boolean> saveProjectQuotation(@Valid @RequestBody ProjectQuotationSaveReqVO updateReqVO) {
+        projectQuotationService.saveProjectQuotation(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/save-plan")
+    @Operation(summary = "专门保存方案")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Long> saveProjectQuotationPlan(@Valid @RequestBody ProjectQuotationUpdatePlanReqVO updateReqVO) {
+        projectQuotationService.updateProjectQuotationPlan(updateReqVO);
+        return success(updateReqVO.getId());
     }
 
     @DeleteMapping("/delete")

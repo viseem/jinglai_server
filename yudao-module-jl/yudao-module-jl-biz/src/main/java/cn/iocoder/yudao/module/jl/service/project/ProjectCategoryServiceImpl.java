@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -152,18 +153,18 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectCategoryRepository.deleteById(id);
     }
 
-    public ProjectCategory processQuotationProjectCategory(String categoryType,Long projectId,Long scheduleId) {
+    public ProjectCategory processQuotationProjectCategory(String categoryType,Long projectId,Long quotationId){
         if (categoryType.equals("account")|| categoryType.equals("only")){
             ProjectCategory byProjectIdAndType = null;
             String  projectCategoryName = "出库增减项";
 
             if(categoryType.equals("account")){
-                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(projectId, categoryType);
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndQuotationIdAndType(projectId,quotationId, categoryType);
             }
 
             if(categoryType.equals("only")){
                 projectCategoryName = "独立报价";
-                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndScheduleIdAndType(projectId,scheduleId, categoryType);
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndQuotationIdAndType(projectId,quotationId, categoryType);
             }
 
             //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
@@ -172,7 +173,6 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }else{
                 ProjectCategory projectCategory = new ProjectCategory();
                 projectCategory.setProjectId(projectId);
-                projectCategory.setScheduleId(scheduleId);
                 projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
                 projectCategory.setType(categoryType);
                 projectCategory.setLabId(-2L);
@@ -256,7 +256,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
-    public PageResult<ProjectCategorySimple> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
+    public PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -264,7 +264,44 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategorySimple> spec = (root, query, cb) -> {
+        Specification<ProjectCategory> spec = getProjectCategorySimpleSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
+//        List<ProjectCategory> content = page.getContent();
+
+/*        if(content!=null&&content.size()>0){
+            content.forEach(this::processProjectCategoryItem);
+        }*/
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProjectCategorySimple> getProjectCategoryPageSimple(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProjectCategorySimple> spec = getProjectCategorySimpleSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
+//        List<ProjectCategorySimple> content = page.getContent();
+
+/*        if(content!=null&&content.size()>0){
+            content.forEach(this::processProjectCategorySimpleItem);
+        }*/
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private static <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
 
@@ -277,16 +314,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             // 直接写死，是1的时候去查一下1 别的都不进行处理
-            if(pageReqVO.getHasFeedback()!=null&&pageReqVO.getHasFeedback()==1) {
+            if(pageReqVO.getHasFeedback()!=null&& pageReqVO.getHasFeedback()==1) {
                 predicates.add(cb.equal(root.get("hasFeedback"), 1));
             }
             if(pageReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
             }
-
-            if(pageReqVO.getQuoteId() != null) {
-                predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
             }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -295,8 +332,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             //TODO all换成enum
-            System.out.println("-------------"+pageReqVO.getTypes());
-            if(pageReqVO.getTypes()!=null&&pageReqVO.getTypes().size()>0){
+            System.out.println("-------------"+ pageReqVO.getTypes());
+            if(pageReqVO.getTypes()!=null&& pageReqVO.getTypes().size()>0){
                 predicates.add(root.get("type").in(pageReqVO.getTypes()));
             }else{
                 if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
@@ -341,34 +378,25 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
-        List<ProjectCategorySimple> content = page.getContent();
-
-        if(content!=null&&content.size()>0){
-            content.forEach(this::processProjectCategorySimpleItem);
-        }
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     private void processProjectCategoryItem(ProjectCategory projectCategory) {
-        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+/*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
         if (!approvalList.isEmpty()) {
             Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
             projectCategory.setLatestApproval(latestApproval.orElse(null));
-        }
+        }*/
     }
 
     private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
-        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+/*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
         if (!approvalList.isEmpty()) {
             Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
             projectCategory.setLatestApproval(latestApproval.orElse(null));
-        }
+        }*/
     }
 
     @Override
@@ -440,10 +468,6 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
-        }
-
-        if (order.getQuoteId() != null) {
-            orders.add(new Sort.Order(order.getQuoteId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "quoteId"));
         }
 
         if (order.getScheduleId() != null) {

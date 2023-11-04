@@ -28,10 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 
@@ -294,11 +291,11 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      * @return
      */
     @Override
-    public Long getSupplyQuotationByProjectId(Long id) {
+    public Long getSupplyQuotationByQuotationId(Long id) {
         long cost = 0L;
 
         // 计算物资的成本
-        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByProjectId(id);
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByQuotationId(id);
         for (ProjectSupply projectSupply : projectSupplyList) {
             if (projectSupply.getUnitFee() != null) {
                 cost += projectSupply.getUnitFee().longValue() * projectSupply.getQuantity();
@@ -313,11 +310,11 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      * @return
      */
     @Override
-    public Long getChargeItemQuotationByProjectId(Long id) {
+    public Long getChargeItemQuotationByQuotationId(Long id) {
         long cost = 0;
 
         // 计算收费项的成本
-        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByProjectId(id);
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
         for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
             if (projectChargeitem.getUnitFee() != null) {
                 cost += projectChargeitem.getUnitFee().longValue() * projectChargeitem.getQuantity();
@@ -511,18 +508,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
 
         if(saveReq.getProjectCategoryType()!=null){
-            ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(saveReq.getProjectCategoryType(), saveReq.getProjectId(), saveReq.getScheduleId());
-
+//            ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(saveReq.getProjectCategoryType(), saveReq.getProjectId(), saveReq.getProjectQuotationId());
+          /*  if(saveReq.getProjectQuotationId()!=null){
+                projectCategoryRepository.updateQuotationIdById(saveReq.getProjectQuotationId(),projectCategory.getId());
+            }*/
             saveReq.getSupplyList().forEach(supply -> {
-                supply.setProjectCategoryId(projectCategory.getId());
                 supply.setProjectId(saveReq.getProjectId());
-                supply.setScheduleId(saveReq.getScheduleId());
+                supply.setQuotationId(saveReq.getProjectQuotationId());
             });
 
             saveReq.getChargeList().forEach(charge -> {
-                charge.setProjectCategoryId(projectCategory.getId());
                 charge.setProjectId(saveReq.getProjectId());
-                charge.setScheduleId(saveReq.getScheduleId());
+                charge.setQuotationId(saveReq.getProjectQuotationId());
             });
         }
 
@@ -533,7 +530,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
 
        // 更新报价金额
-       accountSalesleadQuotation(saveReq.getScheduleId(),saveReq.getProjectId());
+//       accountSalesleadQuotation(saveReq.getProjectId());
 
     }
 
@@ -541,7 +538,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO){
         salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
-        accountSalesleadQuotation(updateReqVO.getScheduleId(),updateReqVO.getProjectId());
+        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
         return null;
     }
 
@@ -627,18 +624,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         //TODO 改为enum
 
         if(category.getType()!=null&&category.getType().equals("quotation")){
-            accountSalesleadQuotation(save.getScheduleId(),save.getProjectId());
+//            accountSalesleadQuotation(save.getProjectId());
         }
 
         // 修改报价金额
-        accountSalesleadQuotation(save.getScheduleId(),save.getProjectId());
+//        accountSalesleadQuotation(save.getProjectId());
         return save.getId();
     }
 
-    public void accountSalesleadQuotation(Long scheduleId,Long projectId) {
+    public void accountSalesleadQuotation(Long projectId,Long quotationId) {
         //核算对应项目的商机的公司报价总价
-        Long supplyQuotation = getSupplyQuotationByScheduleId(scheduleId);
-        Long chargeQuotation = getChargeItemQuotationByScheduleId(scheduleId);
+        Long supplyQuotation = getSupplyQuotationByQuotationId(quotationId);
+        Long chargeQuotation = getChargeItemQuotationByQuotationId(quotationId);
 
         salesleadRepository.updateQuotationByProjectId(projectId,supplyQuotation+chargeQuotation);
     }

@@ -138,8 +138,8 @@ public class JLAppUserController {
 
     @PostMapping("/project-category-page")
     @Operation(summary = "客户 项目列表")
-    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid @RequestBody ProjectCategoryPageReqVO pageVO, @Valid @RequestBody ProjectCategoryPageOrder orderV0) {
-        PageResult<ProjectCategorySimple> projectCategoryPage = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+    public CommonResult<PageResult<ProjectCategory>> getProjectCategoryPage(@Valid @RequestBody ProjectCategoryPageReqVO pageVO, @Valid @RequestBody ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategory> projectCategoryPage = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
         return success(projectCategoryPage);
     }
 
@@ -215,7 +215,7 @@ public class JLAppUserController {
     @Operation(summary = "客户 发起反馈")
     public CommonResult<Long> getFeedbackPage(@Valid @RequestBody AppProjectFeedbackBaseVO reqVO) {
         Long loginUserId = validLoginUser();
-        Project project = projectService.validateProjectExists(reqVO.getProjectId());
+        ProjectSimple project = projectService.validateProjectExists(reqVO.getProjectId());
         ProjectFeedbackCreateReqVO createReqVO = new ProjectFeedbackCreateReqVO();
         BeanUtils.copyProperties(reqVO,createReqVO);
         createReqVO.setCustomerId(loginUserId);

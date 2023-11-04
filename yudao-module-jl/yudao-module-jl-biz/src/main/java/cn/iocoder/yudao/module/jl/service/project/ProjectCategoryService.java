@@ -75,7 +75,15 @@ public interface ProjectCategoryService {
      * @param pageReqVO 分页查询
      * @return 项目的实验名目分页
      */
-    PageResult<ProjectCategorySimple> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0);
+    PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0);
+
+    /**
+     * 获得项目的实验名目分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目的实验名目分页
+     */
+    PageResult<ProjectCategorySimple> getProjectCategoryPageSimple(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0);
 
     /**
      * 获得项目的实验名目列表, 用于 Excel 导出

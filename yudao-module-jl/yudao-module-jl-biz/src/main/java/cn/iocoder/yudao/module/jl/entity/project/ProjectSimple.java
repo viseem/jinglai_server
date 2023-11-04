@@ -124,7 +124,11 @@ public class ProjectSimple extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private CustomerOnly customer;
-
+    /**
+     * 当前安排单 id
+     */
+    @Column(name = "current_quotation_id")
+    private Long currentQuotationId;
 
     /**
      * 当前安排单 id

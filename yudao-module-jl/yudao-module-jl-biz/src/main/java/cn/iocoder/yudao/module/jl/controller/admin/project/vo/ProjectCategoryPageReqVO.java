@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,13 +22,12 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
-    @Schema(description = "报价 id", example = "20286")
-    private Long quoteId;
-
     @Schema(description = "项目 id", example = "14245")
     private Long projectId;
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
+    @Schema(description = "报价id", example = "14245")
+    private Long quotationId;
 
     @Schema(description = "类型，报价/安排单", example = "1")
     private String type = "schedule";
@@ -69,4 +69,5 @@ public class ProjectCategoryPageReqVO extends PageParam {
 
     private String approvalStage;
     private String requestStage;
+
 }

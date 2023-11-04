@@ -114,8 +114,16 @@ public class ProjectCategoryController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目的实验名目列表")
     @PreAuthorize("@ss.hasPermission('jl:project-category:query')")
-    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
-        PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+    public CommonResult<PageResult<ProjectCategory>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategory> pageResult = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+        return success(pageResult);
+    }
+
+    @GetMapping("/page-simple")
+    @Operation(summary = "(分页)获得项目的实验名目列表")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:query')")
+    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPageSimple(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
         return success(pageResult);
     }
 

@@ -145,6 +145,14 @@ public class ProjectController {
         return success(pageResult);
     }
 
+    @GetMapping("/supply-and-charge")
+    @Operation(summary = "项目物资")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectSupplyAndChargeRespVO> getProjectPage(@Valid ProjectSupplyAndChargeReqVO pageVO) {
+        ProjectSupplyAndChargeRespVO projectSupplyAndCharge = projectService.getProjectSupplyAndCharge(pageVO);
+        return success(projectSupplyAndCharge);
+    }
+
     @GetMapping("/simple-page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")

@@ -70,7 +70,8 @@ public class ProjectChargeitem extends BaseEntity {
     private Long projectId;
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
-
+    @Column(name = "quotation_id", nullable = false)
+    private Long quotationId;
     @Column(name = "final_usage_num")
     private Integer finalUsageNum;
 

@@ -29,7 +29,7 @@ public class ProjectChargeitemBaseVO {
     private Integer isAppend;
 
     private Long projectId;
-
+    private Long quotationId;
     private Long scheduleId;
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名称不能为空")

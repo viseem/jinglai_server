@@ -62,12 +62,11 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getScheduleId());
+        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
         projectSupply.setProjectCategoryId(projectCategory.getId());
         projectSupplyRepository.save(projectSupply);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(createReqVO.getScheduleId(),createReqVO.getProjectId());
 
         // 返回
         return projectSupply.getId();
@@ -85,7 +84,6 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         projectSupplyRepository.save(updateObj);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(projectSupply.getScheduleId(),projectSupply.getProjectId());
     }
 
     @Override
@@ -97,7 +95,6 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         projectSupplyRepository.deleteById(id);
 
         //更新报价金额
-        projectScheduleService.accountSalesleadQuotation(projectSupply.getScheduleId(),projectSupply.getProjectId());
     }
 
     private ProjectSupply validateProjectSupplyExists(Long id) {

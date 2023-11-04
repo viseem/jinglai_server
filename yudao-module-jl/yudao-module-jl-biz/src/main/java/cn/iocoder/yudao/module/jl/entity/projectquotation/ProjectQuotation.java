@@ -7,6 +7,9 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -20,7 +23,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectQuotation")
 @Table(name = "jl_project_quotation")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@SQLDelete(sql = "UPDATE jl_project_quotation SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ProjectQuotation extends BaseEntity {
 
     /**
@@ -44,9 +48,9 @@ public class ProjectQuotation extends BaseEntity {
     private String mark;
 
     /**
-     * 方案
+     * 方案  不能通过update和save修改
      */
-    @Column(name = "plan_text")
+    @Column(name = "plan_text",insertable = false,updatable = false)
     private String planText;
 
     /**

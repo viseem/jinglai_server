@@ -161,6 +161,12 @@ public class Project extends BaseEntity {
     private Long currentScheduleId;
 
     /**
+     * 当前安排单 id
+     */
+    @Column(name = "current_quotation_id",insertable =false, updatable = false)
+    private Long currentQuotationId;
+
+    /**
      * 当前安排单
      */
     @ManyToOne(fetch = FetchType.EAGER)

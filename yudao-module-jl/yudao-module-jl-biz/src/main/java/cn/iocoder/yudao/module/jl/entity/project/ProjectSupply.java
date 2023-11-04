@@ -48,6 +48,8 @@ public class ProjectSupply extends BaseEntity {
 
     @Column(name = "project_id", nullable = false)
     private Long projectId;
+    @Column(name = "quotation_id", nullable = false)
+    private Long quotationId;
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
     //    TODO 很大的问题
