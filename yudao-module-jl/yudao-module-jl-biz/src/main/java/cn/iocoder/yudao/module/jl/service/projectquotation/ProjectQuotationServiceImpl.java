@@ -97,7 +97,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         ProjectQuotation save = projectQuotationRepository.save(updateObj);
 
         // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
-        if(projectSimple.getCurrentQuotationId()!=null || updateReqVO.getId()!=null){
+        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
             projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
         }
 
