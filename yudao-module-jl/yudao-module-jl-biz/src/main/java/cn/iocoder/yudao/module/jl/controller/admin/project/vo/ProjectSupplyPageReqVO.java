@@ -24,7 +24,7 @@ public class ProjectSupplyPageReqVO extends PageParam {
 
     private Long projectId;
 
-    private Long scheduleId;
+    private Long quotationId;
 
     @Schema(description = "原始的实验名目 id", example = "18163")
     private Long categoryId;

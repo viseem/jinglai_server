@@ -175,51 +175,32 @@ public class Project extends BaseEntity {
     private ProjectSchedule currentSchedule;
 
 
-/*    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_id")
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstract> constracts = new ArrayList<>();*/
-
-    /**
-     * 查询合同列表
-     */
-/*    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectConstractOnly> contracts = new ArrayList<>();*/
-
-    /**
-     * 查询款项列表
-     */
-/*    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFundLog> fundLogs = new ArrayList<>();*/
-
-    /*
-     * 查询审批列表
-     * */
-    //排序
-/*    @OrderBy("createTime desc")
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectApproval> approvals = new ArrayList<>();
-
-    @Transient
-    private ProjectApproval latestApproval;*/
-
- /*   @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Where(clause = "type = 'schedule'")
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    private List<ProjectCategoryOnly> categoryList;*/
-
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
+
+
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<ProjectConstractOnly> contractList = new ArrayList<>();
+
+    @Transient
+    private Integer completePercent;
+    @Transient
+    private Long completeCount;
+    @Transient
+    private Long allCount;
+    @Transient
+    private Long doingCount;
+    @Transient
+    private Long pauseCount;
+    @Transient
+    private Long waitDoCount;
 }

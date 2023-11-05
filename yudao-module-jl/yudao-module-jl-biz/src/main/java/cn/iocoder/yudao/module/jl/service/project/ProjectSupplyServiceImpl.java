@@ -130,6 +130,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         Specification<ProjectSupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
+            }
+
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
@@ -154,9 +158,6 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
             }
 
-            if(pageReqVO.getScheduleId() != null) {
-                predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
-            }
 
             if(pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));

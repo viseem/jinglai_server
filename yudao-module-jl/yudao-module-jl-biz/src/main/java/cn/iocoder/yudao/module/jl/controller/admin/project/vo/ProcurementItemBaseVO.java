@@ -68,6 +68,9 @@ public class ProcurementItemBaseVO {
     @Schema(description = "品牌")
     private String brand;
 
+    @Schema(description = "货号")
+    private String productCode;
+
     @Schema(description = "目录号")
     private String catalogNumber;
 

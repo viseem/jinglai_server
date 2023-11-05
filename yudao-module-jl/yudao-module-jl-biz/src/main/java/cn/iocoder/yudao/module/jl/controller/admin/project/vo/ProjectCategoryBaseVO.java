@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -73,7 +74,7 @@ public class ProjectCategoryBaseVO {
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */
     @Schema(description = "当前实验的状态")
-    private String stage = "0";
+    private String stage = ProjectCategoryStatusEnums.WAIT_DO.getStatus();
 
     /**
      * 原始数据富文本

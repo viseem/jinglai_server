@@ -67,7 +67,7 @@ public interface ProjectService {
      * @param pageReqVO 分页查询
      * @return 项目管理分页
      */
-    PageResult<ProjectSimple> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+    PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
 
     ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO);
 

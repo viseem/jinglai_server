@@ -125,6 +125,12 @@ public class ProcurementItem extends BaseEntity {
     private String brand;
 
     /**
+     * 货号
+     */
+    @Column(name = "product_code")
+    private String productCode;
+
+    /**
      * 目录号
      */
     @Column(name = "catalog_number")

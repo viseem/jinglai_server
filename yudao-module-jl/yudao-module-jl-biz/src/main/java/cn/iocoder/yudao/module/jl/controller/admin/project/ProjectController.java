@@ -140,8 +140,8 @@ public class ProjectController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
-    public CommonResult<PageResult<ProjectSimple>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
-        PageResult<ProjectSimple> pageResult = projectService.getProjectPage(pageVO, orderV0);
+    public CommonResult<PageResult<Project>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+        PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
         return success(pageResult);
     }
 

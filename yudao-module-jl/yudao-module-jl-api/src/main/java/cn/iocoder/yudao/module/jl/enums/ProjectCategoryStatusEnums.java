@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ProjectCategoryStatusEnums implements StringArrayValuable {
-
+    WAIT_DO("0", "待开展"),
     DOING("DOING", "开始实验"),
     DATA_CHECK("DATA_CHECK", "数据审核"),
     PAUSE("PAUSE", "暂停"),

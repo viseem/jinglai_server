@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonReposito
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -291,7 +292,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public PageResult<ProjectSimple> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+    public PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
 
         Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         pageReqVO.setManagers(users);
@@ -303,7 +304,19 @@ public class ProjectServiceImpl implements ProjectService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectSimple> spec = (root, query, cb) -> {
+        Specification<Project> spec = getProjectCommonSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Project> page = projectRepository.findAll(spec, pageable);
+        page.forEach(this::processProjectItem);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private static <T>Specification<T> getProjectCommonSpecification(ProjectPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getAttribute()!=null){
@@ -343,10 +356,10 @@ public class ProjectServiceImpl implements ProjectService {
 
             if(pageReqVO.getStartDate() != null) {
                 predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
-            } 
+            }
             if(pageReqVO.getEndDate() != null) {
                 predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
-            } 
+            }
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
             }
@@ -373,13 +386,7 @@ public class ProjectServiceImpl implements ProjectService {
             }*/
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
-        page.forEach(this::processProjectSimpleItem);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     @Override
@@ -455,7 +462,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 执行查询
         Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
-        page.forEach(this::processProjectSimpleItem);
+//        page.forEach(this::processProjectSimpleItem);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -474,7 +481,31 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
     }
+    private void processProjectItem(Project project) {
+        long completeCount = projectCategoryRepository.countByProjectIdAndStageAndType(
+                project.getId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()
+        );
+        long waitDoCount = projectCategoryRepository.countByProjectIdAndStageAndType(
+                project.getId(), ProjectCategoryStatusEnums.WAIT_DO.getStatus()
+        );
+        long pauseCount = projectCategoryRepository.countByProjectIdAndStageAndType(
+                project.getId(), ProjectCategoryStatusEnums.PAUSE.getStatus()
+        );
+        long doingCount = projectCategoryRepository.countByProjectIdAndStageAndType(
+                project.getId(), ProjectCategoryStatusEnums.DOING.getStatus()
+        );
+        long allCount = projectCategoryRepository.countByProjectIdAndType(project.getId());
+        project.setAllCount(allCount);
+        project.setCompleteCount(completeCount);
+        project.setDoingCount(doingCount);
+        project.setPauseCount(pauseCount);
+        project.setWaitDoCount(waitDoCount);
+        //计算百分比
+        if(allCount>0){
+            project.setCompletePercent((int) (completeCount*100/allCount));
+        }
 
+    }
 
     @Override
     public PageResult<ProjectSimple> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
@@ -489,76 +520,7 @@ public class ProjectServiceImpl implements ProjectService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectSimple> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            //默认查询code不为空的
-            predicates.add(cb.isNotNull(root.get("code")));
-
-            if(pageReqVO.getAttribute()!=null){
-                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
-            }
-
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
-            }
-
-            if(pageReqVO.getStageArr() != null&&pageReqVO.getStageArr().size()>0) {
-                predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
-            }
-
-            if(pageReqVO.getSalesleadId() != null) {
-                predicates.add(cb.equal(root.get("salesleadId"), pageReqVO.getSalesleadId()));
-            }
-
-            if(pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
-            }
-
-            if(pageReqVO.getStage() != null) {
-                predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
-            }
-
-            if(pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-            }
-
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
-
-            if(pageReqVO.getStartDate() != null) {
-                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
-            }
-            if(pageReqVO.getEndDate() != null) {
-                predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
-            }
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-            }
-
-            if(pageReqVO.getParticipants() != null) {
-                predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
-            }
-
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }
-
-            if(pageReqVO.getProcurementerId() != null) {
-                predicates.add(cb.equal(root.get("procurementerId"), pageReqVO.getProcurementerId()));
-            }
-            if(pageReqVO.getInventorierId() != null) {
-                predicates.add(cb.equal(root.get("inventorierId"), pageReqVO.getInventorierId()));
-            }
-            if(pageReqVO.getExperId() != null) {
-                predicates.add(cb.equal(root.get("experId"), pageReqVO.getExperId()));
-            }
-/*            if(pageReqVO.getExpersId() != null) {
-                predicates.add(cb.in(root.get("experIds"), pageReqVO.getExpersId()));
-            }*/
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<ProjectSimple> spec = getProjectCommonSpecification(pageReqVO);
 
         // 执行查询
         Page<ProjectSimple> page = projectSimpleRepository.findAll(spec, pageable);
@@ -568,11 +530,6 @@ public class ProjectServiceImpl implements ProjectService {
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
-    private void processProjectItem(Project project) {
-/*        if (project.getApprovals()!=null&&project.getApprovals().size()>0){
-            project.setLatestApproval(project.getApprovals().get(0));
-        }*/
-    }
 
     @Override
     public List<Project> getProjectList(ProjectExportReqVO exportReqVO) {
