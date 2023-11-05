@@ -41,7 +41,7 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同类型", example = "1")
     private String contractType;
 
-    @Schema(description = "合同金额", example = "30614")
+    @Schema(description = "合同金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long price;
 
     @Schema(description = "结算金额", example = "30614")
@@ -50,7 +50,7 @@ public class ProjectConstractBaseVO {
     @Schema(description = "签订销售人员", example = "32406")
     private Long salesId;
 
-    @Schema(description = "合同编号")
+    @Schema(description = "合同编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
     private String sn;
 
     @Schema(description = "合同文件名", example = "芋艿")

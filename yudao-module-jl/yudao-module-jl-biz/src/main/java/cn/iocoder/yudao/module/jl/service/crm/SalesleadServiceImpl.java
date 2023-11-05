@@ -159,7 +159,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Override
     @Transactional
-    public void saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
+    public Integer saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
         if(updateReqVO.getId() != null) {
             // 校验存在
@@ -239,10 +239,16 @@ public class SalesleadServiceImpl implements SalesleadService {
             // 遍历 updateReqVO.getProjectConstracts(), 创建合同
             System.out.println("---------"+updateReqVO.getType());
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
+
+                ProjectConstract bySn = projectConstractRepository.findBySn(updateReqVO.getContractSn());
+                if (bySn != null) {
+                    return 0;
+                }
+
                 ProjectConstract contract = new ProjectConstract();
                 contract.setProjectId(updateObj.getProjectId());
                 contract.setCustomerId(updateObj.getCustomerId());
-                contract.setSalesId(getLoginUserId()); // 线索的销售人员 id
+                contract.setSalesId(project.getSalesId()==null?getLoginUserId():project.getSalesId()); // 线索的销售人员 id
                 contract.setName(updateReqVO.getProjectName());
                 contract.setStampFileName(updateReqVO.getContractStampFileName());
                 contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());
@@ -269,7 +275,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
         //设置customer updateLastSalesleadIdById
         customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
-
+        return 1;
     }
 
     @Override

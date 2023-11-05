@@ -85,7 +85,10 @@ public class SalesleadController {
     @Operation(summary = "保存销售线索")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> saveSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
-        salesleadService.saveSaleslead(updateReqVO);
+        Integer i = salesleadService.saveSaleslead(updateReqVO);
+        if (i == 0) {
+            return success(true,"合同编号已存在");
+        }
         return success(true);
     }
 

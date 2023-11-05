@@ -32,7 +32,7 @@ public interface SalesleadService {
      *
      * @param updateReqVO 更新信息
      */
-    void saveSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
+    Integer saveSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
 
     SalesleadCountStatsRespVO getSalesleadCountStats();
 

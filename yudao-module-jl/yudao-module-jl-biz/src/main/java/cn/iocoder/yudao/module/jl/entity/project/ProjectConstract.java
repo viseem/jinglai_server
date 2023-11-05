@@ -36,7 +36,7 @@ public class ProjectConstract extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    @JoinColumn(name = "sales_id", insertable = false, updatable = false)
     private User sales;
 
     /**

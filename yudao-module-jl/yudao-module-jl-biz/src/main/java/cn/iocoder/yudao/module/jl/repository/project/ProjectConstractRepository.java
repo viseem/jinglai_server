@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectConstractRepository extends JpaRepository<ProjectConstract, Long>, JpaSpecificationExecutor<ProjectConstract> {
+    @Query("select p from ProjectConstract p where p.sn = ?1")
+    ProjectConstract findBySn(String sn);
     @Transactional
     @Modifying
     @Query("update ProjectConstract p set p.projectDocumentId = ?1 where p.id = ?2")

@@ -98,25 +98,30 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             throw  exception(PROJECT_NOT_EXISTS);
         }
 
+        ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
+        if (bySn!=null){
+            return 0L;
+        }
+
         // 插入
 //        createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
         if (projectConstract.getRealPrice()==null){
-            projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
+            projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()==null?0:projectConstract.getPrice()));
         }
         projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
 //        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
 //        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
 //        projectConstract.setStampFileName(createReqVO.getFileName());
         projectConstract.setCustomerId(byId.get().getCustomerId());
-        projectConstract.setSalesId(getLoginUserId());
+        projectConstract.setSalesId(byId.get().getSalesId());
         ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
 
         //projectDocument存一份
-        Long projectDocumentId = projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(), createReqVO.getFileName(), createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+//        Long projectDocumentId = projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(), createReqVO.getFileName(), createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
 
         //更新document id
-        projectConstractRepository.updateProjectDocumentIdById(projectDocumentId, projectContractSave.getId());
+//        projectConstractRepository.updateProjectDocumentIdById(projectDocumentId, projectContractSave.getId());
 
         // 返回
         return projectConstract.getId();

@@ -47,7 +47,11 @@ public class ProjectConstractController {
     @Operation(summary = "创建项目合同")
     @PreAuthorize("@ss.hasPermission('jl:project-constract:create')")
     public CommonResult<Long> createProjectConstract(@Valid @RequestBody ProjectConstractCreateReqVO createReqVO) {
-        return success(projectConstractService.createProjectConstract(createReqVO));
+        Long projectConstract = projectConstractService.createProjectConstract(createReqVO);
+        if (projectConstract == 0) {
+            return success(null,"合同编号已存在");
+        }
+        return success(projectConstract);
     }
 
     @PutMapping("/update")
