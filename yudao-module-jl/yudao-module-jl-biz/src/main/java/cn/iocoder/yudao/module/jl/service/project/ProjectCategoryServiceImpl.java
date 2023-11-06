@@ -4,14 +4,13 @@ import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
 import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -35,7 +34,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -70,9 +69,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private LaboratoryLabRepository laboratoryLabRepository;
 
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
+    private final UserRepository userRepository;
 
-    public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository) {
+    public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository,
+                                      UserRepository userRepository) {
         this.projectCategorySupplierRepository = projectCategorySupplierRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -235,12 +237,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         //以逗号分隔category的labIds 为list，然后查询出来
         String labIds = category.getLabIds();
         if(labIds!=null){
-            List<Long> labIdList = Arrays.asList(labIds.split(",")).stream().map(s -> Long.parseLong(s.trim())).collect(Collectors.toList());
-            List<LaboratoryLab> byIdIn = laboratoryLabRepository.findByIdIn(labIdList);
-            category.setLabList(byIdIn);
+            category.setLabList(idsString2QueryList(category.getLabIds(),laboratoryLabRepository));
+        }
+
+        String ids = category.getFocusIds();
+        if(ids!=null){
+            category.setFocusList(idsString2QueryList(category.getFocusIds(),userRepository));
         }
         return byId;
     }
+
 
     @Override
     public List<ProjectCategory> getProjectCategoryList(Collection<Long> ids) {
@@ -366,6 +372,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
             if(pageReqVO.getLabId() != null) {
                 mysqlFindInSet(pageReqVO.getLabId(),"labIds", root, cb, predicates);
+            }
+            if(pageReqVO.getFocusId() != null) {
+                mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

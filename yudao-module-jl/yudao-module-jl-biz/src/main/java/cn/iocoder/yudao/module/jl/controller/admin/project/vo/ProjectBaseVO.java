@@ -62,8 +62,11 @@ public class ProjectBaseVO {
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
 
+/*    @Schema(description = "参与者 ids，数组")
+    private String participants;*/
+
     @Schema(description = "参与者 ids，数组")
-    private String participants;
+    private String focusIds;
 
     @Schema(description = "销售 id", example = "16310")
     private Long salesId;
@@ -71,27 +74,4 @@ public class ProjectBaseVO {
     @Schema(description = "销售 id", example = "8556")
     private Long customerId;
 
-
-    /**
-     * 采购负责人
-     */
-    @Schema(description = "销采购负责人 id", example = "16310")
-    private Long procurementerId;
-
-
-    /**
-     * 库管负责人
-     */
-    @Schema(description = "库管负责人 id", example = "16310")
-    private Long inventorierId;
-
-
-    /**
-     * 实验负责人
-     */
-    @Schema(description = "实验负责人 id", example = "16310")
-    private Long experId;
-
-    @Schema(description = "实验员 ids", example = "16310")
-    private String experIds;
 }

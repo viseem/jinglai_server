@@ -89,6 +89,12 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "lab_ids")
     private String labIds;
 
+    /**
+     * 参与者ids
+     */
+    @Column(name = "focus_ids")
+    private String focusIds;
+
 
     /**
      * 名目的实验类型，动物/细胞/分子等
@@ -266,4 +272,7 @@ public class ProjectCategory extends BaseEntity {
 
     @Transient
     private List<LaboratoryLab> labList = new ArrayList<>();
+
+    @Transient
+    private List<User> focusList = new ArrayList<>();
 }

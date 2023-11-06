@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
@@ -43,6 +44,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
@@ -320,11 +322,21 @@ public class ProjectServiceImpl implements ProjectService {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getAttribute()!=null){
-                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                    mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                }else{
+                    predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                }
             }
 
             //默认查询code不为空的
             predicates.add(cb.isNotNull(root.get("code")));
+
+            if(pageReqVO.getFocusId() != null) {
+                mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
+            }
+
+
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
@@ -503,6 +515,10 @@ public class ProjectServiceImpl implements ProjectService {
         //计算百分比
         if(allCount>0){
             project.setCompletePercent((int) (completeCount*100/allCount));
+        }
+        //处理参与者
+        if(project.getFocusIds()!=null){
+            project.setFocusList(idsString2QueryList(project.getFocusIds(),userRepository));
         }
 
     }

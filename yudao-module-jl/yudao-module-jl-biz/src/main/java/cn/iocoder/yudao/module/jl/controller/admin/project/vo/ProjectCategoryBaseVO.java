@@ -23,6 +23,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "实验的labIds", example = "1")
     private String labIds;
 
+    @Schema(description = "参与者", example = "1")
+    private String focusIds;
+
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
 

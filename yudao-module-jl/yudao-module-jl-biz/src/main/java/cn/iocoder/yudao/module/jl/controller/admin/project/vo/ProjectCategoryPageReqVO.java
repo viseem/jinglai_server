@@ -64,6 +64,9 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "实验室id", example = "17935")
     private Long labId;
 
+    @Schema(description = "参与者id", example = "17935")
+    private Long focusId;
+
     @Schema(description = "是否有反馈", example = "17935")
     private Byte hasFeedback;
 

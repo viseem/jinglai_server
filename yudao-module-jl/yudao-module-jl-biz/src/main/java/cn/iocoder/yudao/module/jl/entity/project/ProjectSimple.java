@@ -40,7 +40,6 @@ public class ProjectSimple extends BaseEntity {
     private Long salesleadId;
 
 
-
     /**
      * 项目名字
      */
@@ -94,10 +93,16 @@ public class ProjectSimple extends BaseEntity {
     private User manager;
 
     /**
-     * 参与者 ids，数组
+     * 原设计 参与者 ids，数组
      */
     @Column(name = "participants")
     private String participants;
+
+    /**
+     * 参与者 ids，数组
+     */
+    @Column(name = "focus_ids")
+    private String focusIds;
 
     /**
      * 销售 id

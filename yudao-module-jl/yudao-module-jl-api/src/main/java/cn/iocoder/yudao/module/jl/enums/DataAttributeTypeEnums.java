@@ -19,6 +19,7 @@ public enum DataAttributeTypeEnums implements StringArrayValuable {
     ALL("ALL", "全部"),
     SUB("SUB", "下属负责的"),
     MY("MY", "我负责的"),
+    FOCUS("FOCUS", "我关注的、我参与的"),
     SEAS("SEAS", "公海"),
     ANY("ANY", "任何")
     ;

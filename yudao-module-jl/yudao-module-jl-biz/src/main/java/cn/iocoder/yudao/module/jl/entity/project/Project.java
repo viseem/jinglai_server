@@ -109,17 +109,16 @@ public class Project extends BaseEntity {
 
 
     /**
-     * 实验员
+     * 参与者 ids，数组
      */
-    @Column(name = "exper_ids")
-    private String experIds;
+    @Column(name = "focus_ids")
+    private String focusIds;
 
     /**
-     * 参与者 ids，数组
+     * 原设计 参与者 ids，数组
      */
     @Column(name = "participants")
     private String participants;
-
     /**
      * 销售 id
      */
@@ -203,4 +202,6 @@ public class Project extends BaseEntity {
     private Long pauseCount;
     @Transient
     private Long waitDoCount;
+    @Transient
+    private List<User> focusList = new ArrayList<>();
 }
