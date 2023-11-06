@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
@@ -7,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
+import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
@@ -22,10 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -36,6 +35,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -67,10 +67,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
 
     @Resource
-    private ProjectChargeitemMapper projectChargeitemMapper;
+    private LaboratoryLabRepository laboratoryLabRepository;
 
-    @Resource
-    private ProjectSupplyMapper projectSupplyMapper;
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
 
     public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository) {
@@ -232,21 +230,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     public Optional<ProjectCategory> getProjectCategory(Long id) {
         Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
-/*        if (byId.isPresent()) {
-            List<ProjectCategoryApproval> approvalList = byId.get().getApprovalList();
-            if (!approvalList.isEmpty()) {
-                Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
-                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-                byId.get().setLatestApproval(latestApproval.orElse(null));
-                latestApproval.ifPresent(approval -> {
-                    byId.get().setApprovalStage(approval.getApprovalStage());
-                    byId.get().setRequestStage(approval.getStage());
-                });
-            }
-        }*/
-        byId.ifPresent(this::processProjectCategoryItem);
+        ProjectCategory category  = byId.get();
 
-        return projectCategoryRepository.findById(id);
+        //以逗号分隔category的labIds 为list，然后查询出来
+        String labIds = category.getLabIds();
+        if(labIds!=null){
+            List<Long> labIdList = Arrays.asList(labIds.split(",")).stream().map(s -> Long.parseLong(s.trim())).collect(Collectors.toList());
+            List<LaboratoryLab> byIdIn = laboratoryLabRepository.findByIdIn(labIdList);
+            category.setLabList(byIdIn);
+        }
+        return byId;
     }
 
     @Override
@@ -332,7 +325,6 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             //TODO all换成enum
-            System.out.println("-------------"+ pageReqVO.getTypes());
             if(pageReqVO.getTypes()!=null&& pageReqVO.getTypes().size()>0){
                 predicates.add(root.get("type").in(pageReqVO.getTypes()));
             }else{
@@ -373,13 +365,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
             if(pageReqVO.getLabId() != null) {
-                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+                mysqlFindInSet(pageReqVO.getLabId(),"labIds", root, cb, predicates);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
         return spec;
     }
+
+
+
 
     private void processProjectCategoryItem(ProjectCategory projectCategory) {
 /*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();

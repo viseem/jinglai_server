@@ -84,12 +84,11 @@ public class ProjectCategory extends BaseEntity {
     private Long labId;
 
     /**
-     * JPA 级联出 lab
+     * 所属实验室ids
      */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private LaboratoryLab lab;
+    @Column(name = "lab_ids")
+    private String labIds;
+
 
     /**
      * 名目的实验类型，动物/细胞/分子等
@@ -264,4 +263,7 @@ public class ProjectCategory extends BaseEntity {
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
     private List<TaskRelationOnly> relations = new ArrayList<>();*/
+
+    @Transient
+    private List<LaboratoryLab> labList = new ArrayList<>();
 }
