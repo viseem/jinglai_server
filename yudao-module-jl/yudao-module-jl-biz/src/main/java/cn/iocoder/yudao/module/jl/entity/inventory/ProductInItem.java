@@ -38,11 +38,28 @@ public class ProductInItem extends BaseEntity {
     private Long id;
 
     /**
-     * 实验产品入库表 id
+     * 项目 id
      */
     @Column(name = "product_in_id", nullable = false)
     private Long productInId;
 
+    /**
+     * 客户 id
+     */
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
+
+    /**
+     * 实验产品入库表 id
+     */
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
+
+    /**
+     * 实验产品入库表 id
+     */
+    @Column(name = "project_category_id", nullable = false)
+    private Long projectCategoryId;
 
     /**
      * JPA 级联出 productIn

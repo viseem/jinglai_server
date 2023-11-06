@@ -39,6 +39,12 @@ public class ProductIn extends BaseEntity {
     private Long projectId;
 
     /**
+     * 客户 id
+     */
+    @Column(name = "customer_Id", nullable = false)
+    private Long customerId;
+
+    /**
      * JPA 级联出 user
      */
     @OneToOne(fetch = FetchType.EAGER)
