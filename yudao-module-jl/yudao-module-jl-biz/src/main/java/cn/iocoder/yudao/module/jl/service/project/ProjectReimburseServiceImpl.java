@@ -1,8 +1,16 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
+import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
+import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -40,6 +48,9 @@ public class ProjectReimburseServiceImpl implements ProjectReimburseService {
 
     @Resource
     private ProjectReimburseMapper projectReimburseMapper;
+
+    @Resource
+    private FinancePaymentRepository financePaymentRepository;
 
     @Override
     public Long createProjectReimburse(ProjectReimburseCreateReqVO createReqVO) {
@@ -132,9 +143,22 @@ public class ProjectReimburseServiceImpl implements ProjectReimburseService {
 
         // 执行查询
         Page<ProjectReimburse> page = projectReimburseRepository.findAll(spec, pageable);
-
+//        List<ProjectReimburse> list = page.getContent();
+//        list.forEach(this::processItem);
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processItem(ProjectReimburse item) {
+        BigDecimal reduce = item.getPaymentList().stream().filter(payment -> Objects.equals(payment.getAuditStatus(), FinancePaymentEnums.PAYED.getStatus())).map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        item.setPaidPrice(reduce);
+    }
+
+    @Transactional
+    public void updatePaidPrice(Long outsourceId){
+        List<FinancePayment> byTypeAndRefIdAndAuditStatus = financePaymentRepository.findByTypeAndRefIdAndAuditStatus("2", outsourceId, FinancePaymentEnums.PAYED.getStatus());
+        BigDecimal reduce = byTypeAndRefIdAndAuditStatus.stream().map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        projectReimburseRepository.updatePaidPriceById(reduce, outsourceId);
     }
 
     @Override

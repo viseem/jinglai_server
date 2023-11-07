@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 项目报销 Response VO")
@@ -15,5 +17,7 @@ public class ProjectReimburseRespVO extends ProjectReimburseBaseVO {
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
+
+    private BigDecimal paidPrice;
 
 }

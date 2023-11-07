@@ -60,7 +60,7 @@ public class ProcurementPayment extends BaseEntity {
      * 打款金额
      */
     @Column(name = "amount")
-    private String amount;
+    private Long amount;
 
     /**
      * 供货商 id

@@ -1,12 +1,20 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -41,13 +49,13 @@ public class ProjectReimburse extends BaseEntity {
      * 项目的实验名目id
      */
     @Column(name = "project_category_id")
-    private Integer projectCategoryId;
+    private Long projectCategoryId;
 
     /**
      * 项目id
      */
     @Column(name = "project_id", nullable = false )
-    private Integer projectId;
+    private Long projectId;
 
     @Column(name = "schedule_id")
     private Long scheduleId;
@@ -81,5 +89,18 @@ public class ProjectReimburse extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
+
+    @Column(name = "paid_price")
+    private BigDecimal paidPrice;
+    /**
+     * 查询款项列表
+     */
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @Where(clause = "type = '2'")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<FinancePayment> paymentList = new ArrayList<>();
 
 }

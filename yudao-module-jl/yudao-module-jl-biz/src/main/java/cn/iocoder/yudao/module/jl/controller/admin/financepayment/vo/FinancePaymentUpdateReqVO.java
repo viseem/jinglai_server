@@ -15,4 +15,5 @@ public class FinancePaymentUpdateReqVO extends FinancePaymentBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    private Boolean isAudit;
 }

@@ -5,9 +5,7 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
@@ -39,7 +37,6 @@ import javax.persistence.criteria.Predicate;
 import java.util.*;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
@@ -97,6 +94,9 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private ProcurementPaymentMapper procurementPaymentMapper;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
     public Long createProcurement(ProcurementCreateReqVO createReqVO) {
         // 插入
@@ -124,6 +124,7 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Override
     @Transactional
     public void saveProcurement(ProcurementSaveReqVO saveReqVO) {
+        ProjectSimple projectSimple = projectService.validateProjectExists(saveReqVO.getProjectId());
         if (saveReqVO.getId() != null) {
             // 存在 id，更新操作
             Long id = saveReqVO.getId();
@@ -158,7 +159,8 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 创建采购单明细
         procurementItemMapper.toEntityList(saveReqVO.getItems()).forEach(procurementItem -> {
             procurementItem.setProcurementId(procurementId);
-            procurementItem.setScheduleId(saveReqVO.getScheduleId());
+            procurementItem.setProjectId(saveReqVO.getProjectId());
+            procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
             procurementItemRepository.save(procurementItem);
         });
 

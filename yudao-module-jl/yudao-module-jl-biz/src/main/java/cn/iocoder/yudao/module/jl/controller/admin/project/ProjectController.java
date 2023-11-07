@@ -118,14 +118,13 @@ public class ProjectController {
     public CommonResult<ProjectCostStatsRespVO> getProjectCostStats(@RequestParam("id") Long id) {
         Project project = projectService.getProject(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
         // 计算各类成本
-        Long currentScheduleId =project.getCurrentScheduleId();
+        Long quotationId =project.getCurrentQuotationId();
         ProjectCostStatsRespVO ret = new ProjectCostStatsRespVO();
-        ret.setSupplyCost(projectScheduleService.getSupplyCostByScheduleId(currentScheduleId));
-        ret.setChargeItemCost(projectScheduleService.getChargeItemCostByScheduleId(currentScheduleId));
-        ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByScheduleId(currentScheduleId));
-        ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
-        ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
-
+        ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
+        ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
+        ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));
+        ret.setReimbursementCost(projectScheduleService.getReimburseCostByProjectId(id));
+        ret.setProcurementCost(projectScheduleService.getProcurementCostByProjectId(id));
         return success(ret);
     }
 

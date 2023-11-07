@@ -27,7 +27,7 @@ public class ProcurementPaymentBaseVO {
     private String paymentDate;
 
     @Schema(description = "打款金额")
-    private String amount;
+    private Long amount;
 
     @Schema(description = "供货商 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "14390")
     @NotNull(message = "供货商 id不能为空")

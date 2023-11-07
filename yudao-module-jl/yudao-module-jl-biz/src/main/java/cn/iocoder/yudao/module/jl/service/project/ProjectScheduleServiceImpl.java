@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
@@ -95,7 +96,10 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectChargeitemMapper projectChargeitemMapper;
 
     @Resource
-    private ProjectCategoryServiceImpl projectCategoryService;
+    private FinancePaymentRepository financePaymentRepository;
+
+    @Resource
+    private ProcurementPaymentRepository procurementPaymentRepository;
 
     private final SalesleadRepository salesleadRepository;
 
@@ -332,14 +336,22 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     public Long getProcurementCostByProjectId(Long id) {
         long cost = 0;
 
+        List<ProcurementPayment> byProjectId = procurementPaymentRepository.findByProjectId(id);
+        for (ProcurementPayment procurementPayment : byProjectId) {
+            if(procurementPayment.getAmount() != null) {
+                cost += procurementPayment.getAmount();
+            }
+        }
+
         // 计算采购的成本 TODO 没有projectID
-        List<ProcurementItem> procurementItemList = procurementItemRepository.findByScheduleId(id);
+/*
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectId(id);
         for (ProcurementItem procurementItem : procurementItemList) {
             if(procurementItem.getBuyPrice() != null) {
                 cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
             }
-
         }
+*/
 
         return cost;
     }
@@ -351,12 +363,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Override
     public Long getReimburseCostByProjectId(Long id) {
         long cost = 0;
-
+        System.out.println("id:"+id);
         // 计算报销的成本
-        List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByProjectId(id );
+        List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByProjectId(id);
         for (ProjectReimburse projectReimburse : projectReimburseList) {
-            if(projectReimburse.getPrice() != null) {
-                cost += projectReimburse.getPrice().longValue();
+            if(projectReimburse.getPaidPrice() != null) {
+                cost += projectReimburse.getPaidPrice().longValue();
             }
         }
 
@@ -374,8 +386,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算委外的成本
         List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByProjectId(id);
         for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
-            if(projectCategoryOutsource.getBuyPrice() != null) {
-                cost += projectCategoryOutsource.getBuyPrice();
+            if(projectCategoryOutsource.getPaidPrice() != null) {
+                cost += projectCategoryOutsource.getPaidPrice().longValue();
             }
         }
 

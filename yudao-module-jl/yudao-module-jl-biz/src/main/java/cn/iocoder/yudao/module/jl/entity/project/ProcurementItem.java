@@ -35,6 +35,12 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @Column(name = "quotation_id")
+    private Long quotationId;
+
     /**
      * 采购单id
      */

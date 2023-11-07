@@ -6,6 +6,9 @@ import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
+import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectReimburseServiceImpl;
+import cn.iocoder.yudao.module.jl.service.projectcategory.ProjectCategoryOutsourceServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -54,6 +57,12 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
     @Resource
     private FinancePaymentMapper financePaymentMapper;
 
+    @Resource
+    private ProjectCategoryOutsourceServiceImpl projectCategoryOutsourceService;
+
+    @Resource
+    private ProjectReimburseServiceImpl projectReimburseService;
+
     @Override
     @Transactional
     public Long createFinancePayment(FinancePaymentCreateReqVO createReqVO) {
@@ -77,17 +86,30 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
     }
 
     @Override
+    @Transactional
     public void updateFinancePayment(FinancePaymentUpdateReqVO updateReqVO) {
         // 校验存在
         validateFinancePaymentExists(updateReqVO.getId());
 
-        if(updateReqVO.getPaymentUrl()!=null){
+
+        //核对了打款
+        if(updateReqVO.getIsAudit()){
             updateReqVO.setAuditStatus(FinancePaymentEnums.PAYED.getStatus());
             updateReqVO.setAuditUserId(getLoginUserId());
         }
         // 更新
         FinancePayment updateObj = financePaymentMapper.toEntity(updateReqVO);
         financePaymentRepository.save(updateObj);
+
+        // 更新已打款金额
+        if(updateReqVO.getRefId()!=null){
+            if(Objects.equals(updateReqVO.getType(), "1")){
+                projectCategoryOutsourceService.updatePaidPrice(updateObj.getRefId());
+            }else if(Objects.equals(updateReqVO.getType(), "2")){
+                projectReimburseService.updatePaidPrice(updateObj.getRefId());
+            }
+        }
+
     }
 
     @Override

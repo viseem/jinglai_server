@@ -2,8 +2,11 @@ package cn.iocoder.yudao.module.jl.service.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
+import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
@@ -15,10 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.*;
@@ -45,6 +45,9 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
     @Resource
     private ProjectCategoryOutsourceMapper projectCategoryOutsourceMapper;
 
+    @Resource
+    private FinancePaymentRepository financePaymentRepository;
+
     @Override
     public Long createProjectCategoryOutsource(ProjectCategoryOutsourceCreateReqVO createReqVO) {
         // 插入
@@ -61,6 +64,13 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
         // 更新
         ProjectCategoryOutsource updateObj = projectCategoryOutsourceMapper.toEntity(updateReqVO);
         projectCategoryOutsourceRepository.save(updateObj);
+    }
+
+    @Transactional
+    public void updatePaidPrice(Long outsourceId){
+        List<FinancePayment> byTypeAndRefIdAndAuditStatus = financePaymentRepository.findByTypeAndRefIdAndAuditStatus("1", outsourceId, FinancePaymentEnums.PAYED.getStatus());
+        BigDecimal reduce = byTypeAndRefIdAndAuditStatus.stream().map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        projectCategoryOutsourceRepository.updatePaidPriceById(reduce, outsourceId);
     }
 
     @Override
@@ -148,8 +158,8 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
 
         // 执行查询
         Page<ProjectCategoryOutsource> page = projectCategoryOutsourceRepository.findAll(spec, pageable);
-        List<ProjectCategoryOutsource> outsources = page.getContent();
-        outsources.forEach(this::processItem);
+//        List<ProjectCategoryOutsource> outsources = page.getContent();
+//        outsources.forEach(this::processItem);
 
 
         // 转换为 PageResult 并返回
@@ -157,7 +167,7 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
     }
 
     private void processItem(ProjectCategoryOutsource item) {
-        BigDecimal reduce = item.getPayments().stream().filter(payment -> Objects.equals(payment.getAuditStatus(), FinancePaymentEnums.PAYED.getStatus())).map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal reduce = item.getPaymentList().stream().filter(payment -> Objects.equals(payment.getAuditStatus(), FinancePaymentEnums.PAYED.getStatus())).map(FinancePayment::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
         item.setPaidPrice(reduce);
     }
 
