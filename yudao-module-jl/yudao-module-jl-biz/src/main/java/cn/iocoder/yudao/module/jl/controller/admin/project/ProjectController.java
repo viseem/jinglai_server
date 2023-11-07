@@ -106,7 +106,7 @@ public class ProjectController {
         ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));*/
 
         //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
-        ret.setPersons(projectPersonRepository.findByProjectId(id));
+//        ret.setPersons(projectPersonRepository.findByProjectId(id));
 
         return success(ret);
     }

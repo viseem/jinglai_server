@@ -34,6 +34,13 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "id", nullable = false )
     private Long id;
 
+
+    /**
+     * 课题组ids
+     */
+    @Column(name = "subject_group_ids", nullable = false )
+    private String subjectGroupIds;
+
     @Column(name="to_customer", nullable = false)
     private Boolean toCustomer;
 

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.FollowupRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
@@ -40,6 +41,12 @@ public class Customer extends BaseEntity {
     private Boolean toCustomer;
 
     /**
+     * 课题组ids
+     */
+    @Column(name = "subject_group_ids", nullable = false )
+    private String subjectGroupIds;
+
+    /**
      * 姓名
      */
     @Column(name = "name", nullable = false )
@@ -48,7 +55,6 @@ public class Customer extends BaseEntity {
     /**
      * 客户来源
      *
-     * 枚举 {@link TODO customer_source 对应的类}
      */
     @Column(name = "source", nullable = false )
     private String source;
@@ -221,4 +227,7 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "last_saleslead_id", insertable = false, updatable = false)
     @JsonManagedReference
     private Saleslead lastSaleslead;
+
+    @Transient
+    private List<CrmSubjectGroup> subjectGroupList;
 }

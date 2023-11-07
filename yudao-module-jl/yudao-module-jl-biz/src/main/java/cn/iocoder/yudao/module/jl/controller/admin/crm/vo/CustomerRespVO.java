@@ -4,9 +4,11 @@ import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Followup;
 import cn.iocoder.yudao.module.jl.entity.crm.Institution;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
+import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 客户 Response VO")
 @Data
@@ -34,4 +36,6 @@ public class CustomerRespVO extends CustomerBaseVO {
     private UserRespVO sales;
 
     private UserRespVO user;
+
+    private List<CrmSubjectGroup> subjectGroupList;
 }

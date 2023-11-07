@@ -27,6 +27,8 @@ public class CustomerBaseVO {
 
     private Boolean toCustomer = true;
 
+    private String  subjectGroupIds;
+
     @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotNull(message = "姓名不能为空")
     private String name;

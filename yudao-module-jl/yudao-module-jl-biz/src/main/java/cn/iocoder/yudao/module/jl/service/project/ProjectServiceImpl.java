@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -10,6 +11,8 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -73,6 +76,12 @@ public class ProjectServiceImpl implements ProjectService {
     public static final String PROCESS_KEY = "PROJECT_OUTBOUND_APPLY";
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private CustomerSimpleRepository customerSimpleRepository;
+
+    @Resource
+    private CrmSubjectGroupRepository crmSubjectGroupRepository;
 
     @PostConstruct
     public void ProjectServiceImpl(){
@@ -172,9 +181,9 @@ public class ProjectServiceImpl implements ProjectService {
         }*/
 
         //删除旧的人员
-        projectPersonRepository.deleteByProjectId(updateReqVO.getId());
+//        projectPersonRepository.deleteByProjectId(updateReqVO.getId());
         //处理persons，添加新的人员
-        projectPersonRepository.saveAll(updateReqVO.getPersons());
+//        projectPersonRepository.saveAll(updateReqVO.getPersons());
 
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
@@ -321,7 +330,7 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getAttribute()!=null){
+            if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
                 if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
                     mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
                 }else{
@@ -336,7 +345,10 @@ public class ProjectServiceImpl implements ProjectService {
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
             }
 
-
+            // 课题组
+            if(pageReqVO.getSubjectGroupId() != null) {
+                predicates.add(cb.equal(root.get("subjectGroupId"), pageReqVO.getSubjectGroupId()));
+            }
 
             if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
@@ -519,6 +531,12 @@ public class ProjectServiceImpl implements ProjectService {
         //处理参与者
         if(project.getFocusIds()!=null){
             project.setFocusList(idsString2QueryList(project.getFocusIds(),userRepository));
+        }
+        //处理客户的课题组
+        Optional<CustomerOnly> byId = customerSimpleRepository.findById(project.getCustomerId());
+        CustomerOnly customer = byId.get();
+        if(customer.getSubjectGroupIds()!=null){
+            project.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
         }
 
     }

@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,6 +39,13 @@ public class Project extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false )
     private Long id;
+
+    /**
+     * 课题组id
+     */
+    @Column(name = "subject_group_id")
+    private Long subjectGroupId;
+
 
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
@@ -190,6 +198,12 @@ public class Project extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectConstractOnly> contractList = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "subject_group_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CrmSubjectGroup subjectGroup;
+
     @Transient
     private Integer completePercent;
     @Transient
@@ -204,4 +218,8 @@ public class Project extends BaseEntity {
     private Long waitDoCount;
     @Transient
     private List<User> focusList = new ArrayList<>();
+
+    //这个是客户的课题组合集
+    @Transient
+    private List<CrmSubjectGroup> subjectGroupList = new ArrayList<>();
 }

@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -44,6 +45,8 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 客户 Service 实现类
@@ -71,6 +74,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
+
+    @Resource
+    private CrmSubjectGroupRepository crmSubjectGroupRepository;
 
     @Resource
     private CustomerMapper customerMapper;
@@ -173,7 +179,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Optional<Customer> getCustomer(Long id) {
-        return customerRepository.findById(id);
+        Optional<Customer> byId = customerRepository.findById(id);
+        Customer customer = byId.get();
+        if(customer.getSubjectGroupIds() != null){
+            customer.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
+        }
+        return byId;
     }
 
     @Override
@@ -221,6 +232,11 @@ public class CustomerServiceImpl implements CustomerService {
                 predicates.add(root.get("salesId").isNull());
             }else{
                 predicates.add(cb.greaterThan(root.get("salesId"), 0));
+            }
+
+
+            if(pageReqVO.getSubjectGroupId() != null) {
+                mysqlFindInSet(pageReqVO.getSubjectGroupId(),"subjectGroupIds", root, cb, predicates);
             }
 
 /*           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){

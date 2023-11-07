@@ -33,6 +33,13 @@ public class ProjectSimple extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+
+    /**
+     * 课题组id
+     */
+    @Column(name = "subject_group_id")
+    private Long subjectGroupId;
+
     /**
      * 销售线索 id
      */
