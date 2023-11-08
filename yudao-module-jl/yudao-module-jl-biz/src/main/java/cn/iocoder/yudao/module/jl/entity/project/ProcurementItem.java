@@ -97,8 +97,20 @@ public class ProcurementItem extends BaseEntity {
     /**
      * 原价
      */
+    @Column(name = "origin_price")
+    private Integer originPrice = 0;
+
+    /**
+     * 采购价
+     */
     @Column(name = "buy_price")
     private Integer buyPrice = 0;
+
+    /**
+     * 运费
+     */
+    @Column(name = "freight")
+    private Integer freight = 0;
 
     /**
      * 销售价
@@ -180,6 +192,17 @@ public class ProcurementItem extends BaseEntity {
 
     @Column(name = "temperature")
     private String temperature;
+
+    @Column(name = "refund_quantity")
+    private Long refundQuantity;
+    @Column(name = "refund_amount")
+    private Long refundAmount;
+    @Column(name = "refund_receipts")
+    private String refundReceipts;
+
+    //预计到货日期
+    @Column(name = "arrival_date")
+    private LocalDateTime arrivalDate;
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

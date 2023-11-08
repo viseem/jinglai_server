@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ProcurementItemRepository extends JpaRepository<ProcurementItem, Long>, JpaSpecificationExecutor<ProcurementItem> {
+    @Query("select p from ProcurementItem p where p.supplierId = ?1")
+    List<ProcurementItem> findBySupplierId(Long supplierId);
     @Query("select p from ProcurementItem p where p.projectId = ?1")
     List<ProcurementItem> findByProjectId(Long projectId);
     @Transactional

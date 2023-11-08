@@ -228,6 +228,15 @@ public class ProcurementServiceImpl implements ProcurementService {
         Specification<Procurement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getSupplierId()!=null){
+                List<ProcurementItem> bySupplierId = procurementItemRepository.findBySupplierId(pageReqVO.getSupplierId());
+                //根据List<ProcurementItem>获取List<Long>并去重
+                List<Long> procurementIds = bySupplierId.stream().map(ProcurementItem::getProcurementId).distinct().collect(Collectors.toList());
+                if(!procurementIds.isEmpty()) {
+                    predicates.add(root.get("id").in(procurementIds));
+                }
+            }
+
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0],pageReqVO.getCreateTime()[1]));
             }
