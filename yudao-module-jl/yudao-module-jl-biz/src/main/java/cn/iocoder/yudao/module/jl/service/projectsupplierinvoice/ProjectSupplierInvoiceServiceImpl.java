@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.projectsupplierinvoice;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +41,16 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
 
     @Resource
     private ProjectSupplierInvoiceMapper projectSupplierInvoiceMapper;
+
+    //根据supplierId计算总金额
+    public Long sumAmountBySupplierId(Long supplierId){
+        List<ProjectSupplierInvoice> bySupplierId = projectSupplierInvoiceRepository.findBySupplierId(supplierId);
+        Long sum = 0L;
+        for (ProjectSupplierInvoice supplierInvoice : bySupplierId) {
+            sum += supplierInvoice.getPrice();
+        }
+        return sum;
+    }
 
     @Override
     public Long createProjectSupplierInvoice(ProjectSupplierInvoiceCreateReqVO createReqVO) {
