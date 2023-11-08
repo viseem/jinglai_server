@@ -23,6 +23,10 @@ public class JLSqlUtils {
     }
 
     public static <T>List<T> idsString2QueryList(String labIds, JpaRepository repository) {
+        // 处理可能的异常
+        if (labIds == null || labIds.isEmpty()) {
+            return null;
+        }
         List<Long> idList = Arrays.asList(labIds.split(",")).stream().map(s -> Long.parseLong(s.trim())).collect(Collectors.toList());
         return repository.findAllById(idList);
     }

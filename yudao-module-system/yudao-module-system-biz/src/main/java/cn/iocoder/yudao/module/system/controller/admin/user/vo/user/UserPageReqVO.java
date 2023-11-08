@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
@@ -38,6 +39,9 @@ public class UserPageReqVO extends PageParam {
 
     @Schema(description = "部门编号,同时筛选子部门", example = "1024")
     private Long deptId;
+
+    @Schema(description = "部门编号,同时筛选子部门", example = "1024")
+    private List<Long> deptIds;
 
     @Schema(description = "ids")
     private List<Long> ids;
