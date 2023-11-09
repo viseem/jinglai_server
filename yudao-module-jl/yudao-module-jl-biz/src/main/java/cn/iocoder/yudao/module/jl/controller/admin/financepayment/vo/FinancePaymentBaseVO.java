@@ -20,6 +20,8 @@ public class FinancePaymentBaseVO {
     @NotNull(message = "申请单不能为空")
     private Long refId;
 
+    private Long projectId;
+
     @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
     @NotNull(message = "类型不能为空")
     private String type;

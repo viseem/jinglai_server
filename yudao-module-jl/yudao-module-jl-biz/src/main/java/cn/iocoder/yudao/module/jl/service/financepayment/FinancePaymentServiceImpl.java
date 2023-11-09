@@ -204,6 +204,7 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
 
     @Override
     public List<FinancePayment> getFinancePaymentList(FinancePaymentExportReqVO exportReqVO) {
+
         // 创建 Specification
         Specification<FinancePayment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

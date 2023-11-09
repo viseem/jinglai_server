@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.financepayment;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -42,6 +43,12 @@ public class FinancePayment extends BaseEntity {
      */
     @Column(name = "ref_id", nullable = false )
     private Long refId;
+
+    /**
+     * 申请单
+     */
+    @Column(name = "project_id", nullable = false )
+    private Long projectId;
 
     /**
      * 类型
@@ -120,5 +127,11 @@ public class FinancePayment extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "audit_user_id", insertable = false, updatable = false)
     private User auditUser;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectSimple project;
 
 }
