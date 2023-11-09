@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.time.LocalDateTime;
+
 /**
  * 项目采购单打款 Entity
  */
@@ -54,7 +56,7 @@ public class ProcurementPayment extends BaseEntity {
      * 打款时间
      */
     @Column(name = "payment_date", nullable = false)
-    private String paymentDate;
+    private LocalDateTime paymentDate;
 
     /**
      * 打款金额

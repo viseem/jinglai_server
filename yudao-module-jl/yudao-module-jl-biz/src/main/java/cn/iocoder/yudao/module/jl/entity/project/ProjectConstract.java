@@ -64,8 +64,6 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
-
-
     /**
      * 合同文件 URL
      */

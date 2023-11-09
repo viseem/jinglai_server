@@ -62,6 +62,12 @@ public class ProjectSupplierInvoice extends BaseEntity {
     private Long projectId;
 
     /**
+     * 采购单id
+     */
+    @Column(name = "procurement_id", nullable = false )
+    private Long procurementId;
+
+    /**
      * 供应商id
      */
     @Column(name = "supplier_id", nullable = false )

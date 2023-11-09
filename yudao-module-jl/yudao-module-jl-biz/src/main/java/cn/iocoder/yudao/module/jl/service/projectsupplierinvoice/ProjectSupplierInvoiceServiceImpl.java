@@ -117,6 +117,10 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
+            if(pageReqVO.getProcurementId() != null) {
+                predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
+            }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
