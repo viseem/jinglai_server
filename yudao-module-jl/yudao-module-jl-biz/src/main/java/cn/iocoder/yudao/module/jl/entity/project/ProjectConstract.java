@@ -156,7 +156,7 @@ public class ProjectConstract extends BaseEntity {
      * 是否出库
      */
     @Column(name = "is_outed")
-    private Boolean isOuted;
+    private Integer isOuted;
 
     /**
      * 查询审批列表

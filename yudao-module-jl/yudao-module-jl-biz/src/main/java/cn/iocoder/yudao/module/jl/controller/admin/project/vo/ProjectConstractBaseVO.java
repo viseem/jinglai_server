@@ -59,5 +59,5 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同关联的文档id", example = "芋艿")
     private String projectDocumentId;
 
-    private Boolean isOuted;
+    private Integer isOuted;
 }
