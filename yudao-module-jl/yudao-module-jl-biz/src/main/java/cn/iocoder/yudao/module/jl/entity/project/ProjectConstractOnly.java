@@ -91,7 +91,11 @@ public class ProjectConstractOnly extends BaseEntity {
     @Column(name = "received_price")
     private Long receivedPrice;
 
-
+    /**
+     * 已开票
+     */
+    @Column(name = "invoiced_price")
+    private Long invoicedPrice;
     /**
      * 结算金额
      */
@@ -116,4 +120,9 @@ public class ProjectConstractOnly extends BaseEntity {
     @Column(name = "file_name")
     private String fileName;
 
+    /**
+     * 是否出库
+     */
+    @Column(name = "is_outed")
+    private Boolean isOuted;
 }

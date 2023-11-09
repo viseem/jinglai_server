@@ -70,6 +70,8 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         contractInvoiceLog.setCustomerId(projectConstract.getCustomerId());
         contractInvoiceLog.setSalesId(projectConstract.getSalesId());
         contractInvoiceLogRepository.save(contractInvoiceLog);
+
+        projectConstractService.processContractInvoicedPrice2(projectConstract.getId());
         // 返回
         return contractInvoiceLog.getId();
     }
@@ -77,7 +79,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     @Override
     public void updateContractInvoiceLog(ContractInvoiceLogUpdateReqVO updateReqVO) {
         // 校验存在
-        validateContractInvoiceLogExists(updateReqVO.getId());
+        ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
 
         // 如果status不为空，则记录auditId为当前登录用户
         if(updateReqVO.getStatus()!=null){
@@ -87,18 +89,27 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         // 更新
         ContractInvoiceLog updateObj = contractInvoiceLogMapper.toEntity(updateReqVO);
         contractInvoiceLogRepository.save(updateObj);
+
+        projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
+
     }
 
     @Override
     public void deleteContractInvoiceLog(Long id) {
         // 校验存在
-        validateContractInvoiceLogExists(id);
+        ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(id);
         // 删除
         contractInvoiceLogRepository.deleteById(id);
+
+        projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
     }
 
-    private void validateContractInvoiceLogExists(Long id) {
-        contractInvoiceLogRepository.findById(id).orElseThrow(() -> exception(CONTRACT_INVOICE_LOG_NOT_EXISTS));
+    private ContractInvoiceLog validateContractInvoiceLogExists(Long id) {
+        Optional<ContractInvoiceLog> byId = contractInvoiceLogRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw exception(CONTRACT_INVOICE_LOG_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

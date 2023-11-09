@@ -29,6 +29,8 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
     //合同的已收金额合计
     private Integer receivedPrice;
 
+    private Integer invoicedPrice;
+
     private List<ProjectFundLog> fundLogs;
 
     private List<ProjectFund> funds;

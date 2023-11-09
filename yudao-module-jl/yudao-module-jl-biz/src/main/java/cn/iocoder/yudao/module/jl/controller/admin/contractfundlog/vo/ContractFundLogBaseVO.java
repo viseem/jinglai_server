@@ -76,4 +76,5 @@ public class ContractFundLogBaseVO {
     private CustomerOnly customer;
 
     private User auditor;
+    private User user;
 }

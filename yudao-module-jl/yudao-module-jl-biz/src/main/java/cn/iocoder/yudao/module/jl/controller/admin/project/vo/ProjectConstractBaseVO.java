@@ -59,9 +59,5 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同关联的文档id", example = "芋艿")
     private String projectDocumentId;
 
-    @Schema(description = "是否收齐", example = "芋艿")
-    private Boolean isCollectAll;
-
-    private Integer receivedPrice;
-
+    private Boolean isOuted;
 }

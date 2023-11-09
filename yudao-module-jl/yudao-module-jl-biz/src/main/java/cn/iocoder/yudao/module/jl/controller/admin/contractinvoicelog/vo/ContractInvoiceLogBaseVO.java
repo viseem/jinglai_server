@@ -139,4 +139,6 @@ public class ContractInvoiceLogBaseVO {
 
     private User auditor;
 
+    private User user;
+
 }

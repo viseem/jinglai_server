@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -66,6 +68,8 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
     @Resource
     private ProjectRepository projectRepository;
@@ -144,6 +148,18 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }
         projectConstractRepository.updateReceivedPriceById(priceSum,contractId);
     }
+
+    public void processContractInvoicedPrice2(Long contractId) {
+        List<ContractInvoiceLog> list = contractInvoiceLogRepository.findByContractId(contractId);
+        int priceSum = 0;
+        for (ContractInvoiceLog log : list) {
+            if(Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus())&&log.getReceivedPrice()!=null){
+                priceSum += log.getReceivedPrice();
+            }
+        }
+        projectConstractRepository.updateInvoicedPriceById(priceSum,contractId);
+    }
+
     @Override
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
         // 校验存在
@@ -270,6 +286,29 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 }
             }
 
+            if (pageReqVO.getInvoicedStatus() != null) {
+                switch (pageReqVO.getInvoicedStatus()) {
+                    case "ALL_PAY":
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("invoicedPrice"), root.get("receivedPrice")));
+                        break;
+                    case "PART":
+                        predicates.add(cb.and(
+                                cb.lessThan(root.get("invoicedPrice"), root.get("receivedPrice")),
+                                cb.greaterThan(root.get("invoicedPrice"), 0)
+                        ));
+                        break;
+                    case "NO":
+                        predicates.add(cb.or(
+                                cb.equal(root.get("invoicedPrice"), 0),
+                                cb.isNull(root.get("invoicedPrice"))
+                        ));
+                        break;
+                    // Add more cases if needed
+                    default:
+                        break;
+                }
+            }
+
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -295,6 +334,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
+            if(pageReqVO.getIsOuted() != null) {
+                predicates.add(cb.equal(root.get("isOuted"), pageReqVO.getIsOuted()));
+            }
 
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));

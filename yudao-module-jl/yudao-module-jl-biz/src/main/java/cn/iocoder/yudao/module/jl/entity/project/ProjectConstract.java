@@ -122,6 +122,12 @@ public class ProjectConstract extends BaseEntity {
     private Integer receivedPrice;
 
     /**
+     * 已开票金额
+     */
+    @Column(name = "invoiced_price")
+    private Integer invoicedPrice;
+
+    /**
      * 签订销售人员
      */
     @Column(name = "sales_id")
@@ -145,11 +151,12 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "project_document_id")
     private Long projectDocumentId;
 
+
     /**
-     * 是否收齐
+     * 是否出库
      */
-    @Column(name = "is_collect_all")
-    private Boolean isCollectAll;
+    @Column(name = "is_outed")
+    private Boolean isOuted;
 
     /**
      * 查询审批列表
