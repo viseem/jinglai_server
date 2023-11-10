@@ -14,8 +14,13 @@ import javax.validation.constraints.*;
 @Data
 public class ProductInItemBaseVO {
 
-    @Schema(description = "实验产品入库表 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "17715")
-    @NotNull(message = "实验产品入库表 id不能为空")
+    @Schema(description = "项目id", example = "30446",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long projectId;
+
+    @Schema(description = "客户id", example = "30446",requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long customerId;
+
+    @Schema(description = "实验产品入库表 id")
     private Long productInId;
 
     @Schema(description = "产自实验物资的 id", example = "15067")
@@ -29,12 +34,10 @@ public class ProductInItemBaseVO {
     @NotNull(message = "规则/单位不能为空")
     private String feeStandard;
 
-    @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单价不能为空")
+    @Schema(description = "单价")
     private String unitFee;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -52,11 +55,13 @@ public class ProductInItemBaseVO {
 
     @Schema(description = "区域位置 id", example = "11044")
     private Long zoomId;
+    @Schema(description = "位置冗余", example = "11044")
+    private String locationLabels;
     @Schema(description = "位置", example = "11044")
     private String locationName;
 
     @Schema(description = "有效期")
-    private String validDate;
+    private LocalDateTime validDate;
 
     @Schema(description = "存储温度")
     private String temperature;

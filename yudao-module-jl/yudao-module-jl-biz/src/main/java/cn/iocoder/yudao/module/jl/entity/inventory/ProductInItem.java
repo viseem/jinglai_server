@@ -146,6 +146,12 @@ public class ProductInItem extends BaseEntity {
     private Long zoomId;
 
     /**
+     * 位置冗余
+     */
+    @Column(name = "location_labels")
+    private String locationLabels;
+
+    /**
      * 位置
      */
     @Column(name = "location_name")
@@ -155,7 +161,7 @@ public class ProductInItem extends BaseEntity {
      * 有效期
      */
     @Column(name = "valid_date")
-    private String validDate;
+    private LocalDateTime validDate;
 
     /**
      * 存储温度
