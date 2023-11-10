@@ -255,6 +255,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setPrice(updateReqVO.getContractPrice());
                 contract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
                 contract.setSn(updateReqVO.getContractSn());
+                contract.setCompanyName(updateReqVO.getContractCompanyName());
                 projectConstractRepository.save(contract);
             }
 

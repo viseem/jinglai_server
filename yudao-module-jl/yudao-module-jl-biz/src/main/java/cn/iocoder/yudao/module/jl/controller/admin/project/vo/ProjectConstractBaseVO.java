@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -22,6 +23,10 @@ public class ProjectConstractBaseVO {
 
     @Schema(description = "合同名字", example = "赵六")
     private String name;
+
+    @Schema(description = "公司名称", example = "赵六", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String companyName;
+    private String mark;
 
     @Schema(description = "合同文件 URL")
     private String fileUrl;

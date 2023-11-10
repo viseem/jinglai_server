@@ -61,6 +61,18 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    /**
+     * 公司主体名称
+     */
+    @Column(name = "company_name")
+    private String companyName;
+
+    /**
+     * 备注
+     */
+    @Column(name = "mark")
+    private String mark;
+
     @Column(name = "customer_id")
     private Long customerId;
 

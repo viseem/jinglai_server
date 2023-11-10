@@ -368,23 +368,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
         // 执行查询
         Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
-        
-//        List<ProjectConstract> contracts = page.getContent();
-        
-        //计算已收金额
-
-/*        if (contracts.size() > 0) {
-            contracts.forEach(item -> {
-                Integer receivedPrice = 0;
-                if (item.getFundLogs().size() > 0) {
-                    receivedPrice = item.getFundLogs().stream()
-                            .mapToInt(ProjectFundLog::getPrice)
-                            .sum();
-                }
-
-                item.setReceivedPrice(receivedPrice);
-            });
-        }*/
 
         page.getContent().forEach(contract->{
             if(contract.getApprovalList().size()>0){

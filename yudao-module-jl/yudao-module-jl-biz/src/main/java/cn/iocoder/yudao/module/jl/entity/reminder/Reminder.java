@@ -1,12 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.reminder;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -20,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "Reminder")
 @Table(name = "jl_reminder")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Reminder extends BaseEntity {
 
     /**
@@ -50,15 +55,33 @@ public class Reminder extends BaseEntity {
     private String content;
 
     /**
+     * 备注
+     */
+    @Column(name = "mark", nullable = false )
+    private String mark;
+
+    /**
+     * 金额
+     */
+    @Column(name = "contract_fund_price", nullable = false )
+    private Long contractFundPrice;
+
+    /**
      * 截止日期
      */
     @Column(name = "deadline", nullable = false )
-    private String deadline;
+    private LocalDateTime deadline;
 
     /**
      * 状态
      */
     @Column(name = "status")
     private String status;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 
 }

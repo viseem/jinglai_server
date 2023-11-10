@@ -118,6 +118,7 @@ public class ProjectConstractController {
     @OperateLog(type = EXPORT)
     public void exportProjectConstractExcel(@Valid ProjectConstractExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
         List<ProjectConstract> list = projectConstractService.getProjectConstractList(exportReqVO);
+        System.out.println(list.get(0).getSales()+"========");
         // 导出 Excel
         List<ProjectConstractExcelVO> excelData = projectConstractMapper.toExcelList(list);
         ExcelUtils.write(response, "项目合同.xls", "数据", ProjectConstractExcelVO.class, excelData);
