@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.reminder;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,8 +43,15 @@ public class ReminderServiceImpl implements ReminderService {
     @Resource
     private ReminderMapper reminderMapper;
 
+    @Resource
+    private ProjectConstractServiceImpl projectConstractService;
+
     @Override
     public Long createReminder(ReminderCreateReqVO createReqVO) {
+        if(createReqVO.getContractId()!=null){
+            ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
+            createReqVO.setProjectId(projectConstract.getProjectId());
+        }
         // 插入
         Reminder reminder = reminderMapper.toEntity(createReqVO);
         reminderRepository.save(reminder);
