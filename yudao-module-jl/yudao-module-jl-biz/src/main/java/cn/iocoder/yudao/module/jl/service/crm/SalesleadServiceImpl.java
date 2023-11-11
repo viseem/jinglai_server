@@ -287,7 +287,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                 projectDocument.setFileUrl(customerPlan.getFileUrl());
                 projectDocuments.add(projectDocument);
             });
-            System.out.println("-save--lllll=====");
             projectDocumentRepository.saveAll(projectDocuments);
 
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
