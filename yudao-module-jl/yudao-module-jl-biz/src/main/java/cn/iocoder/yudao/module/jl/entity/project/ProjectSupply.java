@@ -203,17 +203,6 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
-    @ManyToOne
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectCategory category;
-
-
-
-
-
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -221,7 +210,7 @@ public class ProjectSupply extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    /*@OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -233,7 +222,7 @@ public class ProjectSupply extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
-    private List<SupplyPickupItem> pickups;
+    private List<SupplyPickupItem> pickups;*/
 
     /**
      * 查询ProcurementItem

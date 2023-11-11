@@ -215,12 +215,12 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                     .mapToInt(ProcurementItem::getQuantity)
                     .sum();
         }
-        if (item.getSendIns().size() > 0) {
+/*        if (item.getSendIns().size() > 0) {
 
         }
         if (item.getPickups().size() > 0) {
 
-        }
+        }*/
 
         if(item.getStoreLogs().size()>0){
             item.setLatestStoreLog(item.getStoreLogs().get(0));

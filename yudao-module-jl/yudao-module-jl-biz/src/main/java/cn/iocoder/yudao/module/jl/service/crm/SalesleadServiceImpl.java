@@ -7,7 +7,9 @@ import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
@@ -16,6 +18,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
@@ -96,6 +99,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private ProjectConstractServiceImpl contractServiceImpl;
+
+    @Resource
+    private ProjectDocumentRepository projectDocumentRepository;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -182,17 +188,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             salesleadCompetitorRepository.saveAll(quotations);
         }
 
-        // 更新客户方案
-        // 删除原有的
-        salesleadCustomerPlanRepository.deleteBySalesleadId(salesleadId);
-        // 再插入
-        List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
-        if(customerPlans != null && customerPlans.size() > 0) {
-            // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
-            customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
-            List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
-            salesleadCustomerPlanRepository.saveAll(plans);
-        }
+
 
 
         if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
@@ -271,6 +267,31 @@ public class SalesleadServiceImpl implements SalesleadService {
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
                projectConstractRepository.saveAll(contracts);
            }*/
+        }
+
+        // 更新客户方案
+        // 删除原有的
+        salesleadCustomerPlanRepository.deleteBySalesleadId(salesleadId);
+        // 再插入
+        List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
+        if(customerPlans != null && customerPlans.size() > 0) {
+            // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
+            // 保存到projectDocument里面去,用saveAll一次性保存，先存到list，再saveAll
+            List<ProjectDocument> projectDocuments = new ArrayList<>();
+            customerPlans.forEach(customerPlan -> {
+                customerPlan.setSalesleadId(salesleadId);
+                ProjectDocument projectDocument = new ProjectDocument();
+                projectDocument.setProjectId(updateReqVO.getProjectId());
+                projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
+                projectDocument.setFileName(customerPlan.getFileName());
+                projectDocument.setFileUrl(customerPlan.getFileUrl());
+                projectDocuments.add(projectDocument);
+            });
+            System.out.println("-save--lllll=====");
+            projectDocumentRepository.saveAll(projectDocuments);
+
+            List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
+            salesleadCustomerPlanRepository.saveAll(plans);
         }
 
 

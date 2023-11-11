@@ -45,4 +45,5 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
 
     //出库记录
     private List<InventoryStoreOut> outLogs;
+
 }

@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public enum ProjectDocumentTypeEnums implements StringArrayValuable {
     CONTRACT("CONTRACT", "合同"),
+    CUSTOMER_PLAN("CUSTOMER_PLAN", "客户方案"),
     EXP_DATA("EXP_DATA", "实验数据"),
     ;
 

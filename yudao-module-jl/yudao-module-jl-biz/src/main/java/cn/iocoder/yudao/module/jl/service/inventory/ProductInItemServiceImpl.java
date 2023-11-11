@@ -96,6 +96,10 @@ public class ProductInItemServiceImpl implements ProductInItemService {
         Specification<ProductInItem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getProductInId() != null) {
                 predicates.add(cb.equal(root.get("productInId"), pageReqVO.getProductInId()));
             }
