@@ -41,6 +41,8 @@ public interface AnimalBoxService {
      */
     void deleteAnimalBox(Long id);
 
+    void clearAnimalBox(Long id);
+
     /**
      * 获得动物笼位
      *

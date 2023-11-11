@@ -114,6 +114,10 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
         Specification<AnimalFeedLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getBoxId() != null) {
+                predicates.add(cb.equal(root.get("boxId"), pageReqVO.getBoxId()));
+            }
+
             if(pageReqVO.getFeedOrderId() != null) {
                 predicates.add(cb.equal(root.get("feedOrderId"), pageReqVO.getFeedOrderId()));
             }
