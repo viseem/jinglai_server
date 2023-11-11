@@ -57,4 +57,6 @@ public class ProcurementPageReqVO extends PageParam {
     @Schema(description = "收货人id", example = "29752")
     private String receiverUserId;
 
+    private String productCode;
+
 }

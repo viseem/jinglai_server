@@ -237,6 +237,15 @@ public class ProcurementServiceImpl implements ProcurementService {
                 }
             }
 
+            if(pageReqVO.getProductCode()!=null){
+                List<ProcurementItem> byProductCode = procurementItemRepository.findByProductCodeStartsWith(pageReqVO.getProductCode());
+                //根据List<ProcurementItem>获取List<Long>并去重
+                List<Long> procurementIds = byProductCode.stream().map(ProcurementItem::getProcurementId).distinct().collect(Collectors.toList());
+                if(!procurementIds.isEmpty()) {
+                    predicates.add(root.get("id").in(procurementIds));
+                }
+            }
+
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0],pageReqVO.getCreateTime()[1]));
             }
