@@ -133,6 +133,11 @@ public class ProjectServiceImpl implements ProjectService {
         if(!Objects.equals(SalesLeadStatusEnums.QUOTATION.getStatus(),createReqVO.getStatus())){
             createReqVO.setCode(generateCode());
         }
+
+        //如果项目负责人和销售负责人不存在于关注人中，则添加进去
+        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),createReqVO.getManagerId(),createReqVO.getSalesId()));
+
+
         Project project = projectMapper.toEntity(createReqVO);
         projectRepository.save(project);
 
@@ -148,8 +153,26 @@ public class ProjectServiceImpl implements ProjectService {
         // 设置项目当前安排单
         setProjectCurrentSchedule(projectId, projectSchedule.getId());
 
+
+
+
         // 返回
         return project.getId();
+    }
+
+    public String processProjectFocusIds(String _focusIds,Long managerId,Long salesId) {
+        List<Long> focusIds = new ArrayList<>();
+        if(_focusIds!=null&& !_focusIds.isEmpty()) {
+            focusIds = Arrays.stream(_focusIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        }
+        if (!focusIds.contains(managerId)) {
+            focusIds.add(managerId);
+        }
+        if (!focusIds.contains(salesId)) {
+            focusIds.add(salesId);
+        }
+
+        return focusIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     @Override
@@ -185,6 +208,8 @@ public class ProjectServiceImpl implements ProjectService {
         //处理persons，添加新的人员
 //        projectPersonRepository.saveAll(updateReqVO.getPersons());
 
+        //如果项目负责人和销售负责人不存在于关注人中，则添加进去
+        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),updateReqVO.getManagerId(),updateReqVO.getSalesId()));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

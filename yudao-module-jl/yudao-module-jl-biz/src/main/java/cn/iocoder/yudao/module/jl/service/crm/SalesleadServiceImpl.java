@@ -132,15 +132,15 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
         // 更新线索
-        Saleslead updateObj = salesleadMapper.toEntity(updateReqVO);
-        salesleadRepository.save(updateObj);
-        Long salesleadId = updateObj.getId();
+        Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
+        salesleadRepository.save(saleleadsObj);
+        Long salesleadId = saleleadsObj.getId();
 
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
         // 再插入
         List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();
         if(competitorQuotations != null && competitorQuotations.size() > 0) {
-            // 遍历 competitorQuotations，将它的 salesleadId 字段设置为 updateObj.getId()
+            // 遍历 competitorQuotations，将它的 salesleadId 字段设置为 saleleadsObj.getId()
             competitorQuotations.forEach(competitorQuotation -> competitorQuotation.setSalesleadId(salesleadId));
             List<SalesleadCompetitor> quotations = salesleadCompetitorMapper.toEntityList(competitorQuotations);
             salesleadCompetitorRepository.saveAll(quotations);
@@ -152,14 +152,14 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 再插入
         List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
         if(customerPlans != null && customerPlans.size() > 0) {
-            // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
+            // 遍历 customerPlans，将它的 salesleadId 字段设置为 saleleadsObj.getId()
             customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
         }
 
         //设置customer updateLastSalesleadIdById
-        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
+        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),saleleadsObj.getId());
 
     }
 
@@ -174,15 +174,15 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
         // 更新线索
-        Saleslead updateObj = salesleadMapper.toEntity(updateReqVO);
-        salesleadRepository.save(updateObj);
-        Long salesleadId = updateObj.getId();
+        Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
+        salesleadRepository.save(saleleadsObj);
+        Long salesleadId = saleleadsObj.getId();
 
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
         // 再插入
         List<SalesleadCompetitorItemVO> competitorQuotations = updateReqVO.getCompetitorQuotations();
         if(competitorQuotations != null && competitorQuotations.size() > 0) {
-            // 遍历 competitorQuotations，将它的 salesleadId 字段设置为 updateObj.getId()
+            // 遍历 competitorQuotations，将它的 salesleadId 字段设置为 saleleadsObj.getId()
             competitorQuotations.forEach(competitorQuotation -> competitorQuotation.setSalesleadId(salesleadId));
             List<SalesleadCompetitor> quotations = salesleadCompetitorMapper.toEntityList(competitorQuotations);
             salesleadCompetitorRepository.saveAll(quotations);
@@ -219,14 +219,15 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if(updateReqVO.getType()!=null){
                     project.setType(updateReqVO.getType());
                 }
+                project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),project.getManagerId(),project.getSalesId()));
                 projectRepository.save(project);
             }else{
                 Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
                 // 销售线索中保存项目 id
-                updateObj.setProjectId(projectId);
+                saleleadsObj.setProjectId(projectId);
                 updateReqVO.setProjectId(projectId);
                 System.out.println(projectId+"========"+updateReqVO.getProjectId());
-                salesleadRepository.save(updateObj);
+                salesleadRepository.save(saleleadsObj);
             }
 
             System.out.println(updateReqVO.getProjectId()+"--------------------=====================");
@@ -241,8 +242,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
 
                 ProjectConstract contract = new ProjectConstract();
-                contract.setProjectId(updateObj.getProjectId());
-                contract.setCustomerId(updateObj.getCustomerId());
+                contract.setProjectId(saleleadsObj.getProjectId());
+                contract.setCustomerId(saleleadsObj.getCustomerId());
                 contract.setSalesId(project.getSalesId()==null?getLoginUserId():project.getSalesId()); // 线索的销售人员 id
                 contract.setName(updateReqVO.getProjectName());
                 contract.setStampFileName(updateReqVO.getContractStampFileName());
@@ -261,7 +262,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                projectConstracts.forEach(projectConstract -> {
                    projectConstract.setProjectId(updateReqVO.getProjectId());
                    projectConstract.setCustomerId(updateReqVO.getCustomerId());
-                   projectConstract.setSalesId(updateObj.getCreator()); // 线索的销售人员 id
+                   projectConstract.setSalesId(saleleadsObj.getCreator()); // 线索的销售人员 id
                    projectConstract.setName(updateReqVO.getProjectName());
                });
                List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
@@ -274,7 +275,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 再插入
         List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
         if(customerPlans != null && customerPlans.size() > 0) {
-            // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
+            // 遍历 customerPlans，将它的 salesleadId 字段设置为 saleleadsObj.getId()
             // 保存到projectDocument里面去,用saveAll一次性保存，先存到list，再saveAll
                 List<ProjectDocument> projectDocuments = new ArrayList<>();
                 customerPlans.forEach(customerPlan -> {
@@ -296,7 +297,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 
         //设置customer updateLastSalesleadIdById
-        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),updateObj.getId());
+        customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),saleleadsObj.getId());
         return 1;
     }
 
