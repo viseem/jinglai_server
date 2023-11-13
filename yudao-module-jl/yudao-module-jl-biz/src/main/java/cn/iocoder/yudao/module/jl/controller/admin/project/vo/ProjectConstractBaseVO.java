@@ -49,6 +49,9 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long price;
 
+    @Schema(description = "纸面金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long paperPrice;
+
     @Schema(description = "结算金额", example = "30614")
     private Long realPrice;
 

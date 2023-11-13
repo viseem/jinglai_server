@@ -116,10 +116,16 @@ public class ProjectConstract extends BaseEntity {
     private String contractType;
 
     /**
-     * 合同金额
+     * 合同应收金额
      */
     @Column(name = "price")
     private Long price;
+
+    /**
+     * 合同账面金额
+     */
+    @Column(name = "paper_price")
+    private Long paperPrice;
 
     /**
      * 结算金额
