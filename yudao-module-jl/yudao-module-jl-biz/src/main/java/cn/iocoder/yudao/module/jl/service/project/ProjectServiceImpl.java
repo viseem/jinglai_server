@@ -242,7 +242,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Optional<Project> getProject(Long id) {
         Optional<Project> byId = projectRepository.findById(id);
-        byId.ifPresent(this::processProjectItem);
+        byId.ifPresent(item->{
+            processProjectItem(item,true);
+        });
         return byId;
     }
 
@@ -344,7 +346,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
-        page.forEach(this::processProjectItem);
+        page.forEach(item->{
+            processProjectItem(item,false);
+        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -530,7 +534,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
     }
-    private void processProjectItem(Project project) {
+    private void processProjectItem(Project project,Boolean isDetail) {
         long completeCount = projectCategoryRepository.countByProjectIdAndStageAndType(
                 project.getId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()
         );
@@ -556,12 +560,6 @@ public class ProjectServiceImpl implements ProjectService {
         //处理参与者
         if(project.getFocusIds()!=null){
             project.setFocusList(idsString2QueryList(project.getFocusIds(),userRepository));
-        }
-        //处理客户的课题组
-        Optional<CustomerOnly> byId = customerSimpleRepository.findById(project.getCustomerId());
-        CustomerOnly customer = byId.get();
-        if(customer.getSubjectGroupIds()!=null){
-            project.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
         }
 
     }

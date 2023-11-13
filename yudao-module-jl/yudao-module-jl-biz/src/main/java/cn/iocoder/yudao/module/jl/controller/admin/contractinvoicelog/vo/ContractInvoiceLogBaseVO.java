@@ -55,6 +55,8 @@ public class ContractInvoiceLogBaseVO {
     @NotNull(message = "开票金额不能为空")
     private Long price;
 
+    private Integer priceStatus = 0;
+
     @Schema(description = "开票日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime date;

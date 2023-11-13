@@ -242,6 +242,13 @@ public class ContractInvoiceLog extends BaseEntity {
     @Column(name = "status", nullable = false )
     private String status;
 
+
+    /**
+     * 状态
+     */
+    @Column(name = "price_status", nullable = false )
+    private Integer priceStatus;
+
     /**
      * 状态修改的人
      */
