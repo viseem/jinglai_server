@@ -104,13 +104,6 @@ public class AppProject extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
-
-    /**
-     * 实验员
-     */
-    @Column(name = "exper_ids")
-    private String experIds;
-
     /**
      * 参与者 ids，数组
      */

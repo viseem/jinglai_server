@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Query("select count(p) from Procurement p where p.waitCheckIn = ?1")
+    Integer countByWaitCheckIn(Boolean waitCheckIn);
+    @Query("select count(p) from Procurement p where p.waitStoreIn = ?1")
+    Integer countByWaitStoreIn(Boolean waitStoreIn);
 
     @Query("select count(p) from Procurement p where p.status = ?1")
     Integer countByStatus(String status);

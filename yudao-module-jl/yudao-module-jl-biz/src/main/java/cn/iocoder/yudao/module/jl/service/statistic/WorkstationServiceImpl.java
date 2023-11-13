@@ -150,7 +150,7 @@ public class WorkstationServiceImpl implements WorkstationService {
 
         //--------全部的 未签收的单子数量
         //未签收的采购单数量
-        Integer waitingCheckInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInProcurementCount = procurementRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInProcurementCount(waitingCheckInProcurementCount);
         //未签收的寄来单数量
         Integer waitingCheckInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
@@ -161,7 +161,7 @@ public class WorkstationServiceImpl implements WorkstationService {
 
         //-----------------全部的 未入库的单子数量
         //未入库的采购单数量
-        Integer waitingInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInProcurementCount = procurementRepository.countByWaitStoreIn(true);
         resp.setWaitingInProcurementCount(waitingInProcurementCount);
         //未入库的寄来单数量
         Integer waitingInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
