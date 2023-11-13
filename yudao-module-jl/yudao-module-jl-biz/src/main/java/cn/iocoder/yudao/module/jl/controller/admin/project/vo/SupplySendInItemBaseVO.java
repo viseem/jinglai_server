@@ -50,6 +50,7 @@ public class SupplySendInItemBaseVO {
     private Integer quantity;
 
     private String brand;
+    private String productCode;
 
     @Schema(description = "备注")
     private String mark;

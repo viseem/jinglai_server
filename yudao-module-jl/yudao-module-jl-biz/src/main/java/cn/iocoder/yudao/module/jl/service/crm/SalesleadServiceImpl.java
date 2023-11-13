@@ -202,7 +202,6 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setType(updateReqVO.getType());
             project.setSalesId(getLoginUserId()); // 线索的销售人员 id
             project.setManagerId(updateReqVO.getProjectManagerId()==null?updateReqVO.getManagerId():updateReqVO.getProjectManagerId());
-            System.out.println("getManagerId------"+updateReqVO.getManagerId());
 
             if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
                 //如果客户不存在，则抛出异常
@@ -223,17 +222,17 @@ public class SalesleadServiceImpl implements SalesleadService {
                 projectRepository.save(project);
             }else{
                 Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
-                System.out.println("projectid--"+projectId);
                 // 销售线索中保存项目 id
                 updateObj.setProjectId(projectId);
+                updateReqVO.setProjectId(projectId);
+                System.out.println(projectId+"========"+updateReqVO.getProjectId());
                 salesleadRepository.save(updateObj);
             }
 
-
+            System.out.println(updateReqVO.getProjectId()+"--------------------=====================");
             //不按照类型区分合同传不传，有就传没有不传
             // 2. 保存合同
             // 遍历 updateReqVO.getProjectConstracts(), 创建合同
-            System.out.println("---------"+updateReqVO.getType());
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
 
                 ProjectConstract bySn = projectConstractRepository.findBySn(updateReqVO.getContractSn());
@@ -268,7 +267,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                projectConstractRepository.saveAll(contracts);
            }*/
         }
-
         // 更新客户方案
         // 删除原有的
         salesleadCustomerPlanRepository.deleteBySalesleadId(salesleadId);
@@ -277,18 +275,20 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(customerPlans != null && customerPlans.size() > 0) {
             // 遍历 customerPlans，将它的 salesleadId 字段设置为 updateObj.getId()
             // 保存到projectDocument里面去,用saveAll一次性保存，先存到list，再saveAll
-            List<ProjectDocument> projectDocuments = new ArrayList<>();
-            customerPlans.forEach(customerPlan -> {
-                customerPlan.setSalesleadId(salesleadId);
-                ProjectDocument projectDocument = new ProjectDocument();
-                projectDocument.setProjectId(updateReqVO.getProjectId());
-                projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
-                projectDocument.setFileName(customerPlan.getFileName());
-                projectDocument.setFileUrl(customerPlan.getFileUrl());
-                projectDocuments.add(projectDocument);
-            });
-            projectDocumentRepository.saveAll(projectDocuments);
-
+                List<ProjectDocument> projectDocuments = new ArrayList<>();
+                customerPlans.forEach(customerPlan -> {
+                    customerPlan.setSalesleadId(salesleadId);
+                    ProjectDocument projectDocument = new ProjectDocument();
+                    projectDocument.setProjectId(updateReqVO.getProjectId());
+                    projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
+                    projectDocument.setFileName(customerPlan.getFileName());
+                    projectDocument.setFileUrl(customerPlan.getFileUrl());
+                    projectDocuments.add(projectDocument);
+                });
+            if(updateReqVO.getProjectId()!=null){
+                projectDocumentRepository.deleteByTypeAndProjectId(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus(),updateReqVO.getProjectId());
+                projectDocumentRepository.saveAll(projectDocuments);
+            }
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
         }

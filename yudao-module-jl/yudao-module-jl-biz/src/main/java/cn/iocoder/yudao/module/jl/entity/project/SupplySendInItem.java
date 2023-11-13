@@ -66,6 +66,9 @@ public class SupplySendInItem extends BaseEntity {
     @Column(name = "brand")
     private String brand;
 
+    @Column(name = "product_code")
+    private String productCode;
+
     /**
      * 规则/单位
      */

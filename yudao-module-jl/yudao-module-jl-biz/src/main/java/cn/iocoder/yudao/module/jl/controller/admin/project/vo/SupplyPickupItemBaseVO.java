@@ -39,6 +39,7 @@ public class SupplyPickupItemBaseVO {
     private Integer unitAmount;
 
     private String brand;
+    private String productCode;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "数量不能为空")
