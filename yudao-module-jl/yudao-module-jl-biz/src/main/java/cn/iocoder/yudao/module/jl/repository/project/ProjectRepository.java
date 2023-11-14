@@ -14,6 +14,8 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Query("select count(p) from Project p where p.code like concat(?1, '%')")
+    long countByCodeStartsWith(String code);
     @Query("select p from Project p where p.code like concat(?1, '%')")
     Project findByCodeStartsWith(String code);
     @Query("select p from Project p where p.code = ?1")

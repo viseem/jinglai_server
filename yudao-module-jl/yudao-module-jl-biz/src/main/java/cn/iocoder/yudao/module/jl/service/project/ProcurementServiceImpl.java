@@ -15,13 +15,16 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.text.SimpleDateFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -44,6 +47,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
  * 项目采购单申请 Service 实现类
@@ -51,6 +55,26 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ProcurementServiceImpl implements ProcurementService {
+
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROCUREMENT_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PROCUREMENT_CODE.getKeyTemplate();
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+    @PostConstruct
+    public void ProcurementServiceImpl(){
+        Procurement last = procurementRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, PROCUREMENT_CODE_DEFAULT_PREFIX);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long count = procurementRepository.countByCodeStartsWith(PROCUREMENT_CODE_DEFAULT_PREFIX+dateStr);
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+    }
 
     /**
      * OA 对应的流程定义 KEY
@@ -130,13 +154,15 @@ public class ProcurementServiceImpl implements ProcurementService {
             Long id = saveReqVO.getId();
             // 校验存在
             validateProcurementExists(id);
+        }else{
+            saveReqVO.setCode(generateCode());
         }
 
         // 更新或者创建
         Procurement updateObj = procurementMapper.toEntity(saveReqVO);
-        String dateStr = DateUtil.format(new Date(), "yyyyMMdd");
-        long count = procurementRepository.countByProjectId(saveReqVO.getProjectId());
-        updateObj.setCode(dateStr + "-" + updateObj.getProjectId() + "-" + count);
+//        String dateStr = DateUtil.format(new Date(), "yyyyMMdd");
+//        long count = procurementRepository.countByProjectId(saveReqVO.getProjectId());
+//        updateObj.setCode(dateStr + "-" + updateObj.getProjectId() + "-" + count);
 //        updateObj.setWaitCheckIn(true);// 可以在check in列表中看到
         updateObj = procurementRepository.save(updateObj);
         Long procurementId = updateObj.getId();

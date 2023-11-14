@@ -51,11 +51,11 @@ public class CrmReceiptServiceImpl implements CrmReceiptService {
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
 
-    @PostConstruct
+/*    @PostConstruct
     public void CrmReceiptServiceImpl() {
         CrmReceipt firstByOrderByIdDesc = crmReceiptRepository.findFirstByOrderByIdDesc();
         uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L, AUTO_INCREMENT_KEY_CUSTOMER_RECEIPT.getKeyTemplate(), PREFIX_CUSTOMER_RECEIPT.getKeyTemplate(), CUSTOMER_RECEIPT_DEFAULT_PREFIX);
-    }
+    }*/
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
         return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());

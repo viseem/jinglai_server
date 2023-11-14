@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.repository.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
+import cn.iocoder.yudao.module.jl.entity.project.Project;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,10 @@ import java.util.List;
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Query("select count(p) from Procurement p where p.code like concat(?1, '%')")
+    long countByCodeStartsWith(String code);
+    @Query("select p from Procurement p where p.code like concat(?1, '%')")
+    Procurement findByCodeStartsWith(String code);
     @Query("select count(p) from Procurement p where p.waitCheckIn = ?1")
     Integer countByWaitCheckIn(Boolean waitCheckIn);
     @Query("select count(p) from Procurement p where p.waitStoreIn = ?1")
@@ -49,5 +54,7 @@ public interface ProcurementRepository extends JpaRepository<Procurement, Long>,
 
     @Query("select count(p) from Procurement p where p.projectId = ?1")
     long countByProjectId(Long projectId);
+
+    Procurement findFirstByOrderByIdDesc();
 
 }

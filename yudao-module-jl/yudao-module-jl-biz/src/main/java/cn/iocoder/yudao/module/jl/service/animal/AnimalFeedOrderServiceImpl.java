@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
+import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
@@ -68,15 +69,18 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @PostConstruct
-    public void ProjectServiceImpl(){
-        AnimalFeedOrder firstByOrderByIdDesc = animalFeedOrderRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, ANIMAL_FEED_ORDER_DEFAULT_PREFIX);
+    public void ProcurementServiceImpl(){
+        AnimalFeedOrder last = animalFeedOrderRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, ANIMAL_FEED_ORDER_DEFAULT_PREFIX);
     }
-
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%04d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        long count = animalFeedOrderRepository.countByCodeStartsWith(ANIMAL_FEED_ORDER_DEFAULT_PREFIX+dateStr);
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     @Resource

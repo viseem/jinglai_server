@@ -77,11 +77,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Resource
     private ProjectDocumentServiceImpl projectDocumentService;
 
-    @PostConstruct
+/*    @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
         uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CONTRACT_CODE_DEFAULT_PREFIX);
-    }
+    }*/
 
 
     public String generateCode() {

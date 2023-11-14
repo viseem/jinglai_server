@@ -47,7 +47,7 @@ public interface RedisKeyConstants {
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 
 
-    public String ANIMAL_FEED_ORDER_DEFAULT_PREFIX = "AFOrd";
+    public String ANIMAL_FEED_ORDER_DEFAULT_PREFIX = "SY";
     RedisKeyDefine AUTO_INCREMENT_KEY_ANIMAL_FEED_ORDER = new RedisKeyDefine("动物饲养单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "auto_increment_key:animal_feed_order", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
@@ -63,5 +63,35 @@ public interface RedisKeyConstants {
 
     RedisKeyDefine PREFIX_CUSTOMER_RECEIPT = new RedisKeyDefine("客户发票申请编号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "prefix:customer_receipt", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+
+    /*
+    * 采购单、寄来单SEND_IN、取货单PICKUP
+    * */
+    public String PROCUREMENT_CODE_DEFAULT_PREFIX = "CG";
+
+    RedisKeyDefine AUTO_INCREMENT_KEY_PROCUREMENT_CODE = new RedisKeyDefine("采购单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:procurement_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    RedisKeyDefine PREFIX_PROCUREMENT_CODE = new RedisKeyDefine("采购单流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:procurement_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    public String SEND_IN_CODE_DEFAULT_PREFIX = "SL";
+    RedisKeyDefine AUTO_INCREMENT_KEY_SEND_IN_CODE = new RedisKeyDefine("寄来单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:send_in_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+    RedisKeyDefine PREFIX_SEND_IN_CODE = new RedisKeyDefine("寄来单流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:send_in_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+
+    public String PICKUP_CODE_DEFAULT_PREFIX = "QH";
+    RedisKeyDefine AUTO_INCREMENT_KEY_PICKUP_CODE = new RedisKeyDefine("取货单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "auto_increment_key:pickup_code", // 参数为 state
+            STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
+    RedisKeyDefine PREFIX_PICKUP_CODE = new RedisKeyDefine("取货单流水号的前缀", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
+            "prefix:pickup_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 }

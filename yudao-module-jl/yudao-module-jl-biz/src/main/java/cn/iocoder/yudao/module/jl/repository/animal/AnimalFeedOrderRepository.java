@@ -11,6 +11,10 @@ import java.util.List;
 *
 */
 public interface AnimalFeedOrderRepository extends JpaRepository<AnimalFeedOrder, Long>, JpaSpecificationExecutor<AnimalFeedOrder> {
+    @Query("select count(a) from AnimalFeedOrder a where a.code like concat(?1, '%')")
+    long countByCodeStartsWith(String code);
+    @Query("select a from AnimalFeedOrder a where a.code like concat(?1, '%')")
+    AnimalFeedOrder findByCodeStartsWith(String code);
     @Query("select a from AnimalFeedOrder a where a.stage = ?1")
     List<AnimalFeedOrder> findByStage(String stage);
     @Query("select count(a) from AnimalFeedOrder a where a.stage = ?1")
