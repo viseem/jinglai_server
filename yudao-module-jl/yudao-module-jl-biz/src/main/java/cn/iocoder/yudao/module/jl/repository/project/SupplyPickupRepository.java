@@ -10,6 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplyPickupRepository extends JpaRepository<SupplyPickup, Long>, JpaSpecificationExecutor<SupplyPickup> {
+
+    @Query("select count(p) from SupplyPickup p where p.waitStoreIn = ?1")
+    Integer countByWaitStoreIn(Boolean waitStoreIn);
+
+    @Query("select count(p) from SupplyPickup p where p.waitCheckIn = ?1")
+    Integer countByWaitCheckIn(Boolean waitCheckIn);
+
     @Query("select count(s) from SupplyPickup s where s.code like concat(?1, '%')")
     long countByCodeStartsWith(String code);
     @Query("select count(s) from SupplyPickup s where s.status = ?1")

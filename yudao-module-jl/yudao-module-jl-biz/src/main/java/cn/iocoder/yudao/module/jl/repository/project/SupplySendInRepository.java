@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface SupplySendInRepository extends JpaRepository<SupplySendIn, Long>, JpaSpecificationExecutor<SupplySendIn> {
+    @Query("select count(p) from SupplySendIn p where p.waitStoreIn = ?1")
+    Integer countByWaitStoreIn(Boolean waitStoreIn);
+    @Query("select count(p) from SupplySendIn p where p.waitCheckIn = ?1")
+    Integer countByWaitCheckIn(Boolean waitCheckIn);
     @Query("select count(s) from SupplySendIn s where s.code like concat(?1, '%')")
     long countByCodeStartsWith(String code);
     @Query("select count(s) from SupplySendIn s where s.status = ?1")

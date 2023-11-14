@@ -19,6 +19,9 @@ public class SupplyPickupPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    @Schema(description = "物资code", example = "11363")
+    private String productCode;
+
     @Schema(description = "项目 id", example = "11363")
     private Long projectId;
 

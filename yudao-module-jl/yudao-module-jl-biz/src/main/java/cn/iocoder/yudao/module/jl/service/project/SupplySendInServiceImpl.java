@@ -185,6 +185,15 @@ public class SupplySendInServiceImpl implements SupplySendInService {
         Specification<SupplySendIn> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getProductCode()!=null){
+                List<SupplySendInItem> byProductCode = supplySendInItemRepository.findByProductCodeStartsWith(pageReqVO.getProductCode());
+                //根据List<ProcurementItem>获取List<Long>并去重
+                List<Long> ids = byProductCode.stream().map(SupplySendInItem::getSupplySendInId).distinct().collect(Collectors.toList());
+                if(!ids.isEmpty()) {
+                    predicates.add(root.get("id").in(ids));
+                }
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }

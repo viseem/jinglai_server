@@ -153,10 +153,10 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer waitingCheckInProcurementCount = procurementRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInProcurementCount(waitingCheckInProcurementCount);
         //未签收的寄来单数量
-        Integer waitingCheckInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInSendInCount = supplySendInRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInSendInCount(waitingCheckInSendInCount);
         //未签收的提货单数量
-        Integer waitingCheckInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInPickupCount = supplyPickupRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInPickupCount(waitingCheckInPickupCount);
 
         //-----------------全部的 未入库的单子数量
@@ -164,10 +164,10 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer waitingInProcurementCount = procurementRepository.countByWaitStoreIn(true);
         resp.setWaitingInProcurementCount(waitingInProcurementCount);
         //未入库的寄来单数量
-        Integer waitingInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInSendInCount = supplySendInRepository.countByWaitStoreIn(true);
         resp.setWaitingInSendInCount(waitingInSendInCount);
         //未入库的提货单数量
-        Integer waitingInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInPickupCount = supplyPickupRepository.countByWaitStoreIn(true);
         resp.setWaitingInPickupCount(waitingInPickupCount);
 
         //------------全部的 未入库的申请数量
