@@ -92,6 +92,16 @@ public class Procurement extends BaseEntity {
      */
     @Column(name = "address")
     private String address;
+    /**
+     * 附件地址
+     */
+    @Column(name = "file_url")
+    private String fileUrl;
+    /**
+     * 附件名称
+     */
+    @Column(name = "file_name")
+    private String fileName;
 
     /**
      * 是否有要签收的

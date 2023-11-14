@@ -145,7 +145,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus().equals(updateObj.getStatus())) {
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
-            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+            String processInstanceId = processInstanceApi.createProcessInstance(updateObj.getCreator(),
                     new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(procurementId)));
 

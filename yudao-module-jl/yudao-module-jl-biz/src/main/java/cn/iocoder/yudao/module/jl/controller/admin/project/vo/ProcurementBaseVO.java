@@ -28,6 +28,12 @@ public class ProcurementBaseVO {
     @Schema(description = "采购单号")
     private String code;
 
+    @Schema(description = "附件地址")
+    private String fileUrl;
+
+    @Schema(description = "附件名称")
+    private String fileName;
+
     @Schema(description = "状态", example = "2")
     private String status;
 
