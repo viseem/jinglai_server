@@ -79,7 +79,7 @@ public interface RedisKeyConstants {
             "prefix:procurement_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state
 
-    public String SEND_IN_CODE_DEFAULT_PREFIX = "SL";
+    public String SEND_IN_CODE_DEFAULT_PREFIX = "JL";
     RedisKeyDefine AUTO_INCREMENT_KEY_SEND_IN_CODE = new RedisKeyDefine("寄来单自增数字", // 注意，它是被 JustAuth 的 justauth.type.prefix 使用到
             "auto_increment_key:send_in_code", // 参数为 state
             STRING, String.class, RedisKeyDefine.TimeoutTypeEnum.FOREVER); // 值为 state

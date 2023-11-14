@@ -10,13 +10,16 @@ import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupItemRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -43,6 +46,8 @@ import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.PROCUREMENT_CODE_DEFAULT_PREFIX;
 
 /**
  * 取货单申请 Service 实现类
@@ -50,6 +55,26 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class SupplyPickupServiceImpl implements SupplyPickupService {
+
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PICKUP_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PICKUP_CODE.getKeyTemplate();
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+    @PostConstruct
+    public void SupplyPickupServiceImpl(){
+        SupplyPickup last = supplyPickupRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, PICKUP_CODE_DEFAULT_PREFIX);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long count = supplyPickupRepository.countByCodeStartsWith(String.format("%s%s", uniqCodeGenerator.getUniqCodePrefix(), dateStr));
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+    }
 
     @Resource
     private SupplyPickupRepository supplyPickupRepository;
@@ -250,12 +275,14 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
             Long id = saveReqVO.getId();
             // 校验存在
             validateSupplyPickupExists(id);
+        }else{
+            saveReqVO.setCode(generateCode());
         }
 
         // 更新或新建
         SupplyPickup supplyPickup = supplyPickupMapper.toEntity(saveReqVO);
         supplyPickup.setWaitCheckIn(true); // 代签收
-        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
+//        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
         supplyPickupRepository.save(supplyPickup);
         Long pickupId = supplyPickup.getId();
 

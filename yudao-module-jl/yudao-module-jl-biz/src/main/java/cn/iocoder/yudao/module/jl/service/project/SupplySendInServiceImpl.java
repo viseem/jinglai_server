@@ -2,9 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplyPickupItem;
-import cn.iocoder.yudao.module.jl.entity.project.SupplySendInItem;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
@@ -12,14 +10,17 @@ import cn.iocoder.yudao.module.jl.mapper.project.SupplySendInItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.SupplySendInItemRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -39,7 +40,6 @@ import javax.persistence.criteria.Root;
 import java.util.*;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.SupplySendIn;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.SupplySendInMapper;
@@ -47,6 +47,8 @@ import cn.iocoder.yudao.module.jl.repository.project.SupplySendInRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.PROCUREMENT_CODE_DEFAULT_PREFIX;
 
 /**
  * 物资寄来单申请 Service 实现类
@@ -54,6 +56,26 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class SupplySendInServiceImpl implements SupplySendInService {
+
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_SEND_IN_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_SEND_IN_CODE.getKeyTemplate();
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+    @PostConstruct
+    public void SupplySendInServiceImpl(){
+        SupplySendIn last = supplySendInRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, SEND_IN_CODE_DEFAULT_PREFIX);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long count = supplySendInRepository.countByCodeStartsWith(String.format("%s%s", uniqCodeGenerator.getUniqCodePrefix(), dateStr));
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+    }
 
     @Resource
     private InventoryCheckInRepository inventoryCheckInRepository;
@@ -103,12 +125,14 @@ public class SupplySendInServiceImpl implements SupplySendInService {
             Long id = saveReqVO.getId();
             // 校验存在
             validateSupplySendInExists(id);
+        }else{
+            saveReqVO.setCode(generateCode());
         }
 
         // 更新或新建
         SupplySendIn updateObj = supplySendInMapper.toEntity(saveReqVO);
         updateObj.setWaitCheckIn(true); // 代签收
-        updateObj.setCode(String.valueOf(Instant.now().toEpochMilli())); //TODO 生成单号
+//        updateObj.setCode(String.valueOf(Instant.now().toEpochMilli())); //TODO 生成单号
         updateObj = supplySendInRepository.save(updateObj);
         Long sendInId = updateObj.getId();
 
