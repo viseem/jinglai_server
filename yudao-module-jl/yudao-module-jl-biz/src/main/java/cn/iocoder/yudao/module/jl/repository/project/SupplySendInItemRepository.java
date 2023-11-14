@@ -11,7 +11,7 @@ import java.util.List;
 *
 */
 public interface SupplySendInItemRepository extends JpaRepository<SupplySendInItem, Long>, JpaSpecificationExecutor<SupplySendInItem> {
-    @Query("select s.supplySendInId from SupplySendInItem s where s.productCode like concat(?1, '%')")
+    @Query("select s from SupplySendInItem s where s.productCode like concat(?1, '%')")
     List<SupplySendInItem> findByProductCodeStartsWith(String productCode);
     @Query("select s from SupplySendInItem s where s.supplySendInId = ?1 and s.projectSupplyId = ?2")
     SupplySendInItem findBySupplySendInIdAndProjectSupplyId(Long supplySendInId, Long projectSupplyId);
