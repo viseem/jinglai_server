@@ -29,22 +29,35 @@ public class UniqCodeGenerator {
 
 
 
-    public void setInitUniqUid(Long id, String uniqCodeKey, String uniqCodePrefixKey, String defaultPrefix){
+    public Boolean setInitUniqUid(Long id, String uniqCodeKey, String uniqCodePrefixKey, String defaultPrefix){
+
+        boolean isInit = true;
 
         this.uniqCodeKey = uniqCodeKey;
         this.uniqCodePrefixKey = uniqCodePrefixKey;
         this.defaultPrefix = defaultPrefix;
 
         uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
+        uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, Long.valueOf(String.valueOf(id)));
 
-        Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
+      /*  Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
         if (aLong == null || !(aLong.longValue() > 0)) {
+            isInit=false;
             uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, Long.valueOf(String.valueOf(id)));
-        }
+        }*/
+        return isInit;
     }
 
     public Long generateUniqUid() {
         return uniqCodeRedisDAO.generateUniqUid(this.uniqCodeKey);
+    }
+
+    public Long getUniqUid() {
+        return uniqCodeRedisDAO.getUniqUidByKey(this.uniqCodeKey);
+    }
+
+    public void setUniqUid(Long value) {
+        uniqCodeRedisDAO.setInitUniqUid(this.uniqCodeKey,value);
     }
 
     public Object getUniqCodePrefix() {

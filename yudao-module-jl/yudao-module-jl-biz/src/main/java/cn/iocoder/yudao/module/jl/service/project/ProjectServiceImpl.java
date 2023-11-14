@@ -77,22 +77,22 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
-    @Resource
-    private CustomerSimpleRepository customerSimpleRepository;
-
-    @Resource
-    private CrmSubjectGroupRepository crmSubjectGroupRepository;
-
     @PostConstruct
     public void ProjectServiceImpl(){
         Project firstByOrderByIdDesc = projectRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CODE_DEFAULT_PREFIX);
+        //截取code后四位
+        String lastCode = firstByOrderByIdDesc.getCode().substring(firstByOrderByIdDesc.getCode().length() - 4);
+        uniqCodeGenerator.setInitUniqUid(Long.valueOf(lastCode),uniqCodeKey,uniqCodePrefixKey, PROJECT_CODE_DEFAULT_PREFIX);
     }
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%04d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        Project prevProject = projectRepository.findByCodeStartsWith(PROJECT_CODE_DEFAULT_PREFIX+dateStr);
+        if (prevProject == null) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
 
