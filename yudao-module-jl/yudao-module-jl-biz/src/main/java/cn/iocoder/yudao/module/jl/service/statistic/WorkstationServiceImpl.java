@@ -129,7 +129,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         resp.setContractFundNotAuditCount(contractFundNotAuditCount);
 
         //全部的 合同发票 未核验的
-        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus());
+        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNotOrPriceStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus(),IsOrNotEnums.IS.getStatus());
         resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
 
         //全部的 未打款采购单数量
