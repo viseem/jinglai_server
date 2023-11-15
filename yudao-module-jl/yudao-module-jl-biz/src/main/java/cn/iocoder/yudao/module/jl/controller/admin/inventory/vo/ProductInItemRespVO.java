@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.ProductInOnly;
 import cn.iocoder.yudao.module.jl.entity.inventory.ProductSendItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -27,4 +28,6 @@ public class ProductInItemRespVO extends ProductInItemBaseVO {
     private String inStatus;
     //寄给客户的总数量
     private Integer sendedQuantity;
+
+    private ProjectSimple project;
 }
