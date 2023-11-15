@@ -28,11 +28,6 @@ public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalB
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;
 
-
-    @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23230")
-    @NotNull(message = "安排单id不能为空")
-    private Long scheduleId;
-
     private String approvalStage;
 
     private List<User> userList;

@@ -39,6 +39,9 @@ public class ProjectPageReqVO extends PageParam {
     @Schema(description = "项目名字", example = "赵六")
     private String name;
 
+    @Schema(description = "项目编号", example = "赵六")
+    private String code;
+
     @Schema(description = "项目开展阶段")
     private String stage;
 

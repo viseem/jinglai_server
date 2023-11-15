@@ -392,6 +392,9 @@ public class ProjectServiceImpl implements ProjectService {
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
+            if(pageReqVO.getCode() != null) {
+                predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
+            }
 
             if(pageReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
