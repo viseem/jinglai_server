@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface ProjectQuotationRepository extends JpaRepository<ProjectQuotation, Long>, JpaSpecificationExecutor<ProjectQuotation> {
+    @Query("select p from ProjectQuotation p where p.projectId = ?1")
+    ProjectQuotation findByProjectId(Long projectId);
     @Transactional
     @Modifying
     @Query("update ProjectQuotation p set p.planText = ?1 where p.id = ?2")

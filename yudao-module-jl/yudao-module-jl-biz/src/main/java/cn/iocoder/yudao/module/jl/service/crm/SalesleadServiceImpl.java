@@ -8,18 +8,18 @@ import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
-import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
@@ -103,6 +103,12 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Resource
     private ProjectDocumentRepository projectDocumentRepository;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
         // 插入
@@ -175,7 +181,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
         // 更新线索
         Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
-        salesleadRepository.save(saleleadsObj);
+        Saleslead saleslead = salesleadRepository.save(saleleadsObj);
         Long salesleadId = saleleadsObj.getId();
 
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
@@ -207,11 +213,32 @@ public class SalesleadServiceImpl implements SalesleadService {
                 //如果客户不存在，则抛出异常
                 Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
                 project.setName(customer.getName()+"的报价");
+                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
+                saleleadsObj.setProjectId(projectId);
+                updateReqVO.setProjectId(projectId);
+                salesleadRepository.save(saleleadsObj);
+                //创建一个默认的报价
+                ProjectQuotation quotation = projectQuotationRepository.findByProjectId(project.getId());
+                if (quotation == null) {
+                    ProjectQuotation projectQuotation = new ProjectQuotation();
+                    projectQuotation.setProjectId(updateReqVO.getProjectId());
+                    projectQuotation.setCustomerId(updateReqVO.getCustomerId());
+                    projectQuotation.setCode("v1");
+                    projectQuotation.setMark("默认报价");
+                    quotation = projectQuotationRepository.save(projectQuotation);
+                }
+                projectRepository.updateCurrentQuotationIdById(quotation.getId(), updateReqVO.getProjectId());
 
             }
 
             if(updateReqVO.getProjectId()!=null){
-                project = projectRepository.findById(updateReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+
+            }else{
+
+            }
+
+            if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
+                project = projectRepository.findById(saleslead.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
                 project.setCode(projectService.generateCode());
                 project.setName(updateReqVO.getProjectName());
                 project.setStatus(updateReqVO.getStatus());
@@ -221,19 +248,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
                 project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),project.getManagerId(),project.getSalesId()));
                 projectRepository.save(project);
-            }else{
-                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
-                // 销售线索中保存项目 id
-                saleleadsObj.setProjectId(projectId);
-                updateReqVO.setProjectId(projectId);
-                System.out.println(projectId+"========"+updateReqVO.getProjectId());
-                salesleadRepository.save(saleleadsObj);
+                projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
             }
-
-            System.out.println(updateReqVO.getProjectId()+"--------------------=====================");
-            //不按照类型区分合同传不传，有就传没有不传
-            // 2. 保存合同
-            // 遍历 updateReqVO.getProjectConstracts(), 创建合同
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
 
                 ProjectConstract bySn = projectConstractRepository.findBySn(updateReqVO.getContractSn());

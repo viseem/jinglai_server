@@ -13,6 +13,10 @@ import java.util.List;
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
     @Transactional
     @Modifying
+    @Query("update ProjectCategory p set p.type = ?1 where p.quotationId = ?2")
+    int updateTypeByQuotationId(String type, Long quotationId);
+    @Transactional
+    @Modifying
     @Query("delete from ProjectCategory p where p.quotationId = ?1")
     int deleteByQuotationId(Long quotationId);
     @Query("select p from ProjectCategory p where p.quotationId = ?1")
