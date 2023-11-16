@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -29,5 +30,8 @@ public class ProjectQuotationBaseVO {
 
     @Schema(description = "客户id")
     private Long customerId;
+
+    @Schema(description = "折扣")
+    private Integer discount;
 
 }

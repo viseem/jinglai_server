@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,4 +25,7 @@ public class ProjectQuotationSaveReqVO extends ProjectQuotationBaseVO {
 
     @Schema(description = "物资项", example = "[]")
     private List<ProjectSupply> supplyList;
+
+    private List<ProjectCategoryQuotationVO> categoryList;
+
 }

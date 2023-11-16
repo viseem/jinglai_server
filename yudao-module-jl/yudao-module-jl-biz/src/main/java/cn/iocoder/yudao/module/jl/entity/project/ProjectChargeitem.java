@@ -102,15 +102,20 @@ public class ProjectChargeitem extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 折扣
+     */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
     private String mark;
 
-    @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectCategory category;
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly category;
 }

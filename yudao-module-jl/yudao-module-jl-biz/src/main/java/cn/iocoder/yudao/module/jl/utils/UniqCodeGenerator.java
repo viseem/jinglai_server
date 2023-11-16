@@ -30,9 +30,9 @@ public class UniqCodeGenerator {
 
 
     public void setInitUniqUid(String code, String uniqCodeKey, String uniqCodePrefixKey, String defaultPrefix){
-        String lastCode = code.substring(code.length() - 4);
         long lastCodeLong;
         try {
+            String lastCode =code!=null&&!code.isEmpty()? code.substring(code.length() - 4):"0";
             // 尝试将字符串转换为 Long
             lastCodeLong = Long.parseLong(lastCode);
         } catch (NumberFormatException e) {

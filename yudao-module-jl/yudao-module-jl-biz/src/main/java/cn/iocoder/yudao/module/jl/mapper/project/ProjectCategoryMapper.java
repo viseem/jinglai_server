@@ -15,12 +15,14 @@ public interface ProjectCategoryMapper {
     ProjectCategory toEntity(ProjectScheduleCategorySaveReqVO dto);
 
     ProjectCategory toEntity(ProjectCategoryUpdateReqVO dto);
+    ProjectCategory toEntity(ProjectCategoryQuotationVO dto);
 
     ProjectCategoryRespVO toDto(ProjectCategory entity);
 
     ProjectCategory toEntity(ProjectCategoryWithSupplyAndChargeItemVO dto);
 
     List<ProjectCategory> toEntity(List<ProjectCategoryWithSupplyAndChargeItemVO> list);
+    List<ProjectCategory> toEntityQuotation(List<ProjectCategoryQuotationVO> list);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     ProjectCategory partialUpdate(ProjectCategoryUpdateReqVO dto, @MappingTarget ProjectCategory entity);

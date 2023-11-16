@@ -65,4 +65,7 @@ public class ProjectQuotation extends BaseEntity {
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
 
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
 }

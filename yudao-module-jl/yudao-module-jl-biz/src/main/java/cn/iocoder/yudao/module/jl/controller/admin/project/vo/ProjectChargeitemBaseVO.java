@@ -57,4 +57,7 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "折扣")
+    private Integer discount;
+
 }

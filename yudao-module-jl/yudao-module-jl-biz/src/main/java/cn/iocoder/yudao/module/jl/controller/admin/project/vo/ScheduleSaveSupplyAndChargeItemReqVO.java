@@ -33,5 +33,8 @@ public class ScheduleSaveSupplyAndChargeItemReqVO {
     @Schema(description = "物资项", example = "[]")
     private List<ProjectSupply> supplyList;
 
+    private List<ProjectCategoryQuotationVO> categoryList;
+
+
 
 }

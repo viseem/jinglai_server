@@ -3,17 +3,22 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * 项目的实验名目 Base VO，提供给添加、修改、详细的子 VO 使用
  * 如果子 VO 存在差异的字段，请不要添加到这里，影响 Swagger 文档生成
  */
 @Data
-public class ProjectCategoryBaseVO {
+public class ProjectCategoryQuotationVO {
 
+    private Boolean isOld=false;
+    @Schema(description = "originId", example = "20286")
+    private Long originId;
+    @Schema(description = "id", example = "20286")
+    private Long id;
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 

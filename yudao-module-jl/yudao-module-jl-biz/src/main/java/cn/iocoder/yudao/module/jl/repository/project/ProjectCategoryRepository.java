@@ -13,6 +13,16 @@ import java.util.List;
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
     @Transactional
     @Modifying
+    @Query("delete from ProjectCategory p where p.quotationId = ?1")
+    int deleteByQuotationId(Long quotationId);
+    @Query("select p from ProjectCategory p where p.quotationId = ?1")
+    List<ProjectCategory> findByQuotationId(Long quotationId);
+    @Transactional
+    @Modifying
+    @Query("update ProjectCategory p set p.quotationId = ?1 where p.quotationId = ?2")
+    int updateQuotationIdByQuotationId(Long quotationId, Long quotationId1);
+    @Transactional
+    @Modifying
     @Query("update ProjectCategory p set p.quotationId = ?1 where p.id = ?2")
     int updateQuotationIdById(Long quotationId, Long id);
     @Query("select count(1) from ProjectCategory p where p.projectId = ?1 and p.stage = ?2 and p.type = 'schedule'")

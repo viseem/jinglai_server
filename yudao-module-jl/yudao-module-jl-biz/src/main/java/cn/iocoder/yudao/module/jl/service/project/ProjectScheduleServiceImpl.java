@@ -520,19 +520,28 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
 
         if(saveReq.getProjectCategoryType()!=null){
-//            ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(saveReq.getProjectCategoryType(), saveReq.getProjectId(), saveReq.getProjectQuotationId());
-          /*  if(saveReq.getProjectQuotationId()!=null){
-                projectCategoryRepository.updateQuotationIdById(saveReq.getProjectQuotationId(),projectCategory.getId());
-            }*/
+
             saveReq.getSupplyList().forEach(supply -> {
                 supply.setProjectId(saveReq.getProjectId());
                 supply.setQuotationId(saveReq.getProjectQuotationId());
             });
+            if(saveReq.getCategoryList()!=null&&!saveReq.getCategoryList().isEmpty()){
+                saveReq.getChargeList().forEach(charge -> {
+                    for (ProjectCategoryQuotationVO projectCategoryQuotationVO : saveReq.getCategoryList()) {
+                        if(projectCategoryQuotationVO.getIsOld()&&Objects.equals(projectCategoryQuotationVO.getOriginId(),charge.getProjectCategoryId())){
+                            charge.setProjectCategoryId(projectCategoryQuotationVO.getId());
+                        }
+                    }
+                    charge.setProjectId(saveReq.getProjectId());
+                    charge.setQuotationId(saveReq.getProjectQuotationId());
+                });
+            }else{
+                saveReq.getChargeList().forEach(charge -> {
+                    charge.setProjectId(saveReq.getProjectId());
+                    charge.setQuotationId(saveReq.getProjectQuotationId());
+                });
+            }
 
-            saveReq.getChargeList().forEach(charge -> {
-                charge.setProjectId(saveReq.getProjectId());
-                charge.setQuotationId(saveReq.getProjectQuotationId());
-            });
         }
 
         //批量保存saveReq中的supplyList

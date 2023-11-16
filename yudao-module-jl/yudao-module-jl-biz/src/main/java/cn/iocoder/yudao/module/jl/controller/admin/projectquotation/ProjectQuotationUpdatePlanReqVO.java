@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryBaseVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationBaseVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Schema(description = "管理后台 - 项目报价更新 Request VO")
 @Data
@@ -30,6 +34,7 @@ public class ProjectQuotationUpdatePlanReqVO {
     private Long projectId;
 
     private Long customerId;
+
 
 
 }

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -137,6 +138,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteProjectCategory(Long id) {
         // 校验存在
         validateProjectCategoryExists(id);
@@ -187,6 +189,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteSoftProjectCategory(Long id){
         // 校验存在
         validateProjectCategoryExists(id);

@@ -20,6 +20,8 @@ public class SalesleadBaseVO {
     @NotNull(message = "销售线索来源不能为空")
     private String source;
 
+    private String assignMark;
+
     @Schema(description = "关键需求")
     private String requirement;
 

@@ -1,8 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectquotation;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ScheduleSaveSupplyAndChargeItemReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
@@ -65,6 +69,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     @Resource
     private ProjectChargeitemRepository projectChargeitemRepository;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+    @Resource
+    private ProjectCategoryMapper projectCategoryMapper;
+
     @Override
     public Long createProjectQuotation(ProjectQuotationCreateReqVO createReqVO) {
         // 插入
@@ -107,12 +116,28 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         saveReqVO.setChargeList(updateReqVO.getChargeList());
         saveReqVO.setProjectCategoryType("only");
         saveReqVO.setProjectQuotationId(save.getId());
+
+        if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
+            for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
+                if(projectCategory.getIsOld()){
+                    projectCategory.setOriginId(projectCategory.getId());
+                    projectCategory.setId(null);
+                }
+                projectCategory.setQuotationId(saveReqVO.getProjectQuotationId());
+                ProjectCategory save1 = projectCategoryRepository.save(projectCategoryMapper.toEntity(projectCategory));
+                projectCategory.setId(save1.getId());
+            }
+//            projectCategoryRepository.saveAll(projectCategoryMapper.toEntityQuotation(updateReqVO.getCategoryList()));
+        }
+        saveReqVO.setCategoryList(updateReqVO.getCategoryList());
+
         projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
 
 
     }
 
     @Override
+    @Transactional
     public Long updateProjectQuotationPlan(ProjectQuotationUpdatePlanReqVO updateReqVO){
         if(updateReqVO.getId()==null){
             // 校验存在
@@ -123,8 +148,14 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             updateReqVO.setId(save.getId());
         }
         projectQuotationRepository.updatePlanTextById(updateReqVO.getPlanText(), updateReqVO.getId());
-
-        return updateReqVO.getId();
+        Long id = updateReqVO.getId();
+        /*if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
+            for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
+                projectCategory.setQuotationId(id);
+            }
+            projectCategoryRepository.saveAll(projectCategoryMapper.toEntityQuotation(updateReqVO.getCategoryList()));
+        }*/
+        return id;
     }
 
     @Override
@@ -137,6 +168,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         projectSupplyRepository.deleteByQuotationId(id);
         //删除chargeitem
         projectChargeitemRepository.deleteByQuotationId(id);
+        //删除category
+        projectCategoryRepository.deleteByQuotationId(id);
 
         // 删除
         projectQuotationRepository.deleteById(id);

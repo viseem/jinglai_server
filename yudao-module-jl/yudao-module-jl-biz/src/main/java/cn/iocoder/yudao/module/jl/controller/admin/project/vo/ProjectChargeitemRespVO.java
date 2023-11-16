@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -17,5 +18,6 @@ public class ProjectChargeitemRespVO extends ProjectChargeitemBaseVO {
     private LocalDateTime createTime;
 
 
+    private ProjectCategoryOnly category;
 
 }
