@@ -80,6 +80,12 @@ public class ProjectCategoryAttachment extends BaseEntity {
     private String type;
 
     /**
+     * 实验附件类型
+     */
+    @Column(name = "exp_type")
+    private String expType;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
