@@ -177,10 +177,15 @@ public class SalesleadServiceImpl implements SalesleadService {
             // 校验存在
             Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
             updateReqVO.setProjectId(saleslead.getProjectId());
+            // 如果线索已经是转项目状态，则不再修改状态
+            if(Objects.equals(saleslead.getStatus().toString(),SalesLeadStatusEnums.ToProject.getStatus())){
+                updateReqVO.setStatus(SalesLeadStatusEnums.ToProject.getStatus());
+            }
         }
 
         // 更新线索
         Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
+
         Saleslead saleslead = salesleadRepository.save(saleleadsObj);
         Long salesleadId = saleleadsObj.getId();
 
