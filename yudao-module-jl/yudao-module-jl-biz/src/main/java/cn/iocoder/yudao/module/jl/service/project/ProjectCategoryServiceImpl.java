@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
@@ -34,6 +35,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
 
@@ -306,6 +308,22 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getAttribute() != null) {
+                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
+                    mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                }else{
+                    predicates.add(cb.equal(root.get("operatorId"), getLoginUserId()));
+                }
+            }else{
+                //这个目前 前端传过来的
+                if(pageReqVO.getOperatorId() != null) {
+                    predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
+                }
+            }
+
+            if(pageReqVO.getFocusId() != null) {
+                mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
+            }
 
             if(pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
@@ -350,9 +368,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
             }
 
-            if(pageReqVO.getOperatorId() != null) {
-                predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
-            }
+
 
             if(pageReqVO.getDemand() != null) {
                 predicates.add(cb.equal(root.get("demand"), pageReqVO.getDemand()));
@@ -375,9 +391,6 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
             if(pageReqVO.getLabId() != null) {
                 mysqlFindInSet(pageReqVO.getLabId(),"labIds", root, cb, predicates);
-            }
-            if(pageReqVO.getFocusId() != null) {
-                mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
