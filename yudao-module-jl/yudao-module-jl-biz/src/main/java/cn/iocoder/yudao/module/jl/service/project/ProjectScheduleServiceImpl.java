@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCat
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
@@ -103,6 +104,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     private final SalesleadRepository salesleadRepository;
 
+    @Resource
+    private ProjectConstractRepository projectConstractRepository;
+
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
     }
@@ -114,6 +118,36 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectScheduleRepository.save(projectSchedule);
         // 返回
         return projectSchedule.getId();
+    }
+
+    /*
+    * 计算合同应收
+    * */
+    @Override
+    public Long getContractAmountByProjectId(Long id){
+        long cost = 0L;
+        List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+        for (ProjectConstract projectConstract : byProjectIdAndStatus) {
+            if(projectConstract.getPrice() != null) {
+                cost += projectConstract.getPrice();
+            }
+        }
+        return cost;
+    }
+
+    /*
+    * 计算合同已收款
+    * */
+    @Override
+    public Long getContractReceivedAmountByProjectId(Long id){
+        long cost = 0L;
+        List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+        for (ProjectConstract projectConstract : byProjectIdAndStatus) {
+            if(projectConstract.getReceivedPrice() != null) {
+                cost += projectConstract.getReceivedPrice();
+            }
+        }
+        return cost;
     }
 
     /** 计算当前安排单的物资成本

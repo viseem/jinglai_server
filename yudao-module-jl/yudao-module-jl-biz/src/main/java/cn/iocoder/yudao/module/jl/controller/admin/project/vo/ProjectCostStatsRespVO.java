@@ -10,6 +10,13 @@ import java.util.Map;
 @Data
 @ToString(callSuper = true)
 public class ProjectCostStatsRespVO {
+    @Schema(description = "合同应收")
+    private Long contractAmount;
+
+    @Schema(description = "合同已收")
+    private Long contractReceivedAmount;
+
+
     @Schema(description = "物资成本")
     private Long supplyCost;
 

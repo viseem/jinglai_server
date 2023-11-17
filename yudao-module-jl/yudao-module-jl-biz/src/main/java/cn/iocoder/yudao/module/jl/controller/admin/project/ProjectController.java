@@ -117,9 +117,15 @@ public class ProjectController {
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<ProjectCostStatsRespVO> getProjectCostStats(@RequestParam("id") Long id) {
         Project project = projectService.getProject(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+
         // 计算各类成本
         Long quotationId =project.getCurrentQuotationId();
         ProjectCostStatsRespVO ret = new ProjectCostStatsRespVO();
+
+        //计算合同应收和已收 TODO 可以合并成一个方法
+        ret.setContractAmount(projectScheduleService.getContractAmountByProjectId(id));
+        ret.setContractReceivedAmount(projectScheduleService.getContractReceivedAmountByProjectId(id));
+
         ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
         ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));

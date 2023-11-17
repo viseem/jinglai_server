@@ -107,4 +107,7 @@ public interface ProjectScheduleService {
      */
     List<ProjectSchedule> getProjectScheduleList(ProjectScheduleExportReqVO exportReqVO);
 
+    Long getContractAmountByProjectId(Long id);
+    Long getContractReceivedAmountByProjectId(Long id);
+
 }

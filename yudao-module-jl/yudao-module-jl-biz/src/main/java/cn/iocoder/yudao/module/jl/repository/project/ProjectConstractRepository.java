@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.repository.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ProjectConstractRepository extends JpaRepository<ProjectConstract, Long>, JpaSpecificationExecutor<ProjectConstract> {
+    @Query("select p from ProjectConstract p where p.projectId = ?1 and p.status = ?2")
+    List<ProjectConstract> findByProjectIdAndStatus(Long projectId, String status);
     @Transactional
     @Modifying
     @Query("update ProjectConstract p set p.invoicedPrice = ?1 where p.id = ?2")
