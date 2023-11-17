@@ -133,7 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),createReqVO.getManagerId(),createReqVO.getSalesId()));
+        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),Arrays.asList(createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId())));
 
 
         Project project = projectMapper.toEntity(createReqVO);
@@ -158,17 +158,24 @@ public class ProjectServiceImpl implements ProjectService {
         return project.getId();
     }
 
-    public String processProjectFocusIds(String _focusIds,Long managerId,Long salesId) {
+    public String processProjectFocusIds(String _focusIds,List<Long> ids) {
         List<Long> focusIds = new ArrayList<>();
         if(_focusIds!=null&& !_focusIds.isEmpty()) {
             focusIds = Arrays.stream(_focusIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
         }
-        if (!focusIds.contains(managerId)) {
+        if(ids!=null&&!ids.isEmpty()){
+            for (Long id : ids) {
+                if (!focusIds.contains(id)) {
+                    focusIds.add(id);
+                }
+            }
+        }
+        /*if (!focusIds.contains(managerId)) {
             focusIds.add(managerId);
         }
         if (!focusIds.contains(salesId)) {
             focusIds.add(salesId);
-        }
+        }*/
 
         return focusIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
@@ -207,7 +214,7 @@ public class ProjectServiceImpl implements ProjectService {
 //        projectPersonRepository.saveAll(updateReqVO.getPersons());
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),updateReqVO.getManagerId(),updateReqVO.getSalesId()));
+        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId())));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);
