@@ -231,18 +231,14 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             }
 
-            if(updateReqVO.getProjectId()!=null){
-
-            }else{
-
-            }
-
+            //如果是转项目
             if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
                 project = projectRepository.findById(saleslead.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
                 project.setCode(projectService.generateCode());
                 project.setName(updateReqVO.getProjectName());
                 project.setStatus(updateReqVO.getStatus());
-                project.setManagerId(updateReqVO.getProjectManagerId()==null?project.getManagerId():updateReqVO.getProjectManagerId());
+                project.setManagerId(updateReqVO.getProjectManagerId());
+                project.setPreManagerId(saleslead.getManagerId());
                 if(updateReqVO.getType()!=null){
                     project.setType(updateReqVO.getType());
                 }

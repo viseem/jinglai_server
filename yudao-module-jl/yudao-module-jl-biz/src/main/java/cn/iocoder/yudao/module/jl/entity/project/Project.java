@@ -115,6 +115,12 @@ public class Project extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
+    /**
+     * 项目售前负责人
+     */
+    @Column(name = "pre_manager_id")
+    private Long preManagerId;
+
 
     /**
      * 参与者 ids，数组
