@@ -106,6 +106,10 @@ public class WorkstationServiceImpl implements WorkstationService {
         //自己的未报价的线索数量
         Integer notQuotationCount = salesleadRepository.countByManagerIdAndStatus(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.QUOTATION.getStatus()));
         resp.setNotQuotationCount(notQuotationCount);
+
+        //自己的未完成的任务数量
+        Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
+        resp.setNotCompleteTaskCount(notCompleteTaskCount);
         return resp;
     }
 

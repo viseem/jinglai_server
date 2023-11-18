@@ -13,4 +13,7 @@ public class WorkstationProjectCountStatsResp {
     Integer notProcessFeedbackCount;
 
     Integer notQuotationCount;
+
+    Integer notCompleteTaskCount;
+
 }
