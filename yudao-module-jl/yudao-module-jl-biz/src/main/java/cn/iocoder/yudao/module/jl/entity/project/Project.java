@@ -152,6 +152,10 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User manager;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "pre_manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User preManager;
     /**
      * 客户 id
      */
