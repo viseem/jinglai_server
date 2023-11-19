@@ -181,7 +181,7 @@ public class CustomerServiceImpl implements CustomerService {
     public Optional<Customer> getCustomer(Long id) {
         Optional<Customer> byId = customerRepository.findById(id);
         Customer customer = byId.get();
-        if(customer.getSubjectGroupIds() != null){
+        if(customer.getSubjectGroupIds() != null&&!customer.getSubjectGroupIds().isEmpty()){
             customer.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
         }
         return byId;

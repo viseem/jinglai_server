@@ -22,12 +22,15 @@ public class JLSqlUtils {
         return labIdList;
     }
 
-    public static <T>List<T> idsString2QueryList(String labIds, JpaRepository repository) {
+    public static <T> List idsString2QueryList(String labIds, JpaRepository repository) {
         // 处理可能的异常
         if (labIds == null || labIds.isEmpty()) {
             return null;
         }
-        List<Long> idList = Arrays.asList(labIds.split(",")).stream().map(s -> Long.parseLong(s.trim())).collect(Collectors.toList());
+        List<Long> idList = Arrays.stream(labIds.split(","))
+                .filter(s -> s.matches("\\d+")) // Only include if s is a number
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
         return repository.findAllById(idList);
     }
 

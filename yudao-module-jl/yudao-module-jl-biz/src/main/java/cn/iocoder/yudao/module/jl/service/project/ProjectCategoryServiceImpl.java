@@ -241,12 +241,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         //以逗号分隔category的labIds 为list，然后查询出来
         String labIds = category.getLabIds();
-        if(labIds!=null){
+        if(labIds!=null&& !labIds.isEmpty()){
             category.setLabList(idsString2QueryList(category.getLabIds(),laboratoryLabRepository));
         }
 
         String ids = category.getFocusIds();
-        if(ids!=null){
+        if(ids!=null&& !ids.isEmpty()){
             category.setFocusList(idsString2QueryList(category.getFocusIds(),userRepository));
         }
         return byId;

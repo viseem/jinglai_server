@@ -161,7 +161,10 @@ public class ProjectServiceImpl implements ProjectService {
     public String processProjectFocusIds(String _focusIds,List<Long> ids) {
         List<Long> focusIds = new ArrayList<>();
         if(_focusIds!=null&& !_focusIds.isEmpty()) {
-            focusIds = Arrays.stream(_focusIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+            focusIds = Arrays.stream(_focusIds.split(","))
+                    .filter(s -> s.matches("\\d+")) // Only include if s is a number
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
         }
         if(ids!=null&&!ids.isEmpty()){
             for (Long id : ids) {
@@ -566,7 +569,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.setCompletePercent((int) (completeCount*100/allCount));
         }
         //处理参与者
-        if(project.getFocusIds()!=null){
+        if(project.getFocusIds()!=null&&!project.getFocusIds().isEmpty()){
             project.setFocusList(idsString2QueryList(project.getFocusIds(),userRepository));
         }
 
