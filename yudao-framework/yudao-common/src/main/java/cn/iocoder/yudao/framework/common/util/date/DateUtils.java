@@ -25,6 +25,9 @@ public class DateUtils {
 
     public static final String FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String FORMAT_YEAR_MONTH_DAY_23_59_59 = "yyyy-MM-dd HH:mm:ss";
+
+
     public static final String FORMAT_HOUR_MINUTE_SECOND = "HH:mm:ss";
 
     /**

@@ -101,13 +101,13 @@ public class Project extends BaseEntity {
      * 启动时间
      */
     @Column(name = "start_date")
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 截止时间
      */
     @Column(name = "end_date")
-    private String endDate;
+    private LocalDateTime endDate;
 
     /**
      * 项目负责人
