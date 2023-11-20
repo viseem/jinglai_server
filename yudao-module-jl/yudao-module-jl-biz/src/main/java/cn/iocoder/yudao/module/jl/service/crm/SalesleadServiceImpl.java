@@ -205,6 +205,9 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
             // 1. 创建项目
             Project project = new Project();
+            // 注意这里----
+            System.out.println("------------------"+updateReqVO.getProjectId()+"------------------");
+            project.setId(updateReqVO.getProjectId());
             project.setSalesleadId(salesleadId);
             project.setCustomerId(updateReqVO.getCustomerId());
             project.setName(updateReqVO.getProjectName());
@@ -218,19 +221,22 @@ public class SalesleadServiceImpl implements SalesleadService {
                 //如果客户不存在，则抛出异常
                 Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
                 project.setName(customer.getName()+"的报价");
-                Long projectId = projectService.createProject(projectMapper.toCreateDto(project));
-                saleleadsObj.setProjectId(projectId);
-                updateReqVO.setProjectId(projectId);
+                Project saveProject = projectRepository.save(project);
+                saleleadsObj.setProjectId(saveProject.getId());
+                updateReqVO.setProjectId(saveProject.getId());
                 salesleadRepository.save(saleleadsObj);
                 //创建一个默认的报价
-                ProjectQuotation quotation = projectQuotationRepository.findByProjectId(project.getId());
-                if (quotation == null) {
+                List<ProjectQuotation> quotations = projectQuotationRepository.findByProjectId(updateReqVO.getProjectId());
+                ProjectQuotation quotation;
+                if (quotations==null|| quotations.isEmpty() || quotations.get(0)==null) {
                     ProjectQuotation projectQuotation = new ProjectQuotation();
                     projectQuotation.setProjectId(updateReqVO.getProjectId());
                     projectQuotation.setCustomerId(updateReqVO.getCustomerId());
                     projectQuotation.setCode("v1");
                     projectQuotation.setMark("默认报价");
-                    quotation = projectQuotationRepository.save(projectQuotation);
+                    quotation=projectQuotationRepository.save(projectQuotation);
+                }else{
+                    quotation = quotations.get(0);
                 }
                 projectRepository.updateCurrentQuotationIdById(quotation.getId(), updateReqVO.getProjectId());
 
