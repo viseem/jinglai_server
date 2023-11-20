@@ -135,6 +135,11 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 校验存在
         validateProcurementExists(updateReqVO.getId());
 
+        //如果是等待采购确认，则清空流程实例编号
+        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateReqVO.getStatus())){
+            updateReqVO.setProcessInstanceId(null);
+        }
+
         // 更新
         Procurement updateObj = procurementMapper.toEntity(updateReqVO);
         updateObj = procurementRepository.save(updateObj);
@@ -177,6 +182,11 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             // 更新流程实例编号
             procurementRepository.updateProcessInstanceIdById(processInstanceId,procurementId);
+        }
+
+        //如果是等待采购确认，则清空流程实例编号
+        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateObj.getStatus())){
+            procurementRepository.updateProcessInstanceIdById(null,procurementId);
         }
 
         // 删除原有的采购单明细？

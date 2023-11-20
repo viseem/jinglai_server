@@ -64,4 +64,6 @@ public class ProcurementBaseVO {
     @Schema(description = "收货人id", example = "29752")
     private String receiverUserId;
 
+    @Schema(description = "流程实例id", example = "29752")
+    private String processInstanceId;
 }
