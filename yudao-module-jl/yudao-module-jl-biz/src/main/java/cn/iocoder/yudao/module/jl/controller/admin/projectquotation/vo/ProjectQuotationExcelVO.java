@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 项目报价 Excel VO
  *
@@ -16,25 +18,43 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @Data
 public class ProjectQuotationExcelVO {
 
-    @ExcelProperty("ID")
+/*    @ExcelProperty("ID")
     private Long id;
 
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
 
-    @ExcelProperty("版本号")
-    private String code;
+    @ExcelProperty("版本")
+    private String code;*/
+
+/*    @ExcelProperty("备注")
+    private String mark;*/
+
+    @ExcelProperty("品目")
+    private String projectCategoryName;
+
+    @ExcelProperty("项目名称")
+    private String name;
+
+    @ExcelProperty("单位")
+    private String feeStandard;
+
+    @ExcelProperty("规格")
+    private Integer unitAmount;
+
+    @ExcelProperty("数量")
+    private Integer quantity;
+
+    @ExcelProperty("单价")
+    private Integer unitFee;
+
+    @ExcelProperty("成本价")
+    private Integer buyPrice;
 
     @ExcelProperty("备注")
     private String mark;
 
-    @ExcelProperty("方案")
-    private String planText;
-
-    @ExcelProperty("项目id")
-    private Long projectId;
-
-    @ExcelProperty("客户id")
-    private Long customerId;
+    @Schema(description = "物品来源")
+    private String source;
 
 }

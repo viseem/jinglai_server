@@ -26,6 +26,8 @@ public interface ProjectQuotationMapper {
     ProjectQuotation partialUpdate(ProjectQuotationUpdateReqVO dto, @MappingTarget ProjectQuotation entity);
 
     List<ProjectQuotationExcelVO> toExcelList(List<ProjectQuotation> list);
+    List<ProjectQuotationExcelVO> toExcelList2(List<ProjectQuotationExportRespVO> list);
+
 
     PageResult<ProjectQuotationRespVO> toPage(PageResult<ProjectQuotation> page);
 }

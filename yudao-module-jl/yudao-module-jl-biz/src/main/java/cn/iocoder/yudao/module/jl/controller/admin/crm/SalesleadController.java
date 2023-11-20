@@ -77,7 +77,7 @@ public class SalesleadController {
     @Operation(summary = "商机报价转给别人")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> updateSalesleadManager(@Valid @RequestBody SalesleadUpdateManagerVO updateReqVO) {
-        salesleadRepository.updateManagerIdById(updateReqVO.getManagerId(), updateReqVO.getId());
+        salesleadRepository.updateManagerIdAndAssignMarkById(updateReqVO.getManagerId(),updateReqVO.getAssignMark(), updateReqVO.getId());
         return success(true);
     }
 

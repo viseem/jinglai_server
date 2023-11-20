@@ -4,7 +4,9 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuo
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ScheduleSaveSupplyAndChargeItemReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
@@ -73,6 +75,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     private ProjectCategoryRepository projectCategoryRepository;
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
+
 
     @Override
     public Long createProjectQuotation(ProjectQuotationCreateReqVO createReqVO) {
@@ -234,37 +237,52 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
-    public List<ProjectQuotation> getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO) {
-        // 创建 Specification
-        Specification<ProjectQuotation> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+    public List<ProjectQuotationExportRespVO> getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO) {
 
-            if(exportReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), exportReqVO.getCode()));
+        List<ProjectQuotationExportRespVO> quotationList = new ArrayList<>();
+        //查询物资列表
+        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(exportReqVO.getQuotationId());
+        //遍历物资列表赋值到resp的itemList
+        for (ProjectSupply projectSupply : byQuotationId) {
+            ProjectQuotationExportRespVO item = new ProjectQuotationExportRespVO();
+            item.setProjectCategoryName("实验材料准备");
+            item.setName(projectSupply.getName());
+            item.setMark(projectSupply.getMark());
+            item.setProjectCategoryId(projectSupply.getProjectCategoryId());
+            item.setBrand(projectSupply.getBrand());
+            item.setFeeStandard(projectSupply.getFeeStandard());
+            item.setBuyPrice(projectSupply.getBuyPrice());
+            item.setProductCode(projectSupply.getProductCode());
+            item.setFeeStandard(projectSupply.getFeeStandard());
+            item.setUnitFee(projectSupply.getUnitFee());
+            item.setUnitAmount(projectSupply.getUnitAmount());
+            item.setQuantity(projectSupply.getQuantity());
+            item.setType(projectSupply.getType());
+            quotationList.add(item);
+        }
+
+        // 查询收费项列表，并按照projectCategoryId排序
+        List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
+        //byQuotationId1按照projectCategoryId排序 升序
+        byQuotationId1.sort(Comparator.comparing(ProjectChargeitem::getProjectCategoryId));
+        //遍历收费项列表赋值到resp的itemList
+        for (ProjectChargeitem projectChargeitem : byQuotationId1) {
+            ProjectQuotationExportRespVO item = new ProjectQuotationExportRespVO();
+            if(projectChargeitem.getCategory()!=null){
+                System.out.println("category---"+projectChargeitem.getCategory().getName());
+                item.setProjectCategoryName(projectChargeitem.getCategory().getName());
             }
+            item.setName(projectChargeitem.getName());
+            item.setMark(projectChargeitem.getMark());
+            item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
+            item.setFeeStandard(projectChargeitem.getFeeStandard());
+            item.setUnitFee(projectChargeitem.getUnitFee());
+            item.setUnitAmount(projectChargeitem.getUnitAmount());
+            item.setQuantity(projectChargeitem.getQuantity());
+            quotationList.add(item);
+        }
+        return quotationList;
 
-            if(exportReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
-            }
-
-            if(exportReqVO.getPlanText() != null) {
-                predicates.add(cb.equal(root.get("planText"), exportReqVO.getPlanText()));
-            }
-
-            if(exportReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
-            }
-
-            if(exportReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        // 执行查询
-        return projectQuotationRepository.findAll(spec);
     }
 
     private Sort createSort(ProjectQuotationPageOrder order) {

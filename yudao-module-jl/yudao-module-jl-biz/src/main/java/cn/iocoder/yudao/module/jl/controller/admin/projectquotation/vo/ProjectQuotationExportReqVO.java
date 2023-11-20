@@ -29,6 +29,9 @@ public class ProjectQuotationExportReqVO {
     @Schema(description = "项目id", example = "19220")
     private Long projectId;
 
+    @Schema(description = "报价id", example = "19220")
+    private Long quotationId;
+
     @Schema(description = "客户id", example = "22455")
     private Long customerId;
 

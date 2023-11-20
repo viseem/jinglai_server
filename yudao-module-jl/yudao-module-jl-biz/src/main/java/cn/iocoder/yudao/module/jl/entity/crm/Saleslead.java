@@ -115,7 +115,7 @@ public class Saleslead extends BaseEntity {
      * 指派备注
      */
     @Column(name = "assign_mark")
-    private Long assignMark;
+    private String assignMark;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

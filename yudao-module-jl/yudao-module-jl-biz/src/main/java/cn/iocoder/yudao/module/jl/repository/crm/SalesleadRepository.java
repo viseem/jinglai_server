@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
     @Transactional
     @Modifying
-    @Query("update Saleslead s set s.managerId = ?1 where s.id = ?2")
-    int updateManagerIdById(Long managerId, Long id);
+    @Query("update Saleslead s set s.managerId = ?1,s.assignMark=?2 where s.id = ?3")
+    int updateManagerIdAndAssignMarkById(Long managerId,String assignMark, Long id);
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.status = ?1 where s.projectId = ?2")

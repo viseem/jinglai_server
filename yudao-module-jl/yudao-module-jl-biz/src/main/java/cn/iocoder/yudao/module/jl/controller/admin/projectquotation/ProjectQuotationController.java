@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLCustomMergeStrategy;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectReimburse;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
@@ -119,10 +120,9 @@ public class ProjectQuotationController {
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:export')")
     @OperateLog(type = EXPORT)
     public void exportProjectQuotationExcel(@Valid ProjectQuotationExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
-        List<ProjectQuotation> list = projectQuotationService.getProjectQuotationList(exportReqVO);
+        List<ProjectQuotationExportRespVO> list = projectQuotationService.getProjectQuotationList(exportReqVO);
         // 导出 Excel
-        List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList(list);
-        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData);
+        List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList2(list);
+        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy());
     }
-
 }

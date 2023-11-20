@@ -17,7 +17,9 @@ public class SalesleadUpdateManagerVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
     private Long id;
 
-    @Schema(description = "绑定的销售报价人员" ,requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
+    @Schema(description = "绑定报价人员" ,requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
     private Long managerId;
 
+    @Schema(description = "备注" )
+    private String assignMark;
 }
