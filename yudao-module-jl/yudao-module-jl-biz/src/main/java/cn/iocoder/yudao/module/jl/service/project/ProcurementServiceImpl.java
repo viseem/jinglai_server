@@ -63,7 +63,7 @@ public class ProcurementServiceImpl implements ProcurementService {
     @PostConstruct
     public void ProcurementServiceImpl(){
         Procurement last = procurementRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, PROCUREMENT_CODE_DEFAULT_PREFIX);
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
     }
 
 
@@ -73,7 +73,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
-        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", PROCUREMENT_CODE_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     /**

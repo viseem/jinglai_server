@@ -64,17 +64,17 @@ public class SupplySendInServiceImpl implements SupplySendInService {
     @PostConstruct
     public void SupplySendInServiceImpl(){
         SupplySendIn last = supplySendInRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, SEND_IN_CODE_DEFAULT_PREFIX);
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",SEND_IN_CODE_DEFAULT_PREFIX);
     }
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        long count = supplySendInRepository.countByCodeStartsWith(String.format("%s%s", uniqCodeGenerator.getUniqCodePrefix(), dateStr));
+        long count = supplySendInRepository.countByCodeStartsWith(String.format("%s%s", SEND_IN_CODE_DEFAULT_PREFIX, dateStr));
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
-        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", SEND_IN_CODE_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     @Resource

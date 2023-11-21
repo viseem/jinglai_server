@@ -86,7 +86,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%04d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        return  String.format("%s%s%04d","contractx",dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
 

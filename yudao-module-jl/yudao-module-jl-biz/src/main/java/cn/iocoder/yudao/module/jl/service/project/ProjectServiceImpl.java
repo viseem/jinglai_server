@@ -85,17 +85,17 @@ public class ProjectServiceImpl implements ProjectService {
     @PostConstruct
     public void ProjectServiceImpl(){
         Project last = projectRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, PROJECT_CODE_DEFAULT_PREFIX);
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
     }
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        long count = projectRepository.countByCodeStartsWith(dateStr);
+        long count = projectRepository.countByCodeStartsWith(String.format("%s%s", PROJECT_CODE_DEFAULT_PREFIX, dateStr));
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
-        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", PROJECT_CODE_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
 

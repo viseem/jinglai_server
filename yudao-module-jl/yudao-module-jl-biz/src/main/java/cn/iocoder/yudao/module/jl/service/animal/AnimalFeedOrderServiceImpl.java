@@ -71,7 +71,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     @PostConstruct
     public void ProcurementServiceImpl(){
         AnimalFeedOrder last = animalFeedOrderRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, ANIMAL_FEED_ORDER_DEFAULT_PREFIX);
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
     }
 
     public String generateCode() {
@@ -80,7 +80,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
-        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", ANIMAL_FEED_ORDER_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     @Resource

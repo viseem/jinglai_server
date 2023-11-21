@@ -58,7 +58,7 @@ public class CrmReceiptServiceImpl implements CrmReceiptService {
     }*/
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        return  String.format("%s%s%07d","receiptx",dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
 

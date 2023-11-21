@@ -23,13 +23,13 @@ public class UniqCodeGenerator {
 
     private String uniqCodeKey;
 
-    private String uniqCodePrefixKey;
+//    private String uniqCodePrefixKey;
+//
+//    private String defaultPrefix;
 
-    private String defaultPrefix;
 
 
-
-    public void setInitUniqUid(String code, String uniqCodeKey, String uniqCodePrefixKey, String defaultPrefix){
+    public void setInitUniqUid(String code, String uniqCodeKey){
         long lastCodeLong;
         try {
             String lastCode =code!=null&&!code.isEmpty()? code.substring(code.length() - 4):"0";
@@ -40,10 +40,10 @@ public class UniqCodeGenerator {
             lastCodeLong = 0L;
         }
         this.uniqCodeKey = uniqCodeKey;
-        this.uniqCodePrefixKey = uniqCodePrefixKey;
-        this.defaultPrefix = defaultPrefix;
+//        this.uniqCodePrefixKey = uniqCodePrefixKey;
+//        this.defaultPrefix = defaultPrefix;
 
-        uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
+//        uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
         uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, lastCodeLong);
 
       /*  Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
@@ -65,7 +65,7 @@ public class UniqCodeGenerator {
         uniqCodeRedisDAO.setInitUniqUid(this.uniqCodeKey,value);
     }
 
-    public Object getUniqCodePrefix() {
-        return uniqCodeRedisDAO.getUniqCodePrefix(this.uniqCodePrefixKey,this.defaultPrefix);
-    }
+//    public Object getUniqCodePrefix() {
+//        return uniqCodeRedisDAO.getUniqCodePrefix(this.uniqCodePrefixKey,this.defaultPrefix);
+//    }
 }

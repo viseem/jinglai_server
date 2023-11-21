@@ -63,17 +63,17 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
     @PostConstruct
     public void SupplyPickupServiceImpl(){
         SupplyPickup last = supplyPickupRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey,uniqCodePrefixKey, PICKUP_CODE_DEFAULT_PREFIX);
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
     }
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        long count = supplyPickupRepository.countByCodeStartsWith(String.format("%s%s", uniqCodeGenerator.getUniqCodePrefix(), dateStr));
+        long count = supplyPickupRepository.countByCodeStartsWith(String.format("%s%s", PICKUP_CODE_DEFAULT_PREFIX, dateStr));
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
-        return String.format("%s%s%04d", uniqCodeGenerator.getUniqCodePrefix(), dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", PICKUP_CODE_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     @Resource
