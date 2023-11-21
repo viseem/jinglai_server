@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "Project")
 @Table(name = "jl_project_base")
-public class Project extends BaseEntity {
+public class Project extends BaseEntity{
 
     /**
      * ID

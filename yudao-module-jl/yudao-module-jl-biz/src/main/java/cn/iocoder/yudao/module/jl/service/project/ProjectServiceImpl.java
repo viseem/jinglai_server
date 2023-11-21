@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
@@ -15,6 +16,7 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
@@ -77,6 +79,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
     @PostConstruct
     public void ProjectServiceImpl(){
         Project last = projectRepository.findFirstByOrderByIdDesc();
@@ -133,23 +138,40 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),Arrays.asList(createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId())));
+        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),Arrays.asList(createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId(),getLoginUserId())));
+
+
 
 
         Project project = projectMapper.toEntity(createReqVO);
-        projectRepository.save(project);
+        Project saveProject = projectRepository.save(project);
 
         Long projectId = project.getId();
 
+        //创建一个默认的报价
+        List<ProjectQuotation> quotations = projectQuotationRepository.findByProjectId(projectId);
+        ProjectQuotation quotation;
+        if (quotations==null|| quotations.isEmpty() || quotations.get(0)==null) {
+            ProjectQuotation projectQuotation = new ProjectQuotation();
+            projectQuotation.setProjectId(projectId);
+            projectQuotation.setCustomerId(saveProject.getCustomerId());
+            projectQuotation.setCode("v1");
+            projectQuotation.setMark("默认报价");
+            quotation=projectQuotationRepository.save(projectQuotation);
+        }else{
+            quotation = quotations.get(0);
+        }
+        projectRepository.updateCurrentQuotationIdById(quotation.getId(), projectId);
+
         // 创建默认的安排单
-        ProjectScheduleSaveReqVO saveScheduleReqVO = new ProjectScheduleSaveReqVO();
-        saveScheduleReqVO.setProjectId(projectId);
-        saveScheduleReqVO.setName(project.getName() + "的默认安排单");
-        ProjectSchedule projectSchedule = projectScheduleMapper.toEntity(saveScheduleReqVO);
-        projectScheduleRepository.save(projectSchedule);
+//        ProjectScheduleSaveReqVO saveScheduleReqVO = new ProjectScheduleSaveReqVO();
+//        saveScheduleReqVO.setProjectId(projectId);
+//        saveScheduleReqVO.setName(project.getName() + "的默认安排单");
+//        ProjectSchedule projectSchedule = projectScheduleMapper.toEntity(saveScheduleReqVO);
+//        projectScheduleRepository.save(projectSchedule);
 
         // 设置项目当前安排单
-        setProjectCurrentSchedule(projectId, projectSchedule.getId());
+//        setProjectCurrentSchedule(projectId, projectSchedule.getId());
 
 
 
@@ -217,7 +239,7 @@ public class ProjectServiceImpl implements ProjectService {
 //        projectPersonRepository.saveAll(updateReqVO.getPersons());
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId())));
+        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId(),getLoginUserId())));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

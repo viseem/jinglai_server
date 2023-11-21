@@ -206,7 +206,6 @@ public class SalesleadServiceImpl implements SalesleadService {
             // 1. 创建项目
             Project project = new Project();
             // 注意这里----
-            System.out.println("------------------"+updateReqVO.getProjectId()+"------------------");
             project.setId(updateReqVO.getProjectId());
             project.setSalesleadId(salesleadId);
             project.setCustomerId(updateReqVO.getCustomerId());
@@ -217,10 +216,11 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setSalesId(getLoginUserId()); // 线索的销售人员 id
             project.setManagerId(updateReqVO.getProjectManagerId()==null?updateReqVO.getManagerId():updateReqVO.getProjectManagerId());
 
-            if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+            if(updateReqVO.getProjectId()==null){
                 //如果客户不存在，则抛出异常
                 Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
-                project.setName(customer.getName()+"的报价");
+                String projectName = updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus()) ? customer.getName()+"的报价" : updateReqVO.getProjectName();
+                project.setName(projectName);
                 Project saveProject = projectRepository.save(project);
                 saleleadsObj.setProjectId(saveProject.getId());
                 updateReqVO.setProjectId(saveProject.getId());
