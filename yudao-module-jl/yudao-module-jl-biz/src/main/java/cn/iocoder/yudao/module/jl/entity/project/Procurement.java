@@ -128,6 +128,24 @@ public class Procurement extends BaseEntity {
     private String receiverUserId;
 
     /**
+     * 收货类型
+     */
+    @Column(name = "receiver_type")
+    private String receiverType;
+
+    /**
+     * 收货人姓名
+     */
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    /**
+     * 收货人电话
+     */
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    /**
      * 流程实例id
      */
     @Column(name = "process_instance_id")

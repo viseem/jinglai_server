@@ -55,14 +55,20 @@ public class ProcurementBaseVO {
     @Schema(description = "采购发起时间")
     private String startDate;
 
-    @Schema(description = "签收陪审人", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    @Schema(description = "签收陪审人")
     private Long checkUserId;
 
-    @Schema(description = "收货地址")
+    @Schema(description = "收货地址", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
     private String address;
 
     @Schema(description = "收货人id", example = "29752")
     private String receiverUserId;
+    @Schema(description = "收货类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    private String receiverType;
+    @Schema(description = "收货人姓名", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    private String receiverName;
+    @Schema(description = "收货人联系方式")
+    private String receiverPhone;
 
     @Schema(description = "流程实例id", example = "29752")
     private String processInstanceId;

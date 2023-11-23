@@ -87,11 +87,16 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
            // 更新流程实例编号
            projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
        }else{
-            //直接更新项目状态
-           projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
+
            //直接更新审批的状态
            projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
 
+       }
+
+       //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
+       if(!createReqVO.getNeedAudit()||Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
+           //直接更新项目状态
+           projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
        }
 
         // 返回
