@@ -146,6 +146,12 @@ public class Procurement extends BaseEntity {
     private String receiverPhone;
 
     /**
+     * 附件列表
+     */
+    @Column(name = "attachments")
+    private String attachments;
+
+    /**
      * 流程实例id
      */
     @Column(name = "process_instance_id")

@@ -61,6 +61,10 @@ public class ProcurementBaseVO {
     @Schema(description = "收货地址", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
     private String address;
 
+
+    @Schema(description = "附件json")
+    private String attachments;
+
     @Schema(description = "收货人id", example = "29752")
     private String receiverUserId;
     @Schema(description = "收货类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")

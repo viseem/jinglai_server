@@ -96,10 +96,10 @@ public class BpmMessageServiceImpl implements BpmMessageService {
                 BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams));
 
         //发送通知
-        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+/*        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 reqDTO.getAssigneeUserId(),
                 BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams
-        ));
+        ));*/
     }
 
     private String getProcessInstanceDetailUrl(String taskId) {

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.contract.ContractApproval;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -75,6 +76,12 @@ public class ProjectConstract extends BaseEntity {
 
     @Column(name = "customer_id")
     private Long customerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
 
     /**
      * 合同文件 URL
@@ -179,12 +186,12 @@ public class ProjectConstract extends BaseEntity {
     /**
      * 查询审批列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @OrderBy("createTime DESC")
-    private List<ContractApproval> approvalList = new ArrayList<>();
+    private List<ContractApproval> approvalList = new ArrayList<>();*/
 
     @Transient
     private ContractApproval latestApproval;
@@ -193,20 +200,20 @@ public class ProjectConstract extends BaseEntity {
     /**
      * 查询回款计划列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFund> funds;
+    private List<ProjectFund> funds;*/
 
 
     /**
      * 查询回款日志列表
      */
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFundLog> fundLogs;
+    private List<ProjectFundLog> fundLogs;*/
 
 }

@@ -14,11 +14,10 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectConstractBaseVO {
 
-    @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "12507")
-    @NotNull(message = "项目 id不能为空")
+    @Schema(description = "项目 id")
     private Long projectId;
 
-    @Schema(description = "客户id")
+    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long customerId;
 
     @Schema(description = "合同名字", example = "赵六")
