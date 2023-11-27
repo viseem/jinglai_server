@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
@@ -29,7 +27,6 @@ import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
@@ -71,6 +68,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Resource
     private LaboratoryLabRepository laboratoryLabRepository;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
     private final UserRepository userRepository;
 
@@ -80,8 +80,14 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         this.userRepository = userRepository;
     }
 
+
     @Override
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+
+        createReqVO.setCustomerId(projectSimple.getCustomerId());
+
         // 插入
         ProjectCategory projectCategory = projectCategoryMapper.toEntity(createReqVO);
         projectCategoryRepository.save(projectCategory);
@@ -134,6 +140,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public void updateProjectCategory(ProjectCategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryExists(updateReqVO.getId());
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
+
+        updateReqVO.setCustomerId(projectSimple.getCustomerId());
+
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);
         projectCategoryRepository.save(updateObj);
@@ -343,7 +354,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             if(pageReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
             }
-
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -484,7 +497,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
 
-        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+
+//        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

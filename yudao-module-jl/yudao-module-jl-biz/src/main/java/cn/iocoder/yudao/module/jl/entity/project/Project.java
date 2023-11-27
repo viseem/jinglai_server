@@ -46,6 +46,26 @@ public class Project extends BaseEntity{
     @Column(name = "subject_group_id")
     private Long subjectGroupId;
 
+    /**
+     * 项目编号
+     */
+    @Column(name = "code", nullable = false )
+    private String code;
+
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
+    /**
+     * 级联出客户信息
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
+
 
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
@@ -61,11 +81,7 @@ public class Project extends BaseEntity{
     private Long outboundUserId;
 
 
-    /**
-     * 项目编号
-     */
-    @Column(name = "code", nullable = false )
-    private String code;
+
 
     /**
      * 销售线索 id
@@ -121,6 +137,16 @@ public class Project extends BaseEntity{
     @Column(name = "pre_manager_id")
     private Long preManagerId;
 
+    /**
+     * 项目售后负责人
+     */
+    @Column(name = "after_manager_id")
+    private Long afterManagerId;
+    /**
+     * 实验负责人
+     */
+    @Column(name = "exper_id")
+    private Long experId;
 
     /**
      * 参与者 ids，数组
@@ -156,20 +182,16 @@ public class Project extends BaseEntity{
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "pre_manager_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User preManager;
-    /**
-     * 客户 id
-     */
-    @Column(name = "customer_id")
-    private Long customerId;
 
-    /**
-     * 级联出客户信息
-     */
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+    @JoinColumn(name = "after_manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User afterManager;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User exper;
 
     /**
      * 当前安排单 id

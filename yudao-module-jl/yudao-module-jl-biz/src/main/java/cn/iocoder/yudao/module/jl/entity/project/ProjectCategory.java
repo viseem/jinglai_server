@@ -51,6 +51,13 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "project_id")
     private Long projectId;
 
+
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
     /**
      * JPA 级联出 project
      */

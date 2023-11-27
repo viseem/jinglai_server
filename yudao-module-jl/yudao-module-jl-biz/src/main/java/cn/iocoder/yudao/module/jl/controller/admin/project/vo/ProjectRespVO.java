@@ -38,6 +38,8 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private User user;
     private User preManager;
+    private User afterManager;
+    private User exper;
 
     @Schema(description = "物资成本")
     private Long supplyCost;

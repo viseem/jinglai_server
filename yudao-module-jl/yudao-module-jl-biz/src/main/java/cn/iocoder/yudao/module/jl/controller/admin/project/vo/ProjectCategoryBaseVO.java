@@ -20,6 +20,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
 
+    @Schema(description = "客户id", example = "1")
+    private Long customerId;
+
     @Schema(description = "报价id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long quotationId;
 

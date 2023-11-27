@@ -88,6 +88,12 @@ public class ProjectSupply extends BaseEntity {
     private String feeStandard;
 
     /**
+     * 规格
+     */
+    @Column(name = "spec", nullable = false)
+    private String spec;
+
+    /**
      * 单价
      */
     @Column(name = "unit_fee", nullable = false)

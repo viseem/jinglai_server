@@ -72,6 +72,12 @@ public class ProjectBaseVO {
     @Schema(description = "项目售前负责人", example = "6150")
     private Long preManagerId;
 
+    @Schema(description = "项目售后负责人", example = "6150")
+    private Long afterManagerId;
+
+    @Schema(description = "实验负责人", example = "6150")
+    private Long experId;
+
 /*    @Schema(description = "参与者 ids，数组")
     private String participants;*/
 

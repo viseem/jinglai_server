@@ -36,9 +36,14 @@ public class ProjectSupplyBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "规则/单位不能为空")
+    @Schema(description = "规则/单位")
     private String feeStandard;
+
+    /**
+     * 规格
+     */
+    @Schema(description = "规格")
+    private String spec;
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
@@ -46,8 +51,7 @@ public class ProjectSupplyBaseVO {
 
     private Integer officialPrice;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
     @Schema(description = "成本价")

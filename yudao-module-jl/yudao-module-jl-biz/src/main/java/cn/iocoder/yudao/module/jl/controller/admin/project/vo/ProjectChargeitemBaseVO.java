@@ -35,8 +35,11 @@ public class ProjectChargeitemBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "规则/单位不能为空")
+
+    @Schema(description = "规格")
+    private String spec;
+
+    @Schema(description = "规则/单位")
     private String feeStandard;
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -46,8 +49,7 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "成本价")
     private Integer buyPrice;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)

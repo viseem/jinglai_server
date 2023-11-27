@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -82,6 +83,9 @@ public class ProjectChargeitem extends BaseEntity {
      */
     @Column(name = "unit_fee", nullable = false )
     private Integer unitFee;
+
+    @Column(name = "spec", nullable = false )
+    private String spec;
 
     /**
      * 单量
