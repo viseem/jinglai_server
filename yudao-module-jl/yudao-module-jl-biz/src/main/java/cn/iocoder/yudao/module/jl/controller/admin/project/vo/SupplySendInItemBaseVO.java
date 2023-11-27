@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -41,12 +42,13 @@ public class SupplySendInItemBaseVO {
     @NotNull(message = "单价不能为空")
     private String unitFee;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
-    @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "数量不能为空")
+    @Schema(description = "规格")
+    private String spec;
+
+    @Schema(description = "数量")
     private Integer quantity;
 
     private String brand;

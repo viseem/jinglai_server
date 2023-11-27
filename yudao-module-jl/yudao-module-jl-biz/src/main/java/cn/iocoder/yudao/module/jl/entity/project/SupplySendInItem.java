@@ -75,6 +75,9 @@ public class SupplySendInItem extends BaseEntity {
     @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
 
+    @Column(name = "spec", nullable = false)
+    private String spec;
+
     /**
      * 单价
      */

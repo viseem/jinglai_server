@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
@@ -67,6 +68,9 @@ public class ProcurementItem extends BaseEntity {
      */
     @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
+
+    @Column(name = "spec", nullable = false)
+    private String spec;
 
     /**
      * 单价

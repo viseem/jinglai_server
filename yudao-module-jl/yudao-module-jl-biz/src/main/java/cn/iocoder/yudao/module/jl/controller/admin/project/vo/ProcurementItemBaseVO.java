@@ -50,12 +50,13 @@ public class ProcurementItemBaseVO {
 
     private Long scheduleId;
 
-    @Schema(description = "采购规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "采购规则/单位不能为空")
+    @Schema(description = "采购规则/单位")
     private String feeStandard;
 
-    @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单价不能为空")
+    @Schema(description = "规格")
+    private String spec;
+
+    @Schema(description = "单价")
     private String unitFee;
 
     @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)

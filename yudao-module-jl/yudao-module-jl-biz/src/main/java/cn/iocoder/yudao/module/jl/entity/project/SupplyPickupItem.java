@@ -67,6 +67,9 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "unit_fee", nullable = false )
     private String unitFee;
 
+    @Column(name = "spec", nullable = false)
+    private String spec;
+
     /**
      * 单量
      */
