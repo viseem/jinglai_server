@@ -31,6 +31,8 @@ public class ProjectChargeitemBaseVO {
     private Long projectId;
     private Long quotationId;
     private Long scheduleId;
+
+    private Integer sort;
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名称不能为空")
     private String name;

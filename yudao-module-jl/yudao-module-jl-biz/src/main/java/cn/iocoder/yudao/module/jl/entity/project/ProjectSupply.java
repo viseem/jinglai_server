@@ -111,6 +111,9 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "buy_price", nullable = false)
     private Integer buyPrice = 0;
 
+    @Column(name = "sort", nullable = false)
+    private Integer sort;
+
     /*
     * 官网价
     * */

@@ -16,7 +16,7 @@ public interface ProjectChargeitemRepository extends JpaRepository<ProjectCharge
     @Modifying
     @Query("delete from ProjectChargeitem p where p.quotationId = ?1")
     int deleteByQuotationId(Long quotationId);
-    @Query("select p from ProjectChargeitem p where p.quotationId = ?1")
+    @Query("select p from ProjectChargeitem p where p.quotationId = ?1  order by p.sort ASC")
     List<ProjectChargeitem> findByQuotationId(Long quotationId);
     @Transactional
     @Modifying
@@ -29,7 +29,7 @@ public interface ProjectChargeitemRepository extends JpaRepository<ProjectCharge
     @Query("select p from ProjectChargeitem p where p.scheduleId = ?1")
     List<ProjectChargeitem> findByScheduleId(Long scheduleId);
 
-    @Query("select p from ProjectChargeitem p where p.projectId = ?1")
+    @Query("select p from ProjectChargeitem p where p.projectId = ?1 order by p.sort ASC")
     List<ProjectChargeitem> findByProjectId(Long projectId);
     @Transactional
     @Modifying

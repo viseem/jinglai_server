@@ -78,6 +78,9 @@ public class ProjectChargeitem extends BaseEntity {
 
     @Column(name = "is_append")
     private Integer isAppend;
+
+    @Column(name = "sort")
+    private Integer sort;
     /**
      * 单价
      */
