@@ -42,4 +42,8 @@ public class WorkstationWarehouseCountStatsResp {
     public Integer getWaitingOutCount() {
         return waitingSupplyOutCount+waitingSendOutCount;
     }
+
+
+    Integer notProcessFeedbackCount;
+
 }

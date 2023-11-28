@@ -16,4 +16,7 @@ public class WorkstationFinanceCountStatsResp {
 
     Integer financePaymentNotPayCount;
 
+    Integer notProcessFeedbackCount;
+
+
 }

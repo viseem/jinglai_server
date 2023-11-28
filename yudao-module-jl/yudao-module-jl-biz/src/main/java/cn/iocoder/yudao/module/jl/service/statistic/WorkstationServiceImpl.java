@@ -88,7 +88,14 @@ public class WorkstationServiceImpl implements WorkstationService {
         // 自己的未转化为客户的客户数量
         Integer notToCustomerCount = customerRepository.countByNotToCustomerAndCreator(getLoginUserId());
         resp.setNot2CustomerCount(notToCustomerCount);
+
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
         return resp;
+    }
+
+    private Integer getNotProcessFeedbackCount(){
+        return projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
     }
 
     @Override
@@ -100,8 +107,7 @@ public class WorkstationServiceImpl implements WorkstationService {
         resp.setNotCompleteProjectCount(projectNotCompleteCount);
 
         //自己的未处理的反馈数量
-        Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
-        resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         //自己的未报价的线索数量
         Integer notQuotationCount = salesleadRepository.countByManagerIdAndStatus(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.QUOTATION.getStatus()));
@@ -120,6 +126,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         //自己的未完成的任务数量
         Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
         resp.setNotCompleteTaskCount(notCompleteTaskCount);
+
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         return resp;
     }
@@ -144,6 +153,8 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer integer = financePaymentRepository.countByAuditStatusNot(FinancePaymentEnums.PAYED.getStatus());
         resp.setFinancePaymentNotPayCount(integer);
 
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         return resp;
     }
@@ -184,6 +195,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         //----未出库的寄送单数量
         Integer waitingSendOutCount = productSendRepository.countByStatusNot(InventorySupplyOutApprovalEnums.ACCEPT.getStatus());
         resp.setWaitingSendOutCount(waitingSendOutCount);
+
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         return resp;
     }

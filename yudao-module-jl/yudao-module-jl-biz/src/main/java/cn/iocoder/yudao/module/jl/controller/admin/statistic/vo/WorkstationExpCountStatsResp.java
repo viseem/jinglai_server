@@ -10,5 +10,7 @@ import lombok.ToString;
 public class WorkstationExpCountStatsResp {
 
     Integer notCompleteTaskCount;
+    Integer notProcessFeedbackCount;
+
 
 }
