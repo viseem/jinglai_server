@@ -138,10 +138,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),Arrays.asList(createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId(),getLoginUserId())));
-
-
-
+        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),Arrays.asList(createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId(),getLoginUserId(),createReqVO.getAfterManagerId(),createReqVO.getExperId())));
 
         Project project = projectMapper.toEntity(createReqVO);
         Project saveProject = projectRepository.save(project);
@@ -239,7 +236,7 @@ public class ProjectServiceImpl implements ProjectService {
 //        projectPersonRepository.saveAll(updateReqVO.getPersons());
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId(),getLoginUserId())));
+        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId(),getLoginUserId(),updateReqVO.getAfterManagerId(),updateReqVO.getExperId())));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

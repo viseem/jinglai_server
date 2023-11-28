@@ -99,16 +99,32 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Resource
     private ProjectConstractMapper projectConstractMapper;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
     @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
 
-
-        Optional<CustomerOnly> customerOnlyOptional = customerSimpleRepository.findById(createReqVO.getCustomerId());
-        if (customerOnlyOptional.isEmpty()) {
-            throw exception(CUSTOMER_NOT_EXISTS);
+        // 如果有项目id，则校验项目是否存在
+        if(createReqVO.getProjectId()!=null&& createReqVO.getProjectId()>0){
+            ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+            createReqVO.setCustomerId(projectSimple.getCustomerId());
+            createReqVO.setSalesId(projectSimple.getSalesId());
+        }else{
+            createReqVO.setProjectId(null);
         }
 
+        if(createReqVO.getCustomerId()!=null){
+            Optional<CustomerOnly> customerOnlyOptional = customerSimpleRepository.findById(createReqVO.getCustomerId());
+            if (customerOnlyOptional.isEmpty()) {
+                throw exception(CUSTOMER_NOT_EXISTS);
+            }
+            createReqVO.setSalesId(customerOnlyOptional.get().getSalesId());
+        }
+
+
+/*
         if (createReqVO.getProjectId() != null&& createReqVO.getProjectId()>0) {
             Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
             if (byId.isEmpty()) {
@@ -117,6 +133,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }else{
             createReqVO.setProjectId(null);
         }
+*/
 
         ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
         if (bySn != null) {
@@ -134,7 +151,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 //        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
 //        projectConstract.setStampFileName(createReqVO.getFileName());
         projectConstract.setCustomerId(createReqVO.getCustomerId());
-        projectConstract.setSalesId(customerOnlyOptional.get().getSalesId());
+        projectConstract.setSalesId(createReqVO.getSalesId());
         ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
 
         //projectDocument存一份
