@@ -1,52 +1,57 @@
 package cn.iocoder.yudao.framework.excel.core.util.excelstrategy;
 
 import com.alibaba.excel.metadata.Head;
-import com.alibaba.excel.metadata.data.CellData;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
 import com.alibaba.excel.write.merge.AbstractMergeStrategy;
+import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
+import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import java.sql.SQLOutput;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class JLCustomMergeStrategy extends AbstractMergeStrategy {
-    private Map<String, Integer> nameStartIndexMap = new HashMap<>();
-    private Map<String, Integer> nameCountMap = new HashMap<>();
+
+    private Integer rowCount=0;
+
+    public  JLCustomMergeStrategy(Integer rowCount){
+        this.rowCount=rowCount;
+    }
+
+    //跳过一行表头
+    private Integer prevIndex = 1;
+    private String prevName;
+
+    private Integer mergeRowCount=0;
 
     @Override
     protected void merge(Sheet sheet, Cell cell, Head head, Integer relativeRowIndex) {
         int columnIndex = cell.getColumnIndex();
         if(columnIndex==0){
-            System.out.println("merge------------");
             String name = cell.getStringCellValue();
-            Integer startIndex = nameStartIndexMap.get(name);
-            Integer count = nameCountMap.get(name);
-
-            if (startIndex == null) {
-                // 这是一个新的name，开始一个新的合并
-                nameStartIndexMap.put(name, relativeRowIndex);
-                nameCountMap.put(name, 1);
-            } else if (!name.equals(getName(sheet, cell))) {
-                System.out.println("merge2------");
-                // 这是一个不同的name，结束上一个name的合并
-                if(count>0){
-                    sheet.addMergedRegionUnsafe(new CellRangeAddress(startIndex, startIndex + count - 1, cell.getColumnIndex(), cell.getColumnIndex()));
+            if(name.equals(prevName)){
+                mergeRowCount++;
+            }else{
+                if(mergeRowCount>0){
+                    sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
                 }
-
-                // 开始一个新的合并
-                nameStartIndexMap.put(name, relativeRowIndex);
-                nameCountMap.put(name, 1);
-            } else {
-                // 这是相同的name，继续合并
-                nameCountMap.put(name, count + 1);
+                if(prevName!=null){
+                    prevIndex=prevIndex+mergeRowCount+1;
+                }
+                prevName = name;
+                mergeRowCount=0;
             }
+
+            System.out.println("rowCount:"+rowCount+"relativeRowIndex:"+relativeRowIndex);
+            //处理最后一次合并
+            if (relativeRowIndex == rowCount-1) {
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
+            }
+
         }
     }
 
-    private String getName(Sheet sheet, Cell cell) {
-        return sheet.getRow(cell.getRowIndex() - 1).getCell(cell.getColumnIndex()).getStringCellValue();
-    }
+
 }
