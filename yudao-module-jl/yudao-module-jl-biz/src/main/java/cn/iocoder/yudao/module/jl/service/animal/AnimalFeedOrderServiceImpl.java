@@ -126,7 +126,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             saveReqVO.setCode(generateCode());
         }
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(saveReqVO);
-        saveObj.setStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
+        saveObj.setStage(AnimalFeedStageEnums.APPROVAL_SUCCESS.getStatus().toString());
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
@@ -139,13 +139,17 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }).collect(Collectors.toList()));
 
         // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
-        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
-
-        // 更新流程实例编号
+        if(saveReqVO.getNeedAudit()){
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
+            // 更新流程实例编号
         animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId,saveObj.getId());
+        }
+
+
+
 
     }
 

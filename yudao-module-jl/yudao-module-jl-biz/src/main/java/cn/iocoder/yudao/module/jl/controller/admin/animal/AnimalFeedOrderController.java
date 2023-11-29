@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal;
 
+import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +43,9 @@ public class AnimalFeedOrderController {
     @Resource
     private AnimalFeedOrderMapper animalFeedOrderMapper;
 
+    @Resource
+    private NeedAuditHandler needAuditHandler;
+
     @PostMapping("/create")
     @Operation(summary = "创建动物饲养申请单")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:create')")
@@ -60,7 +64,8 @@ public class AnimalFeedOrderController {
     @PutMapping("/save")
     @Operation(summary = "更新动物饲养申请单")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:create')")
-    public CommonResult<Boolean> saveAnimalFeedOrder(@Valid @RequestBody AnimalFeedOrderSaveReqVO saveReqVO) {
+    public CommonResult<Boolean> saveAnimalFeedOrder(@Valid @RequestBody AnimalFeedOrderSaveReqVO saveReqVO,HttpServletRequest request) {
+        saveReqVO.setNeedAudit(needAuditHandler.needAudit(request,saveReqVO.getStage()));
         animalFeedOrderService.saveAnimalFeedOrder(saveReqVO);
         return success(true);
     }
