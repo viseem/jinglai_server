@@ -253,7 +253,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if(updateReqVO.getType()!=null){
                     project.setType(updateReqVO.getType());
                 }
-                project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),Arrays.asList(project.getManagerId(),project.getSalesId(),project.getPreManagerId())));
+//                Arrays.asList(project.getManagerId(),project.getSalesId(),project.getPreManagerId())
+                project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),null));
                 projectRepository.save(project);
                 projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
             }
