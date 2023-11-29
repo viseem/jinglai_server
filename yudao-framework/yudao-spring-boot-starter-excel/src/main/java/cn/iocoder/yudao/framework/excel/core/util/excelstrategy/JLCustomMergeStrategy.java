@@ -1,16 +1,10 @@
 package cn.iocoder.yudao.framework.excel.core.util.excelstrategy;
 
 import com.alibaba.excel.metadata.Head;
-import com.alibaba.excel.metadata.data.WriteCellData;
-import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
 import com.alibaba.excel.write.merge.AbstractMergeStrategy;
-import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
-import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-
-import java.util.List;
 
 public class JLCustomMergeStrategy extends AbstractMergeStrategy {
 
@@ -52,6 +46,5 @@ public class JLCustomMergeStrategy extends AbstractMergeStrategy {
 
         }
     }
-
 
 }
