@@ -12,9 +12,8 @@ import java.util.List;
 
 @Schema(description = "管理后台 - 项目报价 Response VO")
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ProjectQuotationExportRespVO extends ProjectQuotationItemVO {
+public class ProjectQuotationExportRespVO  {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "4075")
     private Long id;
@@ -35,11 +34,16 @@ public class ProjectQuotationExportRespVO extends ProjectQuotationItemVO {
     @Schema(description = "客户id")
     private Long customerId;
 
-    @Schema(description = "折扣")
-    private Integer discount;
+    @Schema(description = "supplycount")
+    private Integer supplyCount;
 
+    @Schema(description = "chargeCount")
+    private Integer chargeCount;
 
-    @Schema(description = "金额")
-    private String priceAmount;
+    @Schema(description = "rowCount")
+    private Integer rowCount;
+
+    @Schema(description = "quotationItems")
+    private List<ProjectQuotationItemVO> quotationItems = new ArrayList<>();
 
 }

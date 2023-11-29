@@ -40,7 +40,7 @@ public class JLCustomMergeStrategy extends AbstractMergeStrategy {
 
             System.out.println("rowCount:"+rowCount+"relativeRowIndex:"+relativeRowIndex);
             //处理最后一次合并
-            if (relativeRowIndex == rowCount-1) {
+            if (relativeRowIndex == rowCount-1&&mergeRowCount>0) {
                 sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
             }
 

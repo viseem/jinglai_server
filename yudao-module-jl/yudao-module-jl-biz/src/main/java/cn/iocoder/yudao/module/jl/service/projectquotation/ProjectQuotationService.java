@@ -81,6 +81,6 @@ public interface ProjectQuotationService {
      * @param exportReqVO 查询条件
      * @return 项目报价列表
      */
-    List<ProjectQuotationExportRespVO> getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO);
+    ProjectQuotationExportRespVO getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO);
 
 }

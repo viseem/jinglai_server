@@ -121,9 +121,9 @@ public class ProjectQuotationController {
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:export')")
     @OperateLog(type = EXPORT)
     public void exportProjectQuotationExcel(@Valid ProjectQuotationExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
-        List<ProjectQuotationExportRespVO> list = projectQuotationService.getProjectQuotationList(exportReqVO);
+        ProjectQuotationExportRespVO resp = projectQuotationService.getProjectQuotationList(exportReqVO);
         // 导出 Excel
-        List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList2(list);
-        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy(list.size()),new CustomExcelCellWriterHandler());
+        List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList2(resp.getQuotationItems());
+        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy(resp.getRowCount()),new CustomExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
     }
 }

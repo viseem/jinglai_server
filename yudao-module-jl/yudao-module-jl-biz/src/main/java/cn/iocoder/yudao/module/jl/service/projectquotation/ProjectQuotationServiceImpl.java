@@ -239,39 +239,42 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
-    public List<ProjectQuotationExportRespVO> getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO) {
-
-        List<ProjectQuotationExportRespVO> quotationList = new ArrayList<>();
+    public ProjectQuotationExportRespVO getProjectQuotationList(ProjectQuotationExportReqVO exportReqVO) {
+        ProjectQuotationExportRespVO resp = new ProjectQuotationExportRespVO();
+        List<ProjectQuotationItemVO> quotationList = new ArrayList<>();
         //查询物资列表
         List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(exportReqVO.getQuotationId());
+        resp.setSupplyCount(byQuotationId.size());
         //遍历物资列表赋值到resp的itemList
         for (ProjectSupply projectSupply : byQuotationId) {
-            ProjectQuotationExportRespVO item = new ProjectQuotationExportRespVO();
+            ProjectQuotationItemVO item = new ProjectQuotationItemVO();
             item.setProjectCategoryName("实验材料准备");
             item.setName(projectSupply.getName());
             item.setMark(projectSupply.getMark());
             item.setProjectCategoryId(projectSupply.getProjectCategoryId());
             item.setBrand(projectSupply.getBrand());
-            item.setFeeStandard(projectSupply.getFeeStandard());
             item.setBuyPrice(projectSupply.getBuyPrice());
             item.setProductCode(projectSupply.getProductCode());
-            item.setFeeStandard(projectSupply.getFeeStandard());
             item.setUnitFee(projectSupply.getUnitFee());
-            item.setUnitAmount(projectSupply.getUnitAmount());
             item.setQuantity(projectSupply.getQuantity());
             item.setType(projectSupply.getType());
-            //priceAmount等于unitFee*quantity,并格式化成￥1,000.00
-//            item.setPriceAmount("￥"+String.format("%,.2f",projectSupply.getUnitFee()*projectSupply.getQuantity()));
+            item.setSpec(projectSupply.getSpec());
             quotationList.add(item);
         }
+        quotationList.add(new ProjectQuotationItemVO(){
+            {
+                setProjectCategoryName("实验材料费小计");
+            }
+        });
 
         // 查询收费项列表，并按照projectCategoryId排序
         List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
+        resp.setChargeCount(byQuotationId1.size());
         //byQuotationId1按照projectCategoryId排序 升序
         byQuotationId1.sort(Comparator.comparing(ProjectChargeitem::getProjectCategoryId));
         //遍历收费项列表赋值到resp的itemList
         for (ProjectChargeitem projectChargeitem : byQuotationId1) {
-            ProjectQuotationExportRespVO item = new ProjectQuotationExportRespVO();
+            ProjectQuotationItemVO item = new ProjectQuotationItemVO();
             if(projectChargeitem.getCategory()!=null){
                 System.out.println("category---"+projectChargeitem.getCategory().getName());
                 item.setProjectCategoryName(projectChargeitem.getCategory().getName());
@@ -279,14 +282,24 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setName(projectChargeitem.getName());
             item.setMark(projectChargeitem.getMark());
             item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
-            item.setFeeStandard(projectChargeitem.getFeeStandard());
             item.setUnitFee(projectChargeitem.getUnitFee());
-            item.setUnitAmount(projectChargeitem.getUnitAmount());
             item.setQuantity(projectChargeitem.getQuantity());
+            item.setSpec(projectChargeitem.getSpec());
             quotationList.add(item);
         }
-        return quotationList;
-
+        quotationList.add(new ProjectQuotationItemVO(){
+            {
+                setProjectCategoryName("实验服务小计");
+            }
+        });
+        quotationList.add(new ProjectQuotationItemVO(){
+            {
+                setProjectCategoryName("合 计");
+            }
+        });
+        resp.setRowCount(quotationList.size());
+        resp.setQuotationItems(quotationList);
+        return resp;
     }
 
     private Sort createSort(ProjectQuotationPageOrder order) {

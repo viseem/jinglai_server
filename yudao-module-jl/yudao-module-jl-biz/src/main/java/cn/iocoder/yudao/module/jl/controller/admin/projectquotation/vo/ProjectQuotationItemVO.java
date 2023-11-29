@@ -27,15 +27,11 @@ public class ProjectQuotationItemVO {
 
     @Schema(description = "规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "规则/单位不能为空")
-    private String feeStandard;
+    private String spec;
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
     private Integer unitFee;
-
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
-    private Integer unitAmount;
 
     @Schema(description = "成本价")
     private Integer buyPrice;

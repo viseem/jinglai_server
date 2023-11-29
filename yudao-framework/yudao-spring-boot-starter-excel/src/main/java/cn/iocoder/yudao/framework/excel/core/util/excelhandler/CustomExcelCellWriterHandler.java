@@ -11,29 +11,40 @@ import org.apache.poi.ss.usermodel.Cell;
 import java.util.List;
 
 public class CustomExcelCellWriterHandler  implements CellWriteHandler {
+
+    private  Integer supplyCount=0;
+    private  Integer chargeCount=0;
+    private  Integer rowCount=0;
+
+    public CustomExcelCellWriterHandler(Integer supplyCount, Integer chargeCount){
+        this.supplyCount=supplyCount;
+        this.chargeCount=chargeCount;
+        this.rowCount=supplyCount+chargeCount+3;
+    }
+
     @Override
     public void afterCellDispose(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder,
                                  List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead)
     {
         // 这里可以对cell进行任何操作
 //        System.out.println("进入第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "列数据...");
+        int actualCellRowNum = cell.getRowIndex() + 1;
         if (cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
         {
-            // 税价 = 含税单价 * 数量 * 税率
-            // 以第4行数据为例：税价 = C5*D5*$C$1
-            int actualCellRowNum = cell.getRowIndex() + 1;
             cell.setCellFormula("D" + actualCellRowNum +"*E" + actualCellRowNum);
             System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "税价写入公式完成");
         }
 
-/*        if (cell.getRowIndex() >= 4 && 5 == cell.getColumnIndex())
-        {
-            // 总价 = 含税单价 * 数量
-            // 以第4行数据为例：税价 = C5*D5
-            int actualCellRowNum = cell.getRowIndex() + 1;
-            cell.setCellFormula("C" + actualCellRowNum + "*D" + actualCellRowNum);
-            System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "总价写入公式完成");
-        }*/
+        if(cell.getRowIndex()==supplyCount+1 && 5 == cell.getColumnIndex()){
+            cell.setCellFormula("SUM(F2:F" + cell.getRowIndex() +")");
+        }
+
+        if(cell.getRowIndex()==supplyCount+chargeCount+2 && 5 == cell.getColumnIndex()){
+            cell.setCellFormula("SUM(F"+(supplyCount+3)+":F" + cell.getRowIndex() +")");
+        }
+        if(cell.getRowIndex()==rowCount && 5 == cell.getColumnIndex()){
+            cell.setCellFormula("SUM(F"+(supplyCount+2)+":F" + cell.getRowIndex() +")");
+        }
     }
 
 }
