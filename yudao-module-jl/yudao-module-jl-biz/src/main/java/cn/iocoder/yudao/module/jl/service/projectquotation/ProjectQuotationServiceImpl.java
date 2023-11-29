@@ -260,6 +260,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setUnitAmount(projectSupply.getUnitAmount());
             item.setQuantity(projectSupply.getQuantity());
             item.setType(projectSupply.getType());
+            //priceAmount等于unitFee*quantity,并格式化成￥1,000.00
+//            item.setPriceAmount("￥"+String.format("%,.2f",projectSupply.getUnitFee()*projectSupply.getQuantity()));
             quotationList.add(item);
         }
 

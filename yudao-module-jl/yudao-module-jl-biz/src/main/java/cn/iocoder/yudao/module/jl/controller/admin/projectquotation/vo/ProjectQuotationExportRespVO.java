@@ -39,5 +39,7 @@ public class ProjectQuotationExportRespVO extends ProjectQuotationItemVO {
     private Integer discount;
 
 
+    @Schema(description = "金额")
+    private String priceAmount;
 
 }

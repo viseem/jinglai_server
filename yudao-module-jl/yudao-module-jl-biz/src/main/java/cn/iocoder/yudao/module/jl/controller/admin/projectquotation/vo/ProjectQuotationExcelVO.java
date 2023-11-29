@@ -37,11 +37,8 @@ public class ProjectQuotationExcelVO {
     @ExcelProperty("项目名称")
     private String name;
 
-    @ExcelProperty("单位")
-    private String feeStandard;
-
-    @ExcelProperty("规格")
-    private Integer unitAmount;
+    @ExcelProperty("规格/单位")
+    private String spec;
 
     @ExcelProperty("数量")
     private Integer quantity;
@@ -49,13 +46,10 @@ public class ProjectQuotationExcelVO {
     @ExcelProperty("单价")
     private Integer unitFee;
 
-    @ExcelProperty("成本价")
-    private Integer buyPrice;
+    @ExcelProperty("金额")
+    private String priceAmount;
 
     @ExcelProperty("备注")
     private String mark;
-
-    @Schema(description = "物品来源")
-    private String source;
 
 }
