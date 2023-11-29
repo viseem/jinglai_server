@@ -13,6 +13,7 @@ public class NeedAuditHandler {
     private AuditConfigRepository auditConfigRepository;
 
     public Boolean needAudit(HttpServletRequest request, String status){
+
         String route = request.getRequestURI();
         if (status!=null){
             AuditConfig byRouteAndStatus = auditConfigRepository.findByRouteAndStatusAndNeedAudit(route, status);
