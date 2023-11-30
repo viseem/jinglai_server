@@ -35,8 +35,10 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
 //            System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "税价写入公式完成");
         }
 
+        //实验材料合计
         if(cell.getRowIndex()==supplyCount+1 && 5 == cell.getColumnIndex()){
             cell.setCellFormula("SUM(F2:F" + cell.getRowIndex() +")");
+            //合并
         }
 
         if(cell.getRowIndex()==supplyCount+chargeCount+2 && 5 == cell.getColumnIndex()){

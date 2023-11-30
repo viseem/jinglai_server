@@ -124,6 +124,6 @@ public class ProjectQuotationController {
         ProjectQuotationExportRespVO resp = projectQuotationService.getProjectQuotationList(exportReqVO);
         // 导出 Excel
         List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList2(resp.getQuotationItems());
-        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy(resp.getRowCount()),new CustomExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
+        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy(resp.getSupplyCount(),resp.getChargeCount()),new CustomExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
     }
 }
