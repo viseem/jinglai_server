@@ -1,15 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
-import com.alibaba.excel.annotation.write.style.ContentLoopMerge;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-
 import com.alibaba.excel.annotation.ExcelProperty;
-
-import javax.validation.constraints.NotNull;
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
+import lombok.Data;
 
 /**
  * 项目报价 Excel VO
@@ -17,6 +12,8 @@ import javax.validation.constraints.NotNull;
  * @author 惟象科技
  */
 @Data
+
+@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER,verticalAlignment= VerticalAlignmentEnum.CENTER)//内容样式
 public class ProjectQuotationExcelVO {
 
 /*    @ExcelProperty("ID")

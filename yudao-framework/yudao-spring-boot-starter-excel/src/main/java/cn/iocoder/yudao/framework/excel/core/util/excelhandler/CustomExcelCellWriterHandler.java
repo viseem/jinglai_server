@@ -27,17 +27,6 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
                                  List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead)
     {
 
-        Workbook workbook = cell.getSheet().getWorkbook();
-
-        // Create a cell style with centered alignment
-        CellStyle centeredStyle = workbook.createCellStyle();
-        centeredStyle.setAlignment(HorizontalAlignment.CENTER);
-        centeredStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        //设置单元格居中
-        cell.setCellStyle(centeredStyle);
-
-
 //        System.out.println("进入第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "列数据...");
         int actualCellRowNum = cell.getRowIndex() + 1;
         if (cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
