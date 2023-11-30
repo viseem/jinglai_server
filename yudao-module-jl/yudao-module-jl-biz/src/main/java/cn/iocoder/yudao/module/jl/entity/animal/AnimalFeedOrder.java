@@ -239,4 +239,7 @@ public class AnimalFeedOrder extends BaseEntity {
     @Transient
     private Integer Amount;
 
+    @Transient
+    private Integer dayCount;
+
 }

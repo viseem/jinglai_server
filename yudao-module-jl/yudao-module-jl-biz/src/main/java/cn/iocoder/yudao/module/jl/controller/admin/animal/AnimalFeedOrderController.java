@@ -61,6 +61,15 @@ public class AnimalFeedOrderController {
         return success(true);
     }
 
+    @PutMapping("/update-stats")
+    @Operation(summary = "更新动物饲养申请单")
+    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:update')")
+    public CommonResult<Boolean> updateAnimalFeedOrder(@Valid @RequestBody AnimalFeedOrderNoRequireBaseVO updateReqVO) {
+        animalFeedOrderService.updateAnimalFeedOrderStatus(updateReqVO);
+        return success(true);
+    }
+
+
     @PutMapping("/save")
     @Operation(summary = "更新动物饲养申请单")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:create')")

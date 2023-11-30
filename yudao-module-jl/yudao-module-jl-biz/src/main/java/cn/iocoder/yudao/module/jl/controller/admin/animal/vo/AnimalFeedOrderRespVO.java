@@ -35,4 +35,5 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
 
     private AnimalFeedLog latestLog;
     private Integer amount;
+    private Integer dayCount;
 }

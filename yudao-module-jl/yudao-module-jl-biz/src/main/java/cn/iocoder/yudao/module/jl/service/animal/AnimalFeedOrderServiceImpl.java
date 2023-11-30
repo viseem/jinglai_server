@@ -118,6 +118,17 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
+    public void updateAnimalFeedOrderStatus(AnimalFeedOrderNoRequireBaseVO updateVO){
+
+        // 校验存在
+        validateAnimalFeedOrderExists(updateVO.getId());
+        if(updateVO.getStage()==null){
+            return;
+        }
+        animalFeedOrderRepository.updateStageById(updateVO.getStage(),updateVO.getId());
+    }
+
+    @Override
     @Transactional
     public void saveAnimalFeedOrder(AnimalFeedOrderSaveReqVO saveReqVO) {
         // 校验存在
@@ -222,6 +233,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         if (logs != null&&logs.size()>0) {
             Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
             AtomicInteger totalAmount = new AtomicInteger();
+            AtomicInteger dayCount = new AtomicInteger();
+
             logs.forEach(log -> {
                 String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 Integer count = log.getCageQuantity();
@@ -239,6 +252,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                     rowAmount = dateStrToRowAmountMap.get(dateStr);
                 } else {
                     totalAmount.addAndGet(rowAmount);
+                    dayCount.incrementAndGet();
                     // If dateStr is encountered for the first time, add it to the map with the rowAmount value
                     dateStrToRowAmountMap.put(dateStr, rowAmount);
                 }
@@ -247,6 +261,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
                 log.setRowAmount(rowAmount);
             });
+            animalFeedOrder.setDayCount(dayCount.get());
             animalFeedOrder.setAmount(totalAmount.get());
             animalFeedOrder.setLatestLog(logs.get(0));
         }
