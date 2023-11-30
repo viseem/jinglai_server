@@ -128,6 +128,11 @@ public class SalesleadServiceImpl implements SalesleadService {
     }
 
     @Override
+    public void updateSalesleadQuotationMark(SalesleadNoRequireBaseVO updateReqVO){
+        salesleadRepository.updateQuotationMarkById(updateReqVO.getQuotationMark(),updateReqVO.getId());
+    }
+
+    @Override
     @Transactional
     public void updateSaleslead(SalesleadUpdateReqVO updateReqVO) {
 

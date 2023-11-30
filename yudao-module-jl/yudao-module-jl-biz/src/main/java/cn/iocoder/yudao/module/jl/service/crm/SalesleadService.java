@@ -27,6 +27,9 @@ public interface SalesleadService {
      */
     void updateSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
 
+    void updateSalesleadQuotationMark(@Valid SalesleadNoRequireBaseVO updateReqVO);
+
+
     /**
      * 更新销售线索
      *

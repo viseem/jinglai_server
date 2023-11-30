@@ -72,6 +72,14 @@ public class SalesleadController {
         salesleadService.updateSaleslead(updateReqVO);
         return success(true);
     }
+    @PutMapping("/update-quotation-mark")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> updateSalesleadQuotationMark(@Valid @RequestBody SalesleadNoRequireBaseVO updateReqVO) {
+        salesleadService.updateSalesleadQuotationMark(updateReqVO);
+        return success(true);
+    }
+
 
     @PutMapping("/update-manager")
     @Operation(summary = "商机报价转给别人")

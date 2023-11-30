@@ -1,23 +1,21 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
-import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.Followup;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import javax.validation.constraints.*;
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 销售线索 Base VO，提供给添加、修改、详细的子 VO 使用
  * 如果子 VO 存在差异的字段，请不要添加到这里，影响 Swagger 文档生成
  */
 @Data
-public class SalesleadBaseVO {
+public class SalesleadNoRequireBaseVO {
 
-    @Schema(description = "销售线索来源", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "销售线索来源不能为空")
+    private Long id;
+
+    @Schema(description = "销售线索来源")
     private String source;
 
     private String assignMark;
@@ -32,12 +30,10 @@ public class SalesleadBaseVO {
     @Schema(description = "报价 id")
     private Long quotation;
 
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "状态不能为空")
+    @Schema(description = "状态")
     private String status;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11635")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id", example = "11635")
     private Long customerId;
 
     @Schema(description = "项目id", example = "8951")
