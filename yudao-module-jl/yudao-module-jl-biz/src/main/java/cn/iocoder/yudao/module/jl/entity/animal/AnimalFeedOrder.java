@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import javax.persistence.*;
 
@@ -108,13 +110,13 @@ public class AnimalFeedOrder extends BaseEntity {
      * 开始日期
      */
     @Column(name = "start_date", nullable = false )
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束日期
      */
     @Column(name = "end_date", nullable = false )
-    private String endDate;
+    private LocalDateTime endDate;
 
     /**
      * 有无传染性等实验

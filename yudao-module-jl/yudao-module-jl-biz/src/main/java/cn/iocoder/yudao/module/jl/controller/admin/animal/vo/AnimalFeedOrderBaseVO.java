@@ -66,12 +66,12 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "开始日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "开始日期不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String startDate;
+    private LocalDateTime startDate;
 
     @Schema(description = "结束日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "结束日期不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "有无传染性等实验", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "有无传染性等实验不能为空")
