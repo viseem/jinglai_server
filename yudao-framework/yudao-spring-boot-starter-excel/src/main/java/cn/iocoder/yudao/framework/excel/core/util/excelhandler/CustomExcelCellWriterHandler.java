@@ -32,7 +32,7 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
         if (cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
         {
             cell.setCellFormula("D" + actualCellRowNum +"*E" + actualCellRowNum);
-            System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "税价写入公式完成");
+//            System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "税价写入公式完成");
         }
 
         if(cell.getRowIndex()==supplyCount+1 && 5 == cell.getColumnIndex()){
@@ -43,7 +43,7 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
             cell.setCellFormula("SUM(F"+(supplyCount+3)+":F" + cell.getRowIndex() +")");
         }
         if(cell.getRowIndex()==rowCount && 5 == cell.getColumnIndex()){
-            cell.setCellFormula("SUM(F"+(supplyCount+2)+":F" + cell.getRowIndex() +")");
+            cell.setCellFormula("SUM(F"+(supplyCount+2)+"+F" + cell.getRowIndex() +")");
         }
     }
 
