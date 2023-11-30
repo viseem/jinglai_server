@@ -294,7 +294,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             } else {
 
                 if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
-                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                 }
             }
 
