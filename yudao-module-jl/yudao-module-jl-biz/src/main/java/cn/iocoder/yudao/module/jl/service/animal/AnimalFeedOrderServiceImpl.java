@@ -263,7 +263,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             });
             animalFeedOrder.setDayCount(dayCount.get());
             animalFeedOrder.setAmount(totalAmount.get());
-            animalFeedOrder.setLatestLog(logs.get(0));
+//            animalFeedOrder.setLatestLog(logs.get(0));
         }
     }
 

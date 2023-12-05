@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -16,6 +19,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
  * @author 惟象科技
  */
 @Data
+@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER,verticalAlignment= VerticalAlignmentEnum.CENTER)//内容样式
 public class AnimalFeedOrderExcelVO {
 
     @ExcelProperty("饲养单名字")

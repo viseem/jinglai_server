@@ -256,7 +256,24 @@ public class AnimalFeedOrder extends BaseEntity {
     private AnimalFeedLog latestLog;
 
     @Transient
+    private Integer latestCageQuantity;
+    public Integer getLatestCageQuantity() {
+        return logs == null||logs.isEmpty() ? null : logs.get(0).getCageQuantity();
+    }
+
+    @Transient
+    private Integer latestQuantity;
+    public Integer getLatestQuantity() {
+        return logs == null||logs.isEmpty() ? null : logs.get(0).getQuantity();
+    }
+
+    @Transient
     private AnimalFeedStoreIn latestStore;
+    public AnimalFeedStoreIn getLatestStore() {
+        return stores == null||stores.isEmpty() ? null : stores.get(0);
+    }
+
+
     @Transient
     private Integer Amount;
 
