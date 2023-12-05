@@ -256,9 +256,6 @@ public class AnimalFeedOrder extends BaseEntity {
     private AnimalFeedLog latestLog;
 
     @Transient
-    private String locationName;
-
-    @Transient
     private AnimalFeedStoreIn latestStore;
     @Transient
     private Integer Amount;
