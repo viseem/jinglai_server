@@ -1,8 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -40,6 +44,9 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
     private AnimalFeedLogRepository animalFeedLogRepository;
 
     @Resource
+    private AnimalFeedOrderRepository animalFeedOrderRepository;
+
+    @Resource
     private AnimalFeedStoreInRepository animalFeedStoreInRepository;
 
     @Resource
@@ -64,19 +71,24 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
     }
 
     @Override
+    @Transactional
     public void saveAnimalFeedLog(AnimalFeedLogSaveReqVO saveReqVO) {
         // 校验存在
 //        validateAnimalFeedLogExists(saveReqVO.getId());
         // 更新
         AnimalFeedLog updateObj = animalFeedLogMapper.toEntity(saveReqVO);
-        animalFeedLogRepository.save(updateObj);
+        AnimalFeedLog save = animalFeedLogRepository.save(updateObj);
         Long feedOrderId = updateObj.getFeedOrderId();
 
         //更新入库信息
         animalFeedStoreInRepository.saveAll(saveReqVO.getStoreList().stream().map(item->{
             item.setFeedOrderId(feedOrderId);
+            item.setLogId(save.getId());
             return item;
         }).collect(Collectors.toList()));
+
+        //更新饲养单的location和locationCode
+        animalFeedOrderRepository.updateLocationAndLocationCodeById(saveReqVO.getLocation(),saveReqVO.getLocationCode(),feedOrderId);
     }
 
     @Override

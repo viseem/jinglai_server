@@ -179,6 +179,12 @@ public class AnimalFeedOrder extends BaseEntity {
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CustomerOnly customer;
 
+    @Transient
+    private String customerName;
+    public String getCustomerName() {
+        return customer == null ? null : customer.getName();
+    }
+
     /**
      * 状态
      */
@@ -209,6 +215,18 @@ public class AnimalFeedOrder extends BaseEntity {
     @Column(name = "in_mark")
     private String inMark;
 
+    /**
+     * 位置
+     */
+    @Column(name = "location")
+    private String location;
+
+    /**
+     * 位置编码
+     */
+    @Column(name = "location_code")
+    private String locationCode;
+
 
     /**
      * 查询鼠牌
@@ -236,6 +254,10 @@ public class AnimalFeedOrder extends BaseEntity {
 
     @Transient
     private AnimalFeedLog latestLog;
+
+    @Transient
+    private String locationName;
+
     @Transient
     private AnimalFeedStoreIn latestStore;
     @Transient

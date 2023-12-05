@@ -109,4 +109,8 @@ public class AnimalFeedOrderBaseVO {
 
     @Schema(description = "入库备注")
     private String inMark;
+    @Schema(description = "位置")
+    private String location;
+    @Schema(description = "位置")
+    private String locationCode;
 }
