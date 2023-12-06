@@ -80,6 +80,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "周期")
+    private String cycle;
+
     /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */

@@ -195,6 +195,12 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "has_feedback", nullable = false)
     private Byte hasFeedback;
 
+    /**
+     * 周期
+     */
+    @Column(name = "cycle")
+    private String cycle;
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
