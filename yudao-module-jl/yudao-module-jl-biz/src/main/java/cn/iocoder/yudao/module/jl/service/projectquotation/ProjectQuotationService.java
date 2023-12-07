@@ -29,6 +29,9 @@ public interface ProjectQuotationService {
      */
     void updateProjectQuotation(@Valid ProjectQuotationUpdateReqVO updateReqVO);
 
+    void updateProjectQuotationDiscount(@Valid ProjectQuotationNoRequireVO updateReqVO);
+
+
     /**
      * 更新项目报价
      *

@@ -96,6 +96,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
+    public void updateProjectQuotationDiscount(ProjectQuotationNoRequireVO updateReqVO) {
+        projectQuotationRepository.updateDiscountById(updateReqVO.getDiscount(), updateReqVO.getId());
+    }
+
+    @Override
     @Transactional
     public void saveProjectQuotation(ProjectQuotationSaveReqVO updateReqVO) {
 

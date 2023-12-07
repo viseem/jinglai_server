@@ -66,6 +66,14 @@ public class ProjectQuotationController {
         return success(true);
     }
 
+    @PutMapping("/update-discount")
+    @Operation(summary = "更新项目报价折扣")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Boolean> updateProjectQuotationDiscount(@Valid @RequestBody ProjectQuotationNoRequireVO updateReqVO) {
+        projectQuotationService.updateProjectQuotationDiscount(updateReqVO);
+        return success(true);
+    }
+
     @PutMapping("/update-version")
     @Operation(summary = "更新项目报价")
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")

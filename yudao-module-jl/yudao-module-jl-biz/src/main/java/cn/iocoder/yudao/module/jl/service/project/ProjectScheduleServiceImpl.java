@@ -13,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentReposi
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +21,7 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -106,6 +108,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectConstractRepository projectConstractRepository;
+
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -593,7 +598,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO){
         salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
-        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
+//        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
+        projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(),updateReqVO.getQuotationId());
+        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(),updateReqVO.getQuotationAmount());
         return null;
     }
 
@@ -692,7 +699,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         Long supplyQuotation = getSupplyQuotationByQuotationId(quotationId);
         Long chargeQuotation = getChargeItemQuotationByQuotationId(quotationId);
 
-        salesleadRepository.updateQuotationByProjectId(projectId,supplyQuotation+chargeQuotation);
+        salesleadRepository.updateQuotationByProjectId(projectId, BigDecimal.valueOf(supplyQuotation+chargeQuotation));
     }
 
 

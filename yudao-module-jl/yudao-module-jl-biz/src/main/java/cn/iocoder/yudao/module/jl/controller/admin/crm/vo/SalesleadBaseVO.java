@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.Followup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -30,7 +32,7 @@ public class SalesleadBaseVO {
     private Long budget;
 
     @Schema(description = "报价 id")
-    private Long quotation;
+    private BigDecimal quotation;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "状态不能为空")

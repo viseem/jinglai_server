@@ -11,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -62,7 +63,7 @@ public class Saleslead extends BaseEntity {
      * 报价
      */
     @Column(name = "quotation")
-    private Long quotation;
+    private BigDecimal quotation;
 
     @Column(name = "quotation_price")
     private Long quotationPrice;

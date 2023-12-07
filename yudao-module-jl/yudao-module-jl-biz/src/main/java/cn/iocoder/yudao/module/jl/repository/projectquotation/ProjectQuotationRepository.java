@@ -12,6 +12,10 @@ import java.util.Optional;
 *
 */
 public interface ProjectQuotationRepository extends JpaRepository<ProjectQuotation, Long>, JpaSpecificationExecutor<ProjectQuotation> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectQuotation p set p.discount = ?1 where p.id = ?2")
+    int updateDiscountById(Integer discount, Long id);
     @Query("select p from ProjectQuotation p where p.projectId = ?1")
     List<ProjectQuotation> findByProjectId(Long projectId);
     @Transactional

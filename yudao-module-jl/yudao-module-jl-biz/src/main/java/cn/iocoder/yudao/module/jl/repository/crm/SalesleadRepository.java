@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 /**
 * SalesleadRepository
 *
@@ -46,5 +48,5 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.quotation = ?2 where s.projectId = ?1")
-    void updateQuotationByProjectId(Long projectId,Long quotation);
+    void updateQuotationByProjectId(Long projectId, BigDecimal quotation);
 }
