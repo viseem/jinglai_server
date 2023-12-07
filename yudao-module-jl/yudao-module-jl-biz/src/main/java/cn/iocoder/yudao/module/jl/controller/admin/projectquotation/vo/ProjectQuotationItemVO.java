@@ -17,6 +17,7 @@ public class ProjectQuotationItemVO {
     private Long projectCategoryId;
 
     private String projectCategoryName;
+    private String projectCategoryCycle;
 
     private Long projectId;
     private Long quotationId;
@@ -48,6 +49,7 @@ public class ProjectQuotationItemVO {
     private String productCode;
 
     private String type;
+
 
     @Schema(description = "物品来源")
     private String source;

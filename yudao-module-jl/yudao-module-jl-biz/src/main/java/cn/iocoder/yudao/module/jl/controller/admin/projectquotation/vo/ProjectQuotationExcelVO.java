@@ -49,4 +49,7 @@ public class ProjectQuotationExcelVO {
     @ExcelProperty("备注")
     private String mark;
 
+    @ExcelProperty("周期")
+    private String projectCategoryCycle;
+
 }

@@ -40,6 +40,8 @@ public class JLCustomMergeStrategy extends AbstractMergeStrategy {
             }else{
                 if(mergeRowCount>0){
                     sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
+                    sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, 7, 7));
+
                 }
                 if(prevName!=null){
                     prevIndex=prevIndex+mergeRowCount+1;
@@ -50,7 +52,7 @@ public class JLCustomMergeStrategy extends AbstractMergeStrategy {
 
             //处理最后一次合并
             if (relativeRowIndex == rowCount-1&&mergeRowCount>0) {
-                sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
+//                sheet.addMergedRegionUnsafe(new CellRangeAddress(prevIndex, prevIndex+mergeRowCount, columnIndex, columnIndex));
             }
 
             //注意不能单独判断行，还要同时判断column，这样不会重复合并

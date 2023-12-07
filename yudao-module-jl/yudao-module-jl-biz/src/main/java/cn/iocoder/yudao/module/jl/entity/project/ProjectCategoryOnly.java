@@ -121,6 +121,12 @@ public class ProjectCategoryOnly extends BaseEntity {
     private String mark;
 
     /**
+     * 周期
+     */
+    @Column(name = "cycle")
+    private String cycle;
+
+    /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */
     @Column(name = "stage")

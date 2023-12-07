@@ -278,6 +278,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             if(projectChargeitem.getCategory()!=null){
                 System.out.println("category---"+projectChargeitem.getCategory().getName());
                 item.setProjectCategoryName(projectChargeitem.getCategory().getName());
+                item.setProjectCategoryCycle(projectChargeitem.getCategory().getCycle());
             }
             item.setName(projectChargeitem.getName());
             item.setMark(projectChargeitem.getMark());
