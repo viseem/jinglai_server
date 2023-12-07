@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -114,7 +115,7 @@ public class ProcurementItem extends BaseEntity {
      * 运费
      */
     @Column(name = "freight")
-    private Integer freight = 0;
+    private BigDecimal freight = BigDecimal.valueOf(0);
 
     /**
      * 销售价

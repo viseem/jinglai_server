@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class ProcurementItemBaseVO {
     private Integer originPrice = 0;
 
     @Schema(description = "运费")
-    private Integer freight = 0;
+    private BigDecimal freight = BigDecimal.valueOf(0);
 
     @Schema(description = "退款凭证json")
     private String refundReceipts;
