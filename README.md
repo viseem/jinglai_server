@@ -5,7 +5,7 @@ mvn clean install package -Dmaven.test.skip=true
 ```
 上传至指定目录
 ```bash
-scp yudao-server/target/yudao-server.jar zs:/home/ubuntu/jinglai/new.jar
+scp yudao-server/target/yudao-server.jar vxzs:/home/ubuntu/jinglai/new.jar
 ```
 
 运行以下命令
