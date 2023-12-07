@@ -407,7 +407,10 @@ public class SalesleadServiceImpl implements SalesleadService {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
             }else{
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+
+                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
 
                 if(pageReqVO.getStatus() != null) {
                     //查询未转项目的
