@@ -63,7 +63,7 @@ public class Category extends BaseEntity {
     private Long labId;
 
     /**
-     * JPA 级联出 lab
+     * JPA 级联出 open
      */
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
