@@ -288,4 +288,10 @@ public class ProjectCategory extends BaseEntity {
 
     @Transient
     private List<User> focusList = new ArrayList<>();
+
+    @Transient
+    private Integer sopTotal = 0;
+
+    @Transient
+    private Integer sopDone = 0;
 }

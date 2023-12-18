@@ -273,6 +273,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     public PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
         // 创建 Sort 对象
+        if(pageReqVO.getQuotationId()!=null){
+            orderV0.setCreateTime("asc");
+        }
         Sort sort = createSort(orderV0);
 
         // 创建 Pageable 对象
@@ -283,11 +286,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         // 执行查询
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
-//        List<ProjectCategory> content = page.getContent();
+        List<ProjectCategory> content = page.getContent();
 
-/*        if(content!=null&&content.size()>0){
+        if(!content.isEmpty()){
             content.forEach(this::processProjectCategoryItem);
-        }*/
+        }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
@@ -305,9 +308,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         // 执行查询
         Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
-//        List<ProjectCategorySimple> content = page.getContent();
+/*        List<ProjectCategorySimple> content = page.getContent();
 
-/*        if(content!=null&&content.size()>0){
+        if(!content.isEmpty()){
             content.forEach(this::processProjectCategorySimpleItem);
         }*/
         // 转换为 PageResult 并返回
@@ -421,15 +424,17 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
             projectCategory.setLatestApproval(latestApproval.orElse(null));
         }*/
+        List<ProjectSop> sopList = projectCategory.getSopList();
+        if(sopList!=null&& !sopList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& sop.getStatus().equals("done")).count();
+            projectCategory.setSopDone((int)count);
+        }
     }
 
     private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
-/*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
-        if (!approvalList.isEmpty()) {
-            Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
-                    .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-            projectCategory.setLatestApproval(latestApproval.orElse(null));
-        }*/
+            //获取sop完成的数量，sopList的status等于done的数量
+
     }
 
     @Override
@@ -498,7 +503,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 如果实际情况不同，你可能需要对这部分代码进行调整
 
 
-//        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
