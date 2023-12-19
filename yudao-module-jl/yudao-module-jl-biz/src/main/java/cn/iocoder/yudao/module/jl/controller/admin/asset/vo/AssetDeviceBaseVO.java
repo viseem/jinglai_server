@@ -22,6 +22,9 @@ public class AssetDeviceBaseVO {
     @NotNull(message = "所属类型：公司、租赁不能为空")
     private String ownerType;
 
+    @Schema(description = "实验室id", example = "11048")
+    private Long labId;
+
     @Schema(description = "管理人 id", example = "11048")
     private Long managerId;
 

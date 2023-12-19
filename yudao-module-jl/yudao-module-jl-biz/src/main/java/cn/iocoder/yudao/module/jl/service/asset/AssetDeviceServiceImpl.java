@@ -127,6 +127,10 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
         Specification<AssetDevice> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getLabId() != null) {
+                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }

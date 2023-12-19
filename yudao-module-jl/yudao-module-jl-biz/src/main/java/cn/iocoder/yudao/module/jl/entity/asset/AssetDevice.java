@@ -108,4 +108,9 @@ public class AssetDevice extends BaseEntity {
     @Column(name = "color")
     private String color;
 
+    /**
+     * 所属实验室
+     */
+    @Column(name = "lab_id")
+    private Long labId;
 }
