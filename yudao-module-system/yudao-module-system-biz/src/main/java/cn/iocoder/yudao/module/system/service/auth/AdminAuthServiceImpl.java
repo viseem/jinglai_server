@@ -64,6 +64,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     @Resource
     private SmsCodeApi smsCodeApi;
 
+
     /**
      * 验证码的开关，默认为 true
      */
@@ -108,6 +109,21 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         }
         // 创建 Token 令牌，记录登录日志
         return createTokenAfterLoginSuccess(user.getId(), reqVO.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+    }
+
+
+    @Override
+    public AuthLoginRespVO loginNoCaptcha(AuthLabLoginReqVO reqVO) {
+        AdminUserDO user1 = userService.getUser(reqVO.getUserid());
+        if (user1 == null) {
+            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+        }
+
+        // 使用账号密码，进行登录
+        AdminUserDO user = authenticate(user1.getUsername(), reqVO.getPassword());
+
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user.getId(), user1.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
     }
 
     @Override

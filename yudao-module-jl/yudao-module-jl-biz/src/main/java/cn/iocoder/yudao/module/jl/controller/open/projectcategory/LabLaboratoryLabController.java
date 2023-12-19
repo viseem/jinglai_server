@@ -26,6 +26,7 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.LABORATORY_LAB_NOT_EXISTS;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 实验室")
 @RestController
@@ -75,6 +76,7 @@ public class LabLaboratoryLabController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得实验室列表")
     public CommonResult<PageResult<LaboratoryLabRespVO>> getLaboratoryLabPage(@Valid LaboratoryLabPageReqVO pageVO, @Valid LaboratoryLabPageOrder orderV0) {
+        System.out.println("------"+getLoginUserId());
         PageResult<LaboratoryLab> pageResult = laboratoryLabService.getLaboratoryLabPage(pageVO, orderV0);
         return success(laboratoryLabMapper.toPage(pageResult));
     }
