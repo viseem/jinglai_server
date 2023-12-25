@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class LabLaboratoryUserController {
     }
 
     @GetMapping("/page")
+    @PermitAll
     @Operation(summary = "(分页)获得实验室人员列表")
     public CommonResult<PageResult<LaboratoryUserRespVO>> getLaboratoryUserPage(@Valid LaboratoryUserPageReqVO pageVO, @Valid LaboratoryUserPageOrder orderV0) {
         PageResult<LaboratoryUser> pageResult = laboratoryUserService.getLaboratoryUserPage(pageVO, orderV0);

@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -45,10 +46,11 @@ public class LabProjectQuotationController {
 
 
     @GetMapping("/get")
+    @PermitAll
     @Operation(summary = "通过 ID 获得项目报价")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     public CommonResult<ProjectQuotationRespVO> getProjectQuotation(@RequestParam("id") Long id) {
-            Optional<ProjectQuotation> projectQuotation = projectQuotationService.getProjectQuotation(id);
+        Optional<ProjectQuotation> projectQuotation = projectQuotationService.getProjectQuotation(id);
         return success(projectQuotation.map(projectQuotationMapper::toDto).orElseThrow(() -> exception(PROJECT_QUOTATION_NOT_EXISTS)));
     }
 

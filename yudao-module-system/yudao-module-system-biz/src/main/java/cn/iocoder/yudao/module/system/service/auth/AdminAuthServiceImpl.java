@@ -9,8 +9,10 @@ import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.yudao.module.system.api.logger.dto.LoginLogCreateReqDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
+import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
@@ -123,7 +125,18 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         AdminUserDO user = authenticate(user1.getUsername(), reqVO.getPassword());
 
         // 创建 Token 令牌，记录登录日志
-        return createTokenAfterLoginSuccess(user.getId(), user1.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+        AuthLoginRespVO tokenAfterLoginSuccess = createTokenAfterLoginSuccess(user.getId(), user1.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+        //AdminUserDO 复制copy给 AdminUserRespDTO
+        AdminUserRespDTO adminUserRespDTO = new AdminUserRespDTO();
+        adminUserRespDTO.setId(user.getId());
+        adminUserRespDTO.setNickname(user.getNickname());
+        adminUserRespDTO.setStatus(user.getStatus());
+        adminUserRespDTO.setDeptId(user.getDeptId());
+        adminUserRespDTO.setPostIds(user.getPostIds());
+        adminUserRespDTO.setMobile(user.getMobile());
+        adminUserRespDTO.setAvatar(user.getAvatar());
+        tokenAfterLoginSuccess.setUser(adminUserRespDTO);
+        return tokenAfterLoginSuccess;
     }
 
     @Override

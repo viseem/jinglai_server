@@ -89,6 +89,12 @@ public class ProjectCategorySimple extends BaseEntity {
     private Long labId;
 
     /**
+     * 所属实验室ids
+     */
+    @Column(name = "lab_ids")
+    private String labIds;
+
+    /**
      * JPA 级联出 open
      */
     @OneToOne(fetch = FetchType.EAGER)

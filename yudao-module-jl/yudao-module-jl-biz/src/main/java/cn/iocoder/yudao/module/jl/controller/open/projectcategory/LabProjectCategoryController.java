@@ -44,12 +44,13 @@ public class LabProjectCategoryController {
     @GetMapping("/page")
     @PermitAll
     @Operation(summary = "(分页)获得项目的实验名目列表")
-    public CommonResult<PageResult<ProjectCategory>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
-        PageResult<ProjectCategory> pageResult = projectCategoryService.getProjectCategoryPage(pageVO, orderV0);
+    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
         return success(pageResult);
     }
 
     @GetMapping("/get")
+    @PermitAll
     @Operation(summary = "通过 ID 获得项目的实验名目")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     public CommonResult<ProjectCategoryRespVO> getProjectCategory(@RequestParam("id") Long id) {

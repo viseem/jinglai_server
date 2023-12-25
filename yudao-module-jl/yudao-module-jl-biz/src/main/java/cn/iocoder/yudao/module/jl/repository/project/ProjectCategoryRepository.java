@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select count(p) from ProjectCategory p where p.stage = ?1 and p.type = 'schedule' and FIND_IN_SET(?2,p.labIds)>0")
+    Integer countByStageAndAndLabIdAndType(String stage,Long labId);
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.type = ?1 where p.quotationId = ?2")
