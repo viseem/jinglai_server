@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.controller.open.projectcategory.vo.LabExpSopUpdateReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSopMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
@@ -42,7 +43,7 @@ public class LabProjectSopController {
 
     @PostMapping("/update-status")
     @Operation(summary = "更新项目中的实验名目的操作SOP")
-    public CommonResult<Boolean> updateProjectSop(@Valid @RequestBody ProjectSopUpdateReqVO updateReqVO) {
+    public CommonResult<Boolean> updateProjectSop(@Valid @RequestBody LabExpSopUpdateReqVO updateReqVO) {
         projectSopRepository.updateStatusById(updateReqVO.getStatus(),updateReqVO.getId());
         return success(true);
     }
