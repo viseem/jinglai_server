@@ -78,7 +78,7 @@ public class LabLaboratoryLabController {
     @PermitAll
     @Operation(summary = "(分页)获得实验室列表")
     public CommonResult<PageResult<LaboratoryLabRespVO>> getLaboratoryLabPage(@Valid LaboratoryLabPageReqVO pageVO, @Valid LaboratoryLabPageOrder orderV0) {
-        System.out.println("------"+getLoginUserId());
+        pageVO.setPageSize(100);
         PageResult<LaboratoryLab> pageResult = laboratoryLabService.getLaboratoryLabPage(pageVO, orderV0);
         return success(laboratoryLabMapper.toPage(pageResult));
     }

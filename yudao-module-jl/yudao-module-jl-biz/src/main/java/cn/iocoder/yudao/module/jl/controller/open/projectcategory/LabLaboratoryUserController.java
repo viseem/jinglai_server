@@ -52,6 +52,7 @@ public class LabLaboratoryUserController {
     @PermitAll
     @Operation(summary = "(分页)获得实验室人员列表")
     public CommonResult<PageResult<LaboratoryUserRespVO>> getLaboratoryUserPage(@Valid LaboratoryUserPageReqVO pageVO, @Valid LaboratoryUserPageOrder orderV0) {
+        pageVO.setPageSize(100);
         PageResult<LaboratoryUser> pageResult = laboratoryUserService.getLaboratoryUserPage(pageVO, orderV0);
         return success(laboratoryUserMapper.toPage(pageResult));
     }

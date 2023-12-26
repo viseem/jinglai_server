@@ -44,6 +44,7 @@ public class LabAssetDeviceController {
     @PermitAll
     @Operation(summary = "(分页)获得公司资产（设备）列表")
     public CommonResult<PageResult<AssetDeviceRespVO>> getAssetDevicePage(@Valid AssetDevicePageReqVO pageVO, @Valid AssetDevicePageOrder orderV0) {
+        pageVO.setPageSize(100);
         PageResult<AssetDevice> pageResult = assetDeviceService.getAssetDevicePage(pageVO, orderV0);
         return success(assetDeviceMapper.toPage(pageResult));
     }
