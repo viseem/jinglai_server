@@ -301,20 +301,19 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Sort sort = createSort(orderV0);
 
         // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
         Specification<ProjectCategorySimple> spec = getProjectCategorySimpleSpecification(pageReqVO);
 
         // 执行查询
-        Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
-/*        List<ProjectCategorySimple> content = page.getContent();
-
-        if(!content.isEmpty()){
-            content.forEach(this::processProjectCategorySimpleItem);
-        }*/
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        if(pageReqVO.getPageNo()==-1){
+            List<ProjectCategorySimple> all = projectCategorySimpleRepository.findAll(spec);
+            return new PageResult<>(all, (long)all.size());
+        }else{
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
+            return new PageResult<>(page.getContent(), page.getTotalElements());
+        }
     }
 
     @NotNull

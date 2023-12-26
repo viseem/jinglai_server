@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.repository.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,9 @@ import java.util.List;
 *
 */
 public interface ProjectCategorySimpleRepository extends JpaRepository<ProjectCategorySimple, Long>, JpaSpecificationExecutor<ProjectCategorySimple> {
+
+    List<ProjectCategorySimple> findAll(Specification<ProjectCategorySimple> specification);
+
     @Query("select count(1) from ProjectCategory p where p.projectId = ?1 and p.stage = ?2 and p.type = 'schedule'")
     long countByProjectIdAndStageAndType(Long projectId, String stage);
     @Query("select count(1) from ProjectCategory p where p.projectId = ?1 and p.type = 'schedule'")
