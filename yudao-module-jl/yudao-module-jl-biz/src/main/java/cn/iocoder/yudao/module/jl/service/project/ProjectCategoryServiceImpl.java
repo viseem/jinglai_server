@@ -1,40 +1,40 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.*;
-import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.*;
+import javax.annotation.Resource;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-
-import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CATEGORY_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -301,13 +301,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Sort sort = createSort(orderV0);
 
         // 创建 Pageable 对象
-
         // 创建 Specification
         Specification<ProjectCategorySimple> spec = getProjectCategorySimpleSpecification(pageReqVO);
 
         // 执行查询
         if(pageReqVO.getPageNo()==-1){
-            List<ProjectCategorySimple> all = projectCategorySimpleRepository.findAll(spec);
+            List<ProjectCategorySimple> all = projectCategorySimpleRepository.findAll(spec,sort);
             return new PageResult<>(all, (long)all.size());
         }else{
             Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
