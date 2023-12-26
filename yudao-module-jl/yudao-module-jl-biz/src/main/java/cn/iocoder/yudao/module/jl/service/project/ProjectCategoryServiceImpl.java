@@ -307,6 +307,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 执行查询
         if(pageReqVO.getPageNo()==-1){
             List<ProjectCategorySimple> all = projectCategorySimpleRepository.findAll(spec,sort);
+            if(!all.isEmpty()){
+                all.forEach(this::processProjectCategorySimpleItem);
+            }
             return new PageResult<>(all, (long)all.size());
         }else{
             Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
@@ -425,14 +428,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         List<ProjectSop> sopList = projectCategory.getSopList();
         if(sopList!=null&& !sopList.isEmpty()){
             // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
-            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& sop.getStatus().equals("done")).count();
+            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& (sop.getStatus().equals("DONE")||sop.getStatus().equals("done"))).count();
             projectCategory.setSopDone((int)count);
+            projectCategory.setSopTotal(sopList.size());
         }
     }
 
     private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
             //获取sop完成的数量，sopList的status等于done的数量
-
+        List<ProjectSop> sopList = projectCategory.getSopList();
+        if(sopList!=null&& !sopList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& (sop.getStatus().equals("DONE")||sop.getStatus().equals("done"))).count();
+            projectCategory.setSopDone((int)count);
+            projectCategory.setSopTotal(sopList.size());
+        }
     }
 
     @Override
