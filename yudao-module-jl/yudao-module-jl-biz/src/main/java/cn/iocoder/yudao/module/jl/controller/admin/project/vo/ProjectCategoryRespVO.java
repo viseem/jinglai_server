@@ -54,4 +54,5 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     private List<LaboratoryLab> labList;
 
     private List<User>  focusList;
+
 }

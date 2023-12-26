@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import javax.persistence.Transient;
 import javax.validation.constraints.*;
 
 /**
@@ -95,4 +96,7 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "原始数据")
     private String rawData;
 
+    private Integer sopTotal = 0;
+
+    private Integer sopDone = 0;
 }

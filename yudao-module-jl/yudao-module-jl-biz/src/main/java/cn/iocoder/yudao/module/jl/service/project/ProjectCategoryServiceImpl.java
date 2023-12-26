@@ -260,6 +260,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         if(ids!=null&& !ids.isEmpty()){
             category.setFocusList(idsString2QueryList(category.getFocusIds(),userRepository));
         }
+        processProjectCategoryItem(byId.get());
         return byId;
     }
 
