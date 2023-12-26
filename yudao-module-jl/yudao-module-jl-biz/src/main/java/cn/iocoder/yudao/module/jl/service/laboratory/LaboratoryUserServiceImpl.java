@@ -1,31 +1,31 @@
 package cn.iocoder.yudao.module.jl.service.laboratory;
 
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo.*;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryUser;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.laboratory.LaboratoryUserMapper;
+import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryUserRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo.*;
-import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryUser;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.laboratory.LaboratoryUserMapper;
-import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryUserRepository;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.LABORATORY_USER_NOT_EXISTS;
 
 /**
  * 实验室人员 Service 实现类
@@ -40,6 +40,9 @@ public class LaboratoryUserServiceImpl implements LaboratoryUserService {
 
     @Resource
     private LaboratoryUserMapper laboratoryUserMapper;
+
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
 
     @Override
     public Long createLaboratoryUser(LaboratoryUserCreateReqVO createReqVO) {
@@ -116,6 +119,11 @@ public class LaboratoryUserServiceImpl implements LaboratoryUserService {
 
         // 执行查询
         Page<LaboratoryUser> page = laboratoryUserRepository.findAll(spec, pageable);
+        // 遍历page.getContent()，
+        page.getContent().forEach(exper->{
+            exper.setNotDoCount(projectCategoryRepository.countByOperatorIdAndStage(exper.getUserId(), ProjectCategoryStatusEnums.WAIT_DO.getStatus()));
+            exper.setDoingCount(projectCategoryRepository.countByOperatorIdAndStage(exper.getUserId(), ProjectCategoryStatusEnums.DOING.getStatus()));
+        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

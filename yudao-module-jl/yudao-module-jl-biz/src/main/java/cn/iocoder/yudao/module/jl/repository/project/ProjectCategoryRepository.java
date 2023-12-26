@@ -59,6 +59,8 @@ public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory
     int updateContentById(String content, Long id);
     @Query("select count(p) from ProjectCategory p where p.operatorId = ?1 and (p.stage <> ?2 or p.stage is null)")
     Integer countByOperatorIdAndStageNot(Long operatorId, String stage);
+    @Query("select count(p) from ProjectCategory p where p.operatorId = ?1 and p.stage = ?2")
+    Integer countByOperatorIdAndStage(Long operatorId, String stage);
     @Transactional
     @Modifying
     @Query("delete from ProjectCategory p where p.labId = ?1")

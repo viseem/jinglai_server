@@ -77,4 +77,8 @@ public class LaboratoryUser extends BaseEntity {
     @Column(name = "rank")
     private String rank;
 
+    @Transient
+    private Integer notDoCount;
+    @Transient
+    private Integer doingCount;
 }

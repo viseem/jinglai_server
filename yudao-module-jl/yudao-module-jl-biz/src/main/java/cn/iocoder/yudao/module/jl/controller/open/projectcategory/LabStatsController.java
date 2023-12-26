@@ -35,7 +35,7 @@ public class LabStatsController {
     @GetMapping("/exp-count")
     @PermitAll
     @Operation(summary = "统计实验室的任务数量")
-    public CommonResult<LabStatsExpCountRespVO> getAssetDevicePage(@Valid LabExpStatsReqVO statsVO) {
+    public CommonResult<LabStatsExpCountRespVO> getExpCountStats(@Valid LabExpStatsReqVO statsVO) {
         Integer doingCount = projectCategoryRepository.countByStageAndAndLabIdAndType(ProjectCategoryStatusEnums.DOING.getStatus(), statsVO.getLabId());
         Integer notDoCount = projectCategoryRepository.countByStageAndAndLabIdAndType(ProjectCategoryStatusEnums.WAIT_DO.getStatus(), statsVO.getLabId());
         LabStatsExpCountRespVO respVO = new LabStatsExpCountRespVO();
