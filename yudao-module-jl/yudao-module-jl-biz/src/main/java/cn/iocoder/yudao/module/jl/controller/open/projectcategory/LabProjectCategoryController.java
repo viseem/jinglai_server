@@ -5,9 +5,12 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.controller.open.projectcategory.vo.LabExpSopUpdateReqVO;
+import cn.iocoder.yudao.module.jl.controller.open.projectcategory.vo.LabExpUpdateReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,12 +44,23 @@ public class LabProjectCategoryController {
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
     @GetMapping("/page")
     @PermitAll
     @Operation(summary = "(分页)获得项目的实验名目列表")
     public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
         PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
         return success(pageResult);
+    }
+
+    @PostMapping("/update-stage")
+    @Operation(summary = "更新")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:update')")
+    public CommonResult<Boolean> updateProjectSop(@Valid @RequestBody LabExpUpdateReqVO updateReqVO) {
+        projectCategoryRepository.updateStageById(updateReqVO.getStage(),updateReqVO.getId());
+        return success(true);
     }
 
     @GetMapping("/get")
