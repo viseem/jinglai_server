@@ -52,4 +52,6 @@ public class AssetDeviceBaseVO {
     @Schema(description = "颜色标识")
     private String color;
 
+    private Boolean busy;
+
 }

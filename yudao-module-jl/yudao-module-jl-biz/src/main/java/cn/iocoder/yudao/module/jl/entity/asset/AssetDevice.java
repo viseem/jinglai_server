@@ -91,7 +91,7 @@ public class AssetDevice extends BaseEntity {
     private String location;
 
     /**
-     * 设备状态：空闲、忙碌(前端先自己算)
+     * 设备状态
      */
     @Column(name = "status")
     private String status;
@@ -113,4 +113,7 @@ public class AssetDevice extends BaseEntity {
      */
     @Column(name = "lab_id")
     private Long labId;
+
+    @Transient
+    private Boolean busy;
 }
