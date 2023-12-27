@@ -13,6 +13,8 @@ import java.util.List;
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
     @Query("select count(p) from ProjectCategory p where p.stage = ?1 and p.type = 'schedule' and FIND_IN_SET(?2,p.labIds)>0")
     Integer countByStageAndAndLabIdAndType(String stage,Long labId);
+    @Query("select count(p) from ProjectCategory p where p.stage in ?1 and p.type = 'schedule' and FIND_IN_SET(?2,p.labIds)>0")
+    Integer countInStageAndAndLabIdAndType(String[] stage,Long labId);
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.type = ?1 where p.quotationId = ?2")
@@ -61,6 +63,8 @@ public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory
     Integer countByOperatorIdAndStageNot(Long operatorId, String stage);
     @Query("select count(p) from ProjectCategory p where p.operatorId = ?1 and p.stage = ?2")
     Integer countByOperatorIdAndStage(Long operatorId, String stage);
+    @Query("select count(p) from ProjectCategory p where p.operatorId = ?1 and p.stage in ?2")
+    Integer countByOperatorIdAndInStage(Long operatorId, String[] stage);
     @Transactional
     @Modifying
     @Query("delete from ProjectCategory p where p.labId = ?1")
