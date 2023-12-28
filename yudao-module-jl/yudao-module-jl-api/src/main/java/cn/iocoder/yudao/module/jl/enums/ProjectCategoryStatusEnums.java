@@ -31,7 +31,7 @@ public enum ProjectCategoryStatusEnums implements StringArrayValuable {
 
     private final String status;
     private final String name;
-    private static final String[] DOING_ARRAY ={DOING.getStatus(),DATA_CHECK.getStatus(),PAUSE.getStatus(),DATA_ACCEPT.getStatus(),DATA_REJECT.getStatus()};
+    public static final String[] DOING_ARRAY ={DOING.getStatus(),DATA_CHECK.getStatus(),PAUSE.getStatus(),DATA_ACCEPT.getStatus(),DATA_REJECT.getStatus()};
 
     @Override
     public List<String> array() {
