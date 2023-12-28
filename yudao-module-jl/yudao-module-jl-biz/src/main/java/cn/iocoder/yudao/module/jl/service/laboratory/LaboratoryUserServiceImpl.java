@@ -122,7 +122,7 @@ public class LaboratoryUserServiceImpl implements LaboratoryUserService {
         // 遍历page.getContent()，
         page.getContent().forEach(exper->{
             exper.setNotDoCount(projectCategoryRepository.countByOperatorIdAndStage(exper.getUserId(), ProjectCategoryStatusEnums.WAIT_DO.getStatus()));
-            exper.setDoingCount(projectCategoryRepository.countByOperatorIdAndInStage(exper.getUserId(), new String[]{ProjectCategoryStatusEnums.DOING.getStatus(),ProjectCategoryStatusEnums.PAUSE.getStatus(),ProjectCategoryStatusEnums.DATA_CHECK.getStatus()}));
+            exper.setDoingCount(projectCategoryRepository.countByOperatorIdAndInStage(exper.getUserId(), ProjectCategoryStatusEnums.getDoingStages()));
         });
 
         // 转换为 PageResult 并返回

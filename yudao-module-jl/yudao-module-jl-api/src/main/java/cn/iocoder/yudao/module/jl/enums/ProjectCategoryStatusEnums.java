@@ -37,4 +37,8 @@ public enum ProjectCategoryStatusEnums implements StringArrayValuable {
         return new ArrayList<>();
     }
 
+    public static String[] getDoingStages(){
+        return new String[]{DOING.getStatus(),DATA_CHECK.getStatus(),PAUSE.getStatus(),DATA_ACCEPT.getStatus(),DATA_REJECT.getStatus()};
+    }
+
 }

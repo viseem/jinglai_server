@@ -36,7 +36,7 @@ public class LabStatsController {
     @PermitAll
     @Operation(summary = "统计实验室的任务数量")
     public CommonResult<LabStatsExpCountRespVO> getExpCountStats(@Valid LabExpStatsReqVO statsVO) {
-        Integer doingCount = projectCategoryRepository.countInStageAndAndLabIdAndType(new String[]{ProjectCategoryStatusEnums.DOING.getStatus(),ProjectCategoryStatusEnums.DATA_CHECK.getStatus(),ProjectCategoryStatusEnums.PAUSE.getStatus()}, statsVO.getLabId());
+        Integer doingCount = projectCategoryRepository.countInStageAndAndLabIdAndType(ProjectCategoryStatusEnums.getDoingStages(), statsVO.getLabId());
         Integer notDoCount = projectCategoryRepository.countByStageAndAndLabIdAndType(ProjectCategoryStatusEnums.WAIT_DO.getStatus(), statsVO.getLabId());
         LabStatsExpCountRespVO respVO = new LabStatsExpCountRespVO();
         respVO.setDoingCount(doingCount);
