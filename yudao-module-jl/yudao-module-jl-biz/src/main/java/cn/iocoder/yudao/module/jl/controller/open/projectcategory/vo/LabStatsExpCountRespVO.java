@@ -10,10 +10,17 @@ import java.time.LocalDateTime;
 @ToString(callSuper = true)
 public class LabStatsExpCountRespVO {
 
-    @Schema(description = "在做数量")
-    private Integer doingCount;
-
     @Schema(description = "未做数量")
     private Integer notDoCount;
+    @Schema(description = "进行中")
+    private Integer doingCount;
+    @Schema(description = "暂停")
+    private Integer pauseCount;
+    @Schema(description = "数据审核中")
+    private Integer dataCheckCount;
+    @Schema(description = "数据审核通过")
+    private Integer dataAcceptCount;
+    @Schema(description = "数据审核驳回")
+    private Integer dataRejectCount;
 
 }
