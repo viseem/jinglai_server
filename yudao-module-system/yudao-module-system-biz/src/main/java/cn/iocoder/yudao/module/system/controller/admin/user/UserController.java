@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.system.controller.admin.user;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
@@ -33,6 +34,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 用户")
 @RestController
@@ -90,6 +92,17 @@ public class UserController {
     @Operation(summary = "获得用户分页列表")
     @PreAuthorize("@ss.hasPermission('system:user:list')")
     public CommonResult<PageResult<UserPageItemRespVO>> getUserPage(@Valid UserPageReqVO reqVO) {
+
+        if(reqVO.getAttribute()!=null){
+            if(reqVO.getAttribute().equals("ALL")){
+                //查询自己负责的部门id
+                DeptByReqVO dept = new DeptByReqVO();
+                dept.setLeaderUserId(getLoginUserId());
+                DeptDO deptBy = deptService.getDeptBy(dept);
+                reqVO.setDeptId(deptBy.getId());
+            }
+        }
+
         // 获得用户分页列表
         PageResult<AdminUserDO> pageResult = userService.getUserPage(reqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {

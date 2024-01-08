@@ -220,13 +220,13 @@ public class CustomerServiceImpl implements CustomerService {
             List<Predicate> predicates = new ArrayList<>();
 
             //获取attributeUsers
-            Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+            Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
             pageReqVO.setCreators(users);
 
-            //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
-                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-            }
+                //如果不是any，则都是in查询
+                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
+                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
 
             if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
                 predicates.add(root.get("salesId").isNull());
@@ -335,9 +335,7 @@ public class CustomerServiceImpl implements CustomerService {
             if(pageReqVO.getLastFollowupTime() != null) {
                 predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
             }
-/*            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }*/
+
 
             if(pageReqVO.getLastFollowupId() != null) {
                 predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));

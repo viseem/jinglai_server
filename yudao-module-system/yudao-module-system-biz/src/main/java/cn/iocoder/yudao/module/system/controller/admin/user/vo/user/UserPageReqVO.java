@@ -46,4 +46,7 @@ public class UserPageReqVO extends PageParam {
     @Schema(description = "ids")
     private List<Long> ids;
 
+
+    private String attribute;
+
 }
