@@ -360,7 +360,9 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Override
     public PageResult<Saleslead> getSalesleadPage(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0) {
 
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        System.out.println(Arrays.toString(users)+"salesId:"+pageReqVO.getSalesId());
         pageReqVO.setCreators(users);
 
         // 创建 Sort 对象
@@ -394,9 +396,9 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.isNotNull(root.get("quotation")));
             }*/
 
-            if(pageReqVO.getSalesId() != null) {
+/*            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
-            }
+            }*/
 
             if(pageReqVO.getQuotation() != null) {
                 predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
