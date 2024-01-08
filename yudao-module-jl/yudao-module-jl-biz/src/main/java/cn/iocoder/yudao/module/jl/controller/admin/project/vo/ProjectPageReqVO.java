@@ -20,6 +20,11 @@ public class ProjectPageReqVO extends PageParam {
     @Schema(description = "归属：ALL MY SUB")
     private String attribute;
 
+    @Schema(description = "in 查询 creators")
+    private Long[] creators;
+
+    private Boolean isSale;
+
     @Schema(description = "in 查询 managers")
     private Long[] managers;
     private Long creator;

@@ -61,6 +61,7 @@ import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 public class ProjectServiceImpl implements ProjectService {
     private final String uniqCodeKey = AUTO_INCREMENT_KEY_PROJECT_CODE.getKeyTemplate();
     private final String uniqCodePrefixKey = PREFIX_PROJECT_CODE.getKeyTemplate();
+
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
@@ -384,17 +385,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @NotNull
-    private static <T>Specification<T> getProjectCommonSpecification(ProjectPageReqVO pageReqVO) {
+    private <T>Specification<T> getProjectCommonSpecification(ProjectPageReqVO pageReqVO) {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
-                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
-                    mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
-                }else{
-                    predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+            if(!pageReqVO.getIsSale()){
+                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
+                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                        mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                    }else{
+                        predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                    }
                 }
+            }else{
+
+                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                pageReqVO.setCreators(users);
+                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
+
             }
+
+
 
             //默认查询code不为空的
             predicates.add(cb.isNotNull(root.get("code")));
@@ -409,9 +422,9 @@ public class ProjectServiceImpl implements ProjectService {
             }
 
 
-            if(pageReqVO.getSalesId() != null) {
+/*            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }
+            }*/
 
             if(pageReqVO.getStageArr() != null&& !pageReqVO.getStageArr().isEmpty()) {
                 predicates.add(root.get("stage").in(pageReqVO.getStageArr()));

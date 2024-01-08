@@ -362,7 +362,6 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 //        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        System.out.println(Arrays.toString(users)+"salesId:"+pageReqVO.getSalesId());
         pageReqVO.setCreators(users);
 
         // 创建 Sort 对象
