@@ -408,8 +408,9 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("subjectGroupId"), pageReqVO.getSubjectGroupId()));
             }
 
+
             if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), getLoginUserId()));
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getStageArr() != null&& !pageReqVO.getStageArr().isEmpty()) {
