@@ -389,7 +389,7 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(!pageReqVO.getIsSale()){
+            if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
                 if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
                     if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
                         mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);

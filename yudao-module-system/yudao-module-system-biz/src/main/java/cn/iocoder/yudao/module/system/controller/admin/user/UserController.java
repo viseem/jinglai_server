@@ -99,7 +99,9 @@ public class UserController {
                 DeptByReqVO dept = new DeptByReqVO();
                 dept.setLeaderUserId(getLoginUserId());
                 DeptDO deptBy = deptService.getDeptBy(dept);
-                reqVO.setDeptId(deptBy.getId());
+                if(deptBy!=null){
+                    reqVO.setDeptId(deptBy.getId());
+                }
             }
         }
 
