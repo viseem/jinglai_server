@@ -36,8 +36,7 @@ public class CustomerBaseVO {
     @Schema(description = "客户来源")
     private String source;
 
-    @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "手机号不能为空")
+    @Schema(description = "手机号")
     private String phone;
 
     @Schema(description = "邮箱")
