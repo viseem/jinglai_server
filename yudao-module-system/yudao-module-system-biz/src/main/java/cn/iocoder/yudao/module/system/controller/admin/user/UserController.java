@@ -5,8 +5,10 @@ import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.PostDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
+import cn.iocoder.yudao.module.system.service.dept.PostService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import cn.iocoder.yudao.module.system.enums.common.SexEnum;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
@@ -46,6 +48,9 @@ public class UserController {
     private AdminUserService userService;
     @Resource
     private DeptService deptService;
+
+    @Resource
+    private PostService postService;
 
     @PostMapping("/create")
     @Operation(summary = "新增用户")
@@ -119,6 +124,13 @@ public class UserController {
         pageResult.getList().forEach(user -> {
             UserPageItemRespVO respVO = UserConvert.INSTANCE.convert(user);
             respVO.setDept(UserConvert.INSTANCE.convert(deptMap.get(user.getDeptId())));
+            //查询岗位并赋值
+            // 获得岗位信息
+            if (user.getPostIds()!=null&&CollUtil.isNotEmpty(user.getPostIds())) {
+                List<PostDO> posts = postService.getPostList(user.getPostIds());
+                respVO.setPosts(UserConvert.INSTANCE.convertList02(posts));
+            }
+
             userList.add(respVO);
         });
         return success(new PageResult<>(userList, pageResult.getTotal()));
