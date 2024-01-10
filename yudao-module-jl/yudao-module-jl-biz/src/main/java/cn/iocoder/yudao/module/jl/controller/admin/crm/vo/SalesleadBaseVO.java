@@ -22,6 +22,8 @@ public class SalesleadBaseVO {
     @NotNull(message = "销售线索来源不能为空")
     private String source;
 
+    private String jsonLog;
+
     private String assignMark;
     private String quotationMark;
 

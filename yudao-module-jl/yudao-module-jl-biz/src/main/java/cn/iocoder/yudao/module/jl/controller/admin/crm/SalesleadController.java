@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -86,6 +85,22 @@ public class SalesleadController {
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> updateSalesleadManager(@Valid @RequestBody SalesleadUpdateManagerVO updateReqVO) {
         salesleadRepository.updateManagerIdAndAssignMarkById(updateReqVO.getManagerId(),updateReqVO.getAssignMark(), updateReqVO.getId());
+        return success(true);
+    }
+
+    @PostMapping("/to-seas")
+    @Operation(summary = "商机转入公海池")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> salesleadToSeas(@Valid @RequestBody SalesleadSeasVO updateReqVO) {
+        salesleadService.salesleadToSeas(updateReqVO);
+        return success(true);
+    }
+
+    @PostMapping("/to-sale")
+    @Operation(summary = "商机转给销售")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> salesleadToSale(@Valid @RequestBody SalesleadSeasVO updateReqVO) {
+        salesleadService.salesleadToSale(updateReqVO);
         return success(true);
     }
 

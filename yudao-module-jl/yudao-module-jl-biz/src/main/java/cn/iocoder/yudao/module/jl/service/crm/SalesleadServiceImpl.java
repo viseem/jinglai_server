@@ -1,12 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractItemVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCompetitor;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadCustomerPlan;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.*;
@@ -20,7 +18,6 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
-import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -125,6 +122,34 @@ public class SalesleadServiceImpl implements SalesleadService {
         SalesleadCountStatsRespVO salesleadCountStatsRespVO = new SalesleadCountStatsRespVO();
         salesleadCountStatsRespVO.setNotToProjectCount(notToProjectCount);
         return salesleadCountStatsRespVO;
+    }
+
+    @Override
+    @Transactional
+    public void salesleadToSeas(SalesleadSeasVO reqVO){
+        // 校验存在
+        Saleslead saleslead = validateSalesleadExists(reqVO.getId());
+        // 更新
+        saleslead.setCreator(null);
+        saleslead.setManagerId(null);
+        saleslead.setAssignMark(null);
+//        saleslead.setCustomerId(0L);
+        saleslead.setProjectId(null);
+        saleslead.setStatus(Integer.valueOf(SalesLeadStatusEnums.PotentialConsultation.getStatus()));
+        saleslead.setAssignMark(null);
+        saleslead.setQuotationMark(null);
+        saleslead.setJsonLog(reqVO.getJsonLog());
+        salesleadRepository.save(saleslead);
+        salesleadRepository.updateCreatorById(null,reqVO.getId());
+    }
+
+    @Override
+    @Transactional
+    public void salesleadToSale(SalesleadSeasVO reqVO){
+        // 校验存在
+         validateSalesleadExists(reqVO.getId());
+        salesleadRepository.updateJsonLogById(reqVO.getJsonLog(),reqVO.getId());
+        salesleadRepository.updateCreatorById(getLoginUserId(),reqVO.getId());
     }
 
     @Override
@@ -408,9 +433,12 @@ public class SalesleadServiceImpl implements SalesleadService {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
             }else{
-
-                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                if(pageReqVO.getAttribute()!=null){
+                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                        predicates.add(root.get("creator").isNull());
+                    }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    }
                 }
 
                 if(pageReqVO.getStatus() != null) {

@@ -118,6 +118,13 @@ public class Saleslead extends BaseEntity {
     @Column(name = "assign_mark")
     private String assignMark;
 
+
+    /**
+     * 商机变动日志
+     */
+    @Column(name = "json_log")
+    private String jsonLog;
+
     /**
      * 报价备注
      */

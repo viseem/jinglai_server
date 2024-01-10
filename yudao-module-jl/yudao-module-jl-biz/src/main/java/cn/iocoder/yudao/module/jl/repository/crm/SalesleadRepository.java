@@ -14,6 +14,14 @@ import java.math.BigDecimal;
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.jsonLog = ?1 where s.id = ?2")
+    int updateJsonLogById(String jsonLog, Long id);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.creator = ?1 where s.id = ?2")
+    int updateCreatorById(Long creator, Long id);
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.quotationMark = ?1 where s.id = ?2")
     int updateQuotationMarkById(String quotationMark, Long id);
     @Transactional

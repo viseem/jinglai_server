@@ -27,6 +27,20 @@ public interface SalesleadService {
      */
     void updateSaleslead(@Valid SalesleadUpdateReqVO updateReqVO);
 
+    /**
+     * 商机转公海池
+     *
+     * @param updateReqVO 更新信息
+     */
+    void salesleadToSeas(@Valid SalesleadSeasVO updateReqVO);
+
+    /**
+     * 商机转客户
+     *
+     * @param updateReqVO 更新信息
+     */
+    void salesleadToSale(@Valid SalesleadSeasVO updateReqVO);
+
     void updateSalesleadQuotationMark(@Valid SalesleadNoRequireBaseVO updateReqVO);
 
 
