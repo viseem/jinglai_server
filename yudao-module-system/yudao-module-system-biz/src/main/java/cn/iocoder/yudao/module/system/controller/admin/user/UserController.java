@@ -105,6 +105,8 @@ public class UserController {
     @GetMapping("/page")
     @Operation(summary = "获得用户分页列表")
     @PreAuthorize("@ss.hasPermission('system:user:list')")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<PageResult<UserPageItemRespVO>> getUserPage(@Valid UserPageReqVO reqVO) {
 
         if(reqVO.getAttribute()!=null){
@@ -148,6 +150,8 @@ public class UserController {
     }
 
     @GetMapping("/list-all-simple")
+    //不记录日志
+    @OperateLog(enable = false)
     @Operation(summary = "获取用户精简信息列表", description = "只包含被开启的用户，主要用于前端的下拉选项")
     public CommonResult<List<UserSimpleRespVO>> getSimpleUserList() {
         // 获用户列表，只要开启状态的

@@ -267,9 +267,9 @@ public class OperateLogAspect {
             return null;
         }
         return Arrays.stream(requestMethods).filter(requestMethod ->
-                requestMethod == RequestMethod.POST
-                        || requestMethod == RequestMethod.PUT
-                        || requestMethod == RequestMethod.DELETE)
+                        requestMethod == RequestMethod.POST
+                                || requestMethod == RequestMethod.PUT
+                                || requestMethod == RequestMethod.DELETE)
                 .findFirst().orElse(null);
     }
 

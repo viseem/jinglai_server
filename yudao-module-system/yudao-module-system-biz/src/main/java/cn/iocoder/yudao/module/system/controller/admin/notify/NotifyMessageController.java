@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.system.controller.admin.notify;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
 import cn.iocoder.yudao.module.system.controller.admin.notify.vo.message.NotifyMessageMyPageReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.notify.vo.message.NotifyMessagePageReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.notify.vo.message.NotifyMessageRespVO;
@@ -79,6 +80,8 @@ public class NotifyMessageController {
     @GetMapping("/get-unread-list")
     @Operation(summary = "获取当前用户的最新站内信列表，默认 10 条")
     @Parameter(name = "size", description = "10")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<List<NotifyMessageRespVO>> getUnreadNotifyMessageList(
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
         List<NotifyMessageDO> list = notifyMessageService.getUnreadNotifyMessageList(
@@ -88,6 +91,8 @@ public class NotifyMessageController {
 
     @GetMapping("/get-unread-count")
     @Operation(summary = "获得当前用户的未读站内信数量")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<Long> getUnreadNotifyMessageCount() {
         return success(notifyMessageService.getUnreadNotifyMessageCount(getLoginUserId(), UserTypeEnum.ADMIN.getValue()));
     }

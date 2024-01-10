@@ -40,6 +40,7 @@ public class ApiAccessLogController {
     @GetMapping("/page")
     @Operation(summary = "获得API 访问日志分页")
     @PreAuthorize("@ss.hasPermission('infra:api-access-log:query')")
+    @OperateLog(enable = false)
     public CommonResult<PageResult<ApiAccessLogRespVO>> getApiAccessLogPage(@Valid ApiAccessLogPageReqVO pageVO) {
         PageResult<ApiAccessLogDO> pageResult = apiAccessLogService.getApiAccessLogPage(pageVO);
         return success(ApiAccessLogConvert.INSTANCE.convertPage(pageResult));
