@@ -26,6 +26,12 @@ public class UserPageItemRespVO extends UserRespVO {
      */
     private List<UserProfileRespVO.Post> posts;
 
+
+    /**
+     * 所属角色
+     */
+    private List<UserProfileRespVO.Role> roles;
+
     @Schema(description = "部门")
     @Data
     public static class Dept {
