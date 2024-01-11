@@ -136,7 +136,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             List<Predicate> predicates = new ArrayList<>();
 
             //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
             }
