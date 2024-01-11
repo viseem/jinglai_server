@@ -30,8 +30,6 @@ public class JLCustomMergeStrategy extends AbstractMergeStrategy {
     protected void merge(Sheet sheet, Cell cell, Head head, Integer relativeRowIndex) {
         int columnIndex = cell.getColumnIndex();
 
-
-
         if(columnIndex==0){
             String name = cell.getStringCellValue();
 

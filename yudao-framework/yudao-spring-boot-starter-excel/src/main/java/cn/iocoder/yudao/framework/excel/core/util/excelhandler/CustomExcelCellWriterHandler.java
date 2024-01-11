@@ -27,12 +27,41 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
                                  List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead)
     {
 
-//        System.out.println("进入第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "列数据...");
+        /*
+        * 设置列宽
+        * */
+
+        if (cell.getColumnIndex() == 4 ||cell.getColumnIndex() == 3)
+        {
+            writeSheetHolder.getSheet().setColumnWidth(cell.getColumnIndex(), 10 * 256);
+        }
+        if (cell.getColumnIndex() == 5)
+        {
+            writeSheetHolder.getSheet().setColumnWidth(cell.getColumnIndex(), 12 * 256);
+        }
+        //最后一列
+        if (cell.getColumnIndex() == 7)
+        {
+            writeSheetHolder.getSheet().setColumnWidth(cell.getColumnIndex(), 10 * 256);
+        }
+
+        /*
+        * 设置行高
+        * */
+        if (cell.getRowIndex() == 0)
+        {
+            cell.getRow().setHeightInPoints(26);
+        }
+
+        if (cell.getRowIndex() >= 1)
+        {
+            cell.getRow().setHeightInPoints(24);
+        }
+
         int actualCellRowNum = cell.getRowIndex() + 1;
         if (cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
         {
             cell.setCellFormula("D" + actualCellRowNum +"*E" + actualCellRowNum);
-//            System.out.println("第" +  cell.getRowIndex() + "行,第" + cell.getColumnIndex() + "税价写入公式完成");
         }
 
         //实验材料合计
