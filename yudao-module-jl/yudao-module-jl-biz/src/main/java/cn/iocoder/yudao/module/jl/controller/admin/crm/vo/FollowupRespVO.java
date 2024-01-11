@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,5 +19,7 @@ public class FollowupRespVO extends FollowupBaseVO {
     private LocalDateTime createTime;
 
     private CustomerOnly customer;
+
+    private User user;
 
 }

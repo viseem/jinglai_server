@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +38,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class FollowupServiceImpl implements FollowupService {
-
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
     @Resource
     private FollowupRepository followupRepository;
 
@@ -99,6 +102,11 @@ public class FollowupServiceImpl implements FollowupService {
 
     @Override
     public PageResult<Followup> getFollowupPage(FollowupPageReqVO pageReqVO, FollowupPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setCreators(users);
+
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -108,6 +116,13 @@ public class FollowupServiceImpl implements FollowupService {
         // 创建 Specification
         Specification<Followup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+
+            if(pageReqVO.getAttribute()!=null){
+                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
+            }
 
             if(pageReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
