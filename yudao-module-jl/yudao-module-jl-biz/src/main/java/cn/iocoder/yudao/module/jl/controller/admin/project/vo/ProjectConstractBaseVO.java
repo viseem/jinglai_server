@@ -31,6 +31,9 @@ public class ProjectConstractBaseVO {
     @Schema(description = "合同文件 URL")
     private String fileUrl;
 
+    @Schema(description = "合同附件json")
+    private String jsonFile;
+
     @Schema(description = "盖章合同文件 URL")
     private String stampFileUrl;
     @Schema(description = "盖章合同文件 URL")
