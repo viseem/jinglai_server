@@ -12,6 +12,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * 项目合同 Entity
@@ -69,6 +70,12 @@ public class ProjectConstractOnly extends BaseEntity {
     private String fileUrl;
 
     /**
+     * 合同附件
+     */
+    @Column(name = "json_file", nullable = false)
+    private String jsonFile;
+
+    /**
      * 盖章合同文件 URL
      */
     @Column(name = "stamp_file_url", nullable = false)
@@ -96,30 +103,30 @@ public class ProjectConstractOnly extends BaseEntity {
      * 合同金额
      */
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
     /**
      * 纸面金额
      */
     @Column(name = "paper_price")
-    private Long paperPrice;
+    private BigDecimal paperPrice;
 
     /**
      * 已收金额
      */
     @Column(name = "received_price")
-    private Long receivedPrice;
+    private BigDecimal receivedPrice;
 
     /**
      * 已开票
      */
     @Column(name = "invoiced_price")
-    private Long invoicedPrice;
+    private BigDecimal invoicedPrice;
     /**
      * 结算金额
      */
     @Column(name = "real_price")
-    private Integer realPrice;
+    private BigDecimal realPrice;
 
     /**
      * 签订销售人员

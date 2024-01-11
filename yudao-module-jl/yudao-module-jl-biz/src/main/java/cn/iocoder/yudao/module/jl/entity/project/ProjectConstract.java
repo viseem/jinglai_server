@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 
@@ -90,6 +91,12 @@ public class ProjectConstract extends BaseEntity {
     private String fileUrl;
 
     /**
+     * 合同附件
+     */
+    @Column(name = "json_file", nullable = false)
+    private String jsonFile;
+
+    /**
      * 盖章合同文件 URL
      */
     @Column(name = "stamp_file_url", nullable = false)
@@ -126,31 +133,31 @@ public class ProjectConstract extends BaseEntity {
      * 合同应收金额
      */
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
     /**
      * 合同账面金额
      */
     @Column(name = "paper_price")
-    private Long paperPrice;
+    private BigDecimal paperPrice;
 
     /**
      * 结算金额
      */
     @Column(name = "real_price")
-    private Integer realPrice;
+    private BigDecimal realPrice;
 
     /**
      * 已收金额
      */
     @Column(name = "received_price")
-    private Integer receivedPrice;
+    private BigDecimal receivedPrice;
 
     /**
      * 已开票金额
      */
     @Column(name = "invoiced_price")
-    private Integer invoicedPrice;
+    private BigDecimal invoicedPrice;
 
     /**
      * 签订销售人员

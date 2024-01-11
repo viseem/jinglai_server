@@ -112,7 +112,6 @@ public class ContractApprovalServiceImpl implements ContractApprovalService {
                     projectDocumentService.updateProjectDocumentWithoutReq(contract.getProjectDocumentId(),contract.getStampFileName(),contract.getStampFileUrl());
                 }
                 contract.setStatus(contractApproval.getStage());
-                System.out.println("--------"+contractApproval.getStage());
                 if(contractApproval.getPrice()!=null){
                     contract.setPrice(contractApproval.getPrice());
                 }

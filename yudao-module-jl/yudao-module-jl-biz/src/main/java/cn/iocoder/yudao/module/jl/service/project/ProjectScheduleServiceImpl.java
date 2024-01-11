@@ -129,12 +129,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     * 计算合同应收
     * */
     @Override
-    public Long getContractAmountByProjectId(Long id){
-        long cost = 0L;
+    public BigDecimal getContractAmountByProjectId(Long id){
+        BigDecimal cost = BigDecimal.ZERO;
         List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
         for (ProjectConstract projectConstract : byProjectIdAndStatus) {
             if(projectConstract.getPrice() != null) {
-                cost += projectConstract.getPrice();
+                cost = cost.add(projectConstract.getPrice());
             }
         }
         return cost;
@@ -144,14 +144,16 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     * 计算合同已收款
     * */
     @Override
-    public Long getContractReceivedAmountByProjectId(Long id){
-        long cost = 0L;
+    public BigDecimal getContractReceivedAmountByProjectId(Long id){
+        BigDecimal cost = BigDecimal.ZERO;
         List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+
         for (ProjectConstract projectConstract : byProjectIdAndStatus) {
-            if(projectConstract.getReceivedPrice() != null) {
-                cost += projectConstract.getReceivedPrice();
+            if (projectConstract.getReceivedPrice() != null) {
+                cost = cost.add(projectConstract.getReceivedPrice());
             }
         }
+
         return cost;
     }
 

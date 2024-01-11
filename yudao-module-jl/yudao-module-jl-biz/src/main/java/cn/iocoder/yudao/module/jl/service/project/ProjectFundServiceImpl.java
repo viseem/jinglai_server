@@ -108,13 +108,13 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         //创建items明细 ProjectFundLog
 /*        List<ProjectFundLog> sops = projectFundLogMapper.toEntity(saveReqVO.getItems());
         projectFundLogRepository.saveAll(sops);*/
-        AtomicReference<Integer> receivedPrice = new AtomicReference<>(0);
+        AtomicReference<BigDecimal> receivedPrice = new AtomicReference<>(BigDecimal.ZERO);
         projectFundLogRepository.saveAll(saveReqVO.getItems().stream().peek(item -> {
             item.setCustomerId(saveReqVO.getCustomerId());
             item.setContractId(saveReqVO.getContractId());
             item.setProjectId(saveReqVO.getProjectId());
             item.setProjectFundId(saveReqVO.getId());
-            receivedPrice.updateAndGet(v -> v + item.getPrice());
+            receivedPrice.updateAndGet(v ->v.add(item.getPrice()));
         }).collect(Collectors.toList()));
 
         //更新合同已收金额

@@ -70,7 +70,7 @@ public class ProjectFund extends BaseEntity {
     /**
      * 已收款项
      */
-    private Integer receivedPrice = 0;
+    private BigDecimal receivedPrice = BigDecimal.ZERO;
 
     @Transient
     private BigDecimal receiptPrice = BigDecimal.valueOf(0.00);

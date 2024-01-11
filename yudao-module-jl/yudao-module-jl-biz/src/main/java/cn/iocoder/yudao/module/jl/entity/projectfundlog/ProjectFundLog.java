@@ -14,6 +14,8 @@ import javax.persistence.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.math.BigDecimal;
+
 /**
  * 项目款项 Entity
  *
@@ -39,7 +41,7 @@ public class ProjectFundLog extends BaseEntity {
      * 收款金额
      */
     @Column(name = "price", nullable = false )
-    private Integer price;
+    private BigDecimal price;
 
     /**
      * 合同 id

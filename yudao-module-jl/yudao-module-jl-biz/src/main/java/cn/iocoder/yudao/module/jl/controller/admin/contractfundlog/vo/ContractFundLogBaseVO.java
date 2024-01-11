@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -24,10 +26,10 @@ public class ContractFundLogBaseVO {
 
     @Schema(description = "核验金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "31742")
     @NotNull(message = "核验金额不能为空")
-    private Long price;
+    private BigDecimal price;
 
     @Schema(description = "金额")
-    private Long receivedPrice;
+    private BigDecimal receivedPrice;
 
     @Schema(description = "备注")
     private String mark;

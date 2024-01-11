@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -144,7 +145,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 //        createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
         if (projectConstract.getRealPrice() == null) {
-            projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice() == null ? 0 : projectConstract.getPrice()));
+            projectConstract.setRealPrice(projectConstract.getPrice() == null ? BigDecimal.valueOf(0) : projectConstract.getPrice());
         }
         projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
 //        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
@@ -166,19 +167,25 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     public void processContractReceivedPrice(Long contractId) {
         List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByContractId(contractId);
-        int priceSum = 0;
+        BigDecimal priceSum = BigDecimal.ZERO;
+
         for (ProjectFundLog log : projectFundLogs) {
-            priceSum += log.getPrice();
+//            priceSum += log.getPrice();
+            priceSum=priceSum.add(log.getPrice());
+
         }
         projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
     }
 
     public void processContractReceivedPrice2(Long contractId) {
         List<ContractFundLog> projectFundLogs = contractFundLogRepository.findAllByContractId(contractId);
-        int priceSum = 0;
+        BigDecimal priceSum = BigDecimal.ZERO;
+
         for (ContractFundLog log : projectFundLogs) {
             if (Objects.equals(log.getStatus(), ContractFundStatusEnums.AUDITED.getStatus()) && log.getReceivedPrice() != null) {
-                priceSum += log.getReceivedPrice();
+//                priceSum += log.getReceivedPrice();
+                priceSum=priceSum.add(log.getReceivedPrice());
+
             }
         }
         projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
@@ -186,10 +193,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     public void processContractInvoicedPrice2(Long contractId) {
         List<ContractInvoiceLog> list = contractInvoiceLogRepository.findByContractId(contractId);
-        int priceSum = 0;
+        BigDecimal priceSum = BigDecimal.ZERO;
         for (ContractInvoiceLog log : list) {
             if (Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus()) && log.getReceivedPrice() != null) {
-                priceSum += log.getReceivedPrice();
+//                priceSum += log.getReceivedPrice();
+                priceSum=priceSum.add(log.getReceivedPrice());
             }
         }
         projectConstractRepository.updateInvoicedPriceById(priceSum, contractId);

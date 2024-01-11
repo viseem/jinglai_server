@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -107,7 +108,7 @@ public interface ProjectScheduleService {
      */
     List<ProjectSchedule> getProjectScheduleList(ProjectScheduleExportReqVO exportReqVO);
 
-    Long getContractAmountByProjectId(Long id);
-    Long getContractReceivedAmountByProjectId(Long id);
+    BigDecimal getContractAmountByProjectId(Long id);
+    BigDecimal getContractReceivedAmountByProjectId(Long id);
 
 }

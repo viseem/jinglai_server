@@ -53,7 +53,7 @@ public class ContractInvoiceLogBaseVO {
 
     @Schema(description = "开票金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "7678")
     @NotNull(message = "开票金额不能为空")
-    private Long price;
+    private BigDecimal price;
 
     private Integer priceStatus = 0;
 
@@ -127,7 +127,7 @@ public class ContractInvoiceLogBaseVO {
     private Long manager;
 
     @Schema(description = "实际已收")
-    private Long receivedPrice=0L;
+    private BigDecimal receivedPrice=BigDecimal.ZERO;
 
     @Schema(description = "状态")
     private String status = ContractInvoiceStatusEnums.NOT_INVOICE.getStatus();

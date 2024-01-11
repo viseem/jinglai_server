@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.Column;
 import javax.validation.constraints.*;
+import java.math.BigDecimal;
 
 /**
  * 项目合同 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -46,13 +47,13 @@ public class ProjectConstractBaseVO {
     private String contractType;
 
     @Schema(description = "合同金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long price;
+    private BigDecimal price;
 
     @Schema(description = "纸面金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long paperPrice;
+    private BigDecimal paperPrice;
 
     @Schema(description = "结算金额", example = "30614")
-    private Long realPrice;
+    private BigDecimal realPrice;
 
     @Schema(description = "签订销售人员", example = "32406")
     private Long salesId;

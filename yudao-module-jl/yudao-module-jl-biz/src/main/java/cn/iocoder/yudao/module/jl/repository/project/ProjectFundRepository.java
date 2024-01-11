@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +37,6 @@ public interface ProjectFundRepository extends JpaRepository<ProjectFund, Long>,
     @Transactional
     @Modifying
     @Query("update ProjectFund p set p.receivedPrice = ?1 where p.id = ?2")
-    int updateReceivedPriceById(Integer receivedPrice, Long id);
+    int updateReceivedPriceById(BigDecimal receivedPrice, Long id);
 
 }

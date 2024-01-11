@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public interface ProjectConstractRepository extends JpaRepository<ProjectConstra
     @Transactional
     @Modifying
     @Query("update ProjectConstract p set p.invoicedPrice = ?1 where p.id = ?2")
-    int updateInvoicedPriceById(Integer invoicedPrice, Long id);
+    int updateInvoicedPriceById(BigDecimal invoicedPrice, Long id);
     @Query("select p from ProjectConstract p where p.sn = ?1")
     ProjectConstract findBySn(String sn);
     @Transactional
@@ -31,7 +32,7 @@ public interface ProjectConstractRepository extends JpaRepository<ProjectConstra
     @Transactional
     @Modifying
     @Query("update ProjectConstract p set p.receivedPrice = ?1 where p.id = ?2")
-    int updateReceivedPriceById(Integer receivedPrice, Long id);
+    int updateReceivedPriceById(BigDecimal receivedPrice, Long id);
     @Query("select p from ProjectConstract p where p.customerId = ?1 and p.status = ?2")
     List<ProjectConstract> findByCustomerIdAndStatus(Long customerId, String status);
 

@@ -512,7 +512,7 @@ public class CustomerServiceImpl implements CustomerService {
         //计算客户的成交总金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
-            dealTotalAmount = dealTotalAmount.add(BigDecimal.valueOf(projectConstract.getPrice()));
+            dealTotalAmount = dealTotalAmount.add(projectConstract.getPrice());
         }
         //查询客户的款项
         List<ProjectFund> funds = projectFundRepository.findByCustomerId(id);
@@ -526,7 +526,7 @@ public class CustomerServiceImpl implements CustomerService {
         //计算客户的已付款项总额
         BigDecimal paidAmount = new BigDecimal(0);
         for (ProjectFundLog fundLog : fundLogs) {
-            paidAmount = paidAmount.add(BigDecimal.valueOf(fundLog.getPrice()));
+            paidAmount = paidAmount.add(fundLog.getPrice());
         }
         //计算客户的欠款总额
         BigDecimal arrears = amount.subtract(paidAmount);

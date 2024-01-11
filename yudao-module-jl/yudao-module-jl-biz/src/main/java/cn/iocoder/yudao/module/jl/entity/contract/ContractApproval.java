@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -101,7 +103,7 @@ public class ContractApproval extends BaseEntity {
      * 合同变更金额
      */
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
 
     @OneToOne(fetch = FetchType.EAGER)

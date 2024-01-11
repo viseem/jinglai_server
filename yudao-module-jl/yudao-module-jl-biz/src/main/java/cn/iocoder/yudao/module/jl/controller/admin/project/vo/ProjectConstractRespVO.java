@@ -8,6 +8,8 @@ import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,9 +31,9 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
     private User sales;
 
     //合同的已收金额合计
-    private Integer receivedPrice;
+    private BigDecimal receivedPrice;
 
-    private Integer invoicedPrice;
+    private BigDecimal invoicedPrice;
 
     private List<ProjectFundLog> fundLogs;
 

@@ -96,7 +96,7 @@ public class ContractInvoiceLog extends BaseEntity {
      * 开票金额
      */
     @Column(name = "price", nullable = false )
-    private Long price;
+    private BigDecimal price;
 
     /**
      * 开票日期
@@ -234,7 +234,7 @@ public class ContractInvoiceLog extends BaseEntity {
      * 实际已收
      */
     @Column(name = "received_price", nullable = false )
-    private Long receivedPrice;
+    private BigDecimal receivedPrice;
 
     /**
      * 状态

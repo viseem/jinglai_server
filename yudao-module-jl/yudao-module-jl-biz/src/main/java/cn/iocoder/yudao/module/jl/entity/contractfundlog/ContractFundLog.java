@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -43,13 +45,13 @@ public class ContractFundLog extends BaseEntity {
      * 核验金额
      */
     @Column(name = "price", nullable = false )
-    private Long price;
+    private BigDecimal price;
 
     /*
      * 实际金额
      * */
     @Column(name = "received_price", nullable = false )
-    private Long receivedPrice;
+    private BigDecimal receivedPrice;
 
     /**
      * 备注

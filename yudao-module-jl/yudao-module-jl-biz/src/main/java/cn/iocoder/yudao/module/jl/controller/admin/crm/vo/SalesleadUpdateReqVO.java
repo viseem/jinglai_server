@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.constraints.*;
 
@@ -36,9 +38,9 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
     @Schema(description = "合同文件名称")
     private String contractStampFileName;
     @Schema(description = "合同金额")
-    private Long contractPrice;
+    private BigDecimal contractPrice;
     @Schema(description = "合同纸面金额")
-    private Long paperPrice;
+    private BigDecimal paperPrice;
     @Schema(description = "合同编号")
     private String contractSn;
     @Schema(description = "对方公司名称")
