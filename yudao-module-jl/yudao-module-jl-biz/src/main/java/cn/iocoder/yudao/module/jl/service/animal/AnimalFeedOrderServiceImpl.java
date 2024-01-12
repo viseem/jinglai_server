@@ -171,6 +171,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 更新
         storeReqVO.setStage(AnimalFeedStageEnums.FEEDING.getStatus());
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(storeReqVO);
+        if (saveObj.getCode()==null){
+            saveObj.setCode(generateCode());
+        }
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
