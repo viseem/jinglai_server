@@ -133,6 +133,15 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
                 predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
             }
 
+            if(pageReqVO.getCodeKeyWord() != null) {
+
+                Predicate predicate1 = cb.like(root.get("code"), "%" + pageReqVO.getCodeKeyWord() + "%");
+                Predicate predicate2 = cb.like(root.get("sn"), "%" + pageReqVO.getCodeKeyWord() + "%");
+
+                // Combine the predicates with 'or' (or 'and', depending on your needs)
+                predicates.add(cb.or(predicate1, predicate2));
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
@@ -162,7 +171,7 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
             }
 
             if(pageReqVO.getLocation() != null) {
-                predicates.add(cb.equal(root.get("location"), pageReqVO.getLocation()));
+                predicates.add(cb.like(root.get("location"), "%" + pageReqVO.getLocation() + "%"));
             }
 
             if(pageReqVO.getStatus() != null) {

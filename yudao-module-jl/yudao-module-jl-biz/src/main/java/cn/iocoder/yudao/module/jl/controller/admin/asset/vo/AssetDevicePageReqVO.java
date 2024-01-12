@@ -22,6 +22,10 @@ public class AssetDevicePageReqVO extends PageParam {
     @Schema(description = "设备名称", example = "王五")
     private String name;
 
+
+    @Schema(description = "设备编码或固定编码", example = "王五")
+    private String codeKeyWord;
+
     @Schema(description = "实验室id", example = "王五")
     private Long labId;
 
