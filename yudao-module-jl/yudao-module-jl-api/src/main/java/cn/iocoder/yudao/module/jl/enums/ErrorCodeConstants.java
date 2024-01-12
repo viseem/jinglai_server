@@ -209,6 +209,7 @@ public interface ErrorCodeConstants {
     ErrorCode INVENTORY_PRODUCT_LOG_NOT_EXISTS = new ErrorCode(1002080000, "产品变更日志不存在");
     ErrorCode COMMON_TODO_NOT_EXISTS = new ErrorCode(1002090000, "通用TODO不存在");
 
+    ErrorCode COMMON_TODO_LOG_NOT_EXISTS = new ErrorCode(1002090001, "通用TODO记录不存在");
 
     // ========== AUTH 模块 1004003000 ==========
 
