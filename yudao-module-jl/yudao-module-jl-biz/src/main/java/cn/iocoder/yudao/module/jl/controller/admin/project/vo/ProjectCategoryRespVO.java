@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
@@ -54,5 +55,7 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     private List<LaboratoryLab> labList;
 
     private List<User>  focusList;
+
+    private List<CommonTodoLog> preTodoList;
 
 }

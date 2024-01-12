@@ -21,16 +21,13 @@ public class AnimalShelfBaseVO {
     @Schema(description = "编号")
     private String code;
 
-    @Schema(description = "缩略图名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋艿")
-    @NotNull(message = "缩略图名称不能为空")
+    @Schema(description = "缩略图名称")
     private String fileName;
 
-    @Schema(description = "缩略图地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
-    @NotNull(message = "缩略图地址不能为空")
+    @Schema(description = "缩略图地址")
     private String fileUrl;
 
-    @Schema(description = "位置", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "位置不能为空")
+    @Schema(description = "位置")
     private String location;
 
     @Schema(description = "管理人id", example = "28229")
@@ -43,9 +40,8 @@ public class AnimalShelfBaseVO {
     @NotNull(message = "饲养室id不能为空")
     private Long roomId;
 
-    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "排序不能为空")
-    private Integer weight;
+    @Schema(description = "排序")
+    private Integer weight=0;
 
     private Integer colCount;
 

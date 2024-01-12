@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontodolog.vo;
 
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -25,5 +27,8 @@ public class CommonTodoLogBaseVO {
     @Schema(description = "todo类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "todo类型不能为空")
     private String type;
+
+    @Schema(description = "todo状态")
+    private String status  = CommonTodoEnums.UN_DONE.getStatus();
 
 }

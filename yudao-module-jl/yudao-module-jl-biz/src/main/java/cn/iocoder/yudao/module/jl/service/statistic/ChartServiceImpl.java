@@ -120,7 +120,7 @@ public class ChartServiceImpl implements ChartService {
                     predicates.add(cb.between(root.get(timeKey==null?"createTime":timeKey), reqVO.getStartTime(), currentDay));
                 }
             }*/
-            predicates.add(cb.between(root.get(timeKey==null?"createTime":timeKey), reqVO.getStartTime(), reqVO.getEndTime()));
+//            predicates.add(cb.between(root.get(timeKey==null?"createTime":timeKey), reqVO.getStartTime(), reqVO.getEndTime()));
 
 
             if (!reqVO.getIsAllAttribute()) {

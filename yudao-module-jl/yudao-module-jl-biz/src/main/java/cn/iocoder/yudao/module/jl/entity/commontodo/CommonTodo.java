@@ -43,4 +43,5 @@ public class CommonTodo extends BaseEntity {
     @Column(name = "type", nullable = false )
     private String type;
 
+
 }

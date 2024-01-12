@@ -99,4 +99,9 @@ public class ProjectCategoryBaseVO {
     private Integer sopTotal = 0;
 
     private Integer sopDone = 0;
+
+
+    private Integer preTodoTotal = 0;
+
+    private Integer preTodoDone = 0;
 }

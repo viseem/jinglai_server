@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
@@ -11,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -69,6 +72,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private LaboratoryLabRepository laboratoryLabRepository;
 
     @Resource
+    private CommonTodoServiceImpl commonTodoService;
+
+    @Resource
     private ProjectServiceImpl projectService;
 
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
@@ -82,6 +88,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
 
     @Override
+    @Transactional
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
 
         ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
@@ -91,6 +98,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 插入
         ProjectCategory projectCategory = projectCategoryMapper.toEntity(createReqVO);
         projectCategoryRepository.save(projectCategory);
+
+        //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
+        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),projectCategory.getId());
+
+
         // 返回
         return projectCategory.getId();
     }
@@ -140,6 +152,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public void updateProjectCategory(ProjectCategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryExists(updateReqVO.getId());
+
+        // 存一下commonTodoLog
+        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),updateReqVO.getId());
 
         ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
 
@@ -432,6 +447,15 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& (sop.getStatus().equals("DONE")||sop.getStatus().equals("done"))).count();
             projectCategory.setSopDone((int)count);
             projectCategory.setSopTotal(sopList.size());
+        }
+
+        //跟sopList类似，处理一下preTodoList
+        List<CommonTodoLog> preTodoList = projectCategory.getPreTodoList();
+        if(preTodoList!=null&& !preTodoList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = preTodoList.stream().filter(todo -> todo.getStatus()!=null&& (todo.getStatus().equals(CommonTodoEnums.DONE.getStatus()))).count();
+            projectCategory.setPreTodoDone((int)count);
+            projectCategory.setPreTodoTotal(preTodoList.size());
         }
     }
 

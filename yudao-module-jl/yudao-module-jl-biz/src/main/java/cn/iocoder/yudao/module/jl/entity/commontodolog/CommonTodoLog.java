@@ -49,4 +49,10 @@ public class CommonTodoLog extends BaseEntity {
     @Column(name = "type", nullable = false )
     private String type;
 
+    /**
+     * todo状态
+     */
+    @Column(name = "status", nullable = false )
+    private String status;
+
 }

@@ -27,6 +27,8 @@ public interface CommonTodoLogService {
      */
     void updateCommonTodoLog(@Valid CommonTodoLogUpdateReqVO updateReqVO);
 
+    void updateCommonTodoLogStatus(@Valid CommonTodoLogUpdateStatusReqVO updateReqVO);
+
     /**
      * 删除通用TODO记录
      *

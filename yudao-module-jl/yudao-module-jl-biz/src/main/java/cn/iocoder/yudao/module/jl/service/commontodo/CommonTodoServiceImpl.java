@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.commontodo;
 
+import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
+import cn.iocoder.yudao.module.jl.repository.commontodolog.CommonTodoLogRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -11,10 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.commontodo.vo.*;
@@ -40,6 +40,31 @@ public class CommonTodoServiceImpl implements CommonTodoService {
 
     @Resource
     private CommonTodoMapper commonTodoMapper;
+
+    @Resource
+    private CommonTodoLogRepository commonTodoLogRepository;
+
+
+    public void injectCommonTodoLogByTypeAndRefId(String type, Long refId){
+
+        //查询一下CommonTodoLog表，如果有数据，就不插入了
+        CommonTodoLog _commonTodoLog = commonTodoLogRepository.findByTypeAndRefId(type, refId);
+        if (_commonTodoLog != null) {
+            return;
+        }
+
+        //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
+        List<CommonTodo> commonTodoList = commonTodoRepository.findByType(type);
+        List<CommonTodoLog> commonTodoLogList = commonTodoList.stream().map(commonTodo -> {
+            CommonTodoLog commonTodoLog = new CommonTodoLog();
+            commonTodoLog.setType(commonTodo.getType());
+            commonTodoLog.setContent(commonTodo.getContent());
+            commonTodoLog.setRefId(refId);
+            commonTodoLog.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+            return commonTodoLog;
+        }).collect(Collectors.toList());
+            commonTodoLogRepository.saveAll(commonTodoLogList);
+    }
 
     @Override
     public Long createCommonTodo(CommonTodoCreateReqVO createReqVO) {

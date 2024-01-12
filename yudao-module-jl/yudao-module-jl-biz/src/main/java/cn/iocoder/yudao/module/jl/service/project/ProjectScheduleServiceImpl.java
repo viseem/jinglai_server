@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCat
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
@@ -14,6 +15,7 @@ import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
+import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -111,6 +113,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private CommonTodoServiceImpl commonTodoService;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -628,6 +633,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
         ProjectCategory save = projectCategoryRepository.save(categoryDo);
+
+        //注入一下todo
+        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
 
 
         // 保存收费项
