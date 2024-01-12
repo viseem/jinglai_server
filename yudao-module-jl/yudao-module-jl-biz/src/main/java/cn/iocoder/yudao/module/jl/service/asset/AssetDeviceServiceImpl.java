@@ -1,8 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.asset;
 
-import cn.iocoder.yudao.module.jl.entity.animal.AnimalRoom;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -44,27 +45,28 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
     }
 
     @Override
+    @Transactional
     public Long createAssetDevice(AssetDeviceCreateReqVO createReqVO) {
 
         //校验一下code是否存在
-        validateAssetDeviceExistsBySn(createReqVO.getSn());
+        validateAssetDeviceExistsByCode(createReqVO.getCode());
 
         // 插入
         AssetDevice assetDevice = assetDeviceMapper.toEntity(createReqVO);
         assetDeviceRepository.save(assetDevice);
 
-        //如果没有传入编码 更新一下 TODO事物
+        //如果没有传入编码 更新一下
         Long id = assetDevice.getId();
-        if(createReqVO.getSn()==null||createReqVO.getSn().equals("")){
-            assetDeviceRepository.updateSnById(generateCodeById(id),id);
+        if(createReqVO.getCode()==null||createReqVO.getCode().equals("")){
+            assetDeviceRepository.updateCodeById(generateCodeById(id),id);
         }
 
         // 返回
         return assetDevice.getId();
     }
 
-    private void validateAssetDeviceExistsBySn(String sn) {
-        AssetDevice byCode = assetDeviceRepository.findBySn(sn);
+    private void validateAssetDeviceExistsByCode(String code) {
+        AssetDevice byCode = assetDeviceRepository.findByCode(code);
         if (byCode!=null){
             throw exception(UNIQUE_CODE_EXISTS);
         }
@@ -76,11 +78,11 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
         AssetDevice assetDevice = validateAssetDeviceExists(updateReqVO.getId());
 
         // 如果是空 设置一个
-        if(updateReqVO.getSn()==null||updateReqVO.getSn().equals("")){
-            updateReqVO.setSn(generateCodeById(updateReqVO.getId()));
-        } else if (!Objects.equals(assetDevice.getSn(), updateReqVO.getSn())) {
+        if(updateReqVO.getCode()==null||updateReqVO.getCode().equals("")){
+            updateReqVO.setCode(generateCodeById(updateReqVO.getId()));
+        } else if (!Objects.equals(assetDevice.getCode(), updateReqVO.getCode())) {
             //如果不空 并且跟原先的code不一样 校验一下存在
-            validateAssetDeviceExistsBySn(updateReqVO.getSn());
+            validateAssetDeviceExistsByCode(updateReqVO.getCode());
         }
 
         // 更新

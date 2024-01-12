@@ -2,10 +2,14 @@ package cn.iocoder.yudao.module.jl.controller.admin.asset.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 公司资产（设备） Base VO，提供给添加、修改、详细的子 VO 使用
@@ -46,12 +50,23 @@ public class AssetDeviceBaseVO {
     @Schema(description = "设备状态：空闲、忙碌(前端先自己算)", example = "2")
     private String status;
 
-    @Schema(description = "设备编码：后端生成")
+    @Schema(description = "设备固定编码")
     private String sn;
+
+    @Schema(description = "设备编码：后端生成")
+    private String code;
 
     @Schema(description = "颜色标识")
     private String color;
 
     private Boolean busy;
 
+    //开始时间
+    @Schema(description = "租赁开始时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startTime;
+    //开始时间
+    @Schema(description = "租赁结束时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime endTime;
 }
