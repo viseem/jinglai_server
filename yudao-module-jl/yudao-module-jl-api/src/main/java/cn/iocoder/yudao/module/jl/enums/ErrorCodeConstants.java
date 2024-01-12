@@ -207,7 +207,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode PROJECT_SUPPLIER_INVOICE_NOT_EXISTS = new ErrorCode(1002070000, "供应商发票不存在");
     ErrorCode INVENTORY_PRODUCT_LOG_NOT_EXISTS = new ErrorCode(1002080000, "产品变更日志不存在");
-
+    ErrorCode COMMON_TODO_NOT_EXISTS = new ErrorCode(1002090000, "通用TODO不存在");
 
 
     // ========== AUTH 模块 1004003000 ==========
