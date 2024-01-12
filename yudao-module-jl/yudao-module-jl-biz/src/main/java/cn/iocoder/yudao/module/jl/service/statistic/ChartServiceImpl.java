@@ -80,8 +80,18 @@ public class ChartServiceImpl implements ChartService {
 
     @Override
     public ChartProjectStatsResp getProjectStats(ChartProjectStatsReqVO reqVO) {
-        Specification<ProjectSimple> spec = getCommonSpec(reqVO,null,"createTime");
-        List<ProjectSimple> all = projectSimpleRepository.findAll(spec);
+        Specification<ProjectSimple> commonSpec = getCommonSpec(reqVO, null, "createTime");
+
+        Specification<ProjectSimple> customSpec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isNotNull(root.get("code")));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Specification<ProjectSimple> combinedSpec = commonSpec.and(customSpec);
+
+        List<ProjectSimple> all = projectSimpleRepository.findAll(combinedSpec);
+
         ChartProjectStatsResp resp = new ChartProjectStatsResp();
         resp.setList(all);
         return resp;
