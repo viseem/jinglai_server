@@ -118,7 +118,7 @@ public class FollowupServiceImpl implements FollowupService {
             List<Predicate> predicates = new ArrayList<>();
 
 
-            if(pageReqVO.getAttribute()!=null){
+            if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
                 if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
                     predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                 }
