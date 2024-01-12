@@ -1,7 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.asset;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectDevice;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDeviceRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,13 +45,34 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
     @Resource
     private AssetDeviceLogMapper assetDeviceLogMapper;
 
+    @Resource
+    private ProjectDeviceRepository projectDeviceRepository;
+
     @Override
+    @Transactional
     public Long createAssetDeviceLog(AssetDeviceLogCreateReqVO createReqVO) {
+
+        System.out.println("createReqVO = " + createReqVO);
+
+        // 先查询ProjectDevice里面是否有这个设备,如果没有这个设备,则新增
+        ProjectDevice byProjectIdAndDeviceId = projectDeviceRepository.findByProjectIdAndDeviceId(createReqVO.getProjectId(), createReqVO.getDeviceId());
+        if (byProjectIdAndDeviceId == null) {
+            ProjectDevice projectDevice = new ProjectDevice();
+            projectDevice.setDeviceId(createReqVO.getDeviceId());
+            projectDevice.setProjectId(createReqVO.getProjectId());
+            byProjectIdAndDeviceId = projectDeviceRepository.save(projectDevice);
+        }
+
+        createReqVO.setProjectDeviceId(byProjectIdAndDeviceId.getId());
+
         // 插入
-        AssetDeviceLog assetDeviceLog = assetDeviceLogMapper.toEntity(createReqVO);
-        assetDeviceLogRepository.save(assetDeviceLog);
+        if(createReqVO.getStartDate()!=null&&createReqVO.getEndDate()!=null){
+            AssetDeviceLog assetDeviceLog = assetDeviceLogMapper.toEntity(createReqVO);
+            assetDeviceLogRepository.save(assetDeviceLog);
+        }
+
         // 返回
-        return assetDeviceLog.getId();
+        return 1L;
     }
 
     @Override

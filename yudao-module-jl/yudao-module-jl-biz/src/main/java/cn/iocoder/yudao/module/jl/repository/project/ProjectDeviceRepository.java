@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface ProjectDeviceRepository extends JpaRepository<ProjectDevice, Long>, JpaSpecificationExecutor<ProjectDevice> {
+    @Query("select p from ProjectDevice p where p.projectId = ?1 and p.deviceId = ?2")
+    ProjectDevice findByProjectIdAndDeviceId(Long projectId, Long deviceId);
 
 }
