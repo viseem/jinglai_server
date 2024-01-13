@@ -244,4 +244,10 @@ public class ProjectCategorySimple extends BaseEntity {
 
     @Transient
     private Integer sopDone = 0;
+
+    @Transient
+    private Integer preTodoTotal = 0;
+
+    @Transient
+    private Integer preTodoDone = 0;
 }

@@ -468,6 +468,15 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             projectCategory.setSopDone((int)count);
             projectCategory.setSopTotal(sopList.size());
         }
+
+        //跟sopList类似，处理一下preTodoList
+        List<CommonTodoLog> preTodoList = projectCategory.getPreTodoList();
+        if(preTodoList!=null&& !preTodoList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = preTodoList.stream().filter(todo -> todo.getStatus()!=null&& (todo.getStatus().equals(CommonTodoEnums.DONE.getStatus()))).count();
+            projectCategory.setPreTodoDone((int)count);
+            projectCategory.setPreTodoTotal(preTodoList.size());
+        }
     }
 
     @Override

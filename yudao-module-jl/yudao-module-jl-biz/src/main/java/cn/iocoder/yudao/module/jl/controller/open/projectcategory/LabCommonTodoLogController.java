@@ -54,7 +54,7 @@ public class LabCommonTodoLogController {
         return success(true);
     }
 
-    @PutMapping("/update-status")
+    @PostMapping("/update-status")
     @Operation(summary = "更新通用TODO记录状态")
     @PreAuthorize("@ss.hasPermission('jl:common-todo-log:update')")
     public CommonResult<Boolean> updateCommonTodoLogStatus(@Valid @RequestBody CommonTodoLogUpdateStatusReqVO updateReqVO) {

@@ -61,7 +61,7 @@ public class CommonTodoLogServiceImpl implements CommonTodoLogService {
 
     @Override
     public void updateCommonTodoLogStatus(CommonTodoLogUpdateStatusReqVO reqVO){
-        commonTodoLogRepository.updateStatusByRefIdAndType(reqVO.getStatus(), reqVO.getRefId(), reqVO.getType());
+        commonTodoLogRepository.updateStatusById(reqVO.getStatus(), reqVO.getId());
     }
 
     @Override

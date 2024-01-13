@@ -17,14 +17,6 @@ public class CommonTodoLogUpdateStatusReqVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
-    @Schema(description = "refId", requiredMode = Schema.RequiredMode.REQUIRED, example = "5027")
-    @NotNull(message = "refId不能为空")
-    private Long refId;
-
-    @Schema(description = "todo类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "todo类型不能为空")
-    private String type;
-
     @Schema(description = "todo状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private String status;
 
