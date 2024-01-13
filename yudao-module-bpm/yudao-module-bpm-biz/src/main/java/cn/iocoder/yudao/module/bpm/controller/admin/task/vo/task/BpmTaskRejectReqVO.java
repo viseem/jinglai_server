@@ -13,8 +13,7 @@ public class BpmTaskRejectReqVO {
     @NotEmpty(message = "任务编号不能为空")
     private String id;
 
-    @Schema(description = "审批意见", requiredMode = Schema.RequiredMode.REQUIRED, example = "不错不错！")
-    @NotEmpty(message = "审批意见不能为空")
+    @Schema(description = "审批意见")
     private String reason;
 
 }

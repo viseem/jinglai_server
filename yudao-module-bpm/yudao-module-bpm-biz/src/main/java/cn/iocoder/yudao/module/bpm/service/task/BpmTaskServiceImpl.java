@@ -206,6 +206,14 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     }
 
     @Override
+    public void deleteTask( @Valid BpmTaskApproveReqVO reqVO) {
+        //删除审批任务
+        // 校验任务存在
+        Task task = checkTask(getLoginUserId(), reqVO.getId());
+        taskService.deleteTask(task.getId());
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void rejectTask(Long userId, @Valid BpmTaskRejectReqVO reqVO) {
         Task task = checkTask(userId, reqVO.getId());
