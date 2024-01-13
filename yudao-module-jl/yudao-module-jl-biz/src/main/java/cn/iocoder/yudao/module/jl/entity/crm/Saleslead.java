@@ -131,6 +131,12 @@ public class Saleslead extends BaseEntity {
     @Column(name = "quotation_mark")
     private String quotationMark;
 
+    /**
+     * 报价的创建时间
+     */
+    @Column(name = "quotation_create_time")
+    private LocalDateTime quotationCreateTime;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

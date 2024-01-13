@@ -26,6 +26,8 @@ import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -215,6 +217,12 @@ public class SalesleadServiceImpl implements SalesleadService {
 
         // 更新线索
         Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
+
+        //如果是申请报价，则更新一下报价创建时间
+        if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
+            // 当前localDateTime
+            saleleadsObj.setQuotationCreateTime(LocalDateTime.now());
+        }
 
         Saleslead saleslead = salesleadRepository.save(saleleadsObj);
         Long salesleadId = saleleadsObj.getId();
