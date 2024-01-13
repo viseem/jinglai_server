@@ -46,4 +46,7 @@ public class InstitutionBaseVO {
     @Schema(description = "科室")
     private String department;
 
+    @Schema(description = "企业码")
+    private String code;
+
 }
