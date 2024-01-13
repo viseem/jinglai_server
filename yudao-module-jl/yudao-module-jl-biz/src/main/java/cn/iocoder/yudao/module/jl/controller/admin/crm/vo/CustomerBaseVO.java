@@ -69,6 +69,9 @@ public class CustomerBaseVO {
     @Schema(description = "公司", example = "14623")
     private Long companyId;
 
+    @Schema(description = "研究所", example = "14623")
+    private Long researchId;
+
     @Schema(description = "省")
     private String province;
 

@@ -140,6 +140,17 @@ public class CustomerOnly extends BaseEntity {
     private Institution company;
 
     /**
+     * 研究所
+     */
+    @Column(name = "research_id")
+    private Long researchId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "research_id", insertable = false, updatable = false)
+    private Institution research;
+
+    /**
      * 省
      */
     @Column(name = "province")

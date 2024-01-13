@@ -31,6 +31,8 @@ public class CustomerRespVO extends CustomerBaseVO {
     private Institution company;
     private Institution hospital;
     private Institution university;
+    private Institution research;
+
     private Followup lastFollowup;
     private Saleslead lastSaleslead;
     private UserRespVO sales;
