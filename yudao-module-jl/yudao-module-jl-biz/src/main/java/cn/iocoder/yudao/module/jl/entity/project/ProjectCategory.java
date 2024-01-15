@@ -203,6 +203,12 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "cycle")
     private String cycle;
 
+    /**
+     * 项目的负责人id
+     */
+    @Column(name = "project_manager_id")
+    private Long projectManagerId;
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference

@@ -84,6 +84,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "周期")
     private String cycle;
 
+    @Schema(description = "项目负责人")
+    private Long projectManagerId;
+
     /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */

@@ -104,6 +104,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         // 插入
         ProjectCategory projectCategory = projectCategoryMapper.toEntity(createReqVO);
+        //设置一下实验的setProjectManagerId
+        projectCategory.setProjectManagerId(projectSimple.getManagerId());
         projectCategoryRepository.save(projectCategory);
 
         //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
@@ -166,6 +168,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
 
         updateReqVO.setCustomerId(projectSimple.getCustomerId());
+        updateReqVO.setProjectManagerId(projectSimple.getManagerId());
 
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);

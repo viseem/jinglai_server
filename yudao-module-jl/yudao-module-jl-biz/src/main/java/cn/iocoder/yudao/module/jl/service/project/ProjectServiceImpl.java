@@ -243,6 +243,9 @@ public class ProjectServiceImpl implements ProjectService {
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);
+
+        //同时更新一下projectCategory的projectManagerId
+        projectCategoryRepository.updateProjectManagerIdByProjectId(updateReqVO.getManagerId(),updateReqVO.getId());
     }
 
     @Override
