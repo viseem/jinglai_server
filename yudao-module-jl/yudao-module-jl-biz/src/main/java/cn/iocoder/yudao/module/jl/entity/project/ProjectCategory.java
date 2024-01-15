@@ -290,8 +290,6 @@ public class ProjectCategory extends BaseEntity {
     @Transient
     private List<LaboratoryLab> labList = new ArrayList<>();
 
-    @Transient
-    private List<User> focusList = new ArrayList<>();
 
     @Transient
     private Integer sopTotal = 0;
@@ -304,4 +302,7 @@ public class ProjectCategory extends BaseEntity {
 
     @Transient
     private Integer preTodoDone = 0;
+
+    @Transient
+    private List<User> focusList = new ArrayList<>();
 }

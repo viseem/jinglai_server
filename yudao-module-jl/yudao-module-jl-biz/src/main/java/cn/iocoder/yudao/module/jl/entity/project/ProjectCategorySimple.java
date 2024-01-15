@@ -98,6 +98,12 @@ public class ProjectCategorySimple extends BaseEntity {
     private String labIds;
 
     /**
+     * 参与者ids
+     */
+    @Column(name = "focus_ids")
+    private String focusIds;
+
+    /**
      * JPA 级联出 open
      */
     @OneToOne(fetch = FetchType.EAGER)
@@ -242,4 +248,7 @@ public class ProjectCategorySimple extends BaseEntity {
 
     @Transient
     private Integer preTodoDone = 0;
+
+    @Transient
+    private List<User> focusList = new ArrayList<>();
 }

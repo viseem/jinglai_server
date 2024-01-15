@@ -448,6 +448,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
             projectCategory.setLatestApproval(latestApproval.orElse(null));
         }*/
+        //根据focusIds获取operatorList
+        String operatorIds = projectCategory.getFocusIds();
+        if(operatorIds!=null&& !operatorIds.isEmpty()){
+            projectCategory.setFocusList(idsString2QueryList(operatorIds, userRepository));
+        }
+
         List<ProjectSop> sopList = projectCategory.getSopList();
         if(sopList!=null&& !sopList.isEmpty()){
             // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
@@ -480,6 +486,14 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
+
+
+        //根据focusIds获取operatorList
+        String operatorIds = projectCategory.getFocusIds();
+        if(operatorIds!=null&& !operatorIds.isEmpty()){
+            projectCategory.setFocusList(idsString2QueryList(operatorIds, userRepository));
+        }
+
             //获取sop完成的数量，sopList的status等于done的数量
         List<ProjectSop> sopList = projectCategory.getSopList();
         if(sopList!=null&& !sopList.isEmpty()){
