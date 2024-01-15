@@ -26,6 +26,10 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     int updateQuotationMarkById(String quotationMark, Long id);
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.quotationMark = ?1,s.quotationJsonFile = ?2 where s.id = ?3")
+    int updateQuotationMarkAndQuotationJsonFileById(String quotationMark, String jsonFile,Long id);
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.managerId = ?1,s.assignMark=?2 where s.id = ?3")
     int updateManagerIdAndAssignMarkById(Long managerId,String assignMark, Long id);
     @Transactional

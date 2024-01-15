@@ -156,7 +156,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Override
     public void updateSalesleadQuotationMark(SalesleadNoRequireBaseVO updateReqVO){
-        salesleadRepository.updateQuotationMarkById(updateReqVO.getQuotationMark(),updateReqVO.getId());
+        salesleadRepository.updateQuotationMarkAndQuotationJsonFileById(updateReqVO.getQuotationMark(),updateReqVO.getQuotationJsonFile(),updateReqVO.getId());
     }
 
     @Override

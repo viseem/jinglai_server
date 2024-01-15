@@ -29,6 +29,8 @@ public class SalesleadBaseVO {
 
     private String assignMark;
     private String quotationMark;
+    private String quotationJsonFile;
+
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime quotationCreateTime;
 

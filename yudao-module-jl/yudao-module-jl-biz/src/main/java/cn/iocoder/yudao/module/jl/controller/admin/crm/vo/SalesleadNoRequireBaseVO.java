@@ -20,6 +20,7 @@ public class SalesleadNoRequireBaseVO {
 
     private String assignMark;
     private String quotationMark;
+    private String quotationJsonFile;
 
     @Schema(description = "关键需求")
     private String requirement;

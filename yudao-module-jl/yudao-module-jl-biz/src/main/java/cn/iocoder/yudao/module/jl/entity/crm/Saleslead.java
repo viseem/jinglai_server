@@ -132,6 +132,12 @@ public class Saleslead extends BaseEntity {
     private String quotationMark;
 
     /**
+     * 报价附件
+     */
+    @Column(name = "quotation_json_file")
+    private String quotationJsonFile;
+
+    /**
      * 报价的创建时间
      */
     @Column(name = "quotation_create_time")
