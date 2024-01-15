@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,8 +17,17 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectCategoryPageReqVO extends PageParam {
 
-    private String stage;
+
+    @Schema(description = "归属：ALL MY SUB")
     private String attribute;
+
+    @Schema(description = "归属：ALL MY SUB")
+    private String attributeManager = DataAttributeTypeEnums.ALL.getStatus();
+
+    @Schema(description = "in 查询 managers")
+    private Long[] managers;
+
+    private String stage;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

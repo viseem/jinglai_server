@@ -17,6 +17,7 @@ import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAtta
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,9 @@ import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 @Service
 @Validated
 public class ProjectCategoryServiceImpl implements ProjectCategoryService {
+
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
@@ -345,7 +349,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @NotNull
-    private static <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
+    private <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -360,6 +364,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 if(pageReqVO.getOperatorId() != null) {
                     predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
                 }
+            }
+
+            if(pageReqVO.getAttributeManager() != null&& !pageReqVO.getAttributeManager().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttributeManager());
+                predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
 
             if(pageReqVO.getFocusId() != null) {
@@ -443,6 +452,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
 
 
+    // 增加一个可扩展参数，参数类型是map形式，key是属性名，value是属性值
 
     private void processProjectCategoryItem(ProjectCategory projectCategory) {
 /*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();

@@ -394,8 +394,7 @@ public class SalesleadServiceImpl implements SalesleadService {
     public PageResult<Saleslead> getSalesleadPage(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0) {
 
 //        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        pageReqVO.setCreators(users);
+
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -448,6 +447,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                     if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
                         predicates.add(root.get("creator").isNull());
                     }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        pageReqVO.setCreators(users);
                         predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                     }
                 }
