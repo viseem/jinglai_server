@@ -68,8 +68,7 @@ public class AnimalFeedOrderBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime startDate;
 
-    @Schema(description = "结束日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "结束日期不能为空")
+    @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endDate;
 
