@@ -65,8 +65,9 @@ public class CronJobAnimalFeedLogInsert implements JobHandler {
                 newLog.setCageQuantity(animalFeedOrder.getCageQuantity());
                 logs.updateAndGet(v -> v + newLog);
             }
-
-            animalFeedLogRepository.save(newLog);
+            if(newLog.getCageQuantity()!=null&&newLog.getQuantity()!=null){
+                animalFeedLogRepository.save(newLog);
+            }
         }
 
         return String.format("新增饲养日志 %s", logs.get());

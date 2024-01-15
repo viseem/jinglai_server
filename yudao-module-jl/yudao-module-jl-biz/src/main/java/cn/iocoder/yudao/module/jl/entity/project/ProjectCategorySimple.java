@@ -228,16 +228,8 @@ public class ProjectCategorySimple extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectSop> sopList = new ArrayList<>();
 
-    /**
-     * 查询todo列表
-     */
-    @OneToMany(fetch = FetchType.EAGER)
-    @Where(clause="type = 'PROJECT_CATEGORY'")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonTodoLog> preTodoList = new ArrayList<>();
-
+    @Transient
+    private List<CommonTodo> preTodoList = new ArrayList<>();
 
     @Transient
     private Integer sopTotal = 0;

@@ -22,4 +22,5 @@ public class CommonTodoBaseVO {
     @NotNull(message = "类型不能为空")
     private String type;
 
+    private String status;
 }

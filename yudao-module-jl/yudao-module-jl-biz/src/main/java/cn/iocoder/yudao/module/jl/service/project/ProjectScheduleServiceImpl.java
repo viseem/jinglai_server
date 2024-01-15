@@ -635,7 +635,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         ProjectCategory save = projectCategoryRepository.save(categoryDo);
 
         //注入一下todo
-        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
 
 
         // 保存收费项

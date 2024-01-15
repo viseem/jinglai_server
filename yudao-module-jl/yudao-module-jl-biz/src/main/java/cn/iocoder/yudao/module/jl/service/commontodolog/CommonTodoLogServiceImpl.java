@@ -65,6 +65,17 @@ public class CommonTodoLogServiceImpl implements CommonTodoLogService {
     }
 
     @Override
+    public void saveCommonTodoLogStatus(CommonTodoLogSaveStatusReqVO reqVO){
+
+        CommonTodoLog byTodoIdAndRefId = commonTodoLogRepository.findByTodoIdAndRefId(reqVO.getTodoId(), reqVO.getRefId());
+        if(byTodoIdAndRefId!=null){
+            reqVO.setId(byTodoIdAndRefId.getId());
+        }
+
+        CommonTodoLog updateObj = commonTodoLogMapper.toEntity(reqVO);
+        commonTodoLogRepository.save(updateObj);
+    }
+    @Override
     public void deleteCommonTodoLog(Long id) {
         // 校验存在
         validateCommonTodoLogExists(id);

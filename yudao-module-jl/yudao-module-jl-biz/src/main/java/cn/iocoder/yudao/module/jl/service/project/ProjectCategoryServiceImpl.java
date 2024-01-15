@@ -2,12 +2,15 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.commontodo.CommonTodoRepository;
+import cn.iocoder.yudao.module.jl.repository.commontodolog.CommonTodoLogRepository;
 import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
@@ -26,10 +29,8 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -77,6 +78,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Resource
     private ProjectServiceImpl projectService;
 
+    @Resource
+    private CommonTodoLogRepository commonTodoLogRepository;
+
+    @Resource
+    private CommonTodoRepository commonTodoRepository;
+
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
     private final UserRepository userRepository;
 
@@ -100,7 +107,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectCategoryRepository.save(projectCategory);
 
         //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
-        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),projectCategory.getId());
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),projectCategory.getId());
 
 
         // 返回
@@ -154,7 +161,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         validateProjectCategoryExists(updateReqVO.getId());
 
         // 存一下commonTodoLog
-        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),updateReqVO.getId());
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),updateReqVO.getId());
 
         ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
 
@@ -450,11 +457,24 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         }
 
         //跟sopList类似，处理一下preTodoList
-        List<CommonTodoLog> preTodoList = projectCategory.getPreTodoList();
+        List<CommonTodo> preTodoList = commonTodoRepository.findByType(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus());
+        projectCategory.setPreTodoList(preTodoList);
         if(preTodoList!=null&& !preTodoList.isEmpty()){
-            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
-            long count = preTodoList.stream().filter(todo -> todo.getStatus()!=null&& (todo.getStatus().equals(CommonTodoEnums.DONE.getStatus()))).count();
-            projectCategory.setPreTodoDone((int)count);
+            AtomicReference<Integer> count = new AtomicReference<>(0);
+            preTodoList.forEach(
+                    todo->{
+                        todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+                        CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId( todo.getId(),projectCategory.getId());
+                        if(byTypeAndRefId!=null){
+                            todo.setTodoLogId(byTypeAndRefId.getId());
+                            todo.setStatus(byTypeAndRefId.getStatus());
+                            if(Objects.equals(byTypeAndRefId.getStatus(),CommonTodoEnums.DONE.getStatus())){
+                                count.getAndSet(count.get() + 1);
+                            }
+                        }
+                    }
+            );
+            projectCategory.setPreTodoDone(count.get());
             projectCategory.setPreTodoTotal(preTodoList.size());
         }
     }
@@ -470,11 +490,26 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         }
 
         //跟sopList类似，处理一下preTodoList
-        List<CommonTodoLog> preTodoList = projectCategory.getPreTodoList();
+        List<CommonTodo> preTodoList = commonTodoRepository.findByType(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus());
+        projectCategory.setPreTodoList(preTodoList);
         if(preTodoList!=null&& !preTodoList.isEmpty()){
             // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
-            long count = preTodoList.stream().filter(todo -> todo.getStatus()!=null&& (todo.getStatus().equals(CommonTodoEnums.DONE.getStatus()))).count();
-            projectCategory.setPreTodoDone((int)count);
+            // CommonTodoLog里面查询ref_id和type为PROJECT_CATEGORY，且status为DONE的，给preTodoList对应项的status赋值为DONE，然后再统计数量,备注：需要遍历查CommonTodoLog表
+            AtomicReference<Integer> count = new AtomicReference<>(0);
+            preTodoList.forEach(
+                    todo->{
+                        todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+                        CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId(todo.getId(),projectCategory.getId());
+                        if(byTypeAndRefId!=null){
+                            todo.setTodoLogId(byTypeAndRefId.getId());
+                            todo.setStatus(byTypeAndRefId.getStatus());
+                            if(Objects.equals(byTypeAndRefId.getStatus(),CommonTodoEnums.DONE.getStatus())){
+                                count.getAndSet(count.get() + 1);
+                            }
+                        }
+                    }
+            );
+            projectCategory.setPreTodoDone(count.get());
             projectCategory.setPreTodoTotal(preTodoList.size());
         }
     }

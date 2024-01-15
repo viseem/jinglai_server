@@ -44,4 +44,9 @@ public class CommonTodo extends BaseEntity {
     private String type;
 
 
+    @Transient
+    private String status;
+
+    @Transient
+    private Long todoLogId;
 }

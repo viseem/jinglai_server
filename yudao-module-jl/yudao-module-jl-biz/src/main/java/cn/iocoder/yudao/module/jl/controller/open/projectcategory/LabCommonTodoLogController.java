@@ -62,6 +62,14 @@ public class LabCommonTodoLogController {
         return success(true);
     }
 
+    @PostMapping("/save-status")
+    @Operation(summary = "更新通用TODO记录状态")
+    @PreAuthorize("@ss.hasPermission('jl:common-todo-log:update')")
+    public CommonResult<Boolean> saveCommonTodoLogStatus(@Valid @RequestBody CommonTodoLogSaveStatusReqVO saveReqVO) {
+        commonTodoLogService.saveCommonTodoLogStatus(saveReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除通用TODO记录")
     @Parameter(name = "id", description = "编号", required = true)

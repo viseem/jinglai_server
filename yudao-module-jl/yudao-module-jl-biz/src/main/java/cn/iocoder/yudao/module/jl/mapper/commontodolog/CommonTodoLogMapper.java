@@ -14,6 +14,9 @@ public interface CommonTodoLogMapper {
 
     CommonTodoLog toEntity(CommonTodoLogUpdateReqVO dto);
 
+    CommonTodoLog toEntity(CommonTodoLogSaveStatusReqVO dto);
+
+
     CommonTodoLogRespVO toDto(CommonTodoLog entity);
 
 

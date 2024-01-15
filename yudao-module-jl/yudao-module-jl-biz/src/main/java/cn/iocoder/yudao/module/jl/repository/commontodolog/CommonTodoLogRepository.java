@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 *
 */
 public interface CommonTodoLogRepository extends JpaRepository<CommonTodoLog, Long>, JpaSpecificationExecutor<CommonTodoLog> {
+    @Query("select c from CommonTodoLog c where  c.todoId = ?1 and c.refId = ?2 limit 1")
+    CommonTodoLog findByTodoIdAndRefId( Long todoId, Long refId);
     @Transactional
     @Modifying
     @Query("update CommonTodoLog c set c.status = ?1 where c.id = ?2")

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
@@ -273,15 +274,6 @@ public class ProjectCategory extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryLog> logs;
 
-    /**
-     * 查询todo列表
-     */
-    @OneToMany(fetch = FetchType.EAGER)
-    @Where(clause="type = 'PROJECT_CATEGORY'")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonTodoLog> preTodoList = new ArrayList<>();
     /*
     * 依赖项
     * */
@@ -291,6 +283,9 @@ public class ProjectCategory extends BaseEntity {
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
     private List<TaskRelationOnly> relations = new ArrayList<>();*/
+
+    @Transient
+    private List<CommonTodo> preTodoList = new ArrayList<>();
 
     @Transient
     private List<LaboratoryLab> labList = new ArrayList<>();

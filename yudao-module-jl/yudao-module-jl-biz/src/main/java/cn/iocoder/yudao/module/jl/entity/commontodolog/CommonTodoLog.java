@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "CommonTodoLog")
 @Table(name = "jl_common_todo_log")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class CommonTodoLog extends BaseEntity {
 
     /**
@@ -42,6 +42,12 @@ public class CommonTodoLog extends BaseEntity {
      */
     @Column(name = "ref_id", nullable = false )
     private Long refId;
+
+    /**
+     * todoId
+     */
+    @Column(name = "todo_id", nullable = false )
+    private Long todoId;
 
     /**
      * todo类型
