@@ -366,7 +366,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 }
             }
 
-            if(pageReqVO.getAttributeManager() != null&& !pageReqVO.getAttributeManager().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+            if(pageReqVO.getOperatorId() == null && pageReqVO.getAttributeManager() != null&& !pageReqVO.getAttributeManager().equals(DataAttributeTypeEnums.ANY.getStatus())) {
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttributeManager());
                 predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
