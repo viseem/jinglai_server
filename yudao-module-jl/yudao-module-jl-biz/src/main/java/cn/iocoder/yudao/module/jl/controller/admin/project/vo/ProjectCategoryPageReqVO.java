@@ -22,7 +22,7 @@ public class ProjectCategoryPageReqVO extends PageParam {
     private String attribute;
 
     @Schema(description = "归属：ALL MY SUB")
-    private String attributeManager = DataAttributeTypeEnums.ALL.getStatus();
+    private String attributeManager;
 
     @Schema(description = "in 查询 managers")
     private Long[] managers;
