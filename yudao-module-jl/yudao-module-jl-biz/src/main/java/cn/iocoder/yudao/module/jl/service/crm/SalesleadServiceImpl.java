@@ -406,6 +406,11 @@ public class SalesleadServiceImpl implements SalesleadService {
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // price大于指定金额的
+            if (pageReqVO.getQuotation() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
+            }
+
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
             }
@@ -434,9 +439,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }*/
 
+/*
             if(pageReqVO.getQuotation() != null) {
                 predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
             }
+*/
 
 
 
