@@ -211,6 +211,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode COMMON_TODO_LOG_NOT_EXISTS = new ErrorCode(1002090001, "通用TODO记录不存在");
 
+    ErrorCode SHIP_WAREHOUSE_NOT_EXISTS = new ErrorCode(1002100000, "收货仓库不存在");
+
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
