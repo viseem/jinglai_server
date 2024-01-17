@@ -494,7 +494,9 @@ public class ProcurementServiceImpl implements ProcurementService {
             // 更新采购单的物流信息
             procurementRepository.findById(saveReqVO.getProcurementId()).ifPresent(procurement -> {
                 procurement.setShipmentCodes(procurement.getShipmentCodes() + "," + shipmentNumbers);
-                procurement.setStatus(ProcurementStatusEnums.WAITING_CHECK_IN.toString());
+                if (saveReqVO.getStatus()!=null){
+                    procurement.setStatus(saveReqVO.getStatus());
+                }
                 procurementRepository.save(procurement);
             });
         }

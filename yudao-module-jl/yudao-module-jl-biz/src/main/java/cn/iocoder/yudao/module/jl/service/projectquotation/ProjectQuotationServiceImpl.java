@@ -155,7 +155,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             ProjectQuotation save = projectQuotationRepository.save(updateObj);
             updateReqVO.setId(save.getId());
         }
-        projectQuotationRepository.updatePlanTextById(updateReqVO.getPlanText(), updateReqVO.getId());
+
+        if(updateReqVO.getPlanText()!=null&&updateReqVO.getPlanText().length()>5){
+            projectQuotationRepository.updatePlanTextById(updateReqVO.getPlanText(), updateReqVO.getId());
+        }
+
         Long id = updateReqVO.getId();
         /*if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
             for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {

@@ -60,8 +60,7 @@ public class ProcurementItemBaseVO {
     @Schema(description = "单价")
     private String unitFee;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount = 0;
 
     @Schema(description = "采购数量", requiredMode = Schema.RequiredMode.REQUIRED)
