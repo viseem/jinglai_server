@@ -437,38 +437,41 @@ public class SalesleadServiceImpl implements SalesleadService {
             if(pageReqVO.getQuotation() != null) {
                 predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
             }
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
-                if(pageReqVO.getStatus() != null) {
-                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                }
-            }else{
-                if(pageReqVO.getAttribute()!=null){
-                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                        predicates.add(root.get("creator").isNull());
-                    }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                        pageReqVO.setCreators(users);
-                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                    }
-                }
 
-                if(pageReqVO.getStatus() != null) {
-                    //查询未转项目的
-                    if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
-                        predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
-                    }else{
-                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                    }
 
-                }
-            }
 
 //                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
 
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }else{
+                if(pageReqVO.getManagerId() != null) {
+                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                    if(pageReqVO.getStatus() != null) {
+                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                    }
+                }else{
+                    if(pageReqVO.getAttribute()!=null){
+                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                            predicates.add(root.get("creator").isNull());
+                        }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                            pageReqVO.setCreators(users);
+                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                        }
+                    }
+
+                    if(pageReqVO.getStatus() != null) {
+                        //查询未转项目的
+                        if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                            predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                        }else{
+                            predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                        }
+
+                    }
+                }
             }
 
             if(pageReqVO.getProjectId() != null) {

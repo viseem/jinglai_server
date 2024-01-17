@@ -92,6 +92,7 @@ public class ProjectQuotationController {
 
     @PutMapping("/save-plan")
     @Operation(summary = "专门保存方案")
+    @OperateLog(enable = false)
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
     public CommonResult<Long> saveProjectQuotationPlan(@Valid @RequestBody ProjectQuotationUpdatePlanReqVO updateReqVO) {
         projectQuotationService.updateProjectQuotationPlan(updateReqVO);

@@ -167,7 +167,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             }
             projectCategoryRepository.saveAll(projectCategoryMapper.toEntityQuotation(updateReqVO.getCategoryList()));
         }*/
-        projectRepository.updateCurrentQuotationIdById(updateReqVO.getId(),updateReqVO.getProjectId());
+//        projectRepository.updateCurrentQuotationIdById(updateReqVO.getId(),updateReqVO.getProjectId());
 
         return id;
     }
