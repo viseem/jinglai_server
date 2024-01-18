@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.shipwarehouse.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -27,4 +28,5 @@ public class ShipWarehouseBaseVO {
     @Schema(description = "详细地址")
     private String address;
 
+    private User manager;
 }
