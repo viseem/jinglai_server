@@ -20,7 +20,7 @@ public class CommonAttachmentBaseVO {
 
     @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED, example = "10568")
     @NotNull(message = "id不能为空")
-    private Integer refId;
+    private Long refId;
 
     @Schema(description = "文件名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "文件名称不能为空")

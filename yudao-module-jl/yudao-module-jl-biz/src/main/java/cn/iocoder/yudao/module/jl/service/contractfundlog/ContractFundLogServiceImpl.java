@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.contractfundlog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,9 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
 
     @Override
     @Transactional
@@ -67,6 +72,10 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             createReqVO.setAuditId(getLoginUserId());
         }
 
+
+
+
+
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
         contractFundLog.setProjectId(projectConstract.getProjectId());
@@ -76,6 +85,9 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         contractFundLogRepository.save(contractFundLog);
 
         projectConstractService.processContractReceivedPrice2(createReqVO.getContractId());
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(contractFundLog.getId(),"CONTRACT_FUND_LOG",createReqVO.getAttachmentList());
 
         // 返回
         return contractFundLog.getId();
@@ -98,6 +110,8 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         contractFundLogRepository.save(updateObj);
 
         projectConstractService.processContractReceivedPrice2(updateReqVO.getContractId());
+
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_FUND_LOG",updateReqVO.getAttachmentList());
     }
 
     @Override

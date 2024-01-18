@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -79,4 +80,5 @@ public class ContractFundLogBaseVO {
 
     private User auditor;
     private User user;
+    private List<CommonAttachment> attachmentList;
 }

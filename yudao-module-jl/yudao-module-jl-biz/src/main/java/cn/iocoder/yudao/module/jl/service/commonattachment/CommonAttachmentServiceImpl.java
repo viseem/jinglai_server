@@ -41,6 +41,18 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
     @Resource
     private CommonAttachmentMapper commonAttachmentMapper;
 
+
+    public void saveAttachmentList(Long refId,String type,List<CommonAttachment> list){
+        if(list == null || list.isEmpty()){
+            return;
+        }
+        for(CommonAttachment attachment : list){
+            attachment.setRefId(refId);
+            attachment.setType(type);
+        }
+        commonAttachmentRepository.saveAll(list);
+    }
+
     @Override
     public Long createCommonAttachment(CommonAttachmentCreateReqVO createReqVO) {
         // 插入

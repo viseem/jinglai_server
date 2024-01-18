@@ -41,7 +41,7 @@ public class CommonAttachment extends BaseEntity {
      * id
      */
     @Column(name = "ref_id", nullable = false )
-    private Integer refId;
+    private Long refId;
 
     /**
      * 文件名称
