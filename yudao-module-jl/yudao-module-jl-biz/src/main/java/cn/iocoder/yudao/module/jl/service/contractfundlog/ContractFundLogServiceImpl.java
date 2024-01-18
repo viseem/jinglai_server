@@ -160,9 +160,13 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             List<Predicate> predicates = new ArrayList<>();
 
             //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null&&pageReqVO.getSalesId()==null){
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            }
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getPrice() != null) {

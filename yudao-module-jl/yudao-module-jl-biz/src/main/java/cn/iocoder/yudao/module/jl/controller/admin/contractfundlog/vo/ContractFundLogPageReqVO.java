@@ -59,4 +59,6 @@ public class ContractFundLogPageReqVO extends PageParam {
 
     private String status;
 
+    private Long salesId;
+
 }
