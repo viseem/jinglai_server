@@ -213,6 +213,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode SHIP_WAREHOUSE_NOT_EXISTS = new ErrorCode(1002100000, "收货仓库不存在");
 
+    ErrorCode COMMON_ATTACHMENT_NOT_EXISTS = new ErrorCode(1002200000, "通用附件不存在");
+
+
 
     // ========== AUTH 模块 1004003000 ==========
 
