@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import javax.persistence.*;
 
@@ -91,6 +92,12 @@ public class ProjectCategoryLog extends BaseEntity {
      */
     @Column(name = "score", nullable = false)
     private String score;
+
+    /**
+     * 操作时间
+     */
+    @Column(name = "operate_time", nullable = false)
+    private LocalDateTime operateTime;
 
     /**
      * 查询附件列表
