@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.cellbase;
 
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -36,27 +39,39 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class CellBaseServiceImpl implements CellBaseService {
 
     @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
+    @Resource
     private CellBaseRepository cellBaseRepository;
 
     @Resource
     private CellBaseMapper cellBaseMapper;
 
     @Override
+    @Transactional
     public Long createCellBase(CellBaseCreateReqVO createReqVO) {
         // 插入
         CellBase cellBase = cellBaseMapper.toEntity(createReqVO);
         cellBaseRepository.save(cellBase);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(cellBase.getId(),"CELL_BASE",createReqVO.getAttachmentList());
+
         // 返回
         return cellBase.getId();
     }
 
     @Override
+    @Transactional
     public void updateCellBase(CellBaseUpdateReqVO updateReqVO) {
         // 校验存在
         validateCellBaseExists(updateReqVO.getId());
         // 更新
         CellBase updateObj = cellBaseMapper.toEntity(updateReqVO);
         cellBaseRepository.save(updateObj);
+
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"CELL_BASE",updateObj.getAttachmentList());
+
     }
 
     @Override

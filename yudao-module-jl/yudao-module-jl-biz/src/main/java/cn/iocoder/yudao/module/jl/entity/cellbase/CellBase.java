@@ -1,12 +1,19 @@
 package cn.iocoder.yudao.module.jl.entity.cellbase;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -66,5 +73,22 @@ public class CellBase extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectSimple project;
+
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'CELL_BASE'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 
 }

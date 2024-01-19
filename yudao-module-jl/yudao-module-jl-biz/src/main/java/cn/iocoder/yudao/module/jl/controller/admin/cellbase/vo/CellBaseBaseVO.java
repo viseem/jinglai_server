@@ -1,10 +1,20 @@
 package cn.iocoder.yudao.module.jl.controller.admin.cellbase.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.*;
 
 /**
@@ -33,4 +43,7 @@ public class CellBaseBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private ProjectSimple project;
+
+    private List<CommonAttachment> attachmentList;
 }
