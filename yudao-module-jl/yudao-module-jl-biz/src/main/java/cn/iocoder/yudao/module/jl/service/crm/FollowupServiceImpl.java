@@ -3,9 +3,13 @@ package cn.iocoder.yudao.module.jl.service.crm;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentService;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -52,7 +56,11 @@ public class FollowupServiceImpl implements FollowupService {
     @Resource
     private FollowupMapper followupMapper;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createFollowup(FollowupCreateReqVO createReqVO) {
         // 插入
         Followup followup = followupMapper.toEntity(createReqVO);
@@ -64,17 +72,25 @@ public class FollowupServiceImpl implements FollowupService {
         // 更新客户最近的线索
         customerRepository.updateLastFollowupIdById(followup.getId(), createReqVO.getCustomerId());
 
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(followup.getId(),"CRM_FOLLOWUP",createReqVO.getAttachmentList());
+
         // 返回
         return followup.getId();
     }
 
     @Override
+    @Transactional
     public void updateFollowup(FollowupUpdateReqVO updateReqVO) {
         // 校验存在
         validateFollowupExists(updateReqVO.getId());
         // 更新
         Followup updateObj = followupMapper.toEntity(updateReqVO);
         followupRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CRM_FOLLOWUP",updateReqVO.getAttachmentList());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -29,4 +30,5 @@ public class FollowupBaseVO {
     @NotNull(message = "跟进类型：日常联系、销售线索、催款等不能为空")
     private String type;
 
+    private List<CommonAttachment> attachmentList;
 }
