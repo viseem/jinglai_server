@@ -117,6 +117,8 @@ public class UserController {
                 DeptDO deptBy = deptService.getDeptBy(dept);
                 if(deptBy!=null){
                     reqVO.setDeptId(deptBy.getId());
+                }else{
+                    reqVO.setDeptId(-1L);
                 }
             }
         }
