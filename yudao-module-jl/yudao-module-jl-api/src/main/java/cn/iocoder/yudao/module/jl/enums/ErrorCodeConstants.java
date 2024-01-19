@@ -215,7 +215,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode COMMON_ATTACHMENT_NOT_EXISTS = new ErrorCode(1002200000, "通用附件不存在");
 
-
+    ErrorCode CELL_BASE_NOT_EXISTS = new ErrorCode(1002300000, "细胞数据不存在");
 
     // ========== AUTH 模块 1004003000 ==========
 
