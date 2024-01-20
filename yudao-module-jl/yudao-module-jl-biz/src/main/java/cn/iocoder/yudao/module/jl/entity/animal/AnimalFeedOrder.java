@@ -53,10 +53,16 @@ public class AnimalFeedOrder extends BaseEntity {
     private String breed;
 
     /**
-     * 周龄体重
+     * 周龄
      */
     @Column(name = "age", nullable = false )
     private String age;
+
+    /**
+     * 体重
+     */
+    @Column(name = "weight", nullable = false )
+    private String weight;
 
     /**
      * 数量
