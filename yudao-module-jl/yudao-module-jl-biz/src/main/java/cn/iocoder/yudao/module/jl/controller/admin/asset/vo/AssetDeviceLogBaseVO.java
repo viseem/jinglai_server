@@ -37,7 +37,7 @@ public class AssetDeviceLogBaseVO {
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
 
-    @Schema(description = "用途分类：项目", example = "2")
+    @Schema(description = "用途分类", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String useType;
 
     @Schema(description = "项目设备id", example = "29474")
