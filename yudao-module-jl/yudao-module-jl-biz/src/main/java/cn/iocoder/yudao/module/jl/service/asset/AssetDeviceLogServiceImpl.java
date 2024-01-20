@@ -52,7 +52,11 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
     @Transactional
     public Long createAssetDeviceLog(AssetDeviceLogCreateReqVO createReqVO) {
 
-        System.out.println("createReqVO = " + createReqVO);
+        // 查询新的时间段是否已经被预约
+        Long l = assetDeviceLogRepository.countOverlappingTimeRanges(createReqVO.getStartDate(), createReqVO.getEndDate(), createReqVO.getDeviceId());
+        if (l > 0) {
+            throw exception(ASSET_DEVICE_LOG_EXISTS);
+        }
 
         // 先查询ProjectDevice里面是否有这个设备,如果没有这个设备,则新增
         ProjectDevice byProjectIdAndDeviceId = projectDeviceRepository.findByProjectIdAndDeviceId(createReqVO.getProjectId(), createReqVO.getDeviceId());
@@ -79,6 +83,13 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
     public void updateAssetDeviceLog(AssetDeviceLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateAssetDeviceLogExists(updateReqVO.getId());
+
+        // 查询新的时间段是否已经被预约
+        Long l = assetDeviceLogRepository.countOverlappingTimeRanges(updateReqVO.getStartDate(), updateReqVO.getEndDate(), updateReqVO.getDeviceId());
+        if (l > 0) {
+            throw exception(ASSET_DEVICE_LOG_EXISTS);
+        }
+
         // 更新
         AssetDeviceLog updateObj = assetDeviceLogMapper.toEntity(updateReqVO);
         assetDeviceLogRepository.save(updateObj);

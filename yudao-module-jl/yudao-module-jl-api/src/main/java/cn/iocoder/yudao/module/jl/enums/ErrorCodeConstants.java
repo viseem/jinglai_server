@@ -143,6 +143,8 @@ public interface ErrorCodeConstants {
 
     ErrorCode ASSET_DEVICE_LOG_NOT_EXISTS = new ErrorCode(2054800001, "公司资产（设备）预约不存在");
 
+    ErrorCode ASSET_DEVICE_LOG_EXISTS = new ErrorCode(2054800001, "该时间段已被预约");
+
     ErrorCode ANIMAL_ROOM_NOT_EXISTS = new ErrorCode(2054900001, "动物饲养室不存在");
     ErrorCode ANIMAL_SHELF_NOT_EXISTS = new ErrorCode(2055000001, "动物饲养笼架不存在");
     ErrorCode UNIQUE_CODE_EXISTS = new ErrorCode(2054900002, "该编码已存在");
