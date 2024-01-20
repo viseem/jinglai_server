@@ -22,7 +22,7 @@ public enum ProjectCategoryStatusEnums implements StringArrayValuable {
     DATA_REJECT("DATA_REJECT", "数据审核驳回"),
     PAUSE("PAUSE", "暂停"),
     DONE("DONE", "完成"),
-    COMPLETE("COMPLETE", "完成"),
+    COMPLETE("Z_COMPLETE", "完成"),
 
 
     APPROVAL_SUCCESS("APPROVAL_SUCCESS","审批通过"),
