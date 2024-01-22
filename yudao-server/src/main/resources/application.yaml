@@ -210,5 +210,3 @@ debug: false
 minidao :
   base-package: org.jeecg.modules.jmreport.desreport.dao*
   db-type: mysql
-
-
