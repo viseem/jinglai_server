@@ -607,6 +607,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
 //        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(),updateReqVO.getQuotationId());
+        projectQuotationRepository.updateOriginPriceById(updateReqVO.getQuotationAmount(),updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(),updateReqVO.getQuotationAmount());
         return null;
     }

@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.entity.projectquotation;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -68,4 +70,6 @@ public class ProjectQuotation extends BaseEntity {
     @Column(name = "discount", nullable = false )
     private Integer discount;
 
+    @Column(name = "origin_price", nullable = false )
+    private BigDecimal originPrice;
 }
