@@ -145,7 +145,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public PageResult<ProjectFeedback> getProjectFeedbackPage(ProjectFeedbackPageReqVO pageReqVO, ProjectFeedbackPageOrder orderV0) {
 
         //获取attribute
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        Long[] users = pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(),pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
         pageReqVO.setCreators(users);
 
@@ -162,10 +162,14 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
             //如果是看自己的
             if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                 if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
-                    predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+                    predicates.add(cb.equal(root.get("creator"), pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?pageReqVO.getUserId():getLoginUserId()));
                 }else{
                     //不是看自己的 默认查由自己处理的
-                    predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    if (pageReqVO.getUserId() != null) {
+                        predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
+                    }else{
+                        predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    }
                 }
             }
 
@@ -185,9 +189,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                 predicates.add(cb.equal(root.get("feedType"), pageReqVO.getFeedType()));
             }
 
-            if (pageReqVO.getUserId() != null) {
+/*            if (pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
-            }
+            }*/
 
             if (pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));

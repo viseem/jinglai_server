@@ -397,7 +397,11 @@ public class ProjectServiceImpl implements ProjectService {
                     if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
                         mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
                     }else{
-                        predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                        if(pageReqVO.getManagerId() != null) {
+                            predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                        }else{
+                            predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                        }
                     }
                 }
             }else{
@@ -424,6 +428,9 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("subjectGroupId"), pageReqVO.getSubjectGroupId()));
             }
 
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+            }
 
 /*            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
@@ -462,9 +469,7 @@ public class ProjectServiceImpl implements ProjectService {
             if(pageReqVO.getEndDate() != null) {
                 predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
             }
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-            }
+
 
             if(pageReqVO.getParticipants() != null) {
                 predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));
