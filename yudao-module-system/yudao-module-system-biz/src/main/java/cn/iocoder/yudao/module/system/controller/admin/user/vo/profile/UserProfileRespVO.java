@@ -62,6 +62,9 @@ public class UserProfileRespVO extends UserBaseVO {
         @Schema(description = "角色名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "普通角色")
         private String name;
 
+        @Schema(description = "角色标识", requiredMode = Schema.RequiredMode.REQUIRED, example = "普通角色")
+        private String code;
+
     }
 
     @Schema(description = "部门")
