@@ -13,6 +13,8 @@ import java.util.List;
 *
 */
 public interface ContractFundLogRepository extends JpaRepository<ContractFundLog, Long>, JpaSpecificationExecutor<ContractFundLog> {
+    @Query("select c from ContractFundLog c where c.customerId = ?1")
+    List<ContractFundLog> findByCustomerId(Long customerId);
     @Query("select count(c) from ContractFundLog c where c.status <> ?1")
     Integer countByStatusNot(String status);
 

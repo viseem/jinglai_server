@@ -1,18 +1,18 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
-import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -62,6 +62,9 @@ public class CustomerServiceImpl implements CustomerService {
     private ProjectFundRepository projectFundRepository;
     @Resource
     private ProjectFundLogRepository projectFundLogRepository;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
@@ -507,37 +510,33 @@ public class CustomerServiceImpl implements CustomerService {
         List<ProjectConstract> byCustomerIdAndStatus = projectConstractRepository.findByCustomerIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
 
         // 项目个数
-        List<ProjectSimple> byCodeNotNull = projectSimpleRepository.findByCodeNotNullAndCustomerId(id);
-        Integer dealCount = byCodeNotNull.size();
+        Integer dealCount = projectSimpleRepository.countByCodeNotNullAndCustomerId(id);
+        Integer projectDoingCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.DOING.getStatus(),id);
+        Integer projectOutedCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.OUTED.getStatus(),id);
 
         //计算客户的成交总金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
             dealTotalAmount = dealTotalAmount.add(projectConstract.getPrice());
         }
-        //查询客户的款项
-        List<ProjectFund> funds = projectFundRepository.findByCustomerId(id);
         //查询客户的款项记录
-        List<ProjectFundLog> fundLogs = projectFundLogRepository.findByCustomerId(id);
-        //计算客户的款项总额
-        BigDecimal amount = new BigDecimal(0);
-        for (ProjectFund fund : funds) {
-            amount = amount.add(BigDecimal.valueOf(fund.getPrice()));
-        }
+        List<ContractFundLog> fundLogs = contractFundLogRepository.findByCustomerId(id);
         //计算客户的已付款项总额
         BigDecimal paidAmount = new BigDecimal(0);
-        for (ProjectFundLog fundLog : fundLogs) {
-            paidAmount = paidAmount.add(fundLog.getPrice());
+        for (ContractFundLog fundLog : fundLogs) {
+            if (Objects.equals(fundLog.getStatus(),ContractFundStatusEnums.AUDITED.getStatus())){
+                paidAmount = paidAmount.add(fundLog.getReceivedPrice());
+            }
         }
-        //计算客户的欠款总额
-        BigDecimal arrears = amount.subtract(paidAmount);
         //赋值返回值
         CustomerStatisticsRespVO customerStatisticsRespVO = new CustomerStatisticsRespVO();
         customerStatisticsRespVO.setDealCount(dealCount);
         customerStatisticsRespVO.setDealAmount(dealTotalAmount);
-        customerStatisticsRespVO.setFundAmount(amount);
-        customerStatisticsRespVO.setArrearsAmount(arrears);
         customerStatisticsRespVO.setPaidAmount(paidAmount);
+//        customerStatisticsRespVO.setFundAmount(dealTotalAmount.subtract(paidAmount));
+//        customerStatisticsRespVO.setArrearsAmount(dealTotalAmount.subtract(paidAmount));
+        customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));
+        customerStatisticsRespVO.setProjectOutedCount(new BigDecimal(projectOutedCount));
         return customerStatisticsRespVO;
     }
 
