@@ -34,4 +34,7 @@ public class ProjectQuotationBaseVO {
     @Schema(description = "折扣")
     private Integer discount;
 
+    @Schema(description = "报价金额")
+    private Integer originPrice;
+
 }
