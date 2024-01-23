@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import org.springframework.web.bind.annotation.*;
@@ -137,7 +138,7 @@ public class SalesleadController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
     public CommonResult<SalesleadRespVO> getSaleslead(@RequestParam("id") Long id) {
-        Optional<Saleslead> saleslead = salesleadService.getSaleslead(id);
+        Optional<SalesleadDetail> saleslead = salesleadService.getSaleslead(id);
         return success(saleslead.map(salesleadMapper::toDto).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS)));
     }
 

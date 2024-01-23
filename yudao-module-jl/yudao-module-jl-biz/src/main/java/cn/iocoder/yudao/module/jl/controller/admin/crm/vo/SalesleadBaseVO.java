@@ -75,4 +75,5 @@ public class SalesleadBaseVO {
 
     @Schema(description = "报价")
     private Long quotationPrice;
+
 }
