@@ -43,4 +43,7 @@ public class UserRespVO extends UserBaseVO {
     @Schema(description = "帐号状态（0正常 1停用）", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
     private Byte status;
 
+    @Schema(description = "企业微信id")
+    private String wxCpId;
+
 }

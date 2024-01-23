@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.collaborationrecord.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -35,4 +36,8 @@ public class CollaborationRecordBaseVO {
 
     @Schema(description = "附件", example = "2")
     private List<CommonAttachment> attachmentList;
+
+    @Schema(description = "创建者", example = "2")
+    private User user;
+
 }

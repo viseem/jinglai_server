@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.collaborationrecord;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -76,4 +77,13 @@ public class CollaborationRecord extends BaseEntity {
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<CommonAttachment> attachmentList = new ArrayList<>();
+
+    /*
+    * 级联创建者
+    * */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 }

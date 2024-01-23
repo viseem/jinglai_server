@@ -107,4 +107,10 @@ public class User extends BaseEntity {
     @Column(name = "login_date")
     private LocalDateTime loginDate;
 
+    /**
+     * 企业微信id
+     */
+    @Column(name = "wx_cp_id")
+    private String wxCpId;
+
 }
