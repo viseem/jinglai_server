@@ -40,4 +40,6 @@ public class CollaborationRecordBaseVO {
     @Schema(description = "创建者", example = "2")
     private User user;
 
+    private Long creator;
+
 }
