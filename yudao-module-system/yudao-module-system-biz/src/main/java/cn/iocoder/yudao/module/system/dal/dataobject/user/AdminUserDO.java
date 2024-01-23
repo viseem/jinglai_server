@@ -93,4 +93,9 @@ public class AdminUserDO extends TenantBaseDO {
      */
     private LocalDateTime loginDate;
 
+    /**
+     * 企业微信id
+     */
+    private String wxCpId;
+
 }

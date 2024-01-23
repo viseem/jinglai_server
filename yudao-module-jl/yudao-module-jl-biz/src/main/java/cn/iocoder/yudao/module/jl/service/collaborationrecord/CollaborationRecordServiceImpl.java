@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.collaborationrecord;
 
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -34,7 +37,8 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class CollaborationRecordServiceImpl implements CollaborationRecordService {
-
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
     @Resource
     private CollaborationRecordRepository collaborationRecordRepository;
 
@@ -42,21 +46,29 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
     private CollaborationRecordMapper collaborationRecordMapper;
 
     @Override
+    @Transactional
     public Long createCollaborationRecord(CollaborationRecordCreateReqVO createReqVO) {
         // 插入
         CollaborationRecord collaborationRecord = collaborationRecordMapper.toEntity(createReqVO);
         collaborationRecordRepository.save(collaborationRecord);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(collaborationRecord.getId(),"COLLABORATION_RECORD",createReqVO.getAttachmentList());
+
         // 返回
         return collaborationRecord.getId();
     }
 
     @Override
+    @Transactional
     public void updateCollaborationRecord(CollaborationRecordUpdateReqVO updateReqVO) {
         // 校验存在
         validateCollaborationRecordExists(updateReqVO.getId());
         // 更新
         CollaborationRecord updateObj = collaborationRecordMapper.toEntity(updateReqVO);
         collaborationRecordRepository.save(updateObj);
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"COLLABORATION_RECORD",updateReqVO.getAttachmentList());
+
     }
 
     @Override
