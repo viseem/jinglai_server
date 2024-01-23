@@ -42,4 +42,6 @@ public class CollaborationRecordBaseVO {
 
     private Long creator;
 
+
+
 }
