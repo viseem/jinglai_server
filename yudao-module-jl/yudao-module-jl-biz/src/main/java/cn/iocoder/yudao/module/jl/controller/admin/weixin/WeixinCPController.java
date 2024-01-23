@@ -3,7 +3,9 @@ package cn.iocoder.yudao.module.jl.controller.admin.weixin;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.weixin.util.JsonUtils;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.chanjar.weixin.common.api.WxConsts;
@@ -23,6 +25,8 @@ import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import java.util.Objects;
 
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+
 @Tag(name = "微信 -- 企业微信")
 @RestController
 @RequestMapping("/wx/cp")
@@ -32,6 +36,9 @@ public class WeixinCPController {
 
     @Resource
     private WxCpService wxCpService;
+
+    @Resource
+    private UserRepository userRepository;
 
     @GetMapping("/callback")
     @Operation(summary = "微信认证的回调地址")
@@ -58,22 +65,37 @@ public class WeixinCPController {
     }
 
     @GetMapping("/bind-user")
-    @Operation(summary = "微信认证的回调地址")
+    @Operation(summary = "绑定企业微信的ID")
     @PermitAll
-    public String binduser(@RequestParam(name = "code", required = true) String code) throws WxErrorException {
+    public CommonResult binduser(@RequestParam(name = "code", required = true) String code) throws WxErrorException {
+        Long userId = getLoginUserId();
         String accessToken = wxCpService.getAccessToken();
         // http get 请求
         String url = "https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?access_token=" + accessToken + "&code=" + code;
-        String result = HttpUtil.get(url);
-        // {"userid":"ChenKai","errcode":0,"errmsg":"ok"} 解析出userid
+        String result = HttpUtil.get(url);  // {"userid":"ChenKai","errcode":0,"errmsg":"ok"} 解析出 userid, errcode
         JSONObject jsonObject = JSONUtil.parseObj(result);
         Integer errCode = jsonObject.getInt("errcode", 50000);
         String wxUserId = jsonObject.getStr("userid");
         if (errCode == 0 && wxUserId != null) {
             // 绑定用户
-
+            int res = userRepository.updateUserWxCpId(wxUserId, userId);
+            if (res == 1) {
+                return CommonResult.success("绑定成功");
+            }
         }
-        return result;
+        return CommonResult.error(400,"绑定失败");
+    }
+
+    @GetMapping("/unbind-user")
+    @Operation(summary = "解除绑定企业微信的ID")
+    @PermitAll
+    public CommonResult unBindUser(@RequestParam(name = "code", required = true) String code) throws WxErrorException {
+        Long userId = getLoginUserId();
+        int res = userRepository.updateUserWxCpId(null, userId);
+        if (res == 1) {
+            return CommonResult.success("解除成功");
+        }
+        return CommonResult.error(400,"解除失败");
     }
 
 //    当接受用户消息时，可能会获得以下值：
