@@ -283,8 +283,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public PageResult<ProjectConstract> getProjectConstractPage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0) {
 
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        pageReqVO.setCreators(users);
+
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -302,7 +301,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             } else {
 
                 if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
-                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//                    Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                    predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                 }
             }
 
