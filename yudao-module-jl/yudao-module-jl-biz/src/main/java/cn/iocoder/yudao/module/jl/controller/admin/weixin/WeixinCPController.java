@@ -1,9 +1,13 @@
 package cn.iocoder.yudao.module.jl.controller.admin.weixin;
 
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.iocoder.yudao.module.jl.controller.admin.weixin.util.JsonUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.cp.api.WxCpService;
 import me.chanjar.weixin.cp.bean.message.WxCpXmlMessage;
 import me.chanjar.weixin.cp.bean.message.WxCpXmlOutMessage;
@@ -53,6 +57,25 @@ public class WeixinCPController {
         return "非法请求";
     }
 
+    @GetMapping("/bind-user")
+    @Operation(summary = "微信认证的回调地址")
+    @PermitAll
+    public String binduser(@RequestParam(name = "code", required = true) String code) throws WxErrorException {
+        String accessToken = wxCpService.getAccessToken();
+        // http get 请求
+        String url = "https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?access_token=" + accessToken + "&code=" + code;
+        String result = HttpUtil.get(url);
+        // {"userid":"ChenKai","errcode":0,"errmsg":"ok"} 解析出userid
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        Integer errCode = jsonObject.getInt("errcode", 50000);
+        String wxUserId = jsonObject.getStr("userid");
+        if (errCode == 0 && wxUserId != null) {
+            // 绑定用户
+
+        }
+        return result;
+    }
+
 //    当接受用户消息时，可能会获得以下值：
 //    WxConsts.XmlMsgType.TEXT
 //    WxConsts.XmlMsgType.IMAGE
@@ -83,6 +106,8 @@ public class WeixinCPController {
         WxCpXmlMessage inMessage = WxCpXmlMessage.fromEncryptedXml(requestBody, wxCpService.getWxCpConfigStorage(),
                 timestamp, nonce, signature);
         logger.info("\n消息解密后内容为：\n{} ", JsonUtils.toJson(inMessage));
+        
+        // 文本消息处理        
         if(Objects.equals(inMessage.getMsgType(), WxConsts.XmlMsgType.TEXT)) {
             TextBuilder outMessage = WxCpXmlOutMessage.TEXT();
             outMessage.content("你好"); // TODO 设置为具体的内容

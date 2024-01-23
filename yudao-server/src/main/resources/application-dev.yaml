@@ -155,11 +155,11 @@ wx: # 参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-sta
       key-prefix: wx # Redis Key 的前缀 TODO 芋艿：解决下 Redis key 管理的配置
       http-client-type: HttpClient # 采用 HttpClient 请求微信公众号平台
   cp:
-    corp-id: wwb92033fe15b448a2
-    corp-secret: h16xXpISjGqxdwKyG8RG1BosRLjLXId9KMw-fJ_kegw
-    agent-id: 1000013
-    token: QtYCSTdp
-    aes-key: qtlR5emy57gP5TUNhbwwU2Rb7wIoXqX9ZOYTL8t6ICA
+    corp-id: wwb92033fe15b448a2 #ww24ca525cf9d43d70
+    corp-secret: h16xXpISjGqxdwKyG8RG1BosRLjLXId9KMw-fJ_kegw #fXIMYwaXM4f7vtD12FunkrKRmqj0rX5Z1a1eaKJf00I
+    agent-id: 1000013  #1000017
+    token: QtYCSTdp #OWlQCVU4vRzDGwjqz88
+    aes-key: qtlR5emy57gP5TUNhbwwU2Rb7wIoXqX9ZOYTL8t6ICA #tm59iKN7j2MTgaackTJX6mV6FzoMQAOBylMBDCnrffP
     config-storage:
       type: memory
 
