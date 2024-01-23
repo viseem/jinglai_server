@@ -4,13 +4,18 @@ import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCat
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
+import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -18,6 +23,8 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -27,10 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 
@@ -56,11 +60,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Resource
     private ProjectScheduleMapper projectScheduleMapper;
 
-    @Resource
-    private ProjectQuoteRepository projectQuoteRepository;
-
-    @Resource
-    private ProjectQuoteMapper projectQuoteMapper;
 
     @Resource
     private ProjectSopRepository projectSopRepository;
@@ -76,9 +75,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectSupplyRepository projectSupplyRepository;
-
-    @Resource
-    private ProcurementRepository procurementRepository;
 
     @Resource
     private ProjectReimburseRepository projectReimburseRepository;
@@ -103,7 +99,23 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
+
+    @Resource
+    private FinancePaymentRepository financePaymentRepository;
+
+    @Resource
+    private ProcurementPaymentRepository procurementPaymentRepository;
+
     private final SalesleadRepository salesleadRepository;
+
+    @Resource
+    private ProjectConstractRepository projectConstractRepository;
+
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private CommonTodoServiceImpl commonTodoService;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -116,6 +128,38 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectScheduleRepository.save(projectSchedule);
         // 返回
         return projectSchedule.getId();
+    }
+
+    /*
+    * 计算合同应收
+    * */
+    @Override
+    public BigDecimal getContractAmountByProjectId(Long id){
+        BigDecimal cost = BigDecimal.ZERO;
+        List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+        for (ProjectConstract projectConstract : byProjectIdAndStatus) {
+            if(projectConstract.getPrice() != null) {
+                cost = cost.add(projectConstract.getPrice());
+            }
+        }
+        return cost;
+    }
+
+    /*
+    * 计算合同已收款
+    * */
+    @Override
+    public BigDecimal getContractReceivedAmountByProjectId(Long id){
+        BigDecimal cost = BigDecimal.ZERO;
+        List<ProjectConstract> byProjectIdAndStatus = projectConstractRepository.findByProjectIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
+
+        for (ProjectConstract projectConstract : byProjectIdAndStatus) {
+            if (projectConstract.getReceivedPrice() != null) {
+                cost = cost.add(projectConstract.getReceivedPrice());
+            }
+        }
+
+        return cost;
     }
 
     /** 计算当前安排单的物资成本
@@ -252,7 +296,149 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         return cost;
     }
 
+    //---------------计算各类成本 通过projectId
 
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyCostByProjectId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByProjectId(id);
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getBuyPrice() != null) {
+                cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByProjectId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getBuyPrice() != null) {
+                cost += projectChargeitem.getBuyPrice().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的物资成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getSupplyQuotationByQuotationId(Long id) {
+        long cost = 0L;
+
+        // 计算物资的成本
+        List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByQuotationId(id);
+        for (ProjectSupply projectSupply : projectSupplyList) {
+            if (projectSupply.getUnitFee() != null) {
+                cost += projectSupply.getUnitFee().longValue() * projectSupply.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的收费项安排
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getChargeItemQuotationByQuotationId(Long id) {
+        long cost = 0;
+
+        // 计算收费项的成本
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
+        for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+            if (projectChargeitem.getUnitFee() != null) {
+                cost += projectChargeitem.getUnitFee().longValue() * projectChargeitem.getQuantity();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的采购成本
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getProcurementCostByProjectId(Long id) {
+        long cost = 0;
+
+        List<ProcurementPayment> byProjectId = procurementPaymentRepository.findByProjectId(id);
+        for (ProcurementPayment procurementPayment : byProjectId) {
+            if(procurementPayment.getAmount() != null) {
+                cost += procurementPayment.getAmount();
+            }
+        }
+
+        // 计算采购的成本 TODO 没有projectID
+/*
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectId(id);
+        for (ProcurementItem procurementItem : procurementItemList) {
+            if(procurementItem.getBuyPrice() != null) {
+                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            }
+        }
+*/
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getReimburseCostByProjectId(Long id) {
+        long cost = 0;
+        System.out.println("id:"+id);
+        // 计算报销的成本
+        List<ProjectReimburse> projectReimburseList = projectReimburseRepository.findByProjectId(id);
+        for (ProjectReimburse projectReimburse : projectReimburseList) {
+            if(projectReimburse.getPaidPrice() != null) {
+                cost += projectReimburse.getPaidPrice().longValue();
+            }
+        }
+
+        return cost;
+    }
+
+    /** 计算当前安排单的报销
+     * @param id
+     * @return
+     */
+    @Override
+    public Long getCategoryOutSourceCostByProjectId(Long id) {
+        long cost = 0;
+
+        // 计算委外的成本
+        List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByProjectId(id);
+        for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
+            if(projectCategoryOutsource.getPaidPrice() != null) {
+                cost += projectCategoryOutsource.getPaidPrice().longValue();
+            }
+        }
+
+        return cost;
+    }
 
 
 
@@ -376,15 +562,53 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     }
 
     @Override
+    @Transactional
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq){
+
+        if(saveReq.getProjectCategoryType()!=null){
+
+            saveReq.getSupplyList().forEach(supply -> {
+                supply.setProjectId(saveReq.getProjectId());
+                supply.setQuotationId(saveReq.getProjectQuotationId());
+            });
+            if(saveReq.getCategoryList()!=null&&!saveReq.getCategoryList().isEmpty()){
+                saveReq.getChargeList().forEach(charge -> {
+                    for (ProjectCategoryQuotationVO projectCategoryQuotationVO : saveReq.getCategoryList()) {
+                        if(projectCategoryQuotationVO.getIsOld()&&Objects.equals(projectCategoryQuotationVO.getOriginId(),charge.getProjectCategoryId())){
+                            charge.setProjectCategoryId(projectCategoryQuotationVO.getId());
+                        }
+                    }
+                    charge.setProjectId(saveReq.getProjectId());
+                    charge.setQuotationId(saveReq.getProjectQuotationId());
+                });
+            }else{
+                saveReq.getChargeList().forEach(charge -> {
+                    charge.setProjectId(saveReq.getProjectId());
+                    charge.setQuotationId(saveReq.getProjectQuotationId());
+                });
+            }
+
+        }
+
         //批量保存saveReq中的supplyList
        projectSupplyRepository.saveAll(saveReq.getSupplyList());
        projectChargeitemRepository.saveAll(saveReq.getChargeList());
+
+
+
+       // 更新报价金额
+//       accountSalesleadQuotation(saveReq.getProjectId());
+
     }
 
     @Override
+    @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO){
         salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()),updateReqVO.getProjectId());
+//        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
+        projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(),updateReqVO.getQuotationId());
+        projectQuotationRepository.updateOriginPriceById(updateReqVO.getQuotationAmount(),updateReqVO.getQuotationId());
+        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(),updateReqVO.getQuotationAmount());
         return null;
     }
 
@@ -410,6 +634,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         ProjectCategory categoryDo = projectCategoryMapper.toEntity(category);
         ProjectCategory save = projectCategoryRepository.save(categoryDo);
+
+        //注入一下todo
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
 
 
         // 保存收费项
@@ -470,16 +697,22 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         //TODO 改为enum
 
         if(category.getType()!=null&&category.getType().equals("quotation")){
-            //核算对应项目的商机的公司报价总价
-            Long supplyQuotation = getSupplyQuotationByScheduleId(save.getScheduleId());
-            Long chargeQuotation = getChargeItemQuotationByScheduleId(save.getScheduleId());
-
-            salesleadRepository.updateQuotationByProjectId(save.getProjectId(),supplyQuotation+chargeQuotation);
+//            accountSalesleadQuotation(save.getProjectId());
         }
 
-
+        // 修改报价金额
+//        accountSalesleadQuotation(save.getProjectId());
         return save.getId();
     }
+
+    public void accountSalesleadQuotation(Long projectId,Long quotationId) {
+        //核算对应项目的商机的公司报价总价
+        Long supplyQuotation = getSupplyQuotationByQuotationId(quotationId);
+        Long chargeQuotation = getChargeItemQuotationByQuotationId(quotationId);
+
+        salesleadRepository.updateQuotationByProjectId(projectId, BigDecimal.valueOf(supplyQuotation+chargeQuotation));
+    }
+
 
     @Override
     public void updateProjectSchedule(ProjectScheduleUpdateReqVO updateReqVO) {
@@ -490,6 +723,19 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectScheduleRepository.save(updateObj);
     }
 
+
+    public String replaceCustomTaskString(String originString, String replacement, Long categoryId) {
+        // 创建一个正则表达式，匹配符合特定模式的子串
+        String regexPattern = "<a\\sdata-w-e-type=\"taskDom\"\\sdata-w-e-id=\"" + categoryId + "\".*?<\\/a>";
+        Pattern pattern = Pattern.compile(regexPattern, Pattern.DOTALL);
+
+        // 使用正则表达式的 replace 方法替换匹配的子串
+        String result = pattern.matcher(originString).replaceAll(replacement);
+
+        return result;
+    }
+
+
     @Override
     @Transactional
     public void updateSchedulePlanByContentHtml(ProjectScheduleUpdatePlanReqVO updateReqVO){
@@ -497,9 +743,12 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         //把projectSchedule的planText字符串中等于updateReqVO的contentHtml的 替换为 updateReqVO的newContentHtml
         String planText = projectSchedule.getPlanText();
-        String contentHtml = updateReqVO.getContentHtml();
+//        String contentHtml = updateReqVO.getContentHtml();
         String newContentHtml = updateReqVO.getNewContentHtml();
-        String replace = planText.replace(contentHtml, newContentHtml);
+        if(newContentHtml.equals(updateReqVO.getProjectCategoryId().toString())){
+            newContentHtml = updateReqVO.getProjectCategoryContent();
+        }
+        String replace = replaceCustomTaskString(planText,newContentHtml,updateReqVO.getProjectCategoryId());
         projectScheduleRepository.updatePlanTextById(replace,updateReqVO.getScheduleId());
 
         //更新projectCategory的content

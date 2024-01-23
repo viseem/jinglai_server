@@ -2,21 +2,15 @@ package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 实验产品入库 Entity
@@ -45,6 +39,12 @@ public class ProductIn extends BaseEntity {
     private Long projectId;
 
     /**
+     * 客户 id
+     */
+    @Column(name = "customer_Id", nullable = false)
+    private Long customerId;
+
+    /**
      * JPA 级联出 user
      */
     @OneToOne(fetch = FetchType.EAGER)
@@ -58,7 +58,7 @@ public class ProductIn extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 实验名目库的名目 id

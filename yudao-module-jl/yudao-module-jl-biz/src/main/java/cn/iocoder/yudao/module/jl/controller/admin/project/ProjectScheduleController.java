@@ -81,6 +81,7 @@ public class ProjectScheduleController {
     @PutMapping("/update")
     @Operation(summary = "更新项目安排单")
     @PreAuthorize("@ss.hasPermission('jl:project-schedule:update')")
+    @OperateLog(enable = false)
     public CommonResult<Boolean> updateProjectSchedule(@Valid @RequestBody ProjectScheduleUpdateReqVO updateReqVO) {
         projectScheduleService.updateProjectSchedule(updateReqVO);
         return success(true);

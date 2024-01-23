@@ -28,13 +28,14 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "流程实例id")
     private String processInstanceId;
 
-    @Schema(description = "品系品种", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "品系品种不能为空")
+    @Schema(description = "品系品种")
     private String breed;
 
-    @Schema(description = "周龄体重", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "周龄体重不能为空")
+    @Schema(description = "周龄")
     private String age;
+
+    @Schema(description = "体重")
+    private String weight;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "数量不能为空")
@@ -66,15 +67,13 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "开始日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "开始日期不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String startDate;
+    private LocalDateTime startDate;
 
-    @Schema(description = "结束日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "结束日期不能为空")
+    @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String endDate;
+    private LocalDateTime endDate;
 
-    @Schema(description = "有无传染性等实验", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "有无传染性等实验不能为空")
+    @Schema(description = "有无传染性等实验")
     private Boolean hasDanger;
 
     @Schema(description = "水迷宫等设备需求id：先做成字典")
@@ -109,4 +108,8 @@ public class AnimalFeedOrderBaseVO {
 
     @Schema(description = "入库备注")
     private String inMark;
+    @Schema(description = "位置")
+    private String location;
+    @Schema(description = "位置")
+    private String locationCode;
 }

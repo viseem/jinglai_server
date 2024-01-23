@@ -9,15 +9,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目实验委外 Entity
@@ -149,7 +144,7 @@ public class ProjectCategoryOutsource extends BaseEntity {
     /*
     * 已打款金额
     * */
-    @Transient
+    @Column(name = "paid_price")
     private BigDecimal paidPrice;
 
     // ---------------------级联表
@@ -162,7 +157,7 @@ public class ProjectCategoryOutsource extends BaseEntity {
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @Where(clause = "type = '1'")
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<FinancePayment> payments = new ArrayList<>();
+    private List<FinancePayment> paymentList = new ArrayList<>();
 
 
 }

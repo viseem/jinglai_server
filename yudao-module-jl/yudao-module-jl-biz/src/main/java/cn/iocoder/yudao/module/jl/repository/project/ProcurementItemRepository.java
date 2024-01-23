@@ -12,6 +12,18 @@ import java.util.List;
 *
 */
 public interface ProcurementItemRepository extends JpaRepository<ProcurementItem, Long>, JpaSpecificationExecutor<ProcurementItem> {
+    @Query("select p from ProcurementItem p where p.productCode like concat(?1, '%')")
+    List<ProcurementItem> findByProductCodeStartsWith(String productCode);
+    @Query("select p from ProcurementItem p where p.productCode = ?1")
+    List<ProcurementItem> findByProductCode(String productCode);
+    @Query("select p from ProcurementItem p where p.supplierId = ?1")
+    List<ProcurementItem> findBySupplierId(Long supplierId);
+    @Query("select p from ProcurementItem p where p.projectId = ?1")
+    List<ProcurementItem> findByProjectId(Long projectId);
+    @Transactional
+    @Modifying
+    @Query("update ProcurementItem p set p.status = ?1 where p.procurementId = ?2")
+    int updateStatusByProcurementId(String status, Long procurementId);
     @Query("select p from ProcurementItem p where p.scheduleId = ?1")
     List<ProcurementItem> findByScheduleId(Long scheduleId);
     @Transactional

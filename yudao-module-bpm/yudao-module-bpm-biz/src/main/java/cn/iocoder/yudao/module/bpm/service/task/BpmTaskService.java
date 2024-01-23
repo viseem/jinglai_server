@@ -84,6 +84,14 @@ public interface BpmTaskService {
     void approveTask(Long userId, @Valid BpmTaskApproveReqVO reqVO);
 
     /**
+     * 删除任务
+     *
+     * @param userId 用户编号
+     * @param reqVO  通过请求
+     */
+    void deleteTask( @Valid BpmTaskApproveReqVO reqVO);
+
+    /**
      * 不通过任务
      *
      * @param userId 用户编号

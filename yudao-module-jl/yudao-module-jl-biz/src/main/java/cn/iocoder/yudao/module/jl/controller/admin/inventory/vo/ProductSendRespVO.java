@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.ProductSendItem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -22,7 +22,7 @@ public class ProductSendRespVO extends ProductSendBaseVO {
 
     private List<ProductSendItem> items;
 
-    private ProjectOnly  project;
+    private ProjectSimple project;
 
     private User user;
 }

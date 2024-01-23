@@ -19,6 +19,8 @@ public class ProjectChargeitemPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    private Long quotationId;
+
     @Schema(description = "选中的实验名目 id", example = "11056")
     private Long projectCategoryId;
 

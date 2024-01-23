@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -16,13 +19,8 @@ import com.alibaba.excel.annotation.ExcelProperty;
  * @author 惟象科技
  */
 @Data
+@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER,verticalAlignment= VerticalAlignmentEnum.CENTER)//内容样式
 public class AnimalFeedOrderExcelVO {
-
-    @ExcelProperty("ID")
-    private Long id;
-
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
 
     @ExcelProperty("饲养单名字")
     private String name;
@@ -30,58 +28,46 @@ public class AnimalFeedOrderExcelVO {
     @ExcelProperty("编号")
     private String code;
 
+    @ExcelProperty("客户")
+    private String customerName;
+
+    @ExcelProperty("客户对接人")
+    private String serviceName;
+
     @ExcelProperty("品系品种")
     private String breed;
 
-    @ExcelProperty("周龄体重")
-    private String age;
+    @ExcelProperty("饲养位置")
+    private String location;
 
-    @ExcelProperty("数量")
-    private Integer quantity;
+    @ExcelProperty("位置代码")
+    private String locationCode;
 
-    @ExcelProperty("雌")
-    private Integer femaleCount;
+    @ExcelProperty("饲养方式")
+    private String feedType;
 
-    @ExcelProperty("雄")
-    private Integer maleCount;
-
-    @ExcelProperty("供应商id")
-    private Long supplierId;
-
-    @ExcelProperty("供应商名字")
-    private String supplierName;
-
-    @ExcelProperty("合格证号")
-    private String certificateNumber;
-
-    @ExcelProperty("许可证号")
-    private String licenseNumber;
-
-    @ExcelProperty("开始日期")
+    @ExcelProperty("饲养开始日期")
     private LocalDateTime startDate;
 
-    @ExcelProperty("结束日期")
+    @ExcelProperty("饲养结束日期")
     private LocalDateTime endDate;
 
-    @ExcelProperty("有无传染性等实验")
-    private Boolean hasDanger;
+    @ExcelProperty("饲养笼数")
+    private Integer cageQuantity;
 
-    @ExcelProperty("饲养类型：普通饲养")
-    private String feedType;
+    @ExcelProperty("饲养只数")
+    private Integer quantity;
+
+    @ExcelProperty("现有笼数")
+    private Integer latestCageQuantity;
+
+    @ExcelProperty("现有只数")
+    private Integer latestQuantity;
 
     @ExcelProperty("备注")
     private String mark;
 
-    @ExcelProperty("项目id")
-    private Long projectId;
-
-    @ExcelProperty("客户id")
-    private Long customerId;
-
     @ExcelProperty("状态")
     private String stage;
-
-    @ExcelProperty("回复")
-    private String reply;
 
 }

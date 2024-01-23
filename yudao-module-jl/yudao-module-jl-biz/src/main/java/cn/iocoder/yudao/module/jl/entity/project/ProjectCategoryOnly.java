@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachme
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -120,9 +121,21 @@ public class ProjectCategoryOnly extends BaseEntity {
     private String mark;
 
     /**
+     * 周期
+     */
+    @Column(name = "cycle")
+    private String cycle;
+
+    /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */
     @Column(name = "stage")
     private String stage;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 
 }

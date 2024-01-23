@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.*;
 
@@ -10,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -61,7 +63,7 @@ public class Saleslead extends BaseEntity {
      * 报价
      */
     @Column(name = "quotation")
-    private Long quotation;
+    private BigDecimal quotation;
 
     @Column(name = "quotation_price")
     private Long quotationPrice;
@@ -110,6 +112,37 @@ public class Saleslead extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
+    /**
+     * 指派备注
+     */
+    @Column(name = "assign_mark")
+    private String assignMark;
+
+
+    /**
+     * 商机变动日志
+     */
+    @Column(name = "json_log")
+    private String jsonLog;
+
+    /**
+     * 报价备注
+     */
+    @Column(name = "quotation_mark")
+    private String quotationMark;
+
+    /**
+     * 报价附件
+     */
+    @Column(name = "quotation_json_file")
+    private String quotationJsonFile;
+
+    /**
+     * 报价的创建时间
+     */
+    @Column(name = "quotation_create_time")
+    private LocalDateTime quotationCreateTime;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -132,7 +165,7 @@ public class Saleslead extends BaseEntity {
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName="id", insertable = false, updatable = false)
-    private Project project;
+    private ProjectSimple project;
 
     @OneToMany
     @NotFound(action = NotFoundAction.IGNORE)

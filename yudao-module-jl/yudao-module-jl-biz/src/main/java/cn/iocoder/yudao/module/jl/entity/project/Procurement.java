@@ -92,6 +92,16 @@ public class Procurement extends BaseEntity {
      */
     @Column(name = "address")
     private String address;
+    /**
+     * 附件地址
+     */
+    @Column(name = "file_url")
+    private String fileUrl;
+    /**
+     * 附件名称
+     */
+    @Column(name = "file_name")
+    private String fileName;
 
     /**
      * 是否有要签收的
@@ -116,6 +126,30 @@ public class Procurement extends BaseEntity {
      */
     @Column(name = "receiver_user_id")
     private String receiverUserId;
+
+    /**
+     * 收货类型
+     */
+    @Column(name = "receiver_type")
+    private String receiverType;
+
+    /**
+     * 收货人姓名
+     */
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    /**
+     * 收货人电话
+     */
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    /**
+     * 附件列表
+     */
+    @Column(name = "attachments")
+    private String attachments;
 
     /**
      * 流程实例id

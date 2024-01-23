@@ -1,18 +1,24 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectFund;
-import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +45,8 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 客户 Service 实现类
@@ -56,6 +64,9 @@ public class CustomerServiceImpl implements CustomerService {
     private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
@@ -63,6 +74,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private CustomerSimpleRepository customerSimpleRepository;
+
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
+
+    @Resource
+    private CrmSubjectGroupRepository crmSubjectGroupRepository;
 
     @Resource
     private CustomerMapper customerMapper;
@@ -78,8 +95,18 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
 
+        // 查询手机号是否存在
+        CustomerOnly byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
+        if(byPhone!=null){
+            return 0L;
+        }
+
         if(!createReqVO.getIsSeas()){
             createReqVO.setSalesId(getLoginUserId());
+        }
+
+        if(createReqVO.getIsSeas()){
+            createReqVO.setToCustomer(false);
         }
 
         // 插入
@@ -96,6 +123,16 @@ public class CustomerServiceImpl implements CustomerService {
         // 更新
         Customer updateObj = customerMapper.toEntity(updateReqVO);
         customerRepository.save(updateObj);
+    }
+
+    @Override
+    public CustomerOnly updateAppCustomer(AppCustomerUpdateReqVO updateReqVO) {
+        // 校验存在
+        CustomerOnly customer = validateSimpleCustomerExists(updateReqVO.getId());
+        //copy对象
+        BeanUtils.copyProperties(updateReqVO,customer);
+        // 更新
+        return customerSimpleRepository.save(customer);
     }
 
     @Override
@@ -134,9 +171,23 @@ public class CustomerServiceImpl implements CustomerService {
         return byId.get();
     }
 
+    private CustomerOnly validateSimpleCustomerExists(Long id) {
+
+        Optional<CustomerOnly> byId = customerSimpleRepository.findById(id);
+        if(!byId.isPresent()){
+            throw exception(CUSTOMER_NOT_EXISTS);
+        }
+        return byId.get();
+    }
+
     @Override
     public Optional<Customer> getCustomer(Long id) {
-        return customerRepository.findById(id);
+        Optional<Customer> byId = customerRepository.findById(id);
+        Customer customer = byId.get();
+        if(customer.getSubjectGroupIds() != null&&!customer.getSubjectGroupIds().isEmpty()){
+            customer.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
+        }
+        return byId;
     }
 
     @Override
@@ -148,9 +199,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public PageResult<Customer> getCustomerPage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
-        //获取attributeUsers
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        pageReqVO.setCreators(users);
+
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -159,16 +208,50 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<Customer> spec = (root, query, cb) -> {
+        Specification<Customer> spec = getCustomerSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Customer> page = customerRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private <T>Specification<T> getCustomerSpecification(CustomerPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+            //获取attributeUsers
+
+
+                //如果不是any，则都是in查询
+            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
+                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                pageReqVO.setCreators(users);
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
+
+            if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
+                predicates.add(root.get("salesId").isNull());
+            }else{
+                predicates.add(cb.greaterThan(root.get("salesId"), 0));
+            }
+
+
+            if(pageReqVO.getSubjectGroupId() != null) {
+                mysqlFindInSet(pageReqVO.getSubjectGroupId(),"subjectGroupIds", root, cb, predicates);
+            }
+
+/*           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-               }else{
+               }
+
+               if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
                    predicates.add(root.get("salesId").isNull());
                }
-           }
+           }*/
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
@@ -255,10 +338,8 @@ public class CustomerServiceImpl implements CustomerService {
 
             if(pageReqVO.getLastFollowupTime() != null) {
                 predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
-            } 
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
+
 
             if(pageReqVO.getLastFollowupId() != null) {
                 predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
@@ -271,12 +352,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Customer> page = customerRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
 
@@ -293,115 +369,7 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<CustomerOnly> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            //增加查询条件 salesId大于0
-            predicates.add(cb.greaterThan(root.get("salesId"), 0));
-
-
-            if(pageReqVO.getToCustomer() != null) {
-                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
-            }
-
-            if(pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
-            }
-
-            if(pageReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
-            }
-
-            if(pageReqVO.getPhone() != null) {
-                predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
-            }
-
-            if(pageReqVO.getEmail() != null) {
-                predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
-            }
-
-            if(pageReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
-            }
-
-            if(pageReqVO.getWechat() != null) {
-                predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
-            }
-
-            if(pageReqVO.getDoctorProfessionalRank() != null) {
-                predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
-            }
-
-            if(pageReqVO.getHospitalDepartment() != null) {
-                predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
-            }
-
-            if(pageReqVO.getAcademicTitle() != null) {
-                predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
-            }
-
-            if(pageReqVO.getAcademicCredential() != null) {
-                predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
-            }
-
-            if(pageReqVO.getHospitalId() != null) {
-                predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
-            }
-
-            if(pageReqVO.getUniversityId() != null) {
-                predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
-            }
-
-            if(pageReqVO.getCompanyId() != null) {
-                predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
-            }
-
-            if(pageReqVO.getProvince() != null) {
-                predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
-            }
-
-            if(pageReqVO.getCity() != null) {
-                predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
-            }
-
-            if(pageReqVO.getArea() != null) {
-                predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
-            }
-
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
-
-            if(pageReqVO.getDealCount() != null) {
-                predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
-            }
-
-            if(pageReqVO.getDealTotalAmount() != null) {
-                predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
-            }
-
-            if(pageReqVO.getArrears() != null) {
-                predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
-            }
-
-            if(pageReqVO.getLastFollowupTime() != null) {
-                predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
-            }
-            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }
-
-            if(pageReqVO.getLastFollowupId() != null) {
-                predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
-            }
-
-            if(pageReqVO.getLastSalesleadId() != null) {
-                predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<CustomerOnly> spec = getCustomerSpecification(pageReqVO);
 
         // 执行查询
         Page<CustomerOnly> page = customerSimpleRepository.findAll(spec, pageable);
@@ -540,35 +508,35 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerStatisticsRespVO getCustomerStatistics(Long id) {
         //查询已经签订的合同
         List<ProjectConstract> byCustomerIdAndStatus = projectConstractRepository.findByCustomerIdAndStatus(id, ProjectContractStatusEnums.SIGNED.getStatus());
-        Integer dealCount = byCustomerIdAndStatus.size();
+
+        // 项目个数
+        Integer dealCount = projectSimpleRepository.countByCodeNotNullAndCustomerId(id);
+        Integer projectDoingCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.DOING.getStatus(),id);
+        Integer projectOutedCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.OUTED.getStatus(),id);
+
         //计算客户的成交总金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
-            dealTotalAmount = dealTotalAmount.add(BigDecimal.valueOf(projectConstract.getPrice()));
+            dealTotalAmount = dealTotalAmount.add(projectConstract.getPrice());
         }
-        //查询客户的款项
-        List<ProjectFund> funds = projectFundRepository.findByCustomerId(id);
         //查询客户的款项记录
-        List<ProjectFundLog> fundLogs = projectFundLogRepository.findByCustomerId(id);
-        //计算客户的款项总额
-        BigDecimal amount = new BigDecimal(0);
-        for (ProjectFund fund : funds) {
-            amount = amount.add(BigDecimal.valueOf(fund.getPrice()));
-        }
+        List<ContractFundLog> fundLogs = contractFundLogRepository.findByCustomerId(id);
         //计算客户的已付款项总额
         BigDecimal paidAmount = new BigDecimal(0);
-        for (ProjectFundLog fundLog : fundLogs) {
-            paidAmount = paidAmount.add(BigDecimal.valueOf(fundLog.getPrice()));
+        for (ContractFundLog fundLog : fundLogs) {
+            if (Objects.equals(fundLog.getStatus(),ContractFundStatusEnums.AUDITED.getStatus())){
+                paidAmount = paidAmount.add(fundLog.getReceivedPrice());
+            }
         }
-        //计算客户的欠款总额
-        BigDecimal arrears = amount.subtract(paidAmount);
         //赋值返回值
         CustomerStatisticsRespVO customerStatisticsRespVO = new CustomerStatisticsRespVO();
         customerStatisticsRespVO.setDealCount(dealCount);
         customerStatisticsRespVO.setDealAmount(dealTotalAmount);
-        customerStatisticsRespVO.setFundAmount(amount);
-        customerStatisticsRespVO.setArrearsAmount(arrears);
         customerStatisticsRespVO.setPaidAmount(paidAmount);
+//        customerStatisticsRespVO.setFundAmount(dealTotalAmount.subtract(paidAmount));
+//        customerStatisticsRespVO.setArrearsAmount(dealTotalAmount.subtract(paidAmount));
+        customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));
+        customerStatisticsRespVO.setProjectOutedCount(new BigDecimal(projectOutedCount));
         return customerStatisticsRespVO;
     }
 
@@ -578,6 +546,8 @@ public class CustomerServiceImpl implements CustomerService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

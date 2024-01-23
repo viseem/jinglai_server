@@ -2,8 +2,13 @@ package cn.iocoder.yudao.module.jl.service.financepayment;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
+import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectReimburseServiceImpl;
+import cn.iocoder.yudao.module.jl.service.projectcategory.ProjectCategoryOutsourceServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -52,39 +57,59 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
     @Resource
     private FinancePaymentMapper financePaymentMapper;
 
+    @Resource
+    private ProjectCategoryOutsourceServiceImpl projectCategoryOutsourceService;
+
+    @Resource
+    private ProjectReimburseServiceImpl projectReimburseService;
+
     @Override
     @Transactional
     public Long createFinancePayment(FinancePaymentCreateReqVO createReqVO) {
         // 插入
         FinancePayment financePayment = financePaymentMapper.toEntity(createReqVO);
+        financePayment.setAuditStatus(BpmProcessInstanceResultEnum.APPROVE.getResult().toString());
         financePaymentRepository.save(financePayment);
 
         // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
+/*        Map<String, Object> processInstanceVariables = new HashMap<>();
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(financePayment.getId())));
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(financePayment.getId())));*/
 
 
         //更新流程实例id
-        financePaymentRepository.updateProcessInstanceIdById(processInstanceId, financePayment.getId());
+//        financePaymentRepository.updateProcessInstanceIdById(processInstanceId, financePayment.getId());
 
         // 返回
         return financePayment.getId();
     }
 
     @Override
+    @Transactional
     public void updateFinancePayment(FinancePaymentUpdateReqVO updateReqVO) {
         // 校验存在
         validateFinancePaymentExists(updateReqVO.getId());
 
-        if(updateReqVO.getPaymentUrl()!=null){
+
+        //核对了打款
+        if(updateReqVO.getIsAudit()){
             updateReqVO.setAuditStatus(FinancePaymentEnums.PAYED.getStatus());
             updateReqVO.setAuditUserId(getLoginUserId());
         }
         // 更新
         FinancePayment updateObj = financePaymentMapper.toEntity(updateReqVO);
         financePaymentRepository.save(updateObj);
+
+        // 更新已打款金额
+        if(updateReqVO.getRefId()!=null){
+            if(Objects.equals(updateReqVO.getType(), "1")){
+                projectCategoryOutsourceService.updatePaidPrice(updateObj.getRefId());
+            }else if(Objects.equals(updateReqVO.getType(), "2")){
+                projectReimburseService.updatePaidPrice(updateObj.getRefId());
+            }
+        }
+
     }
 
     @Override
@@ -179,6 +204,7 @@ public class FinancePaymentServiceImpl implements FinancePaymentService {
 
     @Override
     public List<FinancePayment> getFinancePaymentList(FinancePaymentExportReqVO exportReqVO) {
+
         // 创建 Specification
         Specification<FinancePayment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

@@ -23,4 +23,7 @@ public class LaboratoryUserRespVO extends LaboratoryUserBaseVO {
 
     @Schema(description = "实验室")
     private LaboratoryLab lab;
+
+    private Integer notDoCount;
+    private Integer doingCount;
 }

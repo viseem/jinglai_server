@@ -4,7 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedCard;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
-    private ProjectOnly project;
+    private ProjectSimple project;
     private CustomerOnly customer;
 
     private List<AnimalFeedCard> cards;
@@ -35,4 +35,5 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
 
     private AnimalFeedLog latestLog;
     private Integer amount;
+    private Integer dayCount;
 }

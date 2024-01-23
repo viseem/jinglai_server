@@ -2,10 +2,14 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 项目采购单打款 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -24,10 +28,11 @@ public class ProcurementPaymentBaseVO {
 
     @Schema(description = "打款时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "打款时间不能为空")
-    private String paymentDate;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime paymentDate;
 
     @Schema(description = "打款金额")
-    private String amount;
+    private Long amount;
 
     @Schema(description = "供货商 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "14390")
     @NotNull(message = "供货商 id不能为空")

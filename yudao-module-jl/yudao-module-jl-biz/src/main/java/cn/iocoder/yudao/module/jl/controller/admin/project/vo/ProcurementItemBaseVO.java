@@ -2,10 +2,15 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 项目采购单申请明细 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -13,6 +18,24 @@ import javax.validation.constraints.*;
  */
 @Data
 public class ProcurementItemBaseVO {
+    @Schema(description = "原价")
+    private Integer originPrice = 0;
+
+    @Schema(description = "运费")
+    private BigDecimal freight = BigDecimal.valueOf(0);
+
+    @Schema(description = "退款凭证json")
+    private String refundReceipts;
+
+    @Schema(description = "退货总个数")
+    private Long refundAmount;
+
+    @Schema(description = "退款数量")
+    private Long refundQuantity;
+
+    @Schema(description = "预计到达日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime arrivalDate;
 
     @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26560")
     @NotNull(message = "采购单id不能为空")
@@ -28,16 +51,16 @@ public class ProcurementItemBaseVO {
 
     private Long scheduleId;
 
-    @Schema(description = "采购规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "采购规则/单位不能为空")
+    @Schema(description = "采购规则/单位")
     private String feeStandard;
 
-    @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单价不能为空")
+    @Schema(description = "规格")
+    private String spec;
+
+    @Schema(description = "单价")
     private String unitFee;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount = 0;
 
     @Schema(description = "采购数量", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -67,6 +90,9 @@ public class ProcurementItemBaseVO {
 
     @Schema(description = "品牌")
     private String brand;
+
+    @Schema(description = "货号")
+    private String productCode;
 
     @Schema(description = "目录号")
     private String catalogNumber;

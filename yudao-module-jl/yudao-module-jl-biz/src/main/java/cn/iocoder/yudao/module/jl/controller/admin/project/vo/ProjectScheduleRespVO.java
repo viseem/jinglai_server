@@ -18,5 +18,5 @@ public class ProjectScheduleRespVO extends ProjectScheduleBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
-    private List<ProjectCategory> categoryList;
+//    private List<ProjectCategory> categoryList;
 }

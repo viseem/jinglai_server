@@ -26,5 +26,10 @@ public class CustomerStatisticsRespVO {
     //欠款总额
     @Schema(description = "欠款总额")
     private BigDecimal arrearsAmount;
-
+    //在做的项目个数
+    @Schema(description = "在做的项目个数")
+    private BigDecimal projectDoingCount;
+    //出库的项目个数
+    @Schema(description = "出库的项目个数")
+    private BigDecimal projectOutedCount;
 }

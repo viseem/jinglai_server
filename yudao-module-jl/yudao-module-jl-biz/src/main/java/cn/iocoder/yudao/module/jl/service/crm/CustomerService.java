@@ -28,6 +28,8 @@ public interface CustomerService {
      */
     void updateCustomer(@Valid CustomerUpdateReqVO updateReqVO);
 
+    CustomerOnly updateAppCustomer(@Valid AppCustomerUpdateReqVO updateReqVO);
+
     /**
      * 更新客户
      *

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +42,12 @@ public class SupplierServiceImpl implements SupplierService {
     @Resource
     private SupplierMapper supplierMapper;
 
+    @Resource
+    private ProcurementPaymentServiceImpl procurementPaymentService;
+
+    @Resource
+    private ProjectSupplierInvoiceServiceImpl projectSupplierInvoiceService;
+
     @Override
     public Long createSupplier(SupplierCreateReqVO createReqVO) {
         // 插入
@@ -74,6 +81,14 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public Optional<Supplier> getSupplier(Long id) {
         return supplierRepository.findById(id);
+    }
+
+    @Override
+    public SupplierStatsRespVO getSupplierStats(Long id) {
+        SupplierStatsRespVO supplierStatsRespVO = new SupplierStatsRespVO();
+        supplierStatsRespVO.setFundAmount(procurementPaymentService.sumAmountBySupplierId(id));
+        supplierStatsRespVO.setInvoiceAmount(projectSupplierInvoiceService.sumAmountBySupplierId(id));
+        return supplierStatsRespVO;
     }
 
     @Override

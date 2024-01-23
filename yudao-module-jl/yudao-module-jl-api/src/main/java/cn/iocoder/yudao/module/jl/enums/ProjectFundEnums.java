@@ -15,9 +15,10 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ProjectFundEnums implements StringArrayValuable {
-    ALL_PAY("ALL_PAY", "已收齐"),
-    PART("PART", "未收齐"),
-    NO("END", "未收款"),
+    BILL_PAID("2", "已开票已支付"),
+    BILL_UNPAID("4", "已开票未支付"),
+    UNBILL_PAID("1", "未开票已支付"),
+    UNBILL_UNPAID("3", "未开票未支付"),
     ;
 
     private final String status;

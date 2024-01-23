@@ -1,9 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
-import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -12,12 +20,16 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +39,7 @@ import org.springframework.data.domain.Sort;
 import javax.persistence.criteria.Predicate;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
@@ -40,7 +53,6 @@ import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
  * 项目合同 Service 实现类
- *
  */
 @Service
 @Validated
@@ -60,53 +72,137 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @Resource
     private ProjectRepository projectRepository;
 
-    @PostConstruct
+    @Resource
+    private ProjectDocumentServiceImpl projectDocumentService;
+
+/*    @PostConstruct
     public void ProjectConstractServiceImpl() {
         ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
         uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CONTRACT_CODE_DEFAULT_PREFIX);
-    }
+    }*/
 
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        return String.format("%s%s%04d", "contractx", dateStr, uniqCodeGenerator.generateUniqUid());
     }
-
 
 
     @Resource
+    private CustomerSimpleRepository customerSimpleRepository;
+    @Resource
     private ProjectConstractMapper projectConstractMapper;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
+    @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
-        Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
-        if (byId.isEmpty()){
-            throw  exception(PROJECT_NOT_EXISTS);
+
+        // 如果有项目id，则校验项目是否存在
+        if(createReqVO.getProjectId()!=null&& createReqVO.getProjectId()>0){
+            ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+            createReqVO.setCustomerId(projectSimple.getCustomerId());
+            createReqVO.setSalesId(projectSimple.getSalesId());
+        }else{
+            createReqVO.setProjectId(null);
+        }
+
+        if(createReqVO.getCustomerId()!=null){
+            Optional<CustomerOnly> customerOnlyOptional = customerSimpleRepository.findById(createReqVO.getCustomerId());
+            if (customerOnlyOptional.isEmpty()) {
+                throw exception(CUSTOMER_NOT_EXISTS);
+            }
+            createReqVO.setSalesId(customerOnlyOptional.get().getSalesId());
+        }
+
+
+/*
+        if (createReqVO.getProjectId() != null&& createReqVO.getProjectId()>0) {
+            Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
+            if (byId.isEmpty()) {
+                throw exception(PROJECT_NOT_EXISTS);
+            }
+        }else{
+            createReqVO.setProjectId(null);
+        }
+*/
+
+        ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
+        if (bySn != null) {
+            return 0L;
         }
 
         // 插入
-        createReqVO.setSn(generateCode());
+//        createReqVO.setSn(generateCode());
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
-        if (projectConstract.getRealPrice()==null){
-            projectConstract.setRealPrice(Math.toIntExact(projectConstract.getPrice()));
+        if (projectConstract.getRealPrice() == null) {
+            projectConstract.setRealPrice(projectConstract.getPrice() == null ? BigDecimal.valueOf(0) : projectConstract.getPrice());
         }
-        projectConstract.setStatus("1");
-        projectConstract.setCustomerId(byId.get().getCustomerId());
-        projectConstract.setSalesId(getLoginUserId());
-        projectConstractRepository.save(projectConstract);
+        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
+//        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
+//        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
+//        projectConstract.setStampFileName(createReqVO.getFileName());
+        projectConstract.setCustomerId(createReqVO.getCustomerId());
+        projectConstract.setSalesId(createReqVO.getSalesId());
+        ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
+
+        //projectDocument存一份
+//        Long projectDocumentId = projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(), createReqVO.getFileName(), createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+
+        //更新document id
+//        projectConstractRepository.updateProjectDocumentIdById(projectDocumentId, projectContractSave.getId());
+
         // 返回
         return projectConstract.getId();
     }
+
     public void processContractReceivedPrice(Long contractId) {
         List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByContractId(contractId);
-        int priceSum = 0;
+        BigDecimal priceSum = BigDecimal.ZERO;
+
         for (ProjectFundLog log : projectFundLogs) {
-            priceSum += log.getPrice();
+//            priceSum += log.getPrice();
+            priceSum=priceSum.add(log.getPrice());
+
         }
-        projectConstractRepository.updateReceivedPriceById(priceSum,contractId);
+        projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
     }
+
+    public void processContractReceivedPrice2(Long contractId) {
+        List<ContractFundLog> projectFundLogs = contractFundLogRepository.findAllByContractId(contractId);
+        BigDecimal priceSum = BigDecimal.ZERO;
+
+        for (ContractFundLog log : projectFundLogs) {
+            if (Objects.equals(log.getStatus(), ContractFundStatusEnums.AUDITED.getStatus()) && log.getReceivedPrice() != null) {
+//                priceSum += log.getReceivedPrice();
+                priceSum=priceSum.add(log.getReceivedPrice());
+
+            }
+        }
+        projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
+    }
+
+    public void processContractInvoicedPrice2(Long contractId) {
+        List<ContractInvoiceLog> list = contractInvoiceLogRepository.findByContractId(contractId);
+        BigDecimal priceSum = BigDecimal.ZERO;
+        for (ContractInvoiceLog log : list) {
+            if (Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus()) && log.getReceivedPrice() != null) {
+//                priceSum += log.getReceivedPrice();
+                priceSum=priceSum.add(log.getReceivedPrice());
+            }
+        }
+        projectConstractRepository.updateInvoicedPriceById(priceSum, contractId);
+    }
+
     @Override
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
         // 校验存在
@@ -118,7 +214,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public void updateProjectConstractPayStatus(ProjectConstractUpdatePayStatusReqVO updateReqVO) {
-        projectConstractRepository.updatePayStatusById(updateReqVO.getPayStatus(),updateReqVO.getId());
+        projectConstractRepository.updatePayStatusById(updateReqVO.getPayStatus(), updateReqVO.getId());
     }
 
     @Override
@@ -164,9 +260,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstractRepository.deleteById(id);
     }
 
-    private ProjectConstract validateProjectConstractExists(Long id) {
+    public ProjectConstract validateProjectConstractExists(Long id) {
         Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
-        if (byId.isEmpty()){
+        if (byId.isEmpty()) {
             throw exception(PROJECT_CONSTRACT_NOT_EXISTS);
         }
         return byId.orElse(null);
@@ -175,16 +271,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public Optional<ProjectConstract> getProjectConstract(Long id) {
         Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
-        byId.ifPresent(item->{
-            int receivedPrice = 0;
-            if (item.getFundLogs().size() > 0) {
-                receivedPrice = item.getFundLogs().stream()
-                        .mapToInt(ProjectFundLog::getPrice)
-                        .sum();
-            }
-
-            item.setReceivedPrice(receivedPrice);
-        });
         return byId;
     }
 
@@ -197,8 +283,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public PageResult<ProjectConstract> getProjectConstractPage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0) {
 
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        pageReqVO.setCreators(users);
+
 
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
@@ -209,8 +294,17 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+
+
+            if (pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            } else {
+
+                if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//                    Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                    predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                }
             }
 
             if (pageReqVO.getReceivedStatus() != null) {
@@ -236,11 +330,34 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 }
             }
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getInvoicedStatus() != null) {
+                switch (pageReqVO.getInvoicedStatus()) {
+                    case "ALL_PAY":
+                        predicates.add(cb.greaterThanOrEqualTo(root.get("invoicedPrice"), root.get("receivedPrice")));
+                        break;
+                    case "PART":
+                        predicates.add(cb.and(
+                                cb.lessThan(root.get("invoicedPrice"), root.get("receivedPrice")),
+                                cb.greaterThan(root.get("invoicedPrice"), 0)
+                        ));
+                        break;
+                    case "NO":
+                        predicates.add(cb.or(
+                                cb.equal(root.get("invoicedPrice"), 0),
+                                cb.isNull(root.get("invoicedPrice"))
+                        ));
+                        break;
+                    // Add more cases if needed
+                    default:
+                        break;
+                }
+            }
+
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getKeyword()!=null){
+            if (pageReqVO.getKeyword() != null) {
                 Predicate namePredicate = cb.like(root.get("name"), "%" + pageReqVO.getKeyword() + "%");
                 Predicate snPredicate = cb.like(root.get("sn"), "%" + pageReqVO.getKeyword() + "%");
 
@@ -249,43 +366,43 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }
 
             //如果创建时间不为空，查询创建时间在开始时间和结束时间之间的数据
-            if(pageReqVO.getCreateTime() != null){
+            if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getFileUrl() != null) {
+            if (pageReqVO.getFileUrl() != null) {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            if (pageReqVO.getIsOuted() != null) {
+                predicates.add(cb.equal(root.get("isOuted"), pageReqVO.getIsOuted()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getType() != null) {
+            if (pageReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
-            if(pageReqVO.getPrice() != null) {
+            if (pageReqVO.getPrice() != null) {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
             }
 
-            if(pageReqVO.getSalesId() != null) {
+            if (pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
-            if(pageReqVO.getSn() != null) {
+            if (pageReqVO.getSn() != null) {
                 predicates.add(cb.like(root.get("sn"), "%" + pageReqVO.getSn() + "%"));
             }
 
-            if(pageReqVO.getFileName() != null) {
+            if (pageReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
             }
 
@@ -295,24 +412,12 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
         // 执行查询
         Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
-        
-//        List<ProjectConstract> contracts = page.getContent();
-        
-        //计算已收金额
 
-/*        if (contracts.size() > 0) {
-            contracts.forEach(item -> {
-                Integer receivedPrice = 0;
-                if (item.getFundLogs().size() > 0) {
-                    receivedPrice = item.getFundLogs().stream()
-                            .mapToInt(ProjectFundLog::getPrice)
-                            .sum();
-                }
-
-                item.setReceivedPrice(receivedPrice);
-            });
-        }*/
-
+/*        page.getContent().forEach(contract -> {
+            if (contract.getApprovalList().size() > 0) {
+                contract.setLatestApproval(contract.getApprovalList().get(0));
+            }
+        });*/
 
 
         // 转换为 PageResult 并返回
@@ -333,11 +438,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         Specification<ProjectConstractOnly> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getKeyword()!=null){
+            if (pageReqVO.getKeyword() != null) {
                 Predicate namePredicate = cb.like(root.get("name"), "%" + pageReqVO.getKeyword() + "%");
                 Predicate snPredicate = cb.like(root.get("sn"), "%" + pageReqVO.getKeyword() + "%");
 
@@ -345,40 +450,40 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.or(namePredicate, snPredicate));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getFileUrl() != null) {
+            if (pageReqVO.getFileUrl() != null) {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
+            if (pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
 
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getType() != null) {
+            if (pageReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
-            if(pageReqVO.getPrice() != null) {
+            if (pageReqVO.getPrice() != null) {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
             }
 
-            if(pageReqVO.getSalesId() != null) {
+            if (pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
-            if(pageReqVO.getSn() != null) {
+            if (pageReqVO.getSn() != null) {
                 predicates.add(cb.like(root.get("sn"), "%" + pageReqVO.getSn() + "%"));
             }
 
-            if(pageReqVO.getFileName() != null) {
+            if (pageReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
             }
 
@@ -407,7 +512,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }*/
 
 
-
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
@@ -418,39 +522,39 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getFileUrl() != null) {
+            if (exportReqVO.getFileUrl() != null) {
                 predicates.add(cb.equal(root.get("fileUrl"), exportReqVO.getFileUrl()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
-            if(exportReqVO.getType() != null) {
+            if (exportReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
             }
 
-            if(exportReqVO.getPrice() != null) {
+            if (exportReqVO.getPrice() != null) {
                 predicates.add(cb.equal(root.get("price"), exportReqVO.getPrice()));
             }
 
-            if(exportReqVO.getSalesId() != null) {
+            if (exportReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), exportReqVO.getSalesId()));
             }
 
-            if(exportReqVO.getSn() != null) {
+            if (exportReqVO.getSn() != null) {
                 predicates.add(cb.equal(root.get("sn"), exportReqVO.getSn()));
             }
 
-            if(exportReqVO.getFileName() != null) {
+            if (exportReqVO.getFileName() != null) {
                 predicates.add(cb.like(root.get("fileName"), "%" + exportReqVO.getFileName() + "%"));
             }
 

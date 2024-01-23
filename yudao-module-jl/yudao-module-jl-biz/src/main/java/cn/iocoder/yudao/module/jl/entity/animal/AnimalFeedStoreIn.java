@@ -38,6 +38,12 @@ public class AnimalFeedStoreIn extends BaseEntity {
     private Long feedOrderId;
 
     /**
+     * 饲养单id
+     */
+    @Column(name = "log_id", nullable = false )
+    private Long logId;
+
+    /**
      * 房间id
      */
     @Column(name = "room_id")

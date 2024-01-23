@@ -1,7 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.asset;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectDevice;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectDeviceRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,19 +45,51 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
     @Resource
     private AssetDeviceLogMapper assetDeviceLogMapper;
 
+    @Resource
+    private ProjectDeviceRepository projectDeviceRepository;
+
     @Override
+    @Transactional
     public Long createAssetDeviceLog(AssetDeviceLogCreateReqVO createReqVO) {
+
+        // 查询新的时间段是否已经被预约
+        Long l = assetDeviceLogRepository.countOverlappingTimeRanges(createReqVO.getStartDate(), createReqVO.getEndDate(), createReqVO.getDeviceId());
+        if (l > 0) {
+            throw exception(ASSET_DEVICE_LOG_EXISTS);
+        }
+
+        // 先查询ProjectDevice里面是否有这个设备,如果没有这个设备,则新增
+        ProjectDevice byProjectIdAndDeviceId = projectDeviceRepository.findByProjectIdAndDeviceId(createReqVO.getProjectId(), createReqVO.getDeviceId());
+        if (byProjectIdAndDeviceId == null) {
+            ProjectDevice projectDevice = new ProjectDevice();
+            projectDevice.setDeviceId(createReqVO.getDeviceId());
+            projectDevice.setProjectId(createReqVO.getProjectId());
+            byProjectIdAndDeviceId = projectDeviceRepository.save(projectDevice);
+        }
+
+        createReqVO.setProjectDeviceId(byProjectIdAndDeviceId.getId());
+
         // 插入
-        AssetDeviceLog assetDeviceLog = assetDeviceLogMapper.toEntity(createReqVO);
-        assetDeviceLogRepository.save(assetDeviceLog);
+        if(createReqVO.getStartDate()!=null&&createReqVO.getEndDate()!=null){
+            AssetDeviceLog assetDeviceLog = assetDeviceLogMapper.toEntity(createReqVO);
+            assetDeviceLogRepository.save(assetDeviceLog);
+        }
+
         // 返回
-        return assetDeviceLog.getId();
+        return 1L;
     }
 
     @Override
     public void updateAssetDeviceLog(AssetDeviceLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateAssetDeviceLogExists(updateReqVO.getId());
+
+        // 查询新的时间段是否已经被预约
+        Long l = assetDeviceLogRepository.countOverlappingTimeRanges(updateReqVO.getStartDate(), updateReqVO.getEndDate(), updateReqVO.getDeviceId());
+        if (l > 0) {
+            throw exception(ASSET_DEVICE_LOG_EXISTS);
+        }
+
         // 更新
         AssetDeviceLog updateObj = assetDeviceLogMapper.toEntity(updateReqVO);
         assetDeviceLogRepository.save(updateObj);
@@ -93,6 +129,10 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
         // 创建 Specification
         Specification<AssetDeviceLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
 
             if(pageReqVO.getDeviceId() != null) {
                 predicates.add(cb.equal(root.get("deviceId"), pageReqVO.getDeviceId()));
@@ -167,7 +207,6 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
                 predicates.add(cb.equal(root.get("projectDeviceId"), exportReqVO.getProjectDeviceId()));
             }
 
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -181,6 +220,8 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

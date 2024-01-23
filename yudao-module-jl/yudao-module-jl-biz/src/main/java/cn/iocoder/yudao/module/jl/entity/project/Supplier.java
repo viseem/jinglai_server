@@ -115,4 +115,16 @@ public class Supplier extends BaseEntity {
     @Column(name = "contact_level", nullable = false )
     private String contactLevel;
 
+    /**
+     * 支行
+     */
+    @Column(name = "sub_branch", nullable = false )
+    private String subBranch;
+
+    /**
+     * 支行
+     */
+    @Column(name = "channel_type", nullable = false )
+    private String channelType;
+
 }

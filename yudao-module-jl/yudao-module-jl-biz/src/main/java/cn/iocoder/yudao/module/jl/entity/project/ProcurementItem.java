@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -35,6 +37,12 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @Column(name = "quotation_id")
+    private Long quotationId;
+
     /**
      * 采购单id
      */
@@ -61,6 +69,9 @@ public class ProcurementItem extends BaseEntity {
      */
     @Column(name = "fee_standard", nullable = false)
     private String feeStandard;
+
+    @Column(name = "spec", nullable = false)
+    private String spec;
 
     /**
      * 单价
@@ -91,8 +102,20 @@ public class ProcurementItem extends BaseEntity {
     /**
      * 原价
      */
+    @Column(name = "origin_price")
+    private Integer originPrice = 0;
+
+    /**
+     * 采购价
+     */
     @Column(name = "buy_price")
     private Integer buyPrice = 0;
+
+    /**
+     * 运费
+     */
+    @Column(name = "freight")
+    private BigDecimal freight = BigDecimal.valueOf(0);
 
     /**
      * 销售价
@@ -123,6 +146,12 @@ public class ProcurementItem extends BaseEntity {
      */
     @Column(name = "brand")
     private String brand;
+
+    /**
+     * 货号
+     */
+    @Column(name = "product_code")
+    private String productCode;
 
     /**
      * 目录号
@@ -168,6 +197,17 @@ public class ProcurementItem extends BaseEntity {
 
     @Column(name = "temperature")
     private String temperature;
+
+    @Column(name = "refund_quantity")
+    private Long refundQuantity;
+    @Column(name = "refund_amount")
+    private Long refundAmount;
+    @Column(name = "refund_receipts")
+    private String refundReceipts;
+
+    //预计到货日期
+    @Column(name = "arrival_date")
+    private LocalDateTime arrivalDate;
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

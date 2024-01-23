@@ -43,6 +43,14 @@ public interface SupplierService {
     Optional<Supplier> getSupplier(Long id);
 
     /**
+     * 获得项目采购单物流信息
+     *
+     * @param id 编号
+     * @return 项目采购单物流信息
+     */
+    SupplierStatsRespVO getSupplierStats(Long id);
+
+    /**
      * 获得项目采购单物流信息列表
      *
      * @param ids 编号

@@ -58,6 +58,14 @@ public class BpmTaskController {
         return success(taskService.getTaskListByProcessInstanceId(processInstanceId));
     }
 
+    @PutMapping("/delete")
+    @Operation(summary = "删除任务")
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<Boolean> deleteTask(@Valid @RequestBody BpmTaskApproveReqVO reqVO) {
+        taskService.deleteTask(reqVO);
+        return success(true);
+    }
+
     @PutMapping("/approve")
     @Operation(summary = "通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")

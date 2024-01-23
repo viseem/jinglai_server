@@ -58,7 +58,7 @@ public class LaboratoryUser extends BaseEntity {
 
     //TODO lab还会查出来 user 蛋疼
     /**
-     * JPA 级联出 lab
+     * JPA 级联出 open
      */
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -77,4 +77,8 @@ public class LaboratoryUser extends BaseEntity {
     @Column(name = "rank")
     private String rank;
 
+    @Transient
+    private Integer notDoCount;
+    @Transient
+    private Integer doingCount;
 }

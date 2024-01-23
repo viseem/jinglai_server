@@ -76,19 +76,28 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         projectApproval.setApprovalStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
         ProjectApproval save = projectApprovalRepository.save(projectApproval);
 
-        //同时插入审批表Approval,设置Approval的属性
-//        Approval approval = approvalService.processApproval(createReqVO.getUserList(),ApprovalTypeEnums.PROJECT_STATUS_CHANGE.getStatus(), save.getId(),save.getStageMark());
-        //修改一下
-//        projectApprovalRepository.updateApprovalIdById(approval.getId(),save.getId());
 
-        // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
-        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+       if(createReqVO.getNeedAudit()){
+           // 发起 BPM 流程
+           Map<String, Object> processInstanceVariables = new HashMap<>();
+           String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                   new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                           .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
 
-        // 更新流程实例编号
-        projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+           // 更新流程实例编号
+           projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+       }else{
+
+           //直接更新审批的状态
+           projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
+
+       }
+
+       //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
+       if(!createReqVO.getNeedAudit()||Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
+           //直接更新项目状态
+           projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
+       }
 
         // 返回
         return projectApproval.getId();

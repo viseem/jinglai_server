@@ -39,12 +39,17 @@ public class ContractApprovalBaseVO {
     @Schema(description = "流程实例的编号", example = "811")
     private String processInstanceId;
 
-    @Schema(description = "合同结算金额", example = "811", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "结算金额不能为空")
+    @Schema(description = "合同结算金额")
     private Integer realPrice;
 
     @Schema(description = "变更前结算金额", example = "811")
     private Integer originRealPrice;
+
+    @Schema(description = "申请变更合同金额")
+    private Integer price;
+
+    @Schema(description = "合同金额", example = "811")
+    private Integer originPrice;
 
 
     private String stampFileUrl;

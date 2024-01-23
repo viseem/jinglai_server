@@ -52,6 +52,9 @@ public interface MemberAuthService {
      */
     AppAuthLoginRespVO weixinMiniAppLogin(AppAuthWeixinMiniAppLoginReqVO reqVO);
 
+
+    JLAppLoginRespVO loginByPhoneCode(@Valid JLAppLoginByPhoneReqVO reqVO);
+
     /**
      * 获得社交认证 URL
      *

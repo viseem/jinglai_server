@@ -79,10 +79,9 @@ public class ProjectSop extends BaseEntity {
     @Column(name = "status")
     private String status;
 
-    @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonBackReference
-    private ProjectCategory category;
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly category;
 }

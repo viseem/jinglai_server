@@ -95,6 +95,20 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
         animalBoxRepository.deleteById(id);
     }
 
+    @Override
+    public void clearAnimalBox(Long id){
+        // 校验存在
+        AnimalBox animalBox = validateAnimalBoxExists(id);
+        animalBox.setFeedOrderId(null);
+        animalBox.setFeedOrderName(null);
+        animalBox.setFeedOrderCode(null);
+        animalBox.setProjectName(null);
+        animalBox.setCustomerName(null);
+        animalBox.setQuantity(0);
+        animalBox.setLocation(null);
+        animalBoxRepository.save(animalBox);
+    }
+
     private AnimalBox validateAnimalBoxExists(Long id) {
         Optional<AnimalBox> byId = animalBoxRepository.findById(id);
         if (byId.isEmpty()){

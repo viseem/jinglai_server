@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
 import org.mapstruct.*;
 
 
@@ -15,7 +16,7 @@ public interface SalesleadMapper {
     Saleslead toEntity(SalesleadUpdateReqVO dto);
 
     SalesleadRespVO toDto(Saleslead entity);
-
+    SalesleadRespVO toDto(SalesleadDetail entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Saleslead partialUpdate(SalesleadUpdateReqVO dto, @MappingTarget Saleslead entity);

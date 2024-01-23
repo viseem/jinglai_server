@@ -2,9 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CrmReceipt;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.projectfundchangelog.ProjectFundChangeLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.projectfundlog.ProjectFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.repository.projectfundchangelog.ProjectFundChangeLogRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     private ProjectConstractServiceImpl projectConstractService;
 
     @Resource
-    private ProjectFundLogMapper projectFundLogMapper;
+    private ProjectFundChangeLogRepository projectFundChangeLogRepository;
 
     @Override
     public Long createProjectFund(ProjectFundCreateReqVO createReqVO) {
@@ -84,12 +86,17 @@ public class ProjectFundServiceImpl implements ProjectFundService {
     }
 
     @Override
+    @Transactional
     public void updateProjectFund(ProjectFundUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectFundExists(updateReqVO.getId());
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(updateReqVO);
         projectFundRepository.save(updateObj);
+
+        // 写入变更日志 projectFundChangeLog
+//        ProjectFundChangeLog changeEntity = projectFundMapper.toChangeEntity(updateReqVO);
+//        projectFundChangeLogRepository.save();
     }
 
     @Override
@@ -101,13 +108,13 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         //创建items明细 ProjectFundLog
 /*        List<ProjectFundLog> sops = projectFundLogMapper.toEntity(saveReqVO.getItems());
         projectFundLogRepository.saveAll(sops);*/
-        AtomicReference<Integer> receivedPrice = new AtomicReference<>(0);
+        AtomicReference<BigDecimal> receivedPrice = new AtomicReference<>(BigDecimal.ZERO);
         projectFundLogRepository.saveAll(saveReqVO.getItems().stream().peek(item -> {
             item.setCustomerId(saveReqVO.getCustomerId());
             item.setContractId(saveReqVO.getContractId());
             item.setProjectId(saveReqVO.getProjectId());
             item.setProjectFundId(saveReqVO.getId());
-            receivedPrice.updateAndGet(v -> v + item.getPrice());
+            receivedPrice.updateAndGet(v ->v.add(item.getPrice()));
         }).collect(Collectors.toList()));
 
         //更新合同已收金额
@@ -119,8 +126,31 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.save(updateObj);
     }
 
+    @Override
+    @Transactional
     public void updateProjectFundStatus(ProjectFundPaymentUpdateReqVO updateReqVO) {
-        projectFundRepository.updateStatusById(updateReqVO.getStatus(),updateReqVO.getId());
+//        projectFundRepository.updateStatusAndPayMarkById(updateReqVO.getStatus(),updateReqVO.getMark(),updateReqVO.getId());
+//        projectFundRepository.updateActualPaymentTimeById(updateReqVO.getActualPaymentTime(),updateReqVO.getId());
+        // 校验存在
+        ProjectFund projectFund = validateProjectFundExists(updateReqVO.getId());
+        projectFund.setStatus(updateReqVO.getStatus());
+        projectFund.setPayMark(updateReqVO.getMark());
+        projectFund.setActualPaymentTime(updateReqVO.getActualPaymentTime());
+        projectFundRepository.save(projectFund);
+        // 写入变更日志 projectFundChangeLog
+        /*ProjectFund projectFund = validateProjectFundExists(updateReqVO.getId());
+        ProjectFundChangeLog changeEntity = projectFundMapper.entityToChangeEntity(projectFund);
+        changeEntity.setProjectFundId(updateReqVO.getId());
+        changeEntity.setStatus(updateReqVO.getStatus());
+        changeEntity.setActualPaymentTime(updateReqVO.getActualPaymentTime());
+        // 默认实际支付金额为计划金额
+        changeEntity.setActualPaymentAmount(projectFund.getPrice());
+
+        changeEntity.setOriginStatus(projectFund.getStatus());
+        changeEntity.setChangeType("1");
+        changeEntity.setMark(updateReqVO.getMark());
+        changeEntity.setSalesId(projectFund.getCreator());
+        projectFundChangeLogRepository.save(changeEntity);*/
     }
 
 
@@ -132,8 +162,12 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         projectFundRepository.deleteById(id);
     }
 
-    private void validateProjectFundExists(Long id) {
-        projectFundRepository.findById(id).orElseThrow(() -> exception(PROJECT_FUND_NOT_EXISTS));
+    private ProjectFund validateProjectFundExists(Long id) {
+        Optional<ProjectFund> byId = projectFundRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw exception(PROJECT_FUND_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -326,6 +360,8 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

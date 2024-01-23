@@ -4,11 +4,15 @@ import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
 * FinancePaymentRepository
 *
 */
 public interface FinancePaymentRepository extends JpaRepository<FinancePayment, Long>, JpaSpecificationExecutor<FinancePayment> {
+    @Query("select f from FinancePayment f where f.type = ?1 and f.refId = ?2 and f.auditStatus = ?3")
+    List<FinancePayment> findByTypeAndRefIdAndAuditStatus(String type, Long refId, String auditStatus);
     @Query("select count(f) from FinancePayment f where f.auditStatus <> ?1")
     Integer countByAuditStatusNot(String auditStatus);
     @Query("select count(f) from FinancePayment f where f.auditStatus = ?1")

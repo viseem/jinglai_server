@@ -6,8 +6,10 @@ import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.enums.ApprovalTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.auditconfig.AuditConfigRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.*;
 
@@ -50,6 +53,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprovalService {
     public static final String PROCESS_KEY = "PROJECT_CATEGORY_STATUS_CHANGE";
+
+    @Resource
+    NeedAuditHandler needAuditHandler;
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
@@ -84,18 +90,26 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             category.setApprovalStage(bpmProcess);
             projectCategoryRepository.save(category);
         });
+
+
         // 插入
         ProjectCategoryApproval projectCategoryApproval = projectCategoryApprovalMapper.toEntity(createReqVO);
         projectCategoryApproval.setApprovalStage(bpmProcess);
         ProjectCategoryApproval save = projectCategoryApprovalRepository.save(projectCategoryApproval);
-        // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
-        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
 
-        // 更新流程实例编号
-        projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+        if(createReqVO.getNeedAudit()){
+            // 发起 BPM 流程
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+
+            // 更新流程实例编号
+            projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+        }else{
+            projectCategoryApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
+            projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
+        }
 
 
 /*        Approval approval = approvalService.processApproval(createReqVO.getUserList(), ApprovalTypeEnums.EXP_PROGRESS.getStatus(), save.getId(),save.getStageMark());
@@ -145,8 +159,6 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             if(finalStage!=null){
                 category.setStage(finalStage);
             }
-//            category.setApprovalStage(updateReqVO.getApprovalStage());
-//            category.setRequestStage(projectCategoryApproval.getStage());
             projectCategoryRepository.save(category);
         },()->{
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);

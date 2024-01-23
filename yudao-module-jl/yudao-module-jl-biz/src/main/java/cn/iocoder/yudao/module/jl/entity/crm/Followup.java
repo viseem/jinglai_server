@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import java.util.*;
 import javax.persistence.*;
@@ -61,5 +64,22 @@ public class Followup extends BaseEntity {
      */
     @Column(name = "type", nullable = false )
     private String type;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    private User user;
+
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'CRM_FOLLOWUP'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 
 }

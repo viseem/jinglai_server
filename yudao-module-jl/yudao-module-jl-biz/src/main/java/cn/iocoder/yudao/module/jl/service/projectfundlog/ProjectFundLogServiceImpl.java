@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -91,9 +93,9 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
 
     private void processFundReceivedPrice(Long projectFundId) {
         List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByProjectFundId(projectFundId);
-        int priceSum = 0;
+        BigDecimal priceSum = BigDecimal.ZERO;
         for (ProjectFundLog log : projectFundLogs) {
-            priceSum += log.getPrice();
+            priceSum = priceSum.add(log.getPrice());
         }
         projectFundRepository.updateReceivedPriceById(priceSum, projectFundId);
     }

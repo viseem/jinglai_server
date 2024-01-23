@@ -1,9 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -37,7 +42,11 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Validated
 public class ProjectSopServiceImpl implements ProjectSopService {
 
+    @Resource
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectCategorySimpleRepository projectCategorySimpleRepository;
 
     @Resource
     private ProjectSopRepository projectSopRepository;
@@ -55,12 +64,32 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     }
 
     @Override
+    @Transactional
     public void updateProjectSop(ProjectSopUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectSopExists(updateReqVO.getId());
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
         projectSopRepository.save(updateObj);
+
+        //
+        List<ProjectSop> sopList = projectSopRepository.findByProjectCategoryId(updateReqVO.getProjectCategoryId());
+        //如果已完成的数量等于总数量，那么更新projectCategory的状态为已完成；如果已完成的数量不等于总数量且大于0，那么更新projectCategory的状态为进行中
+        int doneCount = 0;
+        int totalCount = sopList.size();
+        for(ProjectSop sop : sopList) {
+            if(sop.getStatus()!=null&&sop.getStatus().equals(CommonTodoEnums.DONE.getStatus())) {
+                doneCount++;
+            }
+        }
+        if(doneCount>0){
+            if(doneCount==totalCount){
+                projectCategoryRepository.updateStageById(ProjectCategoryStatusEnums.DONE.getStatus(), updateReqVO.getProjectCategoryId());
+            }else{
+                projectCategoryRepository.updateStageById(ProjectCategoryStatusEnums.DOING.getStatus(), updateReqVO.getProjectCategoryId());
+            }
+        }
+
     }
 
 

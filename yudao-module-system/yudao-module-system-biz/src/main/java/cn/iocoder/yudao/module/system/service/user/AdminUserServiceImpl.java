@@ -215,7 +215,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public PageResult<AdminUserDO> getUserPage(UserPageReqVO reqVO) {
-        return userMapper.selectPage(reqVO, getDeptCondition(reqVO.getDeptId()));
+        return userMapper.selectPage(reqVO, reqVO.getDeptIds()!=null?getDeptCondition(reqVO.getDeptIds()):getDeptCondition(reqVO.getDeptId()));
     }
 
     @Override
@@ -294,6 +294,20 @@ public class AdminUserServiceImpl implements AdminUserService {
                 deptId, true), DeptDO::getId);
         deptIds.add(deptId); // 包括自身
         return deptIds;
+    }
+
+    /**
+     * 获得部门条件：查询指定部门的子部门编号们，包括自身
+     * @param deptIds 部门编号
+     * @return 部门编号集合
+     */
+    private Set<Long> getDeptCondition(Collection<Long> deptIds) {
+        if (deptIds == null) {
+            return Collections.emptySet();
+        }
+        Set<Long> longs = convertSet(deptService.getDeptList(deptIds), DeptDO::getId);
+//        longs.add(longs); // 包括自身
+        return longs;
     }
 
     private void validateUserForCreateOrUpdate(Long id, String username, String mobile, String email,

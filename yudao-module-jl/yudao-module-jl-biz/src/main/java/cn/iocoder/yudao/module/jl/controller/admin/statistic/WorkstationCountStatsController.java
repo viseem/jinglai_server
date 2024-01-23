@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
 import cn.iocoder.yudao.module.jl.service.statistic.WorkstationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,30 +29,40 @@ public class WorkstationCountStatsController {
     private WorkstationService workstationService;
 
     @GetMapping("/sale")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<WorkstationSaleCountStatsResp> getSaleCountStats() {
         WorkstationSaleCountStatsResp saleCountStats = workstationService.getSaleCountStats();
         return success(saleCountStats);
     }
 
     @GetMapping("/project")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<WorkstationProjectCountStatsResp> getProjectCountStats() {
         WorkstationProjectCountStatsResp projectCountStats = workstationService.getProjectCountStats();
         return success(projectCountStats);
     }
 
     @GetMapping("/exp")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<WorkstationExpCountStatsResp> getExpCountStats() {
         WorkstationExpCountStatsResp expCountStatsResp = workstationService.getExpCountStats();
         return success(expCountStatsResp);
     }
 
     @GetMapping("/finance")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<WorkstationFinanceCountStatsResp> getFinanceCountStats() {
         WorkstationFinanceCountStatsResp financeCountStatsResp = workstationService.getFinanceCountStats();
         return success(financeCountStatsResp);
     }
 
     @GetMapping("/warehouse")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<WorkstationWarehouseCountStatsResp> getWarehouseCountStats() {
         WorkstationWarehouseCountStatsResp countStats = workstationService.getWarehouseCountStats();
         return success(countStats);

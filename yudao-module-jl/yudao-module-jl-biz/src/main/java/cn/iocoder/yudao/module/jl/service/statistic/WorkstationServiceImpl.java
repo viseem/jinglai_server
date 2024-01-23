@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.service.statistic;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.*;
 import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -56,6 +59,13 @@ public class WorkstationServiceImpl implements WorkstationService {
 
     @Resource
     private ProductSendRepository productSendRepository;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
     private final FinancePaymentRepository financePaymentRepository;
 
     public WorkstationServiceImpl(FinancePaymentRepository financePaymentRepository) {
@@ -78,7 +88,14 @@ public class WorkstationServiceImpl implements WorkstationService {
         // 自己的未转化为客户的客户数量
         Integer notToCustomerCount = customerRepository.countByNotToCustomerAndCreator(getLoginUserId());
         resp.setNot2CustomerCount(notToCustomerCount);
+
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
         return resp;
+    }
+
+    private Integer getNotProcessFeedbackCount(){
+        return projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
     }
 
     @Override
@@ -90,12 +107,15 @@ public class WorkstationServiceImpl implements WorkstationService {
         resp.setNotCompleteProjectCount(projectNotCompleteCount);
 
         //自己的未处理的反馈数量
-        Integer notProcessFeedbackCount = projectFeedbackRepository.countByStatusNotAndUserId(ProjectFeedbackEnums.PROCESSED.getStatus(),getLoginUserId());
-        resp.setNotProcessFeedbackCount(notProcessFeedbackCount);
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         //自己的未报价的线索数量
         Integer notQuotationCount = salesleadRepository.countByManagerIdAndStatus(getLoginUserId(), Integer.valueOf(SalesLeadStatusEnums.QUOTATION.getStatus()));
         resp.setNotQuotationCount(notQuotationCount);
+
+        //自己的未完成的任务数量
+        Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
+        resp.setNotCompleteTaskCount(notCompleteTaskCount);
         return resp;
     }
 
@@ -107,6 +127,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer notCompleteTaskCount = projectCategoryRepository.countByOperatorIdAndStageNot(getLoginUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
         resp.setNotCompleteTaskCount(notCompleteTaskCount);
 
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
+
         return resp;
     }
 
@@ -114,9 +137,13 @@ public class WorkstationServiceImpl implements WorkstationService {
     public WorkstationFinanceCountStatsResp getFinanceCountStats(){
         WorkstationFinanceCountStatsResp resp = new WorkstationFinanceCountStatsResp();
 
-        // 全部的未收齐的款项数量
-        Integer notPayCompleteCount = projectFundRepository.countByStatusNot(ContractFundStatusEnums.COMPLETE.getStatus());
-        resp.setProjectFundNotPayCompleteCount(notPayCompleteCount);
+        // 全部的 合同收款 未核验的
+        Integer contractFundNotAuditCount = contractFundLogRepository.countByStatusNot(ContractFundStatusEnums.AUDITED.getStatus());
+        resp.setContractFundNotAuditCount(contractFundNotAuditCount);
+
+        //全部的 合同发票 未核验的
+        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNotOrPriceStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus(),IsOrNotEnums.IS.getStatus());
+        resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
 
         //全部的 未打款采购单数量
         Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
@@ -126,6 +153,8 @@ public class WorkstationServiceImpl implements WorkstationService {
         Integer integer = financePaymentRepository.countByAuditStatusNot(FinancePaymentEnums.PAYED.getStatus());
         resp.setFinancePaymentNotPayCount(integer);
 
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         return resp;
     }
@@ -136,24 +165,24 @@ public class WorkstationServiceImpl implements WorkstationService {
 
         //--------全部的 未签收的单子数量
         //未签收的采购单数量
-        Integer waitingCheckInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInProcurementCount = procurementRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInProcurementCount(waitingCheckInProcurementCount);
         //未签收的寄来单数量
-        Integer waitingCheckInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInSendInCount = supplySendInRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInSendInCount(waitingCheckInSendInCount);
         //未签收的提货单数量
-        Integer waitingCheckInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+        Integer waitingCheckInPickupCount = supplyPickupRepository.countByWaitCheckIn(true);
         resp.setWaitingCheckInPickupCount(waitingCheckInPickupCount);
 
         //-----------------全部的 未入库的单子数量
         //未入库的采购单数量
-        Integer waitingInProcurementCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInProcurementCount = procurementRepository.countByWaitStoreIn(true);
         resp.setWaitingInProcurementCount(waitingInProcurementCount);
         //未入库的寄来单数量
-        Integer waitingInSendInCount = supplySendInRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInSendInCount = supplySendInRepository.countByWaitStoreIn(true);
         resp.setWaitingInSendInCount(waitingInSendInCount);
         //未入库的提货单数量
-        Integer waitingInPickupCount = supplyPickupRepository.countByStatus(ProcurementStatusEnums.WAITING_IN.getStatus());
+        Integer waitingInPickupCount = supplyPickupRepository.countByWaitStoreIn(true);
         resp.setWaitingInPickupCount(waitingInPickupCount);
 
         //------------全部的 未入库的申请数量
@@ -166,6 +195,9 @@ public class WorkstationServiceImpl implements WorkstationService {
         //----未出库的寄送单数量
         Integer waitingSendOutCount = productSendRepository.countByStatusNot(InventorySupplyOutApprovalEnums.ACCEPT.getStatus());
         resp.setWaitingSendOutCount(waitingSendOutCount);
+
+        //自己的未处理的反馈数量
+        resp.setNotProcessFeedbackCount(getNotProcessFeedbackCount());
 
         return resp;
     }

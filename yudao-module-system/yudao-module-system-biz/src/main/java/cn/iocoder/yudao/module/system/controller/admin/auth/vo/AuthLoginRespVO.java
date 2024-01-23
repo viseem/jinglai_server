@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.system.controller.admin.auth.vo;
 
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +28,8 @@ public class AuthLoginRespVO {
 
     @Schema(description = "过期时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime expiresTime;
+
+
+    private AdminUserRespDTO user;
 
 }

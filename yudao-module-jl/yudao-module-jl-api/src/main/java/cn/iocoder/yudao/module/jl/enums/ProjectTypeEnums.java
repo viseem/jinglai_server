@@ -20,6 +20,8 @@ public enum ProjectTypeEnums implements StringArrayValuable {
 
     NormalProject("1", "常规项目"),
     EmergencyProject("2", "临时应急项目"),
+    QuotationProject("3", "报价")
+
     ;
 
     private final String status;

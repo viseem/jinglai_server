@@ -1,23 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import javax.validation.constraints.*;
 
 /**
@@ -30,10 +18,20 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
-    @Schema(description = "项目id", example = "1")
+    @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
 
-//    private ProjectOnly project;
+    @Schema(description = "客户id", example = "1")
+    private Long customerId;
+
+    @Schema(description = "报价id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long quotationId;
+
+    @Schema(description = "实验的labIds", example = "1")
+    private String labIds;
+
+    @Schema(description = "参与者", example = "1")
+    private String focusIds;
 
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
@@ -83,11 +81,17 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "周期")
+    private String cycle;
+
+    @Schema(description = "项目负责人")
+    private Long projectManagerId;
+
     /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
      */
     @Schema(description = "当前实验的状态")
-    private String stage = "0";
+    private String stage = ProjectCategoryStatusEnums.WAIT_DO.getStatus();
 
     /**
      * 原始数据富文本
@@ -95,4 +99,12 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "原始数据")
     private String rawData;
 
+    private Integer sopTotal = 0;
+
+    private Integer sopDone = 0;
+
+
+    private Integer preTodoTotal = 0;
+
+    private Integer preTodoDone = 0;
 }

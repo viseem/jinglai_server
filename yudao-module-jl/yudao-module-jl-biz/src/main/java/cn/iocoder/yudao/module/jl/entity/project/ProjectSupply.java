@@ -3,10 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
-import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
-import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -15,9 +12,6 @@ import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目中的实验名目的物资项 Entity
@@ -54,6 +48,8 @@ public class ProjectSupply extends BaseEntity {
 
     @Column(name = "project_id", nullable = false)
     private Long projectId;
+    @Column(name = "quotation_id", nullable = false)
+    private Long quotationId;
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
     //    TODO 很大的问题
@@ -69,7 +65,7 @@ public class ProjectSupply extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
 
 
@@ -92,6 +88,12 @@ public class ProjectSupply extends BaseEntity {
     private String feeStandard;
 
     /**
+     * 规格
+     */
+    @Column(name = "spec", nullable = false)
+    private String spec;
+
+    /**
      * 单价
      */
     @Column(name = "unit_fee", nullable = false)
@@ -108,6 +110,9 @@ public class ProjectSupply extends BaseEntity {
      */
     @Column(name = "buy_price", nullable = false)
     private Integer buyPrice = 0;
+
+    @Column(name = "sort", nullable = false)
+    private Integer sort;
 
     /*
     * 官网价
@@ -207,17 +212,6 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
-    @ManyToOne
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    private ProjectCategory category;
-
-
-
-
-
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -225,7 +219,7 @@ public class ProjectSupply extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    /*@OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -237,7 +231,7 @@ public class ProjectSupply extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SELECT)
-    private List<SupplyPickupItem> pickups;
+    private List<SupplyPickupItem> pickups;*/
 
     /**
      * 查询ProcurementItem

@@ -23,31 +23,49 @@ public class UniqCodeGenerator {
 
     private String uniqCodeKey;
 
-    private String uniqCodePrefixKey;
+//    private String uniqCodePrefixKey;
+//
+//    private String defaultPrefix;
 
-    private String defaultPrefix;
 
 
-
-    public void setInitUniqUid(Long id, String uniqCodeKey, String uniqCodePrefixKey, String defaultPrefix){
-
-        this.uniqCodeKey = uniqCodeKey;
-        this.uniqCodePrefixKey = uniqCodePrefixKey;
-        this.defaultPrefix = defaultPrefix;
-
-        uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
-
-        Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
-        if (aLong == null || !(aLong.longValue() > 0)) {
-            uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, Long.valueOf(String.valueOf(id)));
+    public void setInitUniqUid(String code, String uniqCodeKey){
+        long lastCodeLong;
+        try {
+            String lastCode =code!=null&&!code.isEmpty()? code.substring(code.length() - 4):"0";
+            // 尝试将字符串转换为 Long
+            lastCodeLong = Long.parseLong(lastCode);
+        } catch (NumberFormatException e) {
+            // 如果抛出异常，将默认值设为0
+            lastCodeLong = 0L;
         }
+        this.uniqCodeKey = uniqCodeKey;
+//        this.uniqCodePrefixKey = uniqCodePrefixKey;
+//        this.defaultPrefix = defaultPrefix;
+
+//        uniqCodeRedisDAO.setUniqCodePrefix(uniqCodePrefixKey,defaultPrefix);
+        uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, lastCodeLong);
+
+      /*  Number aLong = uniqCodeRedisDAO.getUniqUidByKey(uniqCodeKey);
+        if (aLong == null || !(aLong.longValue() > 0)) {
+            isInit=false;
+            uniqCodeRedisDAO.setInitUniqUid(uniqCodeKey, Long.valueOf(String.valueOf(id)));
+        }*/
     }
 
     public Long generateUniqUid() {
         return uniqCodeRedisDAO.generateUniqUid(this.uniqCodeKey);
     }
 
-    public Object getUniqCodePrefix() {
-        return uniqCodeRedisDAO.getUniqCodePrefix(this.uniqCodePrefixKey,this.defaultPrefix);
+    public Long getUniqUid() {
+        return uniqCodeRedisDAO.getUniqUidByKey(this.uniqCodeKey);
     }
+
+    public void setUniqUid(Long value) {
+        uniqCodeRedisDAO.setInitUniqUid(this.uniqCodeKey,value);
+    }
+
+//    public Object getUniqCodePrefix() {
+//        return uniqCodeRedisDAO.getUniqCodePrefix(this.uniqCodePrefixKey,this.defaultPrefix);
+//    }
 }

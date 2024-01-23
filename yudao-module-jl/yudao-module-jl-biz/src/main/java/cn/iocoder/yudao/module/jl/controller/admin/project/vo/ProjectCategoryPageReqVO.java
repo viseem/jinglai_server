@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,22 +17,34 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectCategoryPageReqVO extends PageParam {
 
+
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute;
+
+    @Schema(description = "归属：ALL MY SUB")
+    private String attributeManager;
+
+    @Schema(description = "in 查询 managers")
+    private Long[] managers;
+
     private String stage;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
-    @Schema(description = "报价 id", example = "20286")
-    private Long quoteId;
-
     @Schema(description = "项目 id", example = "14245")
     private Long projectId;
+    private Long customerId;
     @Schema(description = "安排单 id", example = "14245")
     private Long scheduleId;
+    @Schema(description = "报价id", example = "14245")
+    private Long quotationId;
 
     @Schema(description = "类型，报价/安排单", example = "1")
     private String type = "schedule";
+
+    private List<String> types;
 
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")
     private String categoryType;
@@ -62,9 +76,13 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "实验室id", example = "17935")
     private Long labId;
 
+    @Schema(description = "参与者id", example = "17935")
+    private Long focusId;
+
     @Schema(description = "是否有反馈", example = "17935")
     private Byte hasFeedback;
 
     private String approvalStage;
     private String requestStage;
+
 }

@@ -12,6 +12,8 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalBaseVO {
 
+    private Boolean needAudit;
+
     @Schema(description = "变更前状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "变更前状态")
     private String originStage;
@@ -25,11 +27,6 @@ public class ProjectCategoryApprovalCreateReqVO extends ProjectCategoryApprovalB
     @Schema(description = "项目的实验名目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "24706")
     @NotNull(message = "项目的实验名目id不能为空")
     private Long projectCategoryId;
-
-
-    @Schema(description = "安排单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23230")
-    @NotNull(message = "安排单id不能为空")
-    private Long scheduleId;
 
     private String approvalStage;
 

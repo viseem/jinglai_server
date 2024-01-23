@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -33,6 +34,21 @@ public interface ProjectScheduleService {
     Long getReimburseCostByScheduleId(Long id);
 
     Long getCategoryOutSourceCostByScheduleId(Long id);
+
+
+    Long getSupplyCostByProjectId(Long id);
+
+    Long getChargeItemCostByProjectId(Long id);
+
+    Long getSupplyQuotationByQuotationId(Long id);
+
+    Long getChargeItemQuotationByQuotationId(Long id);
+
+    Long getProcurementCostByProjectId(Long id);
+
+    Long getReimburseCostByProjectId(Long id);
+
+    Long getCategoryOutSourceCostByProjectId(Long id);
 
     Long saveProjectSchedule(@Valid ProjectScheduleSaveReqVO saveReqVO);
     void saveScheduleSupplyAndChargeItem(@Valid ScheduleSaveSupplyAndChargeItemReqVO saveReqVO);
@@ -91,5 +107,8 @@ public interface ProjectScheduleService {
      * @return 项目安排单列表
      */
     List<ProjectSchedule> getProjectScheduleList(ProjectScheduleExportReqVO exportReqVO);
+
+    BigDecimal getContractAmountByProjectId(Long id);
+    BigDecimal getContractReceivedAmountByProjectId(Long id);
 
 }

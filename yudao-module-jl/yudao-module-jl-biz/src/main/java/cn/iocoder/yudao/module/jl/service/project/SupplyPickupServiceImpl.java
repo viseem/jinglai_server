@@ -10,13 +10,16 @@ import cn.iocoder.yudao.module.jl.mapper.project.SupplyPickupItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupItemRepository;
+import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -43,6 +46,8 @@ import cn.iocoder.yudao.module.jl.repository.project.SupplyPickupRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.PROCUREMENT_CODE_DEFAULT_PREFIX;
 
 /**
  * 取货单申请 Service 实现类
@@ -50,6 +55,26 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class SupplyPickupServiceImpl implements SupplyPickupService {
+
+    private final String uniqCodeKey = AUTO_INCREMENT_KEY_PICKUP_CODE.getKeyTemplate();
+    private final String uniqCodePrefixKey = PREFIX_PICKUP_CODE.getKeyTemplate();
+    @Resource
+    private UniqCodeGenerator uniqCodeGenerator;
+    @PostConstruct
+    public void SupplyPickupServiceImpl(){
+        SupplyPickup last = supplyPickupRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
+    }
+
+
+    public String generateCode() {
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long count = supplyPickupRepository.countByCodeStartsWith(String.format("%s%s", PICKUP_CODE_DEFAULT_PREFIX, dateStr));
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", PICKUP_CODE_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
+    }
 
     @Resource
     private SupplyPickupRepository supplyPickupRepository;
@@ -122,6 +147,15 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
         // 创建 Specification
         Specification<SupplyPickup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getProductCode()!=null){
+                List<SupplyPickupItem> byProductCode = supplyPickupItemRepository.findByProductCodeStartsWith(pageReqVO.getProductCode());
+                //根据List<ProcurementItem>获取List<Long>并去重
+                List<Long> ids = byProductCode.stream().map(SupplyPickupItem::getSupplyPickupId).distinct().collect(Collectors.toList());
+                if(!ids.isEmpty()) {
+                    predicates.add(root.get("id").in(ids));
+                }
+            }
 
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
@@ -250,12 +284,14 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
             Long id = saveReqVO.getId();
             // 校验存在
             validateSupplyPickupExists(id);
+        }else{
+            saveReqVO.setCode(generateCode());
         }
 
         // 更新或新建
         SupplyPickup supplyPickup = supplyPickupMapper.toEntity(saveReqVO);
         supplyPickup.setWaitCheckIn(true); // 代签收
-        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
+//        supplyPickup.setCode(String.valueOf(Instant.now().toEpochMilli()));
         supplyPickupRepository.save(supplyPickup);
         Long pickupId = supplyPickup.getId();
 
@@ -391,6 +427,8 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

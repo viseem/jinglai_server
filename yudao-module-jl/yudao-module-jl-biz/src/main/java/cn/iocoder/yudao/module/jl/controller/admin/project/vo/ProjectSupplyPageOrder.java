@@ -46,4 +46,7 @@ public class ProjectSupplyPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String mark;
 
+    @Schema(allowableValues = {"desc", "asc"})
+    private String Sort;
+
 }

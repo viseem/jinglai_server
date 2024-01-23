@@ -27,7 +27,7 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
     @Schema(description = "取货信息")
     private List<SupplyPickupItem> pickups;
 
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     private Integer inedQuantity;
     private Integer outedQuantity;
@@ -45,4 +45,5 @@ public class ProjectSupplyRespVO extends ProjectSupplyBaseVO {
 
     //出库记录
     private List<InventoryStoreOut> outLogs;
+
 }

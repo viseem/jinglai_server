@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -19,10 +20,17 @@ public class ProjectPageReqVO extends PageParam {
     @Schema(description = "归属：ALL MY SUB")
     private String attribute;
 
+    @Schema(description = "in 查询 creators")
+    private Long[] creators;
+
+    private Boolean isSale;
+
     @Schema(description = "in 查询 managers")
     private Long[] managers;
     private Long creator;
+    private Long subjectGroupId;
 
+    private Long focusId;
 
     private List<String> stageArr;
 
@@ -35,6 +43,9 @@ public class ProjectPageReqVO extends PageParam {
 
     @Schema(description = "项目名字", example = "赵六")
     private String name;
+
+    @Schema(description = "项目编号", example = "赵六")
+    private String code;
 
     @Schema(description = "项目开展阶段")
     private String stage;

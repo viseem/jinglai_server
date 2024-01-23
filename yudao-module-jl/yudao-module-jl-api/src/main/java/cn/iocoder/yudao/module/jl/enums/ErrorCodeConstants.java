@@ -143,6 +143,8 @@ public interface ErrorCodeConstants {
 
     ErrorCode ASSET_DEVICE_LOG_NOT_EXISTS = new ErrorCode(2054800001, "公司资产（设备）预约不存在");
 
+    ErrorCode ASSET_DEVICE_LOG_EXISTS = new ErrorCode(2054800001, "该时间段已被预约");
+
     ErrorCode ANIMAL_ROOM_NOT_EXISTS = new ErrorCode(2054900001, "动物饲养室不存在");
     ErrorCode ANIMAL_SHELF_NOT_EXISTS = new ErrorCode(2055000001, "动物饲养笼架不存在");
     ErrorCode UNIQUE_CODE_EXISTS = new ErrorCode(2054900002, "该编码已存在");
@@ -180,5 +182,47 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_PERSON_NOT_EXISTS = new ErrorCode(1002030000, "项目人员不存在");
 
     ErrorCode FINANCE_PAYMENT_NOT_EXISTS = new ErrorCode(1002031000, "财务打款不存在");
+
+    ErrorCode PROJECT_DOCUMENT_NOT_EXISTS = new ErrorCode(1002032000, "项目文档不存在");
+
+    ErrorCode AUDIT_CONFIG_NOT_EXISTS = new ErrorCode(1002033000, "审批配置不存在");
+
+    ErrorCode TASK_RELATION_NOT_EXISTS = new ErrorCode(1002034000, "任务关系依赖不存在");
+
+    ErrorCode CMS_ARTICLE_NOT_EXISTS = new ErrorCode(1002034000, "文章不存在");
+
+    ErrorCode PROJECT_FUND_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1002035000, "变更日志不存在");
+
+    ErrorCode SUBJECT_GROUP_NOT_EXISTS = new ErrorCode(1002036000, "专题小组不存在");
+    ErrorCode SUBJECT_GROUP_MEMBER_NOT_EXISTS = new ErrorCode(1002036100, "专题小组成员不存在");
+
+
+
+    ErrorCode REMINDER_NOT_EXISTS = new ErrorCode(1002037000, "提醒事项不存在");
+    ErrorCode CONTRACT_FUND_LOG_NOT_EXISTS = new ErrorCode(1002038000, "合同收款记录不存在");
+    ErrorCode CONTRACT_INVOICE_LOG_NOT_EXISTS = new ErrorCode(1002039000, "合同发票记录不存在");
+
+    ErrorCode VISIT_APPOINTMENT_NOT_EXISTS = new ErrorCode(1002040000, "到访预约不存在");
+
+    ErrorCode PROJECT_QUOTATION_NOT_EXISTS = new ErrorCode(1002050000, "项目报价不存在");
+    ErrorCode CRM_SUBJECT_GROUP_NOT_EXISTS = new ErrorCode(1002060000, "客户课题组不存在");
+
+    ErrorCode PROJECT_SUPPLIER_INVOICE_NOT_EXISTS = new ErrorCode(1002070000, "供应商发票不存在");
+    ErrorCode INVENTORY_PRODUCT_LOG_NOT_EXISTS = new ErrorCode(1002080000, "产品变更日志不存在");
+    ErrorCode COMMON_TODO_NOT_EXISTS = new ErrorCode(1002090000, "通用TODO不存在");
+
+    ErrorCode COMMON_TODO_LOG_NOT_EXISTS = new ErrorCode(1002090001, "通用TODO记录不存在");
+
+    ErrorCode SHIP_WAREHOUSE_NOT_EXISTS = new ErrorCode(1002100000, "收货仓库不存在");
+
+    ErrorCode COMMON_ATTACHMENT_NOT_EXISTS = new ErrorCode(1002200000, "通用附件不存在");
+
+    ErrorCode CELL_BASE_NOT_EXISTS = new ErrorCode(1002300000, "细胞数据不存在");
+
+    ErrorCode COLLABORATION_RECORD_NOT_EXISTS = new ErrorCode(1002400000, "通用协作记录不存在");
+
+    // ========== AUTH 模块 1004003000 ==========
+
+    ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
 
 }

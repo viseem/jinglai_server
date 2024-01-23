@@ -74,6 +74,15 @@ public class AnimalBoxController {
         return success(true);
     }
 
+    @GetMapping("/clear")
+    @Operation(summary = "通过 ID 清空")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('jl:animal-box:update')")
+    public CommonResult<Boolean> clearAnimalBox(@RequestParam("id") Long id) {
+        animalBoxService.clearAnimalBox(id);
+        return success(true);
+    }
+
     @GetMapping("/get")
     @Operation(summary = "通过 ID 获得动物笼位")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")

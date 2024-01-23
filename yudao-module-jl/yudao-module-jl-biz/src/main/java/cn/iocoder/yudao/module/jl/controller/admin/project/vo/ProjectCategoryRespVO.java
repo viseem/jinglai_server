@@ -1,13 +1,16 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
+import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -32,8 +35,6 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private List<ProjectCategoryAttachment> attachmentList;
 
-//    private ProjectCategoryApproval approval;
-
     private List<ProjectCategoryApproval> approvalList;
 
     private ProjectCategoryApproval latestApproval;
@@ -42,10 +43,19 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     private String approvalStage;
     //申请的变更的状态
     private String requestStage;
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     //实验记录
     private List<ProjectCategoryLog> logs;
 
     private LaboratoryLab lab;
+
+    private  List<TaskRelationOnly> relations;
+
+    private List<LaboratoryLab> labList;
+
+    private List<User>  focusList;
+
+    private List<CommonTodoLog> preTodoList;
+
 }

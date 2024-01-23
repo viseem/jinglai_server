@@ -34,6 +34,13 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "id", nullable = false )
     private Long id;
 
+
+    /**
+     * 课题组ids
+     */
+    @Column(name = "subject_group_ids", nullable = false )
+    private String subjectGroupIds;
+
     @Column(name="to_customer", nullable = false)
     private Boolean toCustomer;
 
@@ -131,6 +138,17 @@ public class CustomerOnly extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "company_id", insertable = false, updatable = false)
     private Institution company;
+
+    /**
+     * 研究所
+     */
+    @Column(name = "research_id")
+    private Long researchId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "research_id", insertable = false, updatable = false)
+    private Institution research;
 
     /**
      * 省

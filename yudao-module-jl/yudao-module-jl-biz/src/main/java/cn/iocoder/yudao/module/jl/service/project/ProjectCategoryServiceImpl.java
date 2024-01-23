@@ -1,41 +1,45 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
-import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectSupplyMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
+import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
+import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.commontodo.CommonTodoRepository;
+import cn.iocoder.yudao.module.jl.repository.commontodolog.CommonTodoLogRepository;
+import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
+import javax.transaction.Transactional;
 import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CATEGORY_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -46,7 +50,13 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
+
+    @Resource
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectCategorySimpleRepository projectCategorySimpleRepository;
 
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
@@ -64,21 +74,48 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private ProjectCategoryAttachmentRepository projectCategoryAttachmentRepository;
 
     @Resource
-    private ProjectChargeitemMapper projectChargeitemMapper;
+    private LaboratoryLabRepository laboratoryLabRepository;
 
     @Resource
-    private ProjectSupplyMapper projectSupplyMapper;
-    private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
+    private CommonTodoServiceImpl commonTodoService;
 
-    public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository) {
+    @Resource
+    private ProjectServiceImpl projectService;
+
+    @Resource
+    private CommonTodoLogRepository commonTodoLogRepository;
+
+    @Resource
+    private CommonTodoRepository commonTodoRepository;
+
+    private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
+    private final UserRepository userRepository;
+
+    public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository,
+                                      UserRepository userRepository) {
         this.projectCategorySupplierRepository = projectCategorySupplierRepository;
+        this.userRepository = userRepository;
     }
 
+
     @Override
+    @Transactional
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+
+        createReqVO.setCustomerId(projectSimple.getCustomerId());
+
         // 插入
         ProjectCategory projectCategory = projectCategoryMapper.toEntity(createReqVO);
+        //设置一下实验的setProjectManagerId
+        projectCategory.setProjectManagerId(projectSimple.getManagerId());
         projectCategoryRepository.save(projectCategory);
+
+        //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),projectCategory.getId());
+
+
         // 返回
         return projectCategory.getId();
     }
@@ -128,12 +165,22 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public void updateProjectCategory(ProjectCategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryExists(updateReqVO.getId());
+
+        // 存一下commonTodoLog
+//        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),updateReqVO.getId());
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
+
+        updateReqVO.setCustomerId(projectSimple.getCustomerId());
+        updateReqVO.setProjectManagerId(projectSimple.getManagerId());
+
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);
         projectCategoryRepository.save(updateObj);
     }
 
     @Override
+    @Transactional
     public void deleteProjectCategory(Long id) {
         // 校验存在
         validateProjectCategoryExists(id);
@@ -150,7 +197,41 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectCategoryRepository.deleteById(id);
     }
 
+    public ProjectCategory processQuotationProjectCategory(String categoryType,Long projectId,Long quotationId){
+        if (categoryType.equals("account")|| categoryType.equals("only")){
+            ProjectCategory byProjectIdAndType = null;
+            String  projectCategoryName = "出库增减项";
+
+            if(categoryType.equals("account")){
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndQuotationIdAndType(projectId,quotationId, categoryType);
+            }
+
+            if(categoryType.equals("only")){
+                projectCategoryName = "独立报价";
+                byProjectIdAndType = projectCategoryRepository.findByProjectIdAndQuotationIdAndType(projectId,quotationId, categoryType);
+            }
+
+            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
+            if(byProjectIdAndType!=null){
+                return byProjectIdAndType;
+            }else{
+                ProjectCategory projectCategory = new ProjectCategory();
+                projectCategory.setProjectId(projectId);
+                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
+                projectCategory.setType(categoryType);
+                projectCategory.setLabId(-2L);
+                projectCategory.setName(projectCategoryName);
+                ProjectCategory save = projectCategoryRepository.save(projectCategory);
+                return save;
+            }
+        }else{
+            throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+        }
+
+    }
+
     @Override
+    @Transactional
     public void deleteSoftProjectCategory(Long id){
         // 校验存在
         validateProjectCategoryExists(id);
@@ -196,22 +277,22 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     public Optional<ProjectCategory> getProjectCategory(Long id) {
         Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
-/*        if (byId.isPresent()) {
-            List<ProjectCategoryApproval> approvalList = byId.get().getApprovalList();
-            if (!approvalList.isEmpty()) {
-                Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
-                        .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-                byId.get().setLatestApproval(latestApproval.orElse(null));
-                latestApproval.ifPresent(approval -> {
-                    byId.get().setApprovalStage(approval.getApprovalStage());
-                    byId.get().setRequestStage(approval.getStage());
-                });
-            }
-        }*/
-        byId.ifPresent(this::processProjectCategoryItem);
+        ProjectCategory category  = byId.get();
 
-        return projectCategoryRepository.findById(id);
+        //以逗号分隔category的labIds 为list，然后查询出来
+        String labIds = category.getLabIds();
+        if(labIds!=null&& !labIds.isEmpty()){
+            category.setLabList(idsString2QueryList(category.getLabIds(),laboratoryLabRepository));
+        }
+
+        String ids = category.getFocusIds();
+        if(ids!=null&& !ids.isEmpty()){
+            category.setFocusList(idsString2QueryList(category.getFocusIds(),userRepository));
+        }
+        processProjectCategoryItem(byId.get());
+        return byId;
     }
+
 
     @Override
     public List<ProjectCategory> getProjectCategoryList(Collection<Long> ids) {
@@ -222,15 +303,77 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     public PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
         // 创建 Sort 对象
+        if(pageReqVO.getQuotationId()!=null){
+            orderV0.setCreateTime("asc");
+        }
         Sort sort = createSort(orderV0);
 
         // 创建 Pageable 对象
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategory> spec = (root, query, cb) -> {
+        Specification<ProjectCategory> spec = getProjectCategorySimpleSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
+        List<ProjectCategory> content = page.getContent();
+
+        if(!content.isEmpty()){
+            content.forEach(this::processProjectCategoryItem);
+        }
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProjectCategorySimple> getProjectCategoryPageSimple(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        // 创建 Specification
+        Specification<ProjectCategorySimple> spec = getProjectCategorySimpleSpecification(pageReqVO);
+
+        // 执行查询
+        if(pageReqVO.getPageNo()==-1){
+            List<ProjectCategorySimple> all = projectCategorySimpleRepository.findAll(spec,sort);
+            if(!all.isEmpty()){
+                all.forEach(this::processProjectCategorySimpleItem);
+            }
+            return new PageResult<>(all, (long)all.size());
+        }else{
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProjectCategorySimple> page = projectCategorySimpleRepository.findAll(spec, pageable);
+            return new PageResult<>(page.getContent(), page.getTotalElements());
+        }
+    }
+
+    @NotNull
+    private <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getAttribute() != null) {
+                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
+                    mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                }else{
+                    predicates.add(cb.equal(root.get("operatorId"), getLoginUserId()));
+                }
+            }else{
+                //这个目前 前端传过来的
+                if(pageReqVO.getOperatorId() != null) {
+                    predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
+                }
+            }
+
+            if(pageReqVO.getOperatorId() == null && pageReqVO.getAttributeManager() != null&& !pageReqVO.getAttributeManager().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttributeManager());
+                predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
+            }
+
+            if(pageReqVO.getFocusId() != null) {
+                mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
+            }
 
             if(pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
@@ -241,15 +384,17 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             // 直接写死，是1的时候去查一下1 别的都不进行处理
-            if(pageReqVO.getHasFeedback()!=null&&pageReqVO.getHasFeedback()==1) {
+            if(pageReqVO.getHasFeedback()!=null&& pageReqVO.getHasFeedback()==1) {
                 predicates.add(cb.equal(root.get("hasFeedback"), 1));
             }
             if(pageReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
             }
-
-            if(pageReqVO.getQuoteId() != null) {
-                predicates.add(cb.equal(root.get("quoteId"), pageReqVO.getQuoteId()));
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
+            }
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
@@ -259,9 +404,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             }
 
             //TODO all换成enum
-
-            if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+            if(pageReqVO.getTypes()!=null&& pageReqVO.getTypes().size()>0){
+                predicates.add(root.get("type").in(pageReqVO.getTypes()));
+            }else{
+                if(pageReqVO.getType() != null&& !pageReqVO.getType().equals("all")) {
+                    predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+                }
             }
 
             if(pageReqVO.getCategoryType() != null) {
@@ -272,9 +420,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
             }
 
-            if(pageReqVO.getOperatorId() != null) {
-                predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
-            }
+
 
             if(pageReqVO.getDemand() != null) {
                 predicates.add(cb.equal(root.get("demand"), pageReqVO.getDemand()));
@@ -296,35 +442,102 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
             if(pageReqVO.getLabId() != null) {
-                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+                mysqlFindInSet(pageReqVO.getLabId(),"labIds", root, cb, predicates);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
-        List<ProjectCategory> content = page.getContent();
-
-        if(content!=null&&content.size()>0){
-            content.forEach(this::processProjectCategoryItem);
-        }
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
+
+
+    // 增加一个可扩展参数，参数类型是map形式，key是属性名，value是属性值
+
     private void processProjectCategoryItem(ProjectCategory projectCategory) {
-        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
+/*        List<ProjectCategoryApproval> approvalList = projectCategory.getApprovalList();
         if (!approvalList.isEmpty()) {
             Optional<ProjectCategoryApproval> latestApproval = approvalList.stream()
                     .max(Comparator.comparing(ProjectCategoryApproval::getCreateTime));
-
-/*            String approvalStage = latestApproval.map(ProjectCategoryApproval::getApprovalStage).orElse(null);
-            String requestStage = latestApproval.map(ProjectCategoryApproval::getStage).orElse(null);*/
-
             projectCategory.setLatestApproval(latestApproval.orElse(null));
-//            projectCategory.setApprovalStage(approvalStage);
-//            projectCategory.setRequestStage(requestStage);
+        }*/
+        //根据focusIds获取operatorList
+        String operatorIds = projectCategory.getFocusIds();
+        if(operatorIds!=null&& !operatorIds.isEmpty()){
+            projectCategory.setFocusList(idsString2QueryList(operatorIds, userRepository));
+        }
+
+        List<ProjectSop> sopList = projectCategory.getSopList();
+        if(sopList!=null&& !sopList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& (sop.getStatus().equals("DONE")||sop.getStatus().equals("done"))).count();
+            projectCategory.setSopDone((int)count);
+            projectCategory.setSopTotal(sopList.size());
+        }
+
+        //跟sopList类似，处理一下preTodoList
+        List<CommonTodo> preTodoList = commonTodoRepository.findByType(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus());
+        projectCategory.setPreTodoList(preTodoList);
+        if(preTodoList!=null&& !preTodoList.isEmpty()){
+            AtomicReference<Integer> count = new AtomicReference<>(0);
+            preTodoList.forEach(
+                    todo->{
+                        todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+                        CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId( todo.getId(),projectCategory.getId());
+                        if(byTypeAndRefId!=null){
+                            todo.setTodoLogId(byTypeAndRefId.getId());
+                            todo.setStatus(byTypeAndRefId.getStatus());
+                            if(Objects.equals(byTypeAndRefId.getStatus(),CommonTodoEnums.DONE.getStatus())){
+                                count.getAndSet(count.get() + 1);
+                            }
+                        }
+                    }
+            );
+            projectCategory.setPreTodoDone(count.get());
+            projectCategory.setPreTodoTotal(preTodoList.size());
+        }
+    }
+
+    private void processProjectCategorySimpleItem(ProjectCategorySimple projectCategory) {
+
+
+        //根据focusIds获取operatorList
+        String operatorIds = projectCategory.getFocusIds();
+        if(operatorIds!=null&& !operatorIds.isEmpty()){
+            projectCategory.setFocusList(idsString2QueryList(operatorIds, userRepository));
+        }
+
+            //获取sop完成的数量，sopList的status等于done的数量
+        List<ProjectSop> sopList = projectCategory.getSopList();
+        if(sopList!=null&& !sopList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            long count = sopList.stream().filter(sop -> sop.getStatus()!=null&& (sop.getStatus().equals("DONE")||sop.getStatus().equals("done"))).count();
+            projectCategory.setSopDone((int)count);
+            projectCategory.setSopTotal(sopList.size());
+        }
+
+        //跟sopList类似，处理一下preTodoList
+        List<CommonTodo> preTodoList = commonTodoRepository.findByType(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus());
+        projectCategory.setPreTodoList(preTodoList);
+        if(preTodoList!=null&& !preTodoList.isEmpty()){
+            // 注意null值 long count = sopList.stream().filter(sop -> sop.getStatus().equals("done")).count();
+            // CommonTodoLog里面查询ref_id和type为PROJECT_CATEGORY，且status为DONE的，给preTodoList对应项的status赋值为DONE，然后再统计数量,备注：需要遍历查CommonTodoLog表
+            AtomicReference<Integer> count = new AtomicReference<>(0);
+            preTodoList.forEach(
+                    todo->{
+                        todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+                        CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId(todo.getId(),projectCategory.getId());
+                        if(byTypeAndRefId!=null){
+                            todo.setTodoLogId(byTypeAndRefId.getId());
+                            todo.setStatus(byTypeAndRefId.getStatus());
+                            if(Objects.equals(byTypeAndRefId.getStatus(),CommonTodoEnums.DONE.getStatus())){
+                                count.getAndSet(count.get() + 1);
+                            }
+                        }
+                    }
+            );
+            projectCategory.setPreTodoDone(count.get());
+            projectCategory.setPreTodoTotal(preTodoList.size());
         }
     }
 
@@ -392,15 +605,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+        orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "stage"));
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
-        }
-
-        if (order.getQuoteId() != null) {
-            orders.add(new Sort.Order(order.getQuoteId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "quoteId"));
         }
 
         if (order.getScheduleId() != null) {

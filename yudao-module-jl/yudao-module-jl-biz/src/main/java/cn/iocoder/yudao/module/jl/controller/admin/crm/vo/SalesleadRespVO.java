@@ -3,8 +3,10 @@ package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteBaseVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteOrScheduleSaveReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteRespVO;
+import cn.iocoder.yudao.module.jl.entity.collaborationrecord.CollaborationRecord;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -34,7 +36,7 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     private Long totalPrice = 0L;
 
     @Schema(description = "项目信息", example = "{}")
-    private Project project;
+    private ProjectSimple project;
 
     @Schema(description = "竞争对手报价", example = "[]")
     private List<SalesleadCompetitorItemVO> competitorQuotations = new ArrayList<>();
@@ -42,4 +44,6 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     @Schema(description = "客户方案", example = "[]")
     private List<SalesleadCustomerPlanItemVO> customerPlans = new ArrayList<>();
 
+    @Schema(description = "协作记录", example = "[]")
+    private List<CollaborationRecord> recordList = new ArrayList<>();
 }

@@ -2,10 +2,12 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import java.util.*;
 import javax.validation.*;
+
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 
 /**
  * 项目管理 Service 接口
@@ -67,13 +69,24 @@ public interface ProjectService {
      */
     PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
 
+    ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO);
+
+
+    /**
+     * 获得项目管理分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目管理分页
+     */
+    PageResult<ProjectSimple> getCustomerProjectPage(CustomerProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+
     /**
      * 获得项目管理分页simple
      *
      * @param pageReqVO 分页查询
      * @return 项目管理分页
      */
-    PageResult<ProjectOnly> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+    PageResult<ProjectSimple> getProjectSimplePage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
 
     /**
      * 获得项目数字统计

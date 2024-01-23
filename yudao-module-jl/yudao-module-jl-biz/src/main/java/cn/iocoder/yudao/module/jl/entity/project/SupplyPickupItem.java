@@ -52,6 +52,9 @@ public class SupplyPickupItem extends BaseEntity {
     @Column(name = "brand")
     private String brand;
 
+    @Column(name = "product_code")
+    private String productCode;
+
     /**
      * 规则/单位
      */
@@ -63,6 +66,9 @@ public class SupplyPickupItem extends BaseEntity {
      */
     @Column(name = "unit_fee", nullable = false )
     private String unitFee;
+
+    @Column(name = "spec", nullable = false)
+    private String spec;
 
     /**
      * 单量

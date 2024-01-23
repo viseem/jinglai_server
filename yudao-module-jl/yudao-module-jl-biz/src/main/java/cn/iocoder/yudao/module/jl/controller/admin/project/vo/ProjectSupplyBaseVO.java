@@ -24,21 +24,27 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
-    @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15603")
-    @NotNull(message = "物资 id不能为空")
+    @Schema(description = "物资 id")
     private Long supplyId;
 
     private Long projectId;
 
     private Long scheduleId;
+    private Long quotationId;
+    private Integer sort;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "规则/单位不能为空")
+    @Schema(description = "规则/单位")
     private String feeStandard;
+
+    /**
+     * 规格
+     */
+    @Schema(description = "规格")
+    private String spec;
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
@@ -46,8 +52,7 @@ public class ProjectSupplyBaseVO {
 
     private Integer officialPrice;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
     @Schema(description = "成本价")

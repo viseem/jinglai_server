@@ -9,9 +9,14 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class WorkstationFinanceCountStatsResp {
 
-    Integer projectFundNotPayCompleteCount;
+    Integer contractFundNotAuditCount;
+    Integer contractInvoiceNotAuditCount;
+
     Integer procurementNotPayCount;
 
     Integer financePaymentNotPayCount;
+
+    Integer notProcessFeedbackCount;
+
 
 }

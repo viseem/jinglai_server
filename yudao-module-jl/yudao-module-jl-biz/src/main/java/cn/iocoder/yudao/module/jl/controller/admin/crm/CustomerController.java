@@ -34,6 +34,7 @@ import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 @Tag(name = "管理后台 - 客户")
 @RestController
 @RequestMapping("/jl/customer")
+//------------------客户先当成用户
 @Validated
 public class CustomerController {
 
@@ -56,7 +57,12 @@ public class CustomerController {
     @Operation(summary = "创建客户")
     @PreAuthorize("@ss.hasPermission('jl:customer:create')")
     public CommonResult<Long> createCustomer(@Valid @RequestBody CustomerCreateReqVO createReqVO) {
-        return success(customerService.createCustomer(createReqVO));
+        Long customer = customerService.createCustomer(createReqVO);
+        String msg="";
+        if(customer == null || customer<=0){
+            msg="该手机号已存在";
+        }
+        return success(customer,msg);
     }
 
     @PutMapping("/update")

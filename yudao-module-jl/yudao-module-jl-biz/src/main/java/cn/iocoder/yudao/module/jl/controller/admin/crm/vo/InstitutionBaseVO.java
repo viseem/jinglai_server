@@ -14,20 +14,17 @@ import javax.validation.constraints.*;
 @Data
 public class InstitutionBaseVO {
 
-    @Schema(description = "省份", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "省份不能为空")
+    @Schema(description = "省份")
     private String province;
 
-    @Schema(description = "城市", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "城市不能为空")
+    @Schema(description = "城市")
     private String city;
 
     @Schema(description = "名字", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名字不能为空")
     private String name;
 
-    @Schema(description = "详细地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "详细地址不能为空")
+    @Schema(description = "详细地址")
     private String address;
 
     @Schema(description = "备注信息")
@@ -48,5 +45,8 @@ public class InstitutionBaseVO {
 
     @Schema(description = "科室")
     private String department;
+
+    @Schema(description = "企业码")
+    private String code;
 
 }

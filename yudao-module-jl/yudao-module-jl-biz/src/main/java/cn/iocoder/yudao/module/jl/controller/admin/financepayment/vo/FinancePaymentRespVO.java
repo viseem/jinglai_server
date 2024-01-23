@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.financepayment.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -19,5 +20,7 @@ public class FinancePaymentRespVO extends FinancePaymentBaseVO {
 
     private User user;
     private User auditUser;
+
+    private ProjectSimple project;
 
 }

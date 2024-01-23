@@ -2,21 +2,16 @@ package cn.iocoder.yudao.module.jl.entity.animal;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import java.util.*;
+import javax.persistence.*;
+
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * 动物饲养申请单 Entity
@@ -58,10 +53,16 @@ public class AnimalFeedOrder extends BaseEntity {
     private String breed;
 
     /**
-     * 周龄体重
+     * 周龄
      */
     @Column(name = "age", nullable = false )
     private String age;
+
+    /**
+     * 体重
+     */
+    @Column(name = "weight", nullable = false )
+    private String weight;
 
     /**
      * 数量
@@ -115,13 +116,13 @@ public class AnimalFeedOrder extends BaseEntity {
      * 开始日期
      */
     @Column(name = "start_date", nullable = false )
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束日期
      */
     @Column(name = "end_date", nullable = false )
-    private String endDate;
+    private LocalDateTime endDate;
 
     /**
      * 有无传染性等实验
@@ -170,7 +171,7 @@ public class AnimalFeedOrder extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 客户id
@@ -183,6 +184,12 @@ public class AnimalFeedOrder extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CustomerOnly customer;
+
+    @Transient
+    private String customerName;
+    public String getCustomerName() {
+        return customer == null ? null : customer.getName();
+    }
 
     /**
      * 状态
@@ -214,6 +221,18 @@ public class AnimalFeedOrder extends BaseEntity {
     @Column(name = "in_mark")
     private String inMark;
 
+    /**
+     * 位置
+     */
+    @Column(name = "location")
+    private String location;
+
+    /**
+     * 位置编码
+     */
+    @Column(name = "location_code")
+    private String locationCode;
+
 
     /**
      * 查询鼠牌
@@ -241,9 +260,30 @@ public class AnimalFeedOrder extends BaseEntity {
 
     @Transient
     private AnimalFeedLog latestLog;
+
+    @Transient
+    private Integer latestCageQuantity;
+    public Integer getLatestCageQuantity() {
+        return logs == null||logs.isEmpty() ? null : logs.get(0).getCageQuantity();
+    }
+
+    @Transient
+    private Integer latestQuantity;
+    public Integer getLatestQuantity() {
+        return logs == null||logs.isEmpty() ? null : logs.get(0).getQuantity();
+    }
+
     @Transient
     private AnimalFeedStoreIn latestStore;
+    public AnimalFeedStoreIn getLatestStore() {
+        return stores == null||stores.isEmpty() ? null : stores.get(0);
+    }
+
+
     @Transient
     private Integer Amount;
+
+    @Transient
+    private Integer dayCount;
 
 }

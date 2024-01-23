@@ -16,20 +16,27 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @Data
 public class ProjectConstractExcelVO {
 
-    @ExcelProperty("岗位ID")
-    private Long id;
+    @ExcelProperty("合同名字")
+    private String name;
+    @ExcelProperty("对方公司名称")
+    private String companyName;
+    @ExcelProperty("文件名")
+    private String stampFileName;
 
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
+    @ExcelProperty("编号")
+    private String sn;
+
+    @ExcelProperty("金额")
+    private Long price;
+
+    @ExcelProperty("已收金额")
+    private Long receivedPrice;
+
+    @ExcelProperty("已开票")
+    private Long invoicedPrice;
 
     @ExcelProperty("项目 id")
     private Long projectId;
-
-    @ExcelProperty("合同名字")
-    private String name;
-
-    @ExcelProperty("合同文件 URL")
-    private String fileUrl;
 
     @ExcelProperty("合同状态：起效、失效、其它")
     private String status;
@@ -37,16 +44,13 @@ public class ProjectConstractExcelVO {
     @ExcelProperty("合同类型")
     private String type;
 
-    @ExcelProperty("合同金额")
-    private Long price;
-
     @ExcelProperty("签订销售人员")
-    private Long salesId;
+    private String salesName;
 
-    @ExcelProperty("合同编号")
-    private String sn;
+    @ExcelProperty("创建时间")
+    private LocalDateTime createTime;
 
-    @ExcelProperty("合同文件名")
-    private String fileName;
+    @ExcelProperty("合同下载地址")
+    private String stampFileUrl;
 
 }

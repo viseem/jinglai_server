@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -99,16 +98,39 @@ public class ProjectController {
         ProjectRespVO ret = project.map(projectMapper::toDto).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
 
         // 计算各类成本
-        Long currentScheduleId =ret.getCurrentScheduleId();
+/*        Long currentScheduleId =ret.getCurrentScheduleId();
         ret.setSupplyCost(projectScheduleService.getSupplyCostByScheduleId(currentScheduleId));
         ret.setChargeItemCost(projectScheduleService.getChargeItemCostByScheduleId(currentScheduleId));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByScheduleId(currentScheduleId));
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByScheduleId(currentScheduleId));
-        ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));
+        ret.setProcurementCost(projectScheduleService.getProcurementCostByScheduleId(currentScheduleId));*/
 
         //查询persons人员,通过ProjectPerson表查询，然后通过personId查询person表
-        ret.setPersons(projectPersonRepository.findByProjectId(id));
+//        ret.setPersons(projectPersonRepository.findByProjectId(id));
 
+        return success(ret);
+    }
+
+    @GetMapping("/cost-stats")
+    @Operation(summary = "通过 ID 获得项目管理")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectCostStatsRespVO> getProjectCostStats(@RequestParam("id") Long id) {
+        Project project = projectService.getProject(id).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+
+        // 计算各类成本
+        Long quotationId =project.getCurrentQuotationId();
+        ProjectCostStatsRespVO ret = new ProjectCostStatsRespVO();
+
+        //计算合同应收和已收 TODO 可以合并成一个方法
+        ret.setContractAmount(projectScheduleService.getContractAmountByProjectId(id));
+        ret.setContractReceivedAmount(projectScheduleService.getContractReceivedAmountByProjectId(id));
+
+        ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
+        ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
+        ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));
+        ret.setReimbursementCost(projectScheduleService.getReimburseCostByProjectId(id));
+        ret.setProcurementCost(projectScheduleService.getProcurementCostByProjectId(id));
         return success(ret);
     }
 
@@ -123,16 +145,24 @@ public class ProjectController {
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
-    public CommonResult<PageResult<ProjectRespVO>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+    public CommonResult<PageResult<Project>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
         PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
-        return success(projectMapper.toPage(pageResult));
+        return success(pageResult);
+    }
+
+    @GetMapping("/supply-and-charge")
+    @Operation(summary = "项目物资")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectSupplyAndChargeRespVO> getProjectPage(@Valid ProjectSupplyAndChargeReqVO pageVO) {
+        ProjectSupplyAndChargeRespVO projectSupplyAndCharge = projectService.getProjectSupplyAndCharge(pageVO);
+        return success(projectSupplyAndCharge);
     }
 
     @GetMapping("/simple-page")
     @Operation(summary = "(分页)获得项目管理列表")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<PageResult<ProjectRespVO>> getProjectSimplePage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
-        PageResult<ProjectOnly> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
+        PageResult<ProjectSimple> pageResult = projectService.getProjectSimplePage(pageVO, orderV0);
         return success(projectMapper.toSimplePage(pageResult));
     }
 

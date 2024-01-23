@@ -1,20 +1,17 @@
 package cn.iocoder.yudao.module.jl.entity.asset;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import java.util.*;
+
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import org.apache.tomcat.jni.Local;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 /**
@@ -60,13 +57,13 @@ public class AssetDeviceLog extends BaseEntity {
      * 开始时间
      */
     @Column(name = "start_date", nullable = false )
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 结束时间
      */
     @Column(name = "end_date", nullable = false )
-    private String endDate;
+    private LocalDateTime endDate;
 
     /**
      * 项目id
@@ -78,7 +75,7 @@ public class AssetDeviceLog extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
     /**
      * 用途分类：项目
@@ -92,4 +89,16 @@ public class AssetDeviceLog extends BaseEntity {
     @Column(name = "project_device_id")
     private Long projectDeviceId;
 
+
+    /*
+    * 预约的客户id
+    * */
+    @Column(name="customer_id")
+    private Long customerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
 }

@@ -88,4 +88,10 @@ public class Institution extends BaseEntity {
     @Column(name = "department", nullable = false )
     private String department;
 
+    /**
+     * 企业码
+     */
+    @Column(name = "code", nullable = false )
+    private String code;
+
 }

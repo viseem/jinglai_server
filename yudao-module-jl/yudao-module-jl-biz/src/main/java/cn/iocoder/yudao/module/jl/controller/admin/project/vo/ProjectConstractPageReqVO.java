@@ -43,6 +43,8 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "合同收款状态", example = "2")
     private String receivedStatus;
 
+    @Schema(description = "合同开票状态", example = "2")
+    private String invoicedStatus;
 
     @Schema(description = "合同类型", example = "1")
     private String type;
@@ -61,4 +63,6 @@ public class ProjectConstractPageReqVO extends PageParam {
 
     @Schema(description = "关键字", example = "芋艿")
     private String keyword;
+
+    private Integer isOuted;
 }

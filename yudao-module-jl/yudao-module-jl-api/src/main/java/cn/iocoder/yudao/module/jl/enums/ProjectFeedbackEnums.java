@@ -18,6 +18,9 @@ public enum ProjectFeedbackEnums implements StringArrayValuable {
 
     PROCESSED("1", "已处理"),
     NOT_PROCESS("2", "未处理"),
+
+    INNER_TYPE("INNER","内部"),
+    CUSTOMER_TYPE("CUSTOMER","客户")
     ;
 
     private final String status;

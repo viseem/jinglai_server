@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerRespVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.projectperson.ProjectPerson;
@@ -35,11 +36,10 @@ public class ProjectRespVO extends ProjectBaseVO {
 
     private User manager;
 
-    private User procurementer;
-    private User intentorier;
+    private User user;
+    private User preManager;
+    private User afterManager;
     private User exper;
-    private List<User> expers;
-
 
     @Schema(description = "物资成本")
     private Long supplyCost;
@@ -56,12 +56,10 @@ public class ProjectRespVO extends ProjectBaseVO {
     @Schema(description = "报销的成本")
     private Long reimbursementCost;
 
-    private List<ProjectConstractOnly> contracts = new ArrayList<>();
-    private List<ProjectFundLog> fundLogs = new ArrayList<>();
 
     private ProjectApproval latestApproval;
 
-    private List<ProjectCategoryOnly> categoryList;
+    private List<User> focusList;
 
-    private List<ProjectPerson> persons;
+    private CrmSubjectGroup subjectGroup;
 }

@@ -15,8 +15,11 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ContractFundStatusEnums implements StringArrayValuable {
+    NOT_AUDIT("1", "未核验"),
+    AUDITED("2", "已核验"),
 
-    COMPLETE("3", "已开票已支付"),
+
+    COMPLETE("100", "之前的状态，不用了，但是不写会报错"),
     ;
 
     private final String status;

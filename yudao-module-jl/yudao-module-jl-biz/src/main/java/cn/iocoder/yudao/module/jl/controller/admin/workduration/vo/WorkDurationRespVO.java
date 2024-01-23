@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.workduration.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,7 +21,7 @@ public class WorkDurationRespVO extends WorkDurationBaseVO {
 
     private User user;
     private User auditUser;
-    private ProjectOnly project;
+    private ProjectSimple project;
     private ProjectCategoryOnly projectCategory;
 
 }

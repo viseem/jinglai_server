@@ -2,8 +2,12 @@ package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractBaseVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectConstractItemVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.constraints.*;
 
@@ -25,11 +29,21 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
     @Schema(description = "项目名字", example = "[]")
     private String projectName;
     @Schema(description = "项目类型", example = "")
-    private String type = "1";
-    @Schema(description = "项目合同", example = "[]")
-    private List<ProjectConstractItemVO> projectConstracts = new ArrayList<>();
+    private String type;
+    @Schema(description = "项目合同", example = "")
+    private ProjectConstract contract;
 
-
-
+    @Schema(description = "合同文件")
+    private String contractStampFileUrl;
+    @Schema(description = "合同文件名称")
+    private String contractStampFileName;
+    @Schema(description = "合同金额")
+    private BigDecimal contractPrice;
+    @Schema(description = "合同纸面金额")
+    private BigDecimal paperPrice;
+    @Schema(description = "合同编号")
+    private String contractSn;
+    @Schema(description = "对方公司名称")
+    private String contractCompanyName;
 
 }

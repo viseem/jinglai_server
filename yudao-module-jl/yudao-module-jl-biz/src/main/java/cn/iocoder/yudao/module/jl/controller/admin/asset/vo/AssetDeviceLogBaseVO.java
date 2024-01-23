@@ -26,23 +26,22 @@ public class AssetDeviceLogBaseVO {
     @Schema(description = "预约说明")
     private String mark;
 
-    @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "开始时间不能为空")
+    @Schema(description = "开始时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String startDate;
+    private LocalDateTime startDate;
 
-    @Schema(description = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "结束时间不能为空")
+    @Schema(description = "结束时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
 
-    @Schema(description = "用途分类：项目", example = "2")
+    @Schema(description = "用途分类", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String useType;
 
     @Schema(description = "项目设备id", example = "29474")
     private Long projectDeviceId;
 
+    private Long customerId;
 }

@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
-import cn.iocoder.yudao.module.jl.entity.inventory.SupplyOutItem;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
@@ -12,7 +11,6 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,6 +48,13 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
+
+    @Resource
+    private ProjectScheduleServiceImpl projectScheduleService;
+
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     @Override
     @Transactional
     public Long createProjectSupply(ProjectSupplyCreateReqVO createReqVO) {
@@ -57,47 +62,47 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        if (createReqVO.getProjectCategoryType().equals("account")){
-            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
-            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
-            if(byProjectIdAndType!=null){
-                projectSupply.setProjectCategoryId(byProjectIdAndType.getId());
-            }else{
-                ProjectCategory projectCategory = new ProjectCategory();
-                projectCategory.setProjectId(createReqVO.getProjectId());
-                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
-                projectCategory.setType(createReqVO.getProjectCategoryType());
-                projectCategory.setLabId(-2L);
-                projectCategory.setName("出库增减项");
-                ProjectCategory save = projectCategoryRepository.save(projectCategory);
-                projectSupply.setProjectCategoryId(save.getId());
-            }
-        }
+        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
+        projectSupply.setProjectCategoryId(projectCategory.getId());
         projectSupplyRepository.save(projectSupply);
+
+        //更新报价金额
 
         // 返回
         return projectSupply.getId();
     }
 
+
     @Override
+    @Transactional
     public void updateProjectSupply(ProjectSupplyUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectSupplyExists(updateReqVO.getId());
+        ProjectSupply projectSupply = validateProjectSupplyExists(updateReqVO.getId());
+
         // 更新
         ProjectSupply updateObj = projectSupplyMapper.toEntity(updateReqVO);
         projectSupplyRepository.save(updateObj);
+
+        //更新报价金额
     }
 
     @Override
+    @Transactional
     public void deleteProjectSupply(Long id) {
         // 校验存在
-        validateProjectSupplyExists(id);
+        ProjectSupply projectSupply = validateProjectSupplyExists(id);
         // 删除
         projectSupplyRepository.deleteById(id);
+
+        //更新报价金额
     }
 
-    private void validateProjectSupplyExists(Long id) {
-        projectSupplyRepository.findById(id).orElseThrow(() -> exception(PROJECT_SUPPLY_NOT_EXISTS));
+    private ProjectSupply validateProjectSupplyExists(Long id) {
+        Optional<ProjectSupply> byId = projectSupplyRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_SUPPLY_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -125,6 +130,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         Specification<ProjectSupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
+            }
+
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
@@ -149,9 +158,6 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 predicates.add(cb.like(root.get("brand"), "%" + pageReqVO.getBrand() + "%"));
             }
 
-            if(pageReqVO.getScheduleId() != null) {
-                predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
-            }
 
             if(pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
@@ -209,12 +215,12 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                     .mapToInt(ProcurementItem::getQuantity)
                     .sum();
         }
-        if (item.getSendIns().size() > 0) {
+/*        if (item.getSendIns().size() > 0) {
 
         }
         if (item.getPickups().size() > 0) {
 
-        }
+        }*/
 
         if(item.getStoreLogs().size()>0){
             item.setLatestStoreLog(item.getStoreLogs().get(0));
@@ -293,6 +299,9 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
 
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+
+        orders.add(new Sort.Order("desc".equals(order.getSort()) ? Sort.Direction.DESC : Sort.Direction.ASC, "sort"));
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
         }

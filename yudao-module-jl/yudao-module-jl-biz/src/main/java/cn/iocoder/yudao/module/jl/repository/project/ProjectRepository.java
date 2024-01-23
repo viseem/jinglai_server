@@ -14,6 +14,18 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Query("select count(p) from Project p where p.code like concat(?1, '%')")
+    long countByCodeStartsWith(String code);
+    @Query("select p from Project p where p.code like concat(?1, '%')")
+    Project findByCodeStartsWith(String code);
+    @Query("select p from Project p where p.code = ?1")
+    Project findByCode(String code);
+    @Transactional
+    @Modifying
+    @Query("update Project p set p.currentQuotationId = ?1 where p.id = ?2")
+    int updateCurrentQuotationIdById(Long currentQuotationId, Long id);
+    @Query("select p from Project p where p.code is not null")
+    List<Project> findByCodeNotNull();
     @Transactional
     @Modifying
     @Query("update Project p set p.outboundApplyResult = ?1 where p.id = ?2")

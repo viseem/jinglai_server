@@ -5,11 +5,33 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 /**
 * SalesleadRepository
 *
 */
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.jsonLog = ?1 where s.id = ?2")
+    int updateJsonLogById(String jsonLog, Long id);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.creator = ?1 where s.id = ?2")
+    int updateCreatorById(Long creator, Long id);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.quotationMark = ?1 where s.id = ?2")
+    int updateQuotationMarkById(String quotationMark, Long id);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.quotationMark = ?1,s.quotationJsonFile = ?2 where s.id = ?3")
+    int updateQuotationMarkAndQuotationJsonFileById(String quotationMark, String jsonFile,Long id);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.managerId = ?1,s.assignMark=?2 where s.id = ?3")
+    int updateManagerIdAndAssignMarkById(Long managerId,String assignMark, Long id);
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.status = ?1 where s.projectId = ?2")
@@ -38,5 +60,5 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.quotation = ?2 where s.projectId = ?1")
-    void updateQuotationByProjectId(Long projectId,Long quotation);
+    void updateQuotationByProjectId(Long projectId, BigDecimal quotation);
 }

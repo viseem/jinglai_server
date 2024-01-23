@@ -1,11 +1,17 @@
 package cn.iocoder.yudao.module.system.controller.admin.user;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptByReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.dept.PostDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
+import cn.iocoder.yudao.module.system.service.dept.PostService;
+import cn.iocoder.yudao.module.system.service.permission.PermissionService;
+import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import cn.iocoder.yudao.module.system.enums.common.SexEnum;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
@@ -33,6 +39,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 用户")
 @RestController
@@ -44,6 +51,15 @@ public class UserController {
     private AdminUserService userService;
     @Resource
     private DeptService deptService;
+
+    @Resource
+    private PostService postService;
+
+    @Resource
+    private RoleService roleService;
+
+    @Resource
+    private PermissionService permissionService;
 
     @PostMapping("/create")
     @Operation(summary = "新增用户")
@@ -89,7 +105,24 @@ public class UserController {
     @GetMapping("/page")
     @Operation(summary = "获得用户分页列表")
     @PreAuthorize("@ss.hasPermission('system:user:list')")
+    //不记录日志
+    @OperateLog(enable = false)
     public CommonResult<PageResult<UserPageItemRespVO>> getUserPage(@Valid UserPageReqVO reqVO) {
+
+        if(reqVO.getAttribute()!=null){
+            if(reqVO.getAttribute().equals("ALL")){
+                //查询自己负责的部门id
+                DeptByReqVO dept = new DeptByReqVO();
+                dept.setLeaderUserId(getLoginUserId());
+                DeptDO deptBy = deptService.getDeptBy(dept);
+                if(deptBy!=null){
+                    reqVO.setDeptId(deptBy.getId());
+                }else{
+                    reqVO.setDeptId(-1L);
+                }
+            }
+        }
+
         // 获得用户分页列表
         PageResult<AdminUserDO> pageResult = userService.getUserPage(reqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
@@ -104,12 +137,23 @@ public class UserController {
         pageResult.getList().forEach(user -> {
             UserPageItemRespVO respVO = UserConvert.INSTANCE.convert(user);
             respVO.setDept(UserConvert.INSTANCE.convert(deptMap.get(user.getDeptId())));
+            //查询岗位并赋值
+            // 获得岗位信息
+            if (user.getPostIds()!=null&&CollUtil.isNotEmpty(user.getPostIds())) {
+                List<PostDO> posts = postService.getPostList(user.getPostIds());
+                respVO.setPosts(UserConvert.INSTANCE.convertList02(posts));
+            }
+            // 获得用户角色
+            List<RoleDO> userRoles = roleService.getRoleListFromCache(permissionService.getUserRoleIdListByUserId(user.getId()));
+            respVO.setRoles(UserConvert.INSTANCE.convertList(userRoles));
             userList.add(respVO);
         });
         return success(new PageResult<>(userList, pageResult.getTotal()));
     }
 
     @GetMapping("/list-all-simple")
+    //不记录日志
+    @OperateLog(enable = false)
     @Operation(summary = "获取用户精简信息列表", description = "只包含被开启的用户，主要用于前端的下拉选项")
     public CommonResult<List<UserSimpleRespVO>> getSimpleUserList() {
         // 获用户列表，只要开启状态的
@@ -121,8 +165,30 @@ public class UserController {
     @GetMapping("/get")
     @Operation(summary = "获得用户详情")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('system:user:query')")
+//    @PreAuthorize("@ss.hasPermission('system:user:query')")
     public CommonResult<UserRespVO> getUser(@RequestParam("id") Long id) {
+        AdminUserDO user = userService.getUser(id);
+        UserPageItemRespVO convertUser = UserConvert.INSTANCE.convert(user);
+        // 获得部门数据
+        DeptDO dept = deptService.getDept(user.getDeptId());
+        convertUser.setDept(UserConvert.INSTANCE.convert(dept));
+
+        // 获得岗位信息
+        if (user.getPostIds()!=null&&CollUtil.isNotEmpty(user.getPostIds())) {
+            List<PostDO> posts = postService.getPostList(user.getPostIds());
+            convertUser.setPosts(UserConvert.INSTANCE.convertList02(posts));
+        }
+        // 获得用户角色
+        List<RoleDO> userRoles = roleService.getRoleListFromCache(permissionService.getUserRoleIdListByUserId(user.getId()));
+        convertUser.setRoles(UserConvert.INSTANCE.convertList(userRoles));
+
+        return success(convertUser);
+    }
+
+    @GetMapping("/get-simple")
+    @Operation(summary = "获得用户详情")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    public CommonResult<UserRespVO> getUserSimple(@RequestParam("id") Long id) {
         AdminUserDO user = userService.getUser(id);
         // 获得部门数据
         DeptDO dept = deptService.getDept(user.getDeptId());

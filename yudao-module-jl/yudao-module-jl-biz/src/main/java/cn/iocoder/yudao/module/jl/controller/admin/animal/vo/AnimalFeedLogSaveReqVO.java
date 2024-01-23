@@ -19,4 +19,8 @@ public class AnimalFeedLogSaveReqVO extends AnimalFeedLogBaseVO {
 
     private List<AnimalFeedStoreIn> storeList;
 
+    private String location;
+    private String locationCode;
+
+
 }

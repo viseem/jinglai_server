@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -16,6 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+
 /**
  * 项目管理 Base VO，提供给添加、修改、详细的子 VO 使用
  * 如果子 VO 存在差异的字段，请不要添加到这里，影响 Swagger 文档生成
@@ -25,6 +28,10 @@ public class ProjectBaseVO {
 
     @Schema(description = "当前安排单 id", example = "15320")
     private Long currentScheduleId;
+
+    private Long subjectGroupId;
+
+    private Long currentQuotationId;
 
     private String processInstanceId;
     private String outboundApplyResult;
@@ -52,16 +59,30 @@ public class ProjectBaseVO {
     private String type;
 
     @Schema(description = "启动时间")
-    private String startDate;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startDate;
 
     @Schema(description = "截止时间")
-    private String endDate;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime endDate;
 
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
 
+    @Schema(description = "项目售前负责人", example = "6150")
+    private Long preManagerId;
+
+    @Schema(description = "项目售后负责人", example = "6150")
+    private Long afterManagerId;
+
+    @Schema(description = "实验负责人", example = "6150")
+    private Long experId;
+
+/*    @Schema(description = "参与者 ids，数组")
+    private String participants;*/
+
     @Schema(description = "参与者 ids，数组")
-    private String participants;
+    private String focusIds;
 
     @Schema(description = "销售 id", example = "16310")
     private Long salesId;
@@ -69,27 +90,4 @@ public class ProjectBaseVO {
     @Schema(description = "销售 id", example = "8556")
     private Long customerId;
 
-
-    /**
-     * 采购负责人
-     */
-    @Schema(description = "销采购负责人 id", example = "16310")
-    private Long procurementerId;
-
-
-    /**
-     * 库管负责人
-     */
-    @Schema(description = "库管负责人 id", example = "16310")
-    private Long inventorierId;
-
-
-    /**
-     * 实验负责人
-     */
-    @Schema(description = "实验负责人 id", example = "16310")
-    private Long experId;
-
-    @Schema(description = "实验员 ids", example = "16310")
-    private String experIds;
 }

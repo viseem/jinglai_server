@@ -1,7 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.asset.vo;
 
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class AssetDeviceLogRespVO extends AssetDeviceLogBaseVO {
 
     private AssetDevice device;
 
-    private ProjectOnly project;
+    private ProjectSimple project;
 
+    private CustomerOnly customer;
 }

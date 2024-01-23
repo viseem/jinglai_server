@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -47,54 +49,61 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
+    @Resource
+    private ProjectScheduleServiceImpl projectScheduleService;
+
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     @Override
     public Long createProjectChargeitem(ProjectChargeitemCreateReqVO createReqVO) {
         // 插入
         ProjectChargeitem projectChargeitem = projectChargeitemMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        if (createReqVO.getProjectCategoryType().equals("account")){
-            ProjectCategory byProjectIdAndType = projectCategoryRepository.findByProjectIdAndType(createReqVO.getProjectId(), createReqVO.getProjectCategoryType());
-            //如果byProjectIdAndType等于null，则新增一个ProjectCategory,如果不等于null，则获取id
-            if(byProjectIdAndType!=null){
-                projectChargeitem.setProjectCategoryId(byProjectIdAndType.getId());
-            }else{
-                ProjectCategory projectCategory = new ProjectCategory();
-                projectCategory.setProjectId(createReqVO.getProjectId());
-                projectCategory.setStage(ProjectCategoryStatusEnums.COMPLETE.getStatus());
-                projectCategory.setType(createReqVO.getProjectCategoryType());
-                projectCategory.setLabId(-2L);
-                projectCategory.setName("出库增减项");
-                ProjectCategory save = projectCategoryRepository.save(projectCategory);
-                projectChargeitem.setProjectCategoryId(save.getId());
-            }
-
-        }
+        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
+        projectChargeitem.setProjectCategoryId(projectCategory.getId());
 
         projectChargeitemRepository.save(projectChargeitem);
+
+        //更新报价金额
+
         // 返回
         return projectChargeitem.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectChargeitem(ProjectChargeitemUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectChargeitemExists(updateReqVO.getId());
+
+
+
         // 更新
         ProjectChargeitem updateObj = projectChargeitemMapper.toEntity(updateReqVO);
         projectChargeitemRepository.save(updateObj);
+
+        //更新报价金额
     }
 
     @Override
+    @Transactional
     public void deleteProjectChargeitem(Long id) {
         // 校验存在
-        validateProjectChargeitemExists(id);
+        ProjectChargeitem projectChargeitem = validateProjectChargeitemExists(id);
         // 删除
         projectChargeitemRepository.deleteById(id);
+
+        //更新报价金额
     }
 
-    private void validateProjectChargeitemExists(Long id) {
-        projectChargeitemRepository.findById(id).orElseThrow(() -> exception(PROJECT_CHARGEITEM_NOT_EXISTS));
+    private ProjectChargeitem validateProjectChargeitemExists(Long id) {
+        Optional<ProjectChargeitem> byId = projectChargeitemRepository.findById(id);
+        if(byId.isEmpty()){
+            throw exception(PROJECT_CHARGEITEM_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
@@ -119,6 +128,10 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         // 创建 Specification
         Specification<ProjectChargeitem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
+            }
 
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
@@ -223,6 +236,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("desc".equals(order.getSort()) ? Sort.Direction.DESC : Sort.Direction.ASC, "sort"));
+
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

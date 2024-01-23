@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -70,17 +71,24 @@ public class ProjectChargeitem extends BaseEntity {
     private Long projectId;
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
-
+    @Column(name = "quotation_id", nullable = false)
+    private Long quotationId;
     @Column(name = "final_usage_num")
     private Integer finalUsageNum;
 
     @Column(name = "is_append")
     private Integer isAppend;
+
+    @Column(name = "sort")
+    private Integer sort;
     /**
      * 单价
      */
     @Column(name = "unit_fee", nullable = false )
     private Integer unitFee;
+
+    @Column(name = "spec", nullable = false )
+    private String spec;
 
     /**
      * 单量
@@ -101,15 +109,20 @@ public class ProjectChargeitem extends BaseEntity {
     private Integer quantity;
 
     /**
+     * 折扣
+     */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
     private String mark;
 
-    @ManyToOne
-    @JoinColumn(name="project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectCategory category;
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly category;
 }

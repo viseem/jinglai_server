@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -48,6 +49,9 @@ public class SalesleadController {
     private CustomerService customerService;
 
     @Resource
+    private SalesleadRepository salesleadRepository;
+
+    @Resource
     private SalesleadMapper salesleadMapper;
 
 //    @PostMapping("/create")
@@ -61,11 +65,54 @@ public class SalesleadController {
 //        return success(salesLeadId);
 //    }
 
-    @PutMapping("/save")
+    @PutMapping("/update")
     @Operation(summary = "保存销售线索")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
     public CommonResult<Boolean> updateSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
         salesleadService.updateSaleslead(updateReqVO);
+        return success(true);
+    }
+    @PutMapping("/update-quotation-mark")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> updateSalesleadQuotationMark(@Valid @RequestBody SalesleadNoRequireBaseVO updateReqVO) {
+        salesleadService.updateSalesleadQuotationMark(updateReqVO);
+        return success(true);
+    }
+
+
+    @PutMapping("/update-manager")
+    @Operation(summary = "商机报价转给别人")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> updateSalesleadManager(@Valid @RequestBody SalesleadUpdateManagerVO updateReqVO) {
+        salesleadRepository.updateManagerIdAndAssignMarkById(updateReqVO.getManagerId(),updateReqVO.getAssignMark(), updateReqVO.getId());
+        return success(true);
+    }
+
+    @PostMapping("/to-seas")
+    @Operation(summary = "商机转入公海池")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> salesleadToSeas(@Valid @RequestBody SalesleadSeasVO updateReqVO) {
+        salesleadService.salesleadToSeas(updateReqVO);
+        return success(true);
+    }
+
+    @PostMapping("/to-sale")
+    @Operation(summary = "商机转给销售")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> salesleadToSale(@Valid @RequestBody SalesleadSeasVO updateReqVO) {
+        salesleadService.salesleadToSale(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/save")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> saveSaleslead(@Valid @RequestBody SalesleadUpdateReqVO updateReqVO) {
+        Integer i = salesleadService.saveSaleslead(updateReqVO);
+        if (i == 0) {
+            return success(true,"合同编号已存在");
+        }
         return success(true);
     }
 
@@ -91,7 +138,7 @@ public class SalesleadController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
     public CommonResult<SalesleadRespVO> getSaleslead(@RequestParam("id") Long id) {
-        Optional<Saleslead> saleslead = salesleadService.getSaleslead(id);
+        Optional<SalesleadDetail> saleslead = salesleadService.getSaleslead(id);
         return success(saleslead.map(salesleadMapper::toDto).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS)));
     }
 

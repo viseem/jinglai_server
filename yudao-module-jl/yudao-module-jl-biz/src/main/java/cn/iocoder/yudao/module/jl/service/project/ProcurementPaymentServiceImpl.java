@@ -41,6 +41,16 @@ public class ProcurementPaymentServiceImpl implements ProcurementPaymentService 
     @Resource
     private ProcurementPaymentMapper procurementPaymentMapper;
 
+    //根据supplierId计算总金额
+    public Long sumAmountBySupplierId(Long supplierId){
+        List<ProcurementPayment> bySupplierId = procurementPaymentRepository.findBySupplierId(supplierId);
+        Long sum = 0L;
+        for (ProcurementPayment procurementPayment : bySupplierId) {
+            sum += procurementPayment.getAmount();
+        }
+        return sum;
+    }
+
     @Override
     public Long createProcurementPayment(ProcurementPaymentCreateReqVO createReqVO) {
         // 插入

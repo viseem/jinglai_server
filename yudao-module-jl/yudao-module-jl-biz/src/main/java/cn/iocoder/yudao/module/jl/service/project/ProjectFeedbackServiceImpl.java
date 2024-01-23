@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.projectfeedback.ProjectFeedbackFocus;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -76,7 +77,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 校验是否已经反馈过
         // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
-        projectFeedback.setStatus("2");
+        projectFeedback.setStatus(ProjectFeedbackEnums.NOT_PROCESS.getStatus());
         projectFeedback.setCustomerId(project.getCustomerId());
         projectFeedbackRepository.save(projectFeedback);
 
@@ -144,7 +145,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     public PageResult<ProjectFeedback> getProjectFeedbackPage(ProjectFeedbackPageReqVO pageReqVO, ProjectFeedbackPageOrder orderV0) {
 
         //获取attribute
-        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        Long[] users = pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(),pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
         //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
         pageReqVO.setCreators(users);
 
@@ -161,10 +162,14 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
             //如果是看自己的
             if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
                 if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
-                    predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+                    predicates.add(cb.equal(root.get("creator"), pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?pageReqVO.getUserId():getLoginUserId()));
                 }else{
                     //不是看自己的 默认查由自己处理的
-                    predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    if (pageReqVO.getUserId() != null) {
+                        predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
+                    }else{
+                        predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    }
                 }
             }
 
@@ -184,9 +189,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                 predicates.add(cb.equal(root.get("feedType"), pageReqVO.getFeedType()));
             }
 
-            if (pageReqVO.getUserId() != null) {
+/*            if (pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
-            }
+            }*/
 
             if (pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
@@ -285,6 +290,8 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

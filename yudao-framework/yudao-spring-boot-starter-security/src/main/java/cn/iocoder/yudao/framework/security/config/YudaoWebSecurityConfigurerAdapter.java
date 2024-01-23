@@ -132,6 +132,8 @@ public class YudaoWebSecurityConfigurerAdapter {
                 .antMatchers("/captcha/get", "/captcha/check").permitAll()
                 // 1.6 webSocket 允许匿名访问
                 .antMatchers("/websocket/message").permitAll()
+//                .antMatchers(buildOpenApi("/**")).permitAll()
+
                 // ②：每个项目的自定义规则
                 .and().authorizeRequests(registry -> // 下面，循环设置自定义规则
                         authorizeRequestsCustomizers.forEach(customizer -> customizer.customize(registry)))
@@ -164,6 +166,10 @@ public class YudaoWebSecurityConfigurerAdapter {
     private String buildAppApi(String url) {
         return webProperties.getAppApi().getPrefix() + url;
     }
+    private String buildOpenApi(String url) {
+        return webProperties.getOpenApi().getPrefix() + url;
+    }
+
 
     private Multimap<HttpMethod, String> getPermitAllUrlsFromAnnotations() {
         Multimap<HttpMethod, String> result = HashMultimap.create();

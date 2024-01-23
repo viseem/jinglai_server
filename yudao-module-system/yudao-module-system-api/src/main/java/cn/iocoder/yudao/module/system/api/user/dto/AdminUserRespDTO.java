@@ -41,4 +41,6 @@ public class AdminUserRespDTO {
      */
     private String mobile;
 
+    private String avatar;
+
 }

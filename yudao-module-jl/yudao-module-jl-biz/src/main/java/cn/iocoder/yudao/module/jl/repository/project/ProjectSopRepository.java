@@ -5,12 +5,19 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
 * ProjectSopRepository
 *
 */
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
+    @Query("select p from ProjectSop p where p.projectCategoryId = ?1")
+    List<ProjectSop> findByProjectCategoryId(Long projectCategoryId);
+    @Transactional
+    @Modifying
+    @Query("update ProjectSop p set p.status = ?1 where p.id = ?2")
+    int updateStatusById(String status, Long id);
     @Transactional
     @Modifying
     @Query("update ProjectSop p set p.deleted = ?1 where p.projectCategoryId = ?2")

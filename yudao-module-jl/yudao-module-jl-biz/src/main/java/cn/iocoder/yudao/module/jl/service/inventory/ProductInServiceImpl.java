@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.inventory;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.SupplySendIn;
 import cn.iocoder.yudao.module.jl.mapper.inventory.ProductInItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.ProductInItemRepository;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +51,9 @@ public class ProductInServiceImpl implements ProductInService {
 
     @Resource
     private ProductInItemMapper productInItemMapper;
+
+    @Resource
+    private ProjectServiceImpl projectService;
 
     @Override
     public Long createProductIn(ProductInCreateReqVO createReqVO) {
@@ -173,6 +178,10 @@ public class ProductInServiceImpl implements ProductInService {
      */
     @Override
     public void saveProductIn(ProductInSaveReqVO saveReqVO) {
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(saveReqVO.getProjectId());
+        saveReqVO.setCustomerId(projectSimple.getCustomerId());
+
         if(saveReqVO.getId() != null) {
             // 存在 id，更新操作
             Long id = saveReqVO.getId();
@@ -189,7 +198,13 @@ public class ProductInServiceImpl implements ProductInService {
 //        productInItemRepository.deleteByProductInId(productInId);
 
         // 更新 items
-        productInItemRepository.saveAll(saveReqVO.getItems().stream().peek(item -> item.setProductInId(productInId)).collect(Collectors.toList()));
+        productInItemRepository.saveAll(saveReqVO.getItems().stream().peek(item -> {
+            item.setProductInId(productInId);
+            item.setProjectId(saveReqVO.getProjectId());
+            item.setCustomerId(saveReqVO.getCustomerId());
+            item.setProjectCategoryId(saveReqVO.getProjectCategoryId());
+
+        }).collect(Collectors.toList()));
 
     }
 

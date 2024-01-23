@@ -91,13 +91,13 @@ public class AssetDevice extends BaseEntity {
     private String location;
 
     /**
-     * 设备状态：空闲、忙碌(前端先自己算)
+     * 设备状态
      */
     @Column(name = "status")
     private String status;
 
     /**
-     * 设备编码：后端生成
+     * 设备固定编码
      */
     @Column(name = "sn")
     private String sn;
@@ -105,7 +105,35 @@ public class AssetDevice extends BaseEntity {
     /**
      * 设备编码：后端生成
      */
+    @Column(name = "code")
+    private String code;
+
+    /**
+     * 设备编码：后端生成
+     */
     @Column(name = "color")
     private String color;
+
+    /**
+     * 所属实验室
+     */
+    @Column(name = "lab_id")
+    private Long labId;
+
+    /**
+     * 租赁开始时间
+     */
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    /**
+     * 租赁结束时间
+     */
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
+
+    @Transient
+    private Boolean busy;
+
 
 }

@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,6 +21,6 @@ public class CompanySupplyRespVO extends CompanySupplyBaseVO {
 
     private CustomerOnly customer;
 
-    private ProjectOnly project;
+    private ProjectSimple project;
     private ProjectSupply projectSupply;
 }

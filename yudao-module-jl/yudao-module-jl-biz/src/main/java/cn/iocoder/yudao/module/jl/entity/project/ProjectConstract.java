@@ -1,24 +1,19 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
+import cn.iocoder.yudao.module.jl.entity.contract.ContractApproval;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 项目合同 Entity
@@ -43,7 +38,7 @@ public class ProjectConstract extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    @JoinColumn(name = "sales_id", insertable = false, updatable = false)
     private User sales;
 
     /**
@@ -55,7 +50,7 @@ public class ProjectConstract extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
+    private ProjectSimple project;
 
 /*    @ManyToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -68,14 +63,38 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    /**
+     * 公司主体名称
+     */
+    @Column(name = "company_name")
+    private String companyName;
+
+    /**
+     * 备注
+     */
+    @Column(name = "mark")
+    private String mark;
+
     @Column(name = "customer_id")
     private Long customerId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
 
     /**
      * 合同文件 URL
      */
     @Column(name = "file_url", nullable = false)
     private String fileUrl;
+
+    /**
+     * 合同附件
+     */
+    @Column(name = "json_file", nullable = false)
+    private String jsonFile;
 
     /**
      * 盖章合同文件 URL
@@ -99,28 +118,46 @@ public class ProjectConstract extends BaseEntity {
     private String payStatus;
 
     /**
-     * 合同类型
+     * 合同业务类型
      */
     @Column(name = "type")
     private String type;
 
     /**
-     * 合同金额
+     * 合同类型
+     */
+    @Column(name = "contract_type")
+    private String contractType;
+
+    /**
+     * 合同应收金额
      */
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
+
+    /**
+     * 合同账面金额
+     */
+    @Column(name = "paper_price")
+    private BigDecimal paperPrice;
 
     /**
      * 结算金额
      */
     @Column(name = "real_price")
-    private Integer realPrice;
+    private BigDecimal realPrice;
 
     /**
      * 已收金额
      */
     @Column(name = "received_price")
-    private Integer receivedPrice;
+    private BigDecimal receivedPrice;
+
+    /**
+     * 已开票金额
+     */
+    @Column(name = "invoiced_price")
+    private BigDecimal invoicedPrice;
 
     /**
      * 签订销售人员
@@ -141,30 +178,49 @@ public class ProjectConstract extends BaseEntity {
     private String fileName;
 
     /**
-     * 是否收齐
+     * 合同关联的文档id
      */
-    @Column(name = "is_collect_all")
-    private Boolean isCollectAll;
+    @Column(name = "project_document_id")
+    private Long projectDocumentId;
 
+
+    /**
+     * 是否出库
+     */
+    @Column(name = "is_outed")
+    private Integer isOuted;
+
+    /**
+     * 查询审批列表
+     */
+/*    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @OrderBy("createTime DESC")
+    private List<ContractApproval> approvalList = new ArrayList<>();*/
+
+    @Transient
+    private ContractApproval latestApproval;
 
 
     /**
      * 查询回款计划列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFund> funds;
+    private List<ProjectFund> funds;*/
 
 
     /**
      * 查询回款日志列表
      */
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFundLog> fundLogs;
+    private List<ProjectFundLog> fundLogs;*/
 
 }

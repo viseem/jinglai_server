@@ -47,7 +47,11 @@ public class ProjectConstractController {
     @Operation(summary = "创建项目合同")
     @PreAuthorize("@ss.hasPermission('jl:project-constract:create')")
     public CommonResult<Long> createProjectConstract(@Valid @RequestBody ProjectConstractCreateReqVO createReqVO) {
-        return success(projectConstractService.createProjectConstract(createReqVO));
+        Long projectConstract = projectConstractService.createProjectConstract(createReqVO);
+        if (projectConstract == 0) {
+            return success(null,"合同编号已存在");
+        }
+        return success(projectConstract);
     }
 
     @PutMapping("/update")
@@ -114,6 +118,7 @@ public class ProjectConstractController {
     @OperateLog(type = EXPORT)
     public void exportProjectConstractExcel(@Valid ProjectConstractExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
         List<ProjectConstract> list = projectConstractService.getProjectConstractList(exportReqVO);
+        System.out.println(list.get(0).getSales()+"========");
         // 导出 Excel
         List<ProjectConstractExcelVO> excelData = projectConstractMapper.toExcelList(list);
         ExcelUtils.write(response, "项目合同.xls", "数据", ProjectConstractExcelVO.class, excelData);

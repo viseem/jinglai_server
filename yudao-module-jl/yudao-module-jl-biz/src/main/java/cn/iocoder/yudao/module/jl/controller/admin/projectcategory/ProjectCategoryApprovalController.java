@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory;
 
+import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -42,10 +43,14 @@ public class ProjectCategoryApprovalController {
     @Resource
     private ProjectCategoryApprovalMapper projectCategoryApprovalMapper;
 
+    @Resource
+    private NeedAuditHandler needAuditHandler;
+
     @PostMapping("/create")
     @Operation(summary = "创建项目实验名目的状态变更审批")
     @PreAuthorize("@ss.hasPermission('jl:project-category-approval:create')")
-    public CommonResult<Long> createProjectCategoryApproval(@Valid @RequestBody ProjectCategoryApprovalCreateReqVO createReqVO) {
+    public CommonResult<Long> createProjectCategoryApproval(@Valid @RequestBody ProjectCategoryApprovalCreateReqVO createReqVO,HttpServletRequest request) {
+        createReqVO.setNeedAudit(needAuditHandler.needAudit(request,createReqVO.getStage()));
         return success(projectCategoryApprovalService.createProjectCategoryApproval(createReqVO));
     }
 

@@ -34,6 +34,9 @@ public class AssetDeviceLogPageReqVO extends PageParam {
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
 
+    @Schema(description = "客户id", example = "13618")
+    private Long customerId;
+
     @Schema(description = "用途分类：项目", example = "2")
     private String useType;
 

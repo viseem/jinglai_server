@@ -12,4 +12,7 @@ import javax.validation.constraints.*;
 public class ProjectChargeitemCreateReqVO extends ProjectChargeitemBaseVO {
 
     private String projectCategoryType;
+
+    private Long projectQuotationId;
+
 }

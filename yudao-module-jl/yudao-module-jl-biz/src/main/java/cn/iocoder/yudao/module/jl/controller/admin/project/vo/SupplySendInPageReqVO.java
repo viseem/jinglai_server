@@ -22,6 +22,9 @@ public class SupplySendInPageReqVO extends PageParam {
     @Schema(description = "项目 id", example = "28953")
     private Long projectId;
 
+    @Schema(description = "物品货号", example = "28953")
+    private String productCode;
+
     @Schema(description = "实验名目库的名目 id", example = "32059")
     private Long projectCategoryId;
 

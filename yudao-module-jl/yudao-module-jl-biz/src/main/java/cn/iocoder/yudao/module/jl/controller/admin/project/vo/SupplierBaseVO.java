@@ -80,4 +80,16 @@ public class SupplierBaseVO {
     @Schema(description = "联系人的职位")
     private String contactLevel;
 
+    /**
+     * 支行
+     */
+    @Schema(description = "支行")
+    private String subBranch;
+
+    /**
+     * 支行
+     */
+    @Schema(description = "渠道类型")
+    private String channelType;
+
 }

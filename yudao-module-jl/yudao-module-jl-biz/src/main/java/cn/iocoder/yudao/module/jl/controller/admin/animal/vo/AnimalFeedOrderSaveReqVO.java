@@ -15,6 +15,8 @@ import java.util.List;
 @ToString(callSuper = true)
 public class AnimalFeedOrderSaveReqVO extends AnimalFeedOrderBaseVO {
 
+    private Boolean needAudit;
+
     private Long id;
     private List<AnimalFeedCard> cards;
 

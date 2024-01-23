@@ -66,6 +66,14 @@ public class AuthController {
         return success(authService.login(reqVO));
     }
 
+    @PostMapping("/lab-login")
+    @PermitAll
+    @Operation(summary = "使用账号密码登录")
+    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志 //这里一加valid就报错了
+    public CommonResult<AuthLoginRespVO> loginNoCaptcha(@RequestBody AuthLabLoginReqVO reqVO) {
+        return success(authService.loginNoCaptcha(reqVO));
+    }
+
     @PostMapping("/logout")
     @PermitAll
     @Operation(summary = "登出系统")

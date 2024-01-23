@@ -16,8 +16,11 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class CustomerPageReqVO extends PageParam {
 
     private Boolean toCustomer = true;
+
+    private Long subjectGroupId;
+
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DataAttributeTypeEnums.MY.getStatus();
+    private String attribute = DataAttributeTypeEnums.ALL.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;

@@ -9,8 +9,10 @@ import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.yudao.module.system.api.logger.dto.LoginLogCreateReqDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
+import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
@@ -64,6 +66,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     @Resource
     private SmsCodeApi smsCodeApi;
 
+
     /**
      * 验证码的开关，默认为 true
      */
@@ -94,7 +97,9 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     @Override
     public AuthLoginRespVO login(AuthLoginReqVO reqVO) {
         // 校验验证码
-        validateCaptcha(reqVO);
+        if(!Objects.equals(reqVO.getCaptchaVerification(), "-1")){
+            validateCaptcha(reqVO);
+        }
 
         // 使用账号密码，进行登录
         AdminUserDO user = authenticate(reqVO.getUsername(), reqVO.getPassword());
@@ -106,6 +111,32 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         }
         // 创建 Token 令牌，记录登录日志
         return createTokenAfterLoginSuccess(user.getId(), reqVO.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+    }
+
+
+    @Override
+    public AuthLoginRespVO loginNoCaptcha(AuthLabLoginReqVO reqVO) {
+        AdminUserDO user1 = userService.getUser(reqVO.getUserid());
+        if (user1 == null) {
+            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+        }
+
+        // 使用账号密码，进行登录
+        AdminUserDO user = authenticate(user1.getUsername(), reqVO.getPassword());
+
+        // 创建 Token 令牌，记录登录日志
+        AuthLoginRespVO tokenAfterLoginSuccess = createTokenAfterLoginSuccess(user.getId(), user1.getUsername(), LoginLogTypeEnum.LOGIN_USERNAME);
+        //AdminUserDO 复制copy给 AdminUserRespDTO
+        AdminUserRespDTO adminUserRespDTO = new AdminUserRespDTO();
+        adminUserRespDTO.setId(user.getId());
+        adminUserRespDTO.setNickname(user.getNickname());
+        adminUserRespDTO.setStatus(user.getStatus());
+        adminUserRespDTO.setDeptId(user.getDeptId());
+        adminUserRespDTO.setPostIds(user.getPostIds());
+        adminUserRespDTO.setMobile(user.getMobile());
+        adminUserRespDTO.setAvatar(user.getAvatar());
+        tokenAfterLoginSuccess.setUser(adminUserRespDTO);
+        return tokenAfterLoginSuccess;
     }
 
     @Override

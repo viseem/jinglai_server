@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
+import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
@@ -68,15 +69,18 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @PostConstruct
-    public void ProjectServiceImpl(){
-        AnimalFeedOrder firstByOrderByIdDesc = animalFeedOrderRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, ANIMAL_FEED_ORDER_DEFAULT_PREFIX);
+    public void ProcurementServiceImpl(){
+        AnimalFeedOrder last = animalFeedOrderRepository.findFirstByOrderByIdDesc();
+        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
     }
-
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        return  String.format("%s%s%07d",uniqCodeGenerator.getUniqCodePrefix(),dateStr, uniqCodeGenerator.generateUniqUid());
+        long count = animalFeedOrderRepository.countByCodeStartsWith(ANIMAL_FEED_ORDER_DEFAULT_PREFIX+dateStr);
+        if (count == 0) {
+            uniqCodeGenerator.setUniqUid(0L);
+        }
+        return String.format("%s%s%04d", ANIMAL_FEED_ORDER_DEFAULT_PREFIX, dateStr, uniqCodeGenerator.generateUniqUid());
     }
 
     @Resource
@@ -114,6 +118,17 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
+    public void updateAnimalFeedOrderStatus(AnimalFeedOrderNoRequireBaseVO updateVO){
+
+        // 校验存在
+        validateAnimalFeedOrderExists(updateVO.getId());
+        if(updateVO.getStage()==null){
+            return;
+        }
+        animalFeedOrderRepository.updateStageById(updateVO.getStage(),updateVO.getId());
+    }
+
+    @Override
     @Transactional
     public void saveAnimalFeedOrder(AnimalFeedOrderSaveReqVO saveReqVO) {
         // 校验存在
@@ -122,7 +137,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             saveReqVO.setCode(generateCode());
         }
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(saveReqVO);
-        saveObj.setStage(BpmProcessInstanceResultEnum.PROCESS.getResult().toString());
+        saveObj.setStage(AnimalFeedStageEnums.APPROVAL_SUCCESS.getStatus().toString());
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
@@ -135,13 +150,17 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }).collect(Collectors.toList()));
 
         // 发起 BPM 流程
-        Map<String, Object> processInstanceVariables = new HashMap<>();
-        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
-
-        // 更新流程实例编号
+        if(saveReqVO.getNeedAudit()){
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
+            // 更新流程实例编号
         animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId,saveObj.getId());
+        }
+
+
+
 
     }
 
@@ -152,6 +171,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 更新
         storeReqVO.setStage(AnimalFeedStageEnums.FEEDING.getStatus());
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(storeReqVO);
+        if (saveObj.getCode()==null){
+            saveObj.setCode(generateCode());
+        }
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
@@ -214,6 +236,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         if (logs != null&&logs.size()>0) {
             Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
             AtomicInteger totalAmount = new AtomicInteger();
+            AtomicInteger dayCount = new AtomicInteger();
+
             logs.forEach(log -> {
                 String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 Integer count = log.getCageQuantity();
@@ -231,6 +255,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                     rowAmount = dateStrToRowAmountMap.get(dateStr);
                 } else {
                     totalAmount.addAndGet(rowAmount);
+                    dayCount.incrementAndGet();
                     // If dateStr is encountered for the first time, add it to the map with the rowAmount value
                     dateStrToRowAmountMap.put(dateStr, rowAmount);
                 }
@@ -239,8 +264,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
                 log.setRowAmount(rowAmount);
             });
+            animalFeedOrder.setDayCount(dayCount.get());
             animalFeedOrder.setAmount(totalAmount.get());
-            animalFeedOrder.setLatestLog(logs.get(0));
+//            animalFeedOrder.setLatestLog(logs.get(0));
         }
     }
 
@@ -472,6 +498,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

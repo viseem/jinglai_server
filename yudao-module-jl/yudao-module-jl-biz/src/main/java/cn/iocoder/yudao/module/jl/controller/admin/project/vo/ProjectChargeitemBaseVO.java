@@ -21,8 +21,7 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
-    @Schema(description = "物资 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "5750")
-    @NotNull(message = "物资 id不能为空")
+    @Schema(description = "物资 id")
     private Long chargeItemId;
 
     private Integer finalUsageNum;
@@ -30,14 +29,19 @@ public class ProjectChargeitemBaseVO {
     private Integer isAppend;
 
     private Long projectId;
-
+    private Long quotationId;
     private Long scheduleId;
+
+    private Integer sort;
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "规则/单位", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "规则/单位不能为空")
+
+    @Schema(description = "规格")
+    private String spec;
+
+    @Schema(description = "规则/单位")
     private String feeStandard;
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -47,8 +51,7 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "成本价")
     private Integer buyPrice;
 
-    @Schema(description = "单量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单量不能为空")
+    @Schema(description = "单量")
     private Integer unitAmount;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -57,5 +60,8 @@ public class ProjectChargeitemBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    @Schema(description = "折扣")
+    private Integer discount;
 
 }

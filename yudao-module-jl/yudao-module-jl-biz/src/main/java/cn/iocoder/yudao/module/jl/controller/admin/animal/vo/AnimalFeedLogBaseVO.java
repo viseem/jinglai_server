@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -49,5 +50,7 @@ public class AnimalFeedLogBaseVO {
 
     @Schema(description = "变更后笼位的数量")
     private Integer boxQuantity;
+
+    private User operator;
 
 }

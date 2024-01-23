@@ -27,6 +27,8 @@ public interface AnimalFeedOrderService {
      */
     void updateAnimalFeedOrder(@Valid AnimalFeedOrderUpdateReqVO updateReqVO);
 
+    void updateAnimalFeedOrderStatus(@Valid AnimalFeedOrderNoRequireBaseVO updateReqVO);
+
     /**
      * save更新动物饲养申请单
      *

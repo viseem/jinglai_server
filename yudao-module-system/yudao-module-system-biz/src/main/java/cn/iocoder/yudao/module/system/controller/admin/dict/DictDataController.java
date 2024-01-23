@@ -60,6 +60,8 @@ public class DictDataController {
 
     @GetMapping("/list-all-simple")
     @Operation(summary = "获得全部字典数据列表", description = "一般用于管理后台缓存字典数据在本地")
+    //不记录日志
+    @OperateLog(enable = false)
     // 无需添加权限认证，因为前端全局都需要
     public CommonResult<List<DictDataSimpleRespVO>> getSimpleDictDataList() {
         List<DictDataDO> list = dictDataService.getDictDataList();
@@ -68,6 +70,8 @@ public class DictDataController {
 
     @GetMapping("/page")
     @Operation(summary = "/获得字典类型的分页列表")
+    //不记录日志
+    @OperateLog(enable = false)
     @PreAuthorize("@ss.hasPermission('system:dict:query')")
     public CommonResult<PageResult<DictDataRespVO>> getDictTypePage(@Valid DictDataPageReqVO reqVO) {
         return success(DictDataConvert.INSTANCE.convertPage(dictDataService.getDictDataPage(reqVO)));
@@ -75,6 +79,8 @@ public class DictDataController {
 
     @GetMapping(value = "/get")
     @Operation(summary = "/查询字典数据详细")
+    //不记录日志
+    @OperateLog(enable = false)
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('system:dict:query')")
     public CommonResult<DictDataRespVO> getDictData(@RequestParam("id") Long id) {

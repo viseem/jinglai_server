@@ -75,6 +75,16 @@ public class SupplierController {
         return success(supplier.map(supplierMapper::toDto).orElseThrow(() -> exception(SUPPLIER_NOT_EXISTS)));
     }
 
+    @GetMapping("/get-stats")
+    @Operation(summary = "通过 ID 获得项目采购单物流信息")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:supplier:query')")
+    public CommonResult<SupplierStatsRespVO> getSupplierStats(@RequestParam("id") Long id) {
+        SupplierStatsRespVO supplierStats = supplierService.getSupplierStats(id);
+        return success(supplierStats);
+    }
+
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目采购单物流信息列表")
     @PreAuthorize("@ss.hasPermission('jl:supplier:query')")

@@ -27,16 +27,16 @@ public class CustomerBaseVO {
 
     private Boolean toCustomer = true;
 
+    private String  subjectGroupIds;
+
     @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotNull(message = "姓名不能为空")
     private String name;
 
-    @Schema(description = "客户来源", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "客户来源不能为空")
+    @Schema(description = "客户来源")
     private String source;
 
-    @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "手机号不能为空")
+    @Schema(description = "手机号")
     private String phone;
 
     @Schema(description = "邮箱")
@@ -68,6 +68,9 @@ public class CustomerBaseVO {
 
     @Schema(description = "公司", example = "14623")
     private Long companyId;
+
+    @Schema(description = "研究所", example = "14623")
+    private Long researchId;
 
     @Schema(description = "省")
     private String province;
