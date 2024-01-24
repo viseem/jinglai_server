@@ -17,6 +17,10 @@ import java.util.List;
 public enum ContractInvoiceStatusEnums implements StringArrayValuable {
     NOT_INVOICE("1", "未开票"),
     INVOICED("2", "已开票"),
+
+    RECEIVED_NO("0", "未收款"),
+    RECEIVED_ALL("1", "已收款"),
+    RECEIVED_PART("2", "部分收款"),
     ;
 
     private final String status;
