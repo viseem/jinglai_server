@@ -58,11 +58,11 @@ public class ProjectPageReqVO extends PageParam {
 
     @Schema(description = "启动时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDate[] startDate;
+    private LocalDateTime[] startDate;
 
     @Schema(description = "截止时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDate[] endDate;
+    private LocalDateTime[] endDate;
 
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
