@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -35,6 +37,6 @@ public class ProjectQuotationBaseVO {
     private Integer discount;
 
     @Schema(description = "报价金额")
-    private Integer originPrice;
+    private BigDecimal originPrice;
 
 }
