@@ -109,4 +109,7 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
     @Schema(description = "状态", example = "1")
     private String status;
 
+    @Schema(description = "收款状态", example = "1")
+    private String priceStatus;
+
 }
