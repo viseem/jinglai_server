@@ -15,5 +15,5 @@ public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvo
     @Query("select count(c) from ContractInvoiceLog c where c.status <> ?1")
     Integer countByStatusNot(String status);
     @Query("select count(c) from ContractInvoiceLog c where c.status <> ?1 or c.priceStatus <> ?2")
-    Integer countByStatusNotOrPriceStatusNot(String status,Integer priceStatus);
+    Integer countByStatusNotOrPriceStatusNot(String status,String priceStatus);
 }

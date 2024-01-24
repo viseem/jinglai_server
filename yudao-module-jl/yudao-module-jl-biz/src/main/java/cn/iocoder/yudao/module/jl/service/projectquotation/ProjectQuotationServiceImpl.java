@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
@@ -53,6 +54,9 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private SalesleadRepository salesleadRepository;
 
     @Resource
     private ProjectQuotationMapper projectQuotationMapper;
@@ -141,6 +145,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
         projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
 
+        //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
+        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
 
     }
 

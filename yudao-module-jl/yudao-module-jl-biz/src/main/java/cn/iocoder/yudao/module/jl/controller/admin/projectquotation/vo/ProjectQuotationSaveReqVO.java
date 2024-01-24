@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Schema(description = "管理后台 - 项目报价更新 Request VO")
@@ -28,4 +29,7 @@ public class ProjectQuotationSaveReqVO extends ProjectQuotationBaseVO {
 
     private List<ProjectCategoryQuotationVO> categoryList;
 
+// 算上折扣的报价金额
+    @Schema(description = "报价金额")
+    private BigDecimal quotationAmount;
 }
