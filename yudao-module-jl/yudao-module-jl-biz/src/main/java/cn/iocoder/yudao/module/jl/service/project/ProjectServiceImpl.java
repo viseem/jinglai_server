@@ -432,9 +432,9 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
             }
 
-/*            if(pageReqVO.getSalesId() != null) {
+            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }*/
+            }
 
             if(pageReqVO.getStageArr() != null&& !pageReqVO.getStageArr().isEmpty()) {
                 predicates.add(root.get("stage").in(pageReqVO.getStageArr()));
