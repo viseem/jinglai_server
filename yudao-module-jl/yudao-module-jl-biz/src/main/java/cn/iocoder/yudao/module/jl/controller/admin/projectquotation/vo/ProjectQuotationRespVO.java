@@ -16,4 +16,6 @@ public class ProjectQuotationRespVO extends ProjectQuotationBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    @Schema(description = "更新时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    private LocalDateTime updateTime;
 }
