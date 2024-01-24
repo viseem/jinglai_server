@@ -448,16 +448,21 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 
 //                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+            }
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }else{
                 if(pageReqVO.getManagerId() != null) {
-                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                    /*predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
                     if(pageReqVO.getStatus() != null) {
                         predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                    }
+                    }*/
                 }else{
                     if(pageReqVO.getAttribute()!=null){
                         if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
