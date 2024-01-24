@@ -435,9 +435,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.isNotNull(root.get("quotation")));
             }*/
 
-/*            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
-            }*/
+
 
 /*
             if(pageReqVO.getQuotation() != null) {
@@ -453,6 +451,10 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if(pageReqVO.getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
+            }
+
+            if(pageReqVO.getSalesId() != null&&pageReqVO.getManagerId()!=null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getCustomerId() != null) {
