@@ -51,7 +51,7 @@ public class LabProjectCategoryController {
     @PermitAll
     @Operation(summary = "(分页)获得项目的实验名目列表")
     public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
-        pageVO.setPageNo(-1);
+//        pageVO.setPageNo(-1);
         PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
         return success(pageResult);
     }
