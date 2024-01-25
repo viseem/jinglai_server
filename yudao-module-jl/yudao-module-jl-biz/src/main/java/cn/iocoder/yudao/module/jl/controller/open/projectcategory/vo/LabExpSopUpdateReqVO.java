@@ -18,6 +18,9 @@ public class LabExpSopUpdateReqVO {
     @Schema(description = "原始实验名目 id")
     private Long categoryId;
 
+    @Schema(description = "原始实验名目 id")
+    private Long projectCategoryId;
+
     @Schema(description = "操作步骤的内容")
     private String content;
 
@@ -32,6 +35,7 @@ public class LabExpSopUpdateReqVO {
 
     @Schema(description = "依赖项(json数组多个)")
     private String dependIds;
+
 
 
 }
