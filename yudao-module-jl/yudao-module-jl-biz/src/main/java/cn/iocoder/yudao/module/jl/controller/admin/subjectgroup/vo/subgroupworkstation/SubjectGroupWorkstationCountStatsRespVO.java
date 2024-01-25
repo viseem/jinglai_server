@@ -17,7 +17,7 @@ public class SubjectGroupWorkstationCountStatsRespVO {
 
     // 商机数量 用saleslead查询未成交的商机个数
     private Integer orderCount;
-    // 报价金额 用saleslead查询未成交的商机金额
+    // 商机金额 用saleslead查询未成交的商机金额
     private Integer orderAmount;
     // 成交数量 查询合同的数量
     private Integer dealCount;
@@ -25,7 +25,4 @@ public class SubjectGroupWorkstationCountStatsRespVO {
     private Integer dealAmount;
     // 已收金额 查询合同的已收金额
     private Integer receivedAmount;
-    // 回款金额
-    private Integer returnedAmount;
-
 }
