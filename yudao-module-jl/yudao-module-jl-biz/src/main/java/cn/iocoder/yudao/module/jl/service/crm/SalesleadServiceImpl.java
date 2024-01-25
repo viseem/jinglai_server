@@ -476,16 +476,18 @@ public class SalesleadServiceImpl implements SalesleadService {
                         }
                     }
 
-                    if(pageReqVO.getStatus() != null) {
-                        //查询未转项目的
-                        if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
-                            predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
-                        }else{
-                            predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                        }
 
-                    }
                 }
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                //查询未转项目的
+                if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                }else{
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+
             }
 
             if(pageReqVO.getProjectId() != null) {
