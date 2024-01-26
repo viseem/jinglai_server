@@ -371,6 +371,10 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
 
+            if(pageReqVO.getStageArr()!=null){
+                predicates.add(root.get("stage").in(Arrays.stream(pageReqVO.getStageArr()).toArray()));
+            }
+
             if(pageReqVO.getFocusId() != null) {
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
             }

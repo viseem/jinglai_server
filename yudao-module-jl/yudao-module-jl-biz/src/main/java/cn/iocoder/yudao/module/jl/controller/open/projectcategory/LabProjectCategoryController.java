@@ -47,11 +47,12 @@ public class LabProjectCategoryController {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     @PermitAll
     @Operation(summary = "(分页)获得项目的实验名目列表")
-    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+    public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPage(@Valid @RequestBody ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
 //        pageVO.setPageNo(-1);
+        System.out.println(pageVO.getPageSize());
         PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
         return success(pageResult);
     }
