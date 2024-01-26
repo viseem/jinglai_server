@@ -133,7 +133,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
             List<Predicate> predicates = new ArrayList<>();
 
             //关联查询项目表，判断项目的code不为null
-            if(pageReqVO.getNoQuotationItem()){
+            if(pageReqVO.getNoQuotationItem()!=null&&pageReqVO.getNoQuotationItem()){
                 Join<ProjectSupply, ProjectSimple> projectJoin = root.join("project", JoinType.LEFT);
                 //判断project的code不为null
                 predicates.add(cb.isNotNull(projectJoin.get("code")));
