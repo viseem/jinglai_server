@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -43,5 +45,8 @@ public class SubjectGroupBaseVO {
 
     private User leaderUser;
     private User businessLeaderUser;
+
+    private BigDecimal kpiOrderFund;
+    private BigDecimal kpiReturnFund;
 
 }
