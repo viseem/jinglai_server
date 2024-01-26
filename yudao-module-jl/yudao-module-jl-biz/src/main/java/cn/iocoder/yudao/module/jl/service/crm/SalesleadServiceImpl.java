@@ -190,7 +190,8 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 再插入
         List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
         if(customerPlans != null && customerPlans.size() > 0) {
-            // 遍历 customerPlans，将它的 salesleadId 字段设置为 saleleadsObj.getId()
+            // 过滤掉fileUrl为null的
+            customerPlans = customerPlans.stream().filter(customerPlan -> customerPlan.getFileUrl() != null).collect(Collectors.toList());
             customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
