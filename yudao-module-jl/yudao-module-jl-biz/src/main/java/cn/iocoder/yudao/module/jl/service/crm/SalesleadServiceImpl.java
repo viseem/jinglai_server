@@ -341,13 +341,15 @@ public class SalesleadServiceImpl implements SalesleadService {
             // 保存到projectDocument里面去,用saveAll一次性保存，先存到list，再saveAll
                 List<ProjectDocument> projectDocuments = new ArrayList<>();
                 customerPlans.forEach(customerPlan -> {
-                    customerPlan.setSalesleadId(salesleadId);
-                    ProjectDocument projectDocument = new ProjectDocument();
-                    projectDocument.setProjectId(updateReqVO.getProjectId());
-                    projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
-                    projectDocument.setFileName(customerPlan.getFileName());
-                    projectDocument.setFileUrl(customerPlan.getFileUrl());
-                    projectDocuments.add(projectDocument);
+                    if(customerPlan.getFileUrl()!=null){
+                        customerPlan.setSalesleadId(salesleadId);
+                        ProjectDocument projectDocument = new ProjectDocument();
+                        projectDocument.setProjectId(updateReqVO.getProjectId());
+                        projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
+                        projectDocument.setFileName(customerPlan.getFileName());
+                        projectDocument.setFileUrl(customerPlan.getFileUrl());
+                        projectDocuments.add(projectDocument);
+                    }
                 });
             if(updateReqVO.getProjectId()!=null){
                 projectDocumentRepository.deleteByTypeAndProjectId(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus(),updateReqVO.getProjectId());
