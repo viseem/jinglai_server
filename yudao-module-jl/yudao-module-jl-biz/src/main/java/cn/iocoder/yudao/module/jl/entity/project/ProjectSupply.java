@@ -212,6 +212,13 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+
+    /**
+     * 内部备注
+     */
+    @Column(name = "internal_mark")
+    private String internalMark;
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
