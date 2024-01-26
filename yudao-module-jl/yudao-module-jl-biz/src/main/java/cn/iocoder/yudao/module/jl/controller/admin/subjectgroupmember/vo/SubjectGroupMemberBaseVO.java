@@ -39,4 +39,8 @@ public class SubjectGroupMemberBaseVO {
     private BigDecimal kpiOrderFund;
     private BigDecimal kpiReturnFund;
 
+    private String nickname;
+    private String role;
+    private String post;
+
 }
