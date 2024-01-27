@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.jl.controller.admin.subjectgroup;
+package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
@@ -18,11 +18,11 @@ import javax.validation.Valid;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
-@Tag(name = "管理后台 - 专题小组")
+@Tag(name = "销售端数据统计")
 @RestController
-@RequestMapping("/jl/subject-group-workstation")
+@RequestMapping("/statistic/sales")
 @Validated
-public class SubjectGroupStatsController {
+public class SalesStatisticController {
 
     @Resource
     private SubjectGroupStatsService subjectGroupStatsService;
@@ -30,7 +30,7 @@ public class SubjectGroupStatsController {
     @Resource
     private SubjectGroupMapper subjectGroupMapper;
 
-    @GetMapping("/count-followup")
+    @GetMapping("/followup")
     @Operation(summary = "获取跟进的统计数据")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
