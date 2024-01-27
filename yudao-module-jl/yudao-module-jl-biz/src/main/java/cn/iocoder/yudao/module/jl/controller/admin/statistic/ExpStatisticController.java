@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.exp.ExpStatisticExpResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.exp.ExpStatisticReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
+import cn.iocoder.yudao.module.jl.service.statistic.exp.ExpStatisticService;
 import cn.iocoder.yudao.module.jl.service.statistic.project.ProjectStatisticService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,21 +21,21 @@ import javax.validation.Valid;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
-@Tag(name = "销售端数据统计")
+@Tag(name = "实验端数据统计")
 @RestController
-@RequestMapping("/statistic/project")
+@RequestMapping("/statistic/exp")
 @Validated
-public class ProjectStatisticController {
+public class ExpStatisticController {
 
     @Resource
-    private ProjectStatisticService projectStatisticService;
+    private ExpStatisticService expStatisticService;
 
-    @GetMapping("/project")
-    @Operation(summary = "获取项目的统计数据")
+    @GetMapping("/exp-count")
+    @Operation(summary = "获取实验任务的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<ProjectStatisticProjectResp> getSubjectGroupFollowupStats(@Valid @RequestBody ProjectStatisticReqVO reqVO) {
-        ProjectStatisticProjectResp projectStatisticProjectResp = projectStatisticService.countProject(reqVO);
-        return success(projectStatisticProjectResp);
+    public CommonResult<ExpStatisticExpResp> getSubjectGroupFollowupStats(@Valid @RequestBody ExpStatisticReqVO reqVO) {
+        ExpStatisticExpResp expStatisticExpResp = expStatisticService.countExp(reqVO);
+        return success(expStatisticExpResp);
     }
 
 }

@@ -90,7 +90,7 @@ public class SubjectGroup extends BaseEntity {
      * 回款金额kpi
      */
     @Column(name = "kpi_return_fund", nullable = false )
-    private Long kpiReturnFund;
+    private BigDecimal kpiReturnFund;
 
 
     @OneToOne(fetch = FetchType.EAGER)
