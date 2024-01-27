@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,6 +13,15 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Query("select count(p) from ProjectCategory p " +
+            "where p.createTime between ?1 and ?2 and p.operatorId in ?3 and p.stage = ?4")
+    Integer countByCreateTimeBetweenAndOperatorIdInAndStage(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] operatorIds, String stage);
+
+
+    @Query("select count(p) from ProjectCategory p " +
+            "where p.createTime between ?1 and ?2 and p.operatorId in ?3 and p.stage in ?4")
+    Integer countByCreateTimeBetweenAndOperatorIdInAndStageIn(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] operatorIds, String[] stage);
+
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.projectManagerId = ?1 where p.projectId = ?2")

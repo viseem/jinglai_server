@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.jl.service.statistic.sales;
+package cn.iocoder.yudao.module.jl.service.statistic.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
