@@ -6,12 +6,18 @@ import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Collection;
 
 /**
 * SalesleadRepository
 *
 */
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
+    @Query("select count(s) from Saleslead s where s.createTime between ?1 and ?2 and s.creator in ?3 and s.status = ?4")
+    Integer countByCreateTimeBetweenAndCreatorInAndStatus(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] creators, Integer status);
+    @Query("select count(s) from Saleslead s where s.createTime between ?1 and ?2 and s.creator in ?3")
+    Integer countByCreateTimeBetweenAndCreatorIn(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] creators);
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.jsonLog = ?1 where s.id = ?2")

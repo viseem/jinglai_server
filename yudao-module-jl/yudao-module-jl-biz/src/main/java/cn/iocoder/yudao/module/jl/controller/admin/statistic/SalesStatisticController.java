@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticFollowupResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticSalesleadResp;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Followup;
@@ -43,5 +44,14 @@ public class SalesStatisticController {
     public CommonResult<SalesStatisticFollowupResp> getSubjectGroupFollowupStats(@Valid @RequestBody SalesStatisticReqVO reqVO) {
         SalesStatisticFollowupResp salesStatisticFollowupResp = salesStatisticService.countFollowup(reqVO);
         return success(salesStatisticFollowupResp);
+    }
+
+    @GetMapping("/saleslead-count")
+    @Operation(summary = "获取商机的统计数据")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesStatisticSalesleadResp> getSubjectGroupSalesleadStats(@Valid @RequestBody SalesStatisticReqVO reqVO) {
+        SalesStatisticSalesleadResp salesStatisticSalesleadResp = salesStatisticService.countSaleslead(reqVO);
+        return success(salesStatisticSalesleadResp);
     }
 }
