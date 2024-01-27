@@ -47,6 +47,12 @@ public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory
     @Modifying
     @Query("update ProjectCategory p set p.stage = ?1 where p.id = ?2")
     int updateStageById(String stage, Long id);
+
+    @Transactional
+    @Modifying
+    @Query("update ProjectCategory p set p.stage = ?1 where p.id = ?2 and p.stage <> ?3")
+    int updateStageByIdAndStageNot(String stage, Long id,String notStage);
+
     @Query("select p from ProjectCategory p where p.projectId = ?1 and p.scheduleId = ?2 and p.type = ?3")
     ProjectCategory findByProjectIdAndScheduleIdAndType(Long projectId, Long scheduleId, String type);
 

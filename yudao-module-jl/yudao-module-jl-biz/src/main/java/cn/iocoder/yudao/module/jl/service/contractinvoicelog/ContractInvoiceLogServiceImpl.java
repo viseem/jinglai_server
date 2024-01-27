@@ -145,6 +145,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
+            if(pageReqVO.getPriceStatus() != null) {
+                predicates.add(cb.equal(root.get("priceStatus"), pageReqVO.getPriceStatus()));
+            }
+
             if(pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
             }

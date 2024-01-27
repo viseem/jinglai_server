@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -77,6 +79,19 @@ public class SubjectGroup extends BaseEntity {
      */
     @Column(name = "code")
     private String code;
+
+    /**
+     * 订单金额kpi
+     */
+    @Column(name = "kpi_order_fund", nullable = false )
+    private BigDecimal kpiOrderFund;
+
+    /**
+     * 回款金额kpi
+     */
+    @Column(name = "kpi_return_fund", nullable = false )
+    private Long kpiReturnFund;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

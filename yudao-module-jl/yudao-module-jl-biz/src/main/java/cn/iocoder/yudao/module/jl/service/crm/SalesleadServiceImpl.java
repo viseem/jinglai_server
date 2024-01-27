@@ -190,7 +190,8 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 再插入
         List<SalesleadCustomerPlanItemVO> customerPlans = updateReqVO.getCustomerPlans();
         if(customerPlans != null && customerPlans.size() > 0) {
-            // 遍历 customerPlans，将它的 salesleadId 字段设置为 saleleadsObj.getId()
+            // 过滤掉fileUrl为null的
+            customerPlans = customerPlans.stream().filter(customerPlan -> customerPlan.getFileUrl() != null).collect(Collectors.toList());
             customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
@@ -341,13 +342,15 @@ public class SalesleadServiceImpl implements SalesleadService {
             // 保存到projectDocument里面去,用saveAll一次性保存，先存到list，再saveAll
                 List<ProjectDocument> projectDocuments = new ArrayList<>();
                 customerPlans.forEach(customerPlan -> {
-                    customerPlan.setSalesleadId(salesleadId);
-                    ProjectDocument projectDocument = new ProjectDocument();
-                    projectDocument.setProjectId(updateReqVO.getProjectId());
-                    projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
-                    projectDocument.setFileName(customerPlan.getFileName());
-                    projectDocument.setFileUrl(customerPlan.getFileUrl());
-                    projectDocuments.add(projectDocument);
+                    if(customerPlan.getFileUrl()!=null){
+                        customerPlan.setSalesleadId(salesleadId);
+                        ProjectDocument projectDocument = new ProjectDocument();
+                        projectDocument.setProjectId(updateReqVO.getProjectId());
+                        projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
+                        projectDocument.setFileName(customerPlan.getFileName());
+                        projectDocument.setFileUrl(customerPlan.getFileUrl());
+                        projectDocuments.add(projectDocument);
+                    }
                 });
             if(updateReqVO.getProjectId()!=null){
                 projectDocumentRepository.deleteByTypeAndProjectId(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus(),updateReqVO.getProjectId());
@@ -435,9 +438,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.isNotNull(root.get("quotation")));
             }*/
 
-/*            if(pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
-            }*/
+
 
 /*
             if(pageReqVO.getQuotation() != null) {
@@ -448,16 +449,25 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 
 //                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+            if(pageReqVO.getManagerId() != null) {
+                predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getStatus() != null) {
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+            }
 
+            if(pageReqVO.getSalesId() != null&&pageReqVO.getManagerId()!=null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
+            }
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }else{
                 if(pageReqVO.getManagerId() != null) {
-                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                    /*predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
                     if(pageReqVO.getStatus() != null) {
                         predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                    }
+                    }*/
                 }else{
                     if(pageReqVO.getAttribute()!=null){
                         if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
@@ -469,16 +479,18 @@ public class SalesleadServiceImpl implements SalesleadService {
                         }
                     }
 
-                    if(pageReqVO.getStatus() != null) {
-                        //查询未转项目的
-                        if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
-                            predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
-                        }else{
-                            predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                        }
 
-                    }
                 }
+            }
+
+            if(pageReqVO.getStatus() != null) {
+                //查询未转项目的
+                if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                }else{
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+
             }
 
             if(pageReqVO.getProjectId() != null) {

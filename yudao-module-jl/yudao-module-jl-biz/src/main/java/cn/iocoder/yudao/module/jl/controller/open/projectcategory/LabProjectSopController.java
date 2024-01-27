@@ -10,10 +10,12 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSopMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectSopService;
+import cn.iocoder.yudao.module.jl.service.project.ProjectSopServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,16 +37,19 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_SOP_NO
 @Validated
 public class LabProjectSopController {
 
+
     @Resource
-    private ProjectSopService projectSopService;
+    private ProjectSopServiceImpl   projectSopServiceImpl;
 
     @Resource
     private ProjectSopRepository projectSopRepository;
 
     @PostMapping("/update-status")
     @Operation(summary = "更新项目中的实验名目的操作SOP")
+    @Transactional
     public CommonResult<Boolean> updateProjectSop(@Valid @RequestBody LabExpSopUpdateReqVO updateReqVO) {
         projectSopRepository.updateStatusById(updateReqVO.getStatus(),updateReqVO.getId());
+        projectSopServiceImpl.updateProjectCategoryStageById(updateReqVO.getProjectCategoryId());
         return success(true);
     }
 

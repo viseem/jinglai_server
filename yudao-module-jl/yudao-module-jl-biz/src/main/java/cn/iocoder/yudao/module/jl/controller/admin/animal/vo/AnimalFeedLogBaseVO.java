@@ -40,12 +40,10 @@ public class AnimalFeedLogBaseVO {
     @Schema(description = "变更位置")
     private String stores;
 
-    @Schema(description = "变更后数量", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "变更后数量不能为空")
+    @Schema(description = "变更后数量")
     private Integer quantity;
 
-    @Schema(description = "变更后笼数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "变更后笼数不能为空")
+    @Schema(description = "变更后笼数")
     private Integer cageQuantity;
 
     @Schema(description = "变更后笼位的数量")

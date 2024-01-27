@@ -141,13 +141,15 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
-        animalFeedCardRepository.saveAll(saveReqVO.getCards().stream().map(item -> {
-            item.setFeedOrderId(id);
-            item.setProjectId(animalFeedOrder.getProjectId());
-            item.setCustomerId(animalFeedOrder.getCustomerId());
-            item.setBreed(saveObj.getBreed());
-            return item;
-        }).collect(Collectors.toList()));
+        if(saveReqVO.getCards()!=null){
+            animalFeedCardRepository.saveAll(saveReqVO.getCards().stream().map(item -> {
+                item.setFeedOrderId(id);
+                item.setProjectId(animalFeedOrder.getProjectId());
+                item.setCustomerId(animalFeedOrder.getCustomerId());
+                item.setBreed(saveObj.getBreed());
+                return item;
+            }).collect(Collectors.toList()));
+        }
 
         // 发起 BPM 流程
         if(saveReqVO.getNeedAudit()){

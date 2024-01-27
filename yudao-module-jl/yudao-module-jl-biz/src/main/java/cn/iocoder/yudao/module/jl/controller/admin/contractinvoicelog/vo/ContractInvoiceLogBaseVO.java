@@ -113,6 +113,9 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "联系电话")
     private String sendPhone;
 
+    @Schema(description = "电子邮箱")
+    private String sendEmail;
+
     @Schema(description = "详细地址")
     private String sendAddress;
 

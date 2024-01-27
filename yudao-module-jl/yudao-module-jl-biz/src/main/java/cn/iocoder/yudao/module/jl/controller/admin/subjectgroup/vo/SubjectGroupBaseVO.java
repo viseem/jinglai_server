@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -19,8 +21,7 @@ public class SubjectGroupBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "备注不能为空")
+    @Schema(description = "备注")
     private String mark;
 
     @Schema(description = "专题", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -43,5 +44,8 @@ public class SubjectGroupBaseVO {
 
     private User leaderUser;
     private User businessLeaderUser;
+
+    private BigDecimal kpiOrderFund;
+    private BigDecimal kpiReturnFund;
 
 }

@@ -19,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 
 import java.util.*;
@@ -129,6 +131,13 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 创建 Specification
         Specification<ProjectSupply> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            //关联查询项目表，判断项目的code不为null
+            if(pageReqVO.getNoQuotationItem()!=null&&pageReqVO.getNoQuotationItem()){
+                Join<ProjectSupply, ProjectSimple> projectJoin = root.join("project", JoinType.LEFT);
+                //判断project的code不为null
+                predicates.add(cb.isNotNull(projectJoin.get("code")));
+            }
 
             if(pageReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));

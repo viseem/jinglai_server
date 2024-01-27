@@ -65,6 +65,9 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "内部备注")
+    private String internalMark;
+
     private String brand;
 
     private String productCode;

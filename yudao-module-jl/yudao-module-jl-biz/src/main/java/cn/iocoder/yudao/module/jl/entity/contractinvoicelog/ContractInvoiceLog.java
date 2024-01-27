@@ -201,6 +201,12 @@ public class ContractInvoiceLog extends BaseEntity {
     private String sendPhone;
 
     /**
+     * 电子邮箱
+     */
+    @Column(name = "send_email")
+    private String sendEmail;
+
+    /**
      * 详细地址
      */
     @Column(name = "send_address")

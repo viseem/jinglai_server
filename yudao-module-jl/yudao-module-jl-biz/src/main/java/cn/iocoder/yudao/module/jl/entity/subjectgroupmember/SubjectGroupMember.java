@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -56,10 +58,40 @@ public class SubjectGroupMember extends BaseEntity {
     private String type;
 
     /**
+     * 角色
+     */
+    @Column(name = "role", nullable = false )
+    private String role;
+
+    /**
+     * 昵称
+     */
+    @Column(name = "nickname", nullable = false )
+    private String nickname;
+
+    /**
+     * 类型
+     */
+    @Column(name = "post", nullable = false )
+    private String post;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
     private String mark;
+
+    /**
+     * 订单金额kpi
+     */
+    @Column(name = "kpi_order_fund", nullable = false )
+    private BigDecimal kpiOrderFund;
+
+    /**
+     * 回款金额kpi
+     */
+    @Column(name = "kpi_return_fund", nullable = false )
+    private Long kpiReturnFund;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
