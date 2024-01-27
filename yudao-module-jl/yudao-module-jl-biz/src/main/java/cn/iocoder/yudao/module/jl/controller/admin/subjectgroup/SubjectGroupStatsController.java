@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.subjectgroup;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.subgroupworkstation.SubjectGroupFollowupStatsReqVO;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
 import cn.iocoder.yudao.module.jl.service.subjectgroup.SubjectGroupWorkstationService;
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.Optional;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -31,13 +33,11 @@ public class SubjectGroupStatsController {
     @Resource
     private SubjectGroupMapper subjectGroupMapper;
 
-    @GetMapping("/count-stats")
-    @Operation(summary = "获取专题小组统计数据")
+    @GetMapping("/count-followup")
+    @Operation(summary = "获取跟进的统计数据")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<SubjectGroupRespVO> getSubjectGroupCountStats(@RequestParam("id") Long id) {
-            Optional<SubjectGroup> subjectGroup = subjectGroupWorkstationService.getSubjectGroup(id);
-        return success(subjectGroup.map(subjectGroupMapper::toDto).orElseThrow(() -> exception(SUBJECT_GROUP_NOT_EXISTS)));
+    public CommonResult<SubjectGroupRespVO> getSubjectGroupFollowupStats(@Valid @RequestBody SubjectGroupFollowupStatsReqVO reqVO) {
+        return success(null);
     }
-
 }
