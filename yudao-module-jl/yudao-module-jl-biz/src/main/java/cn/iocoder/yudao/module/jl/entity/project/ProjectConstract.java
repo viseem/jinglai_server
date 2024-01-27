@@ -3,17 +3,17 @@ package cn.iocoder.yudao.module.jl.entity.project;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.contract.ContractApproval;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
-import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.util.*;
-import javax.persistence.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * 项目合同 Entity
@@ -145,7 +145,7 @@ public class ProjectConstract extends BaseEntity {
      * 结算金额
      */
     @Column(name = "real_price")
-    private BigDecimal realPrice;
+    private BigDecimal realPrice; // 弃用
 
     /**
      * 已收金额

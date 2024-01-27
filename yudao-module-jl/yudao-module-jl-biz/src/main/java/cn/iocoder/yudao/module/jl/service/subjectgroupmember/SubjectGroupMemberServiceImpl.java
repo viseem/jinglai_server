@@ -1,31 +1,30 @@
 package cn.iocoder.yudao.module.jl.service.subjectgroupmember;
 
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.*;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
+import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.*;
-import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
-import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.SUBJECT_GROUP_MEMBER_NOT_EXISTS;
 
 /**
  * 专题小组成员 Service 实现类
@@ -48,6 +47,10 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
         subjectGroupMemberRepository.save(subjectGroupMember);
         // 返回
         return subjectGroupMember.getId();
+    }
+
+    public List<SubjectGroupMember> findMembersByGroupId(@Valid Long groupId) {
+        return subjectGroupMemberRepository.findByGroupId(groupId);
     }
 
     @Override
