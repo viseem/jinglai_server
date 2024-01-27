@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticFollowupResp;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
-import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.subgroupworkstation.SubjectGroupFollowupStatsReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Followup;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
-import cn.iocoder.yudao.module.jl.service.subjectgroup.SubjectGroupStatsService;
+import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.sales.SalesStatisticService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,16 +28,20 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 public class SalesStatisticController {
 
     @Resource
-    private SubjectGroupStatsService subjectGroupStatsService;
+    private SalesStatisticService salesStatisticService;
+
+    @Resource
+    private FollowupRepository followupRepository;
 
     @Resource
     private SubjectGroupMapper subjectGroupMapper;
 
-    @GetMapping("/followup")
+    @GetMapping("/followup-count")
     @Operation(summary = "获取跟进的统计数据")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<SubjectGroupRespVO> getSubjectGroupFollowupStats(@Valid @RequestBody SubjectGroupFollowupStatsReqVO reqVO) {
-        return success(null);
+    public CommonResult<SalesStatisticFollowupResp> getSubjectGroupFollowupStats(@Valid @RequestBody SalesStatisticReqVO reqVO) {
+        SalesStatisticFollowupResp salesStatisticFollowupResp = salesStatisticService.countFollowup(reqVO);
+        return success(salesStatisticFollowupResp);
     }
 }
