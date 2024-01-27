@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.subjectgroupmember;
 
-import java.util.*;
-import javax.validation.*;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.*;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
+
+import javax.validation.Valid;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 专题小组成员 Service 接口
@@ -19,6 +22,8 @@ public interface SubjectGroupMemberService {
      * @return 编号
      */
     Long createSubjectGroupMember(@Valid SubjectGroupMemberCreateReqVO createReqVO);
+
+    List<SubjectGroupMember> findMembersByGroupId(@Valid Long groupId);
 
     /**
      * 更新专题小组成员
