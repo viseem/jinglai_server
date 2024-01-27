@@ -26,9 +26,9 @@ public class SubjectGroupMemberBaseVO {
     @NotNull(message = "用户id不能为空")
     private Long userId;
 
-    @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "类型不能为空")
-    private String type;
+    @Schema(description = "角色", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "角色不能为空")
+    private String role;
 
     @Schema(description = "备注")
     private String mark;
@@ -40,7 +40,7 @@ public class SubjectGroupMemberBaseVO {
     private BigDecimal kpiReturnFund;
 
     private String nickname;
-    private String role;
+    private String type;
     private String post;
 
 }

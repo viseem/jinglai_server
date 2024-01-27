@@ -21,8 +21,7 @@ public class SubjectGroupBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
-    @Schema(description = "备注", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "备注不能为空")
+    @Schema(description = "备注")
     private String mark;
 
     @Schema(description = "专题", requiredMode = Schema.RequiredMode.REQUIRED)
