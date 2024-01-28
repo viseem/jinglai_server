@@ -53,6 +53,13 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
         return subjectGroupMemberRepository.findByGroupId(groupId);
     }
 
+    public Long[] findMembersUserIdsByGroupId(@Valid Long groupId) {
+        //把返回的List中的id取出来
+        return subjectGroupMemberRepository.findByGroupId(groupId).stream()
+                .map(SubjectGroupMember::getUserId)
+                .toArray(Long[]::new);
+    }
+
     @Override
     public void updateSubjectGroupMember(SubjectGroupMemberUpdateReqVO updateReqVO) {
         // 校验存在
