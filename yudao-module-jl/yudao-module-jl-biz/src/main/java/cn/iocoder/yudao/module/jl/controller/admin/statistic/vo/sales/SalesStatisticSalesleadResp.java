@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class SalesStatisticSalesleadResp {
     //总个数
-    Integer totalCount;
+    Integer salesleadCount;
     //重点关注个数
     Integer focusCount;
     //已报价个数

@@ -40,7 +40,7 @@ public class SalesStatisticController {
     @GetMapping("/followup-count")
     @Operation(summary = "获取跟进的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<SalesStatisticFollowupResp> getSubjectGroupFollowupStats(@Valid @RequestBody SalesStatisticReqVO reqVO) {
+    public CommonResult<SalesStatisticFollowupResp> getSubjectGroupFollowupStats(@Valid SalesStatisticReqVO reqVO) {
         SalesStatisticFollowupResp salesStatisticFollowupResp = salesStatisticService.countFollowup(reqVO);
         return success(salesStatisticFollowupResp);
     }
@@ -48,7 +48,7 @@ public class SalesStatisticController {
     @GetMapping("/saleslead-count")
     @Operation(summary = "获取商机的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<SalesStatisticSalesleadResp> getSubjectGroupSalesleadStats(@Valid @RequestBody SalesStatisticReqVO reqVO) {
+    public CommonResult<SalesStatisticSalesleadResp> getSubjectGroupSalesleadStats(@Valid SalesStatisticReqVO reqVO) {
         SalesStatisticSalesleadResp salesStatisticSalesleadResp = salesStatisticService.countSaleslead(reqVO);
         return success(salesStatisticSalesleadResp);
     }
