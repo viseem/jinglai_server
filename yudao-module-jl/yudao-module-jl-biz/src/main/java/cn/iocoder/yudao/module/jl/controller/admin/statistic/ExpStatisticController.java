@@ -33,7 +33,7 @@ public class ExpStatisticController {
     @GetMapping("/exp-count")
     @Operation(summary = "获取实验任务的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<ExpStatisticExpResp> getSubjectGroupFollowupStats(@Valid @RequestBody ExpStatisticReqVO reqVO) {
+    public CommonResult<ExpStatisticExpResp> getSubjectGroupFollowupStats(@Valid ExpStatisticReqVO reqVO) {
         ExpStatisticExpResp expStatisticExpResp = expStatisticService.countExp(reqVO);
         return success(expStatisticExpResp);
     }
