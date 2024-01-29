@@ -15,6 +15,7 @@ public interface SubjectGroupMemberMapper {
     SubjectGroupMember toEntity(SubjectGroupMemberUpdateReqVO dto);
 
     SubjectGroupMemberRespVO toDto(SubjectGroupMember entity);
+    List<SubjectGroupMemberRespVO> toDtoList(List<SubjectGroupMember> list);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

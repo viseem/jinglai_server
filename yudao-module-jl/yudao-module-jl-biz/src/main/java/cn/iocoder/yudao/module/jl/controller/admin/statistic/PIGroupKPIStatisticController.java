@@ -3,10 +3,17 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.PIGroupKPIStatisticResp;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.PIGroupRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.SubjectGroupMemberRespVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
+import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.subjectgroup.SubjectGroupRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -38,6 +48,9 @@ public class PIGroupKPIStatisticController {
 
     @Resource
     private SubjectGroupMapper subjectGroupMapper;
+
+    @Resource
+    private SubjectGroupMemberMapper subjectGroupMemberMapper;
 
     @Resource
     private SubjectGroupMemberService subjectGroupMemberService;
@@ -66,6 +79,32 @@ public class PIGroupKPIStatisticController {
         resp.setBasePIGroup(piDto);
 
         // 获取 PI 组成员
+        List<SubjectGroupMember> members = subjectGroupMemberService.findMembersByGroupId(subjectGroupId);
+        List<SubjectGroupMemberRespVO> dtoList = subjectGroupMemberMapper.toDtoList(members);
+        dtoList.forEach(item->{
+                // 销售
+                if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.SALE.getStatus())){
+                    List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndCreateTimeBetweenAndStatus(new Long[]{item.getUserId()}, StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), ProjectContractStatusEnums.SIGNED.getStatus());
+                    for (ProjectConstractOnly contract : contractList) {
+                        if(contract.getPrice() != null) {
+                            item.setMonthOrderFund(item.getMonthOrderFund().add(contract.getPrice()));
+                        }
+                        if (contract.getReceivedPrice() != null) {
+                            item.setMonthReturnFund(item.getMonthReturnFund().add(contract.getReceivedPrice()));
+                        }
+                    }
+                }
+                //项目
+                if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){
+                    // 手头未出库项目数
+//                    item.setMonthNotOutProjectCount(subjectGroupMemberService.countNotOutProjectByUserId(item.getUserId()));
+                    // 2周内到期的项目数
+//                    item.setMonthExpireProjectCount(subjectGroupMemberService.countExpireProjectByUserId(item.getUserId()));
+                }
+
+
+        });
+        resp.setMembers(dtoList);
 
         // 查询 PI 组成员的 KPI完成情况，
         // 销售：订单完成情况，回款完成情况
