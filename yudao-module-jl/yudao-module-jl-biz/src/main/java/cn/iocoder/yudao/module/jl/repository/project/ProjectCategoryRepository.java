@@ -17,10 +17,13 @@ public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory
             "where p.createTime between ?1 and ?2 and p.operatorId in ?3 and p.stage = ?4")
     Integer countByCreateTimeBetweenAndOperatorIdInAndStage(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] operatorIds, String stage);
 
-
     @Query("select count(p) from ProjectCategory p " +
             "where p.createTime between ?1 and ?2 and p.operatorId in ?3 and p.stage in ?4")
     Integer countByCreateTimeBetweenAndOperatorIdInAndStageIn(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] operatorIds, String[] stage);
+
+    @Query("select count(p) from ProjectCategory p " +
+            "where  p.operatorId in ?1 and p.stage in ?2")
+    Integer countByOperatorIdInAndStageIn(Long[] operatorIds, String[] stage);
 
     @Transactional
     @Modifying
