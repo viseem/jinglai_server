@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -42,10 +43,12 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
 
+        if(reqVO.getTimeRange()!=null){
+            reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
+        }
 
         //打印数组,打印成字符串
 //        System.out.println(Arrays.toString(reqVO.getUserIds()));
-
 
         followupCount= followupRepository.countByCreateTimeBetweenAndCreatorIn(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds());
         SalesStatisticFollowupResp resp = new SalesStatisticFollowupResp();
@@ -60,6 +63,10 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         if(reqVO.getSubjectGroupId()!=null){
             //把返回的List中的id取出来
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+        }
+
+        if(reqVO.getTimeRange()!=null){
+            reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
 
         Integer totalCount = salesleadRepository.countByCreateTimeBetweenAndCreatorIn(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds());
