@@ -31,12 +31,6 @@ public class SalesStatisticController {
     @Resource
     private SalesStatisticService salesStatisticService;
 
-    @Resource
-    private FollowupRepository followupRepository;
-
-    @Resource
-    private SubjectGroupMapper subjectGroupMapper;
-
     @GetMapping("/followup-count")
     @Operation(summary = "获取跟进的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")

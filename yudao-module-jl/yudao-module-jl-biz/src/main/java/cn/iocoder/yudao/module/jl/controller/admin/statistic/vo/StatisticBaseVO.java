@@ -29,4 +29,7 @@ public class StatisticBaseVO {
 
     @Schema(description = "用户id", example = "27395")
     private Long userId;
+
+    @Schema(description = "时间范围", example = "27395")
+    private String timeRange;
 }
