@@ -1,10 +1,11 @@
 package cn.iocoder.yudao.module.jl.mapper.subjectgroup;
 
-import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import org.mapstruct.*;
+
+import java.util.List;
 
 
 
@@ -15,6 +16,8 @@ public interface SubjectGroupMapper {
     SubjectGroup toEntity(SubjectGroupUpdateReqVO dto);
 
     SubjectGroupRespVO toDto(SubjectGroup entity);
+
+    PIGroupRespVO toPIDto(SubjectGroup entity);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
