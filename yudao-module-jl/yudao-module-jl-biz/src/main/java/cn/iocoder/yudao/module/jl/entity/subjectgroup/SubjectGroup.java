@@ -2,20 +2,18 @@ package cn.iocoder.yudao.module.jl.entity.subjectgroup;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * 专题小组 Entity
@@ -90,7 +88,7 @@ public class SubjectGroup extends BaseEntity {
      * 回款金额kpi
      */
     @Column(name = "kpi_return_fund", nullable = false )
-    private Long kpiReturnFund;
+    private BigDecimal kpiReturnFund;
 
 
     @OneToOne(fetch = FetchType.EAGER)
