@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 项目报价 Response VO")
@@ -32,7 +33,7 @@ public class ProjectQuotationItemVO {
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
-    private Integer unitFee;
+    private BigDecimal unitFee;
 
     @Schema(description = "成本价")
     private Integer buyPrice;

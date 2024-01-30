@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -97,7 +98,7 @@ public class ProjectSupply extends BaseEntity {
      * 单价
      */
     @Column(name = "unit_fee", nullable = false)
-    private Integer unitFee;
+    private BigDecimal unitFee;
 
     /**
      * 单量
