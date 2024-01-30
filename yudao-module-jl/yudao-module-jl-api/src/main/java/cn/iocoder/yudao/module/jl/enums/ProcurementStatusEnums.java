@@ -22,7 +22,7 @@ public enum ProcurementStatusEnums implements StringArrayValuable {
     WAITING_START_PROCUREMENT("WAITING_START_PROCUREMENT", "采购中"),
     WAITING_CHECK_IN("WAITING_CHECK_IN", "等待签收"),
     WAITING_IN("WAITING_IN", "等待入库"),
-    IS_IN("WAITING_IN", "已入库"),
+    IS_IN("IS_IN", "已入库"),
     ;
 
     private final String status;

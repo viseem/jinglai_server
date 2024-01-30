@@ -582,6 +582,12 @@ public class ProcurementServiceImpl implements ProcurementService {
             // 更新采购单的待签收转态
             procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(), !allCheckIn.get());
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), true);
+            if(allCheckIn.get()){
+                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
+            }
+        }else{
+            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
+            procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(), false);
         }
 
 
@@ -657,8 +663,13 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             // 更新采购单的待入库状态
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), !allStoreIn.get());
+            if(allStoreIn.get()){
+                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
+            }
 
-
+        }else{
+            procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), false);
+            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
         }
 
     }
