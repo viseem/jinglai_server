@@ -78,10 +78,14 @@ public class PIGroupKPIStatisticController {
         BigDecimal orderFundKpi = piGroup.getKpiOrderFund();  // 订单 KPI
         BigDecimal returnFundKpi = piGroup.getKpiReturnFund(); // 回款 KPI
         PIGroupRespVO piDto = subjectGroupMapper.toPIDto(piGroup);
-        piDto.setKpiOrderFundOf80(orderFundKpi.multiply(new BigDecimal("0.8")));
-        piDto.setKpiOrderFundOf120(orderFundKpi.multiply(new BigDecimal("1.2")));
-        piDto.setKpiReturnFundOf80(returnFundKpi.multiply(new BigDecimal("0.8")));
-        piDto.setKpiReturnFundOf120(returnFundKpi.multiply(new BigDecimal("1.2")));
+        if(orderFundKpi!=null){
+            piDto.setKpiOrderFundOf80(orderFundKpi.multiply(new BigDecimal("0.8")));
+            piDto.setKpiOrderFundOf120(orderFundKpi.multiply(new BigDecimal("1.2")));
+        }
+        if(returnFundKpi!=null){
+            piDto.setKpiReturnFundOf80(returnFundKpi.multiply(new BigDecimal("0.8")));
+            piDto.setKpiReturnFundOf120(returnFundKpi.multiply(new BigDecimal("1.2")));
+        }
         resp.setBasePIGroup(piDto);
 
         // 获取 PI 组成员

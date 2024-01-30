@@ -94,6 +94,7 @@ public interface ErrorCodeConstants {
     ErrorCode PROCUREMENT_SHIPMENT_NOT_EXISTS = new ErrorCode(2043000001, "采购物流不存在");
 
     ErrorCode SUPPLIER_NOT_EXISTS = new ErrorCode(2044000001, "供应商不存在");
+    ErrorCode SUPPLIER_EXISTS = new ErrorCode(2044000002, "供应商存在");
 
     ErrorCode SUPPLY_LOG_ATTACHMENT_NOT_EXISTS = new ErrorCode(2045000001, "物资变更记录的附件不存在");
 

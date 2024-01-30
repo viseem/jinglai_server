@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +32,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.module.jl.mapper.project.SupplierMapper;
 import cn.iocoder.yudao.module.jl.service.project.SupplierService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 项目采购单物流信息")
 @RestController
@@ -102,6 +106,20 @@ public class SupplierController {
         // 导出 Excel
         List<SupplierExcelVO> excelData = supplierMapper.toExcelList(list);
         ExcelUtils.write(response, "项目采购单物流信息.xls", "数据", SupplierExcelVO.class, excelData);
+    }
+
+    //excel导入
+    @PostMapping("/import-excel")
+    @Operation(summary = "导入用户")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    @PreAuthorize("@ss.hasPermission('system:user:import')")
+    public CommonResult<SupplierImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
+                                                      @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<SupplierImportVO> list = ExcelUtils.read(file, SupplierImportVO.class);
+        return success(supplierService.importList(list, updateSupport));
     }
 
 }

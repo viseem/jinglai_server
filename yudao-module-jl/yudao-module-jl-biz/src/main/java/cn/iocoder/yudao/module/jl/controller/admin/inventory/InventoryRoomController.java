@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
@@ -77,7 +78,6 @@ public class InventoryRoomController {
 
     @GetMapping("/page")
     @Operation(summary = "(分页)获得库管房间号列表")
-    @PreAuthorize("@ss.hasPermission('jl:inventory-room:query')")
     public CommonResult<PageResult<InventoryRoomRespVO>> getInventoryRoomPage(@Valid InventoryRoomPageReqVO pageVO, @Valid InventoryRoomPageOrder orderV0) {
         PageResult<InventoryRoom> pageResult = inventoryRoomService.getInventoryRoomPage(pageVO, orderV0);
         return success(inventoryRoomMapper.toPage(pageResult));

@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSpecificationExecutor<Supplier> {
+    @Query("select s from Supplier s where s.name = ?1")
+    Supplier findByName(String name);
 
 }

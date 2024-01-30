@@ -5,6 +5,8 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
 
 /**
  * 项目采购单物流信息 Service 接口
@@ -74,4 +76,5 @@ public interface SupplierService {
      */
     List<Supplier> getSupplierList(SupplierExportReqVO exportReqVO);
 
+    SupplierImportRespVO importList(List<SupplierImportVO> importUsers, boolean isUpdateSupport);
 }
