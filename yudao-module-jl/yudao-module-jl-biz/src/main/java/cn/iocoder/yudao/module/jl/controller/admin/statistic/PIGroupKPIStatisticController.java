@@ -8,10 +8,12 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.subjectgroup.SubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -57,6 +60,9 @@ public class PIGroupKPIStatisticController {
 
     @Resource
     private SubjectGroupRepository subjectGroupRepository;
+
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
 
     @GetMapping("/kpi")
     @Operation(summary = "PI组 KPI 统计")
@@ -97,8 +103,10 @@ public class PIGroupKPIStatisticController {
                 //项目
                 if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){
                     // 手头未出库项目数
+                    item.setNotOutProjectNum(projectSimpleRepository.countByStageNotAndManagerInAndCodeNotNull(ProjectStageEnums.OUTED.getStatus(), new Long[]{item.getUserId()}));
 //                    item.setMonthNotOutProjectCount(subjectGroupMemberService.countNotOutProjectByUserId(item.getUserId()));
                     // 2周内到期的项目数
+                    item.setTwoWeekExpireProjectNum(projectSimpleRepository.countByEndDateBetweenAndManagerInAndCodeNotNull(LocalDate.now(), LocalDate.now().plusDays(14), new Long[]{item.getUserId()}));
 //                    item.setMonthExpireProjectCount(subjectGroupMemberService.countExpireProjectByUserId(item.getUserId()));
                 }
 

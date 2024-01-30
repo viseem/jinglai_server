@@ -18,8 +18,19 @@ public class SubjectGroupMemberRespVO extends SubjectGroupMemberBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    /*
+    * 销售
+    * */
     @Schema(description = "本月订单金额")
     private BigDecimal monthOrderFund = BigDecimal.ZERO;
     @Schema(description = "本月回款金额")
     private BigDecimal monthReturnFund= BigDecimal.ZERO;
+
+    /*
+     * 项目
+     * */
+    @Schema(description = "手头未出库的项目数")
+    private Integer notOutProjectNum = 0;
+    @Schema(description = "两周内到期的项目数")
+    private Integer twoWeekExpireProjectNum = 0;
 }
