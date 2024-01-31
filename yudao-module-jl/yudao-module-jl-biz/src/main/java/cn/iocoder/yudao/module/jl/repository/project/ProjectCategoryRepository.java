@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,8 +12,11 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
-    @Query("select count(distinct p) from ProjectCategory p where p.deadline between ?1 and ?2 and p.operatorId in ?3")
-    Integer countByDeadlineBetweenAndOperatorIdIn(LocalDateTime deadlineStart, LocalDateTime deadlineEnd, Long[] operatorIds);
+    @Query("select count(p) from ProjectCategory p where p.deadline < ?1 and p.operatorId in ?2 and p.stage <> ?3")
+    Integer countByDeadlineLessThanAndOperatorIdInAndStageNot(LocalDateTime deadline, Long[] operatorIds, String stage);
+
+    @Query("select count(distinct p) from ProjectCategory p where p.deadline between ?1 and ?2 and p.operatorId in ?3 and p.stage <> ?4")
+    Integer countByDeadlineBetweenAndOperatorIdInAndStageNot(LocalDateTime deadlineStart, LocalDateTime deadlineEnd, Long[] operatorIds,String stage);
     @Query("select count(p) from ProjectCategory p " +
             "where p.createTime between ?1 and ?2 and p.operatorId in ?3 and p.stage = ?4")
     Integer countByCreateTimeBetweenAndOperatorIdInAndStage(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] operatorIds, String stage);

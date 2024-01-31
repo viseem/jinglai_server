@@ -118,11 +118,11 @@ public class PIGroupKPIStatisticController {
                 }
 
                 //实验
-                if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.CELL.getStatus())||Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.ANIMAL.getStatus())){
+                if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.CELL.getStatus())||Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.ANIMAL.getStatus())||Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){
                     // 手头未出库任务数
                     item.setNotOutExpNum(projectCategoryRepository.countByOperatorIdAndStageNot(item.getUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()));
                     // 2周内到期的任务数
-                    item.setTwoWeekExpireExpNum(projectCategoryRepository.countByDeadlineBetweenAndOperatorIdIn(LocalDateTime.now(), LocalDateTime.now().plusDays(14), new Long[]{item.getUserId()}));
+                    item.setTwoWeekExpireExpNum(projectCategoryRepository.countByDeadlineBetweenAndOperatorIdInAndStageNot(LocalDateTime.now(), LocalDateTime.now().plusDays(14), new Long[]{item.getUserId()},ProjectCategoryStatusEnums.COMPLETE.getStatus()));
                 }
 
 
