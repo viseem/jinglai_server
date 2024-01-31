@@ -4,9 +4,13 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Transient;
 import javax.validation.constraints.*;
+import java.time.LocalDateTime;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 项目的实验名目 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -61,10 +65,12 @@ public class ProjectCategoryBaseVO {
     private String demand;
 
     @Schema(description = "开始日期")
-    private String startDate;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startDate;
 
     @Schema(description = "截止日期")
-    private String deadline;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime deadline;
 
     @Schema(description = "干扰项")
     private String interference;

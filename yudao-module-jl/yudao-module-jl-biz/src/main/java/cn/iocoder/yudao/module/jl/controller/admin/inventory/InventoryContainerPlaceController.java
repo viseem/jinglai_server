@@ -77,7 +77,6 @@ public class InventoryContainerPlaceController {
 
     @GetMapping("/page")
     @Operation(summary = "(分页)获得库管存储容器位置列表")
-    @PreAuthorize("@ss.hasPermission('jl:inventory-container-place:query')")
     public CommonResult<PageResult<InventoryContainerPlaceRespVO>> getInventoryContainerPlacePage(@Valid InventoryContainerPlacePageReqVO pageVO, @Valid InventoryContainerPlacePageOrder orderV0) {
         PageResult<InventoryContainerPlace> pageResult = inventoryContainerPlaceService.getInventoryContainerPlacePage(pageVO, orderV0);
         return success(inventoryContainerPlaceMapper.toPage(pageResult));

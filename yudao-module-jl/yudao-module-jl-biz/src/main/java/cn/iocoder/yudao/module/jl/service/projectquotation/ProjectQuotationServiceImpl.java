@@ -20,6 +20,8 @@ import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -298,7 +300,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setName(projectChargeitem.getName());
             item.setMark(projectChargeitem.getMark());
             item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
-            item.setUnitFee(projectChargeitem.getUnitFee());
+            item.setUnitFee(BigDecimal.valueOf(projectChargeitem.getUnitFee()));
             item.setQuantity(projectChargeitem.getQuantity());
             item.setSpec(projectChargeitem.getSpec());
             quotationList.add(item);

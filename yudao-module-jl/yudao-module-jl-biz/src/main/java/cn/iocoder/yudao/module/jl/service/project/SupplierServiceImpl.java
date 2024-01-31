@@ -1,8 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
+import cn.iocoder.yudao.module.system.convert.user.UserConvert;
+import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -12,10 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
@@ -27,6 +29,8 @@ import cn.iocoder.yudao.module.jl.repository.project.SupplierRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_USERNAME_EXISTS;
 
 /**
  * 项目采购单物流信息 Service 实现类
@@ -190,6 +194,44 @@ public class SupplierServiceImpl implements SupplierService {
 
         // 执行查询
         return supplierRepository.findAll(spec);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public SupplierImportRespVO importList(List<SupplierImportVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        SupplierImportRespVO respVO = SupplierImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
+        importUsers.forEach(importUser -> {
+            // 校验，判断是否有不符合的原因
+/*            try {
+                validateUserForCreateOrUpdate(null, null, importUser.getMobile(), importUser.getEmail(),
+                        importUser.getDeptId(), null);
+            } catch (ServiceException ex) {
+                respVO.getFailureUsernames().put(importUser.getUsername(), ex.getMessage());
+                return;
+            }*/
+            // 判断如果不存在，在进行插入
+            Supplier byName = supplierRepository.findByName(importUser.getName());
+            if (byName == null) {
+                Supplier supplier = supplierMapper.toEntity(importUser);
+                supplierRepository.save(supplier);
+                respVO.getCreateNames().add(importUser.getName());
+                return;
+            }
+            // 如果存在，判断是否允许更新
+            if (!isUpdateSupport) {
+                respVO.getFailureNames().put(importUser.getName(), SUPPLIER_EXISTS.getMsg());
+                return;
+            }
+            Supplier supplier = supplierMapper.toEntity(importUser);
+            supplier.setId(byName.getId());
+            supplierRepository.save(supplier);
+            respVO.getUpdateNames().add(importUser.getName());
+        });
+        return respVO;
     }
 
     private Sort createSort(SupplierPageOrder order) {

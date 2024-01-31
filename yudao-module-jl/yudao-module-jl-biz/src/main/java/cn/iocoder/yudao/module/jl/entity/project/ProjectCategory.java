@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -139,13 +140,13 @@ public class ProjectCategory extends BaseEntity {
      * 开始日期
      */
     @Column(name = "start_date")
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 截止日期
      */
     @Column(name = "deadline")
-    private String deadline;
+    private LocalDateTime deadline;
 
     /**
      * 干扰项

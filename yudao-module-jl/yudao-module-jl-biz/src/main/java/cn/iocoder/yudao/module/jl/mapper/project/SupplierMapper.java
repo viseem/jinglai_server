@@ -14,6 +14,9 @@ public interface SupplierMapper {
 
     Supplier toEntity(SupplierUpdateReqVO dto);
 
+    Supplier toEntity(SupplierImportVO dto);
+
+
     SupplierRespVO toDto(Supplier entity);
 
 
