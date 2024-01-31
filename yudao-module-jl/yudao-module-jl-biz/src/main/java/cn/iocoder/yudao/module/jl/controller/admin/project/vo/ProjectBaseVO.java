@@ -84,6 +84,9 @@ public class ProjectBaseVO {
     @Schema(description = "参与者 ids，数组")
     private String focusIds;
 
+    @Schema(description = "tag ids")
+    private String tagIds;
+
     @Schema(description = "销售 id", example = "16310")
     private Long salesId;
 

@@ -32,6 +32,8 @@ public class ProjectPageReqVO extends PageParam {
 
     private Long focusId;
 
+    private Long tagId;
+
     private List<String> stageArr;
 
     @Schema(description = "创建时间")

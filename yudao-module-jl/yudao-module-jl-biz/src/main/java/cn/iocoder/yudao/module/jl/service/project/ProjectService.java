@@ -31,6 +31,14 @@ public interface ProjectService {
     void updateProject(@Valid ProjectUpdateReqVO updateReqVO);
 
 
+    /**
+     * 更新项目的标签
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateProjectTag(@Valid ProjectUpdateTagReqVO updateReqVO);
+
+
     void projectOutboundApply(@Valid ProjectOutboundApplyReqVO updateReqVO);
 
     /**

@@ -72,6 +72,14 @@ public class ProjectController {
         return success(true);
     }
 
+    @PutMapping("/update-tag")
+    @Operation(summary = "更新项目的标签")
+    @PreAuthorize("@ss.hasPermission('jl:project:update')")
+    public CommonResult<Boolean> updateProjectTag(@Valid @RequestBody ProjectUpdateTagReqVO updateReqVO) {
+        projectService.updateProjectTag(updateReqVO);
+        return success(true);
+    }
+
     @PutMapping("/current-schedule")
     @Operation(summary = "设置当前的主安排单")
     @PreAuthorize("@ss.hasPermission('jl:project:update')")

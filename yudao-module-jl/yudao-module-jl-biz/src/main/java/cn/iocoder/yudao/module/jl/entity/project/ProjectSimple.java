@@ -112,6 +112,12 @@ public class ProjectSimple extends BaseEntity {
     private String focusIds;
 
     /**
+     * tag ids
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
      * 销售 id
      */
     @Column(name = "sales_id")

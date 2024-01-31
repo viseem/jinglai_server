@@ -14,6 +14,10 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Transactional
+    @Modifying
+    @Query("update Project p set p.tagIds = ?1 where p.id = ?2")
+    int updateTagIdsById(String tagIds, Long id);
     @Query("select count(p) from Project p where p.code like concat(?1, '%')")
     long countByCodeStartsWith(String code);
     @Query("select p from Project p where p.code like concat(?1, '%')")

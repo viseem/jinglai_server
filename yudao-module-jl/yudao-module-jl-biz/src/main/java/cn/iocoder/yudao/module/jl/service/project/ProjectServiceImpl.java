@@ -249,6 +249,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public void updateProjectTag(ProjectUpdateTagReqVO updateTagReqVO){
+        projectRepository.updateTagIdsById(updateTagReqVO.getTagIds(),updateTagReqVO.getProjectId());
+    }
+
+    @Override
     public void setProjectCurrentSchedule(Long projectId, Long scheduleId) {
         // 校验存在
         validateProjectExists(projectId);
@@ -421,6 +426,10 @@ public class ProjectServiceImpl implements ProjectService {
 
             if(pageReqVO.getFocusId() != null) {
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
+            }
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
             }
 
             // 课题组

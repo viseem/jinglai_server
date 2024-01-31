@@ -155,6 +155,12 @@ public class Project extends BaseEntity{
     private String focusIds;
 
     /**
+     * tag ids
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
      * 原设计 参与者 ids，数组
      */
     @Column(name = "participants")
