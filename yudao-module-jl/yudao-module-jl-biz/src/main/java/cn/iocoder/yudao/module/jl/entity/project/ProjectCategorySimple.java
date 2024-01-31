@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,13 +154,13 @@ public class ProjectCategorySimple extends BaseEntity {
      * 开始日期
      */
     @Column(name = "start_date")
-    private String startDate;
+    private LocalDateTime startDate;
 
     /**
      * 截止日期
      */
     @Column(name = "deadline")
-    private String deadline;
+    private LocalDateTime deadline;
 
     /**
      * 干扰项

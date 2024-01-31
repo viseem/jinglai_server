@@ -33,4 +33,13 @@ public class SubjectGroupMemberRespVO extends SubjectGroupMemberBaseVO {
     private Integer notOutProjectNum = 0;
     @Schema(description = "两周内到期的项目数")
     private Integer twoWeekExpireProjectNum = 0;
+
+
+    /*
+     * 实验
+     * */
+    @Schema(description = "未出库的任务数")
+    private Integer notOutExpNum = 0;
+    @Schema(description = "两周内到期的任务数")
+    private Integer twoWeekExpireExpNum = 0;
 }

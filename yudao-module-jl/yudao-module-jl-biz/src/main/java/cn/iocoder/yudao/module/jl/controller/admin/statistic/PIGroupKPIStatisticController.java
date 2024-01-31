@@ -7,11 +7,13 @@ import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.Subject
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.subjectgroup.SubjectGroupRepository;
@@ -64,6 +66,9 @@ public class PIGroupKPIStatisticController {
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
     @GetMapping("/kpi")
     @Operation(summary = "PI组 KPI 统计")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
@@ -108,10 +113,16 @@ public class PIGroupKPIStatisticController {
                 if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){
                     // 手头未出库项目数
                     item.setNotOutProjectNum(projectSimpleRepository.countByStageNotAndManagerInAndCodeNotNull(ProjectStageEnums.OUTED.getStatus(), new Long[]{item.getUserId()}));
-//                    item.setMonthNotOutProjectCount(subjectGroupMemberService.countNotOutProjectByUserId(item.getUserId()));
                     // 2周内到期的项目数
                     item.setTwoWeekExpireProjectNum(projectSimpleRepository.countByEndDateBetweenAndManagerInAndCodeNotNull(LocalDate.now(), LocalDate.now().plusDays(14), new Long[]{item.getUserId()}));
-//                    item.setMonthExpireProjectCount(subjectGroupMemberService.countExpireProjectByUserId(item.getUserId()));
+                }
+
+                //实验
+                if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.CELL.getStatus())||Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.ANIMAL.getStatus())){
+                    // 手头未出库任务数
+                    item.setNotOutExpNum(projectCategoryRepository.countByOperatorIdAndStageNot(item.getUserId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()));
+                    // 2周内到期的任务数
+                    item.setTwoWeekExpireExpNum(projectCategoryRepository.countByDeadlineBetweenAndOperatorIdIn(LocalDateTime.now(), LocalDateTime.now().plusDays(14), new Long[]{item.getUserId()}));
                 }
 
 
