@@ -27,10 +27,10 @@ public class ProjectStatisticController {
     @Resource
     private ProjectStatisticService projectStatisticService;
 
-    @GetMapping("/project")
+    @GetMapping("/stage-count")
     @Operation(summary = "获取项目的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<ProjectStatisticProjectResp> getSubjectGroupFollowupStats(@Valid @RequestBody ProjectStatisticReqVO reqVO) {
+    public CommonResult<ProjectStatisticProjectResp> getSubjectGroupFollowupStats(@Valid ProjectStatisticReqVO reqVO) {
         ProjectStatisticProjectResp projectStatisticProjectResp = projectStatisticService.countProject(reqVO);
         return success(projectStatisticProjectResp);
     }
