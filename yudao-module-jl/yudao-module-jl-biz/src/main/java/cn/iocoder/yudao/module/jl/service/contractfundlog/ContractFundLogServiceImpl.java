@@ -68,7 +68,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(createReqVO.getStatus()!=null){
+        if(Objects.equals(createReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
         }
 
@@ -101,7 +101,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(updateReqVO.getStatus()!=null){
+        if(Objects.equals(updateReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
         }
 

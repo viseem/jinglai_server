@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
@@ -67,7 +68,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(createReqVO.getStatus()!=null){
+        if(!Objects.equals(createReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
         }
 
@@ -94,7 +95,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(updateReqVO.getStatus()!=null){
+        if(!Objects.equals(updateReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
         }
 
