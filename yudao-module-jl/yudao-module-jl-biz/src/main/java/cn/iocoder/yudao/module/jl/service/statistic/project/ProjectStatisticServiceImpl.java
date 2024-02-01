@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.statistic.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectTagResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStatusTagEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import org.springframework.stereotype.Service;
@@ -36,10 +38,9 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
 
-        List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerId(reqVO.getUserIds());
+        List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
 
         ProjectStatisticProjectResp resp = new ProjectStatisticProjectResp();
-        resp.setProjectList(projectList);
         long waitCount = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.PRE.getStatus()))
                 .count();
@@ -81,5 +82,83 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
         resp.setExpireCount(expireCount);
 
         return resp;
+    }
+
+    @Override
+    public ProjectStatisticProjectTagResp countProjectTag(ProjectStatisticReqVO reqVO){
+
+        if(reqVO.getSubjectGroupId()!=null){
+            reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+        }
+
+        List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
+        ProjectStatisticProjectTagResp resp = new ProjectStatisticProjectTagResp();
+
+        long firstFundNotCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.FIRST_FUND_NOT.getStatus()))
+                .count();
+        resp.setFirstFundNotCount(firstFundNotCount);
+
+        long firstFundDoneCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.FIRST_FUND_DONE.getStatus()))
+                .count();
+        resp.setFirstFundDoneCount(firstFundDoneCount);
+
+        long doingCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.DOING.getStatus()))
+                .count();
+        resp.setDoingCount(doingCount);
+
+        long pauseCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE.getStatus()))
+                .count();
+        resp.setPauseCount(pauseCount);
+
+        long stopCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.STOP.getStatus()))
+                .count();
+        resp.setStopCount(stopCount);
+
+        long backCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.BACK.getStatus()))
+                .count();
+        resp.setBackCount(backCount);
+
+        long outEarlyCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.OUT_EARLY.getStatus()))
+                .count();
+        resp.setOutEarlyCount(outEarlyCount);
+
+        long doneWaitOutCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.DONE_WAIT_OUT.getStatus()))
+                .count();
+        resp.setDoneWaitOutCount(doneWaitOutCount);
+
+        long doneWaitLastFundCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.DONE_WAIT_LAST_FUND.getStatus()))
+                .count();
+        resp.setDoneWaitLastFundCount(doneWaitLastFundCount);
+
+        return resp;
+
+    }
+
+    public static boolean containsStr(String numbersString, String targetNumber) {
+        // 将逗号分隔的数字字符串分割成字符串数组
+        String[] numbersArray = numbersString.split(",");
+
+        // 遍历数组，检查是否包含目标数字
+        for (String number : numbersArray) {
+            // 将字符串转换为整数
+            String currentNumber = number.trim();
+
+            // 判断是否包含目标数字
+            if (currentNumber.equals(targetNumber)) {
+                return true;
+            }
+        }
+
+        // 如果循环结束仍然没有找到目标数字，则返回false
+        return false;
     }
 }

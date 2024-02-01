@@ -12,7 +12,7 @@ import java.util.List;
 *
 */
 public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>, JpaSpecificationExecutor<ProjectOnly> {
-    @Query("select p from ProjectOnly p where p.managerId in ?1")
-    List<ProjectOnly> findByInManagerId(Long[] managerIds);
+    @Query("select p from ProjectOnly p where p.managerId in ?1 and p.code is not null")
+    List<ProjectOnly> findByInManagerIdAndCodeNotNull(Long[] managerIds);
 
 }

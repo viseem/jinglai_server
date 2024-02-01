@@ -25,5 +25,4 @@ public class ProjectStatisticProjectResp {
     // 已过期
     Long delayCount;
 
-    List<ProjectOnly> projectList;
 }

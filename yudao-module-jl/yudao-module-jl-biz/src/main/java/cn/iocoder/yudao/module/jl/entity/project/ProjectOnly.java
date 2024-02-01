@@ -128,6 +128,12 @@ public class ProjectOnly extends BaseEntity{
     private Long currentQuotationId;
 
     /**
+     * tag ids
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
      * 当前安排单 id
      */
     @Column(name = "current_schedule_id")

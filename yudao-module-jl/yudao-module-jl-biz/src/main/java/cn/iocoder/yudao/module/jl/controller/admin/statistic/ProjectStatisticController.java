@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectTagResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
 import cn.iocoder.yudao.module.jl.service.statistic.project.ProjectStatisticService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,11 +29,18 @@ public class ProjectStatisticController {
     private ProjectStatisticService projectStatisticService;
 
     @GetMapping("/stage-count")
-    @Operation(summary = "获取项目的统计数据")
+    @Operation(summary = "获取项目柱状图统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<ProjectStatisticProjectResp> getSubjectGroupFollowupStats(@Valid ProjectStatisticReqVO reqVO) {
+    public CommonResult<ProjectStatisticProjectResp> getProjectStageCount(@Valid ProjectStatisticReqVO reqVO) {
         ProjectStatisticProjectResp projectStatisticProjectResp = projectStatisticService.countProject(reqVO);
         return success(projectStatisticProjectResp);
     }
 
+    @GetMapping("/tag-count")
+    @Operation(summary = "获取项目饼图统计数据")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<ProjectStatisticProjectTagResp> getProjectTagCount(@Valid ProjectStatisticReqVO reqVO) {
+        ProjectStatisticProjectTagResp projectStatisticProjectTagResp = projectStatisticService.countProjectTag(reqVO);
+        return success(projectStatisticProjectTagResp);
+    }
 }
