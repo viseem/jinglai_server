@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,7 +12,7 @@ import java.util.List;
 *
 */
 public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>, JpaSpecificationExecutor<ProjectOnly> {
-    @Query("select p from ProjectOnly p where p.creator in ?1")
-    List<ProjectOnly> findByCreatorIn(Long[] creators);
+    @Query("select p from ProjectOnly p where p.managerId in ?1")
+    List<ProjectOnly> findByInManagerId(Long[] managerIds);
 
 }

@@ -3,17 +3,14 @@ package cn.iocoder.yudao.module.jl.service.statistic.project;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +36,7 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
 
-        List<ProjectOnly> projectList = projectOnlyRepository.findByCreatorIn(reqVO.getUserIds());
+        List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerId(reqVO.getUserIds());
 
         ProjectStatisticProjectResp resp = new ProjectStatisticProjectResp();
         resp.setProjectList(projectList);
