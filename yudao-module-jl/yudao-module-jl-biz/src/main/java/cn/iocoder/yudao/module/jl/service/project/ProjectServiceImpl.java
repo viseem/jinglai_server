@@ -3,17 +3,13 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
-import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
@@ -397,28 +393,36 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
-                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
-                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
-                        mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
-                    }else{
-                        if(pageReqVO.getManagerId() != null) {
-                            predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+
+            //这个是穿件来的创建者id，默认是null
+            if(pageReqVO.getIds()==null){
+                if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
+                    if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
+                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                            mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
                         }else{
-                            predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                            if(pageReqVO.getManagerId() != null) {
+                                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                            }else{
+                                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                            }
                         }
                     }
-                }
-            }else{
+                }else{
 
-                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                pageReqVO.setCreators(users);
-                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                }
+                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                    pageReqVO.setCreators(users);
+                    if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                        predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    }
 
+                }
             }
 
+
+            if(pageReqVO.getIds()!=null){
+                predicates.add(root.get("id").in(Arrays.stream(pageReqVO.getIds()).toArray()));
+            }
 
 
             //默认查询code不为空的

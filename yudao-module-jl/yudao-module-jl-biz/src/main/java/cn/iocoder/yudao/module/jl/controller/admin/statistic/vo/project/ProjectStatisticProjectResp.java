@@ -12,17 +12,19 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 public class ProjectStatisticProjectResp {
-    Long waitCount;
-    Long doingCount;
+    Integer waitCount;
+    Integer doingCount;
     // 实验安排数量
-    Long expArrangeCount;
+    Integer expArrangeCount;
     //结算数量
-    Long settlementCount;
+    Integer settlementCount;
     //出库审批数量
-    Long outApprovalCount;
+    Integer outApprovalCount;
     // 即将到期
-    Long expireCount;
+    Integer expireCount;
     // 已过期
-    Long delayCount;
+    Integer delayCount;
+
+    List<List<Long>> idsList;
 
 }
