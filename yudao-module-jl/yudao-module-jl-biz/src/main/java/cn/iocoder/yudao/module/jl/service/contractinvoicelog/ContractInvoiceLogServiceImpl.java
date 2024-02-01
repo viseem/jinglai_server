@@ -3,11 +3,14 @@ package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -54,7 +57,11 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createContractInvoiceLog(ContractInvoiceLogCreateReqVO createReqVO) {
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
@@ -72,11 +79,16 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         contractInvoiceLogRepository.save(contractInvoiceLog);
 
         projectConstractService.processContractInvoicedPrice2(projectConstract.getId());
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(contractInvoiceLog.getId(),"CONTRACT_INVOICE_LOG",createReqVO.getAttachmentList());
+
         // 返回
         return contractInvoiceLog.getId();
     }
 
     @Override
+    @Transactional
     public void updateContractInvoiceLog(ContractInvoiceLogUpdateReqVO updateReqVO) {
         // 校验存在
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
@@ -92,6 +104,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
         projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
 
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_INVOICE_LOG",updateReqVO.getAttachmentList());
     }
 
     @Override
