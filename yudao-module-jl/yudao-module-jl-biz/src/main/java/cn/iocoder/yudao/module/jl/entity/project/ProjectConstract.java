@@ -14,6 +14,7 @@ import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 项目合同 Entity
@@ -189,6 +190,12 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "is_outed")
     private Integer isOuted;
+
+    /**
+     * 签订日期
+     */
+    @Column(name = "signed_time")
+    private LocalDateTime signedTime;
 
     /**
      * 查询审批列表
