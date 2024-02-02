@@ -417,14 +417,14 @@ public class ProjectServiceImpl implements ProjectService {
                     }
 
                 }
+            }else{
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
+
             }
 
             //默认查询code不为空的
             predicates.add(cb.isNotNull(root.get("code")));
 
-            if(pageReqVO.getManagerIds()!=null){
-                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
-            }
 
             if(pageReqVO.getIsDelay() != null) {
                 //查询截止日期小于当前日期的

@@ -18,6 +18,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -430,25 +431,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
             }
 
-/*            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
-                // 待报价的
-                predicates.add(cb.isNull(root.get("quotation")));
-            } else if (Objects.equals(pageReqVO.getQuotationStatus(), "2")) {
-                // 已报价的
-                predicates.add(cb.isNotNull(root.get("quotation")));
-            }*/
 
-
-
-/*
-            if(pageReqVO.getQuotation() != null) {
-                predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
-            }
-*/
-
-
-
-//                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
                 if(pageReqVO.getStatus() != null) {
@@ -460,28 +443,32 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }else{
-                if(pageReqVO.getManagerId() != null) {
-                    /*predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
-                    if(pageReqVO.getStatus() != null) {
-                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                    }*/
+            if(pageReqVO.getCreatorIds()==null){
+                if(pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 }else{
-                    if(pageReqVO.getAttribute()!=null){
-                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                            predicates.add(root.get("creator").isNull());
-                        }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                            Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                            pageReqVO.setCreators(users);
-                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    if (pageReqVO.getManagerId() == null) {
+                        if(pageReqVO.getAttribute()!=null){
+                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                                predicates.add(root.get("creator").isNull());
+                            }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                                pageReqVO.setCreators(users);
+                                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                            }
                         }
+
+
                     }
-
-
                 }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
             }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+            }
+
 
             if(pageReqVO.getStatus() != null) {
                 //查询未转项目的

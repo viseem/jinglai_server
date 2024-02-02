@@ -31,5 +31,5 @@ public class StatisticBaseVO {
     private Long userId;
 
     @Schema(description = "时间范围", example = "27395")
-    private String timeRange;
+    private String timeRange = "month";
 }
