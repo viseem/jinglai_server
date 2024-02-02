@@ -5,12 +5,15 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentService;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -133,11 +136,19 @@ public class FollowupServiceImpl implements FollowupService {
         Specification<Followup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-
-            if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
-                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            if(pageReqVO.getCreatorIds()==null){
+                if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
+                    if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    }
                 }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if(pageReqVO.getContent() != null) {
