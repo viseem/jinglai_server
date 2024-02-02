@@ -24,6 +24,16 @@ public enum ProjectStatusTagEnums implements StringArrayValuable {
     DOING("3", "推进"),
     //暂停
     PAUSE("4", "暂停"),
+    //暂停-等待试剂样本
+    PAUSE_WAIT_SAMPLE("401", "暂停-等待试剂样本"),
+    //暂停-客户反馈
+    PAUSE_WAIT_FEEDBACK("402", "暂停-客户反馈"),
+    //暂停-等待款项
+    PAUSE_WAIT_FUND("403", "暂停-等待款项"),
+    //暂停-设备排期
+    PAUSE_WAIT_DEVICE("404", "暂停-设备排期"),
+    //暂停-人员排期
+    PAUSE_WAIT_PERSON("405", "暂停-人员排期"),
     //中止
     STOP("5", "中止"),
     //退单

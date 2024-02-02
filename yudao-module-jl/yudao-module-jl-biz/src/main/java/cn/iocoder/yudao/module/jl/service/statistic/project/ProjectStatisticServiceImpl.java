@@ -130,6 +130,31 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
                 .count();
         resp.setPauseCount(pauseCount);
 
+        long pauseWaitSampleCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE_WAIT_SAMPLE.getStatus()))
+                .count();
+        resp.setPauseWaitSampleCount(pauseWaitSampleCount);
+
+        long pauseWaitFeedbackCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE_WAIT_FEEDBACK.getStatus()))
+                .count();
+        resp.setPauseWaitFeedbackCount(pauseWaitFeedbackCount);
+
+        long pauseWaitFundCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE_WAIT_FUND.getStatus()))
+                .count();
+        resp.setPauseWaitFundCount(pauseWaitFundCount);
+
+        long pauseWaitDeviceCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE_WAIT_DEVICE.getStatus()))
+                .count();
+        resp.setPauseWaitDeviceCount(pauseWaitDeviceCount);
+
+        long pauseWaitPersonCount = projectList.stream()
+                .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.PAUSE_WAIT_PERSON.getStatus()))
+                .count();
+        resp.setPauseWaitPersonCount(pauseWaitPersonCount);
+
         long stopCount = projectList.stream()
                 .filter(project -> containsStr(project.getTagIds(), ProjectStatusTagEnums.STOP.getStatus()))
                 .count();

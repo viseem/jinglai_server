@@ -21,6 +21,16 @@ public class ProjectStatisticProjectTagResp {
     DOING("3", "推进"),
     //暂停
     PAUSE("4", "暂停"),
+    //暂停-等待试剂样本
+    PAUSE_WAIT_SAMPLE("401", "暂停-等待试剂样本"),
+    //暂停-客户反馈
+    PAUSE_WAIT_FEEDBACK("402", "暂停-客户反馈"),
+    //暂停-等待款项
+    PAUSE_WAIT_FUND("403", "暂停-等待款项"),
+    //暂停-设备排期
+    PAUSE_WAIT_DEVICE("404", "暂停-设备排期"),
+    //暂停-人员排期
+    PAUSE_WAIT_PERSON("405", "暂停-人员排期"),
     //中止
     STOP("5", "中止"),
     //退单
@@ -41,6 +51,18 @@ public class ProjectStatisticProjectTagResp {
     Long doingCount;
     //暂停
     Long pauseCount;
+
+    //暂停-等待试剂样本
+    Long pauseWaitSampleCount;
+    //暂停-客户反馈
+    Long pauseWaitFeedbackCount;
+    //暂停-等待款项
+    Long pauseWaitFundCount;
+    //暂停-设备排期
+    Long pauseWaitDeviceCount;
+    //暂停-人员排期
+    Long pauseWaitPersonCount;
+
     //中止
     Long stopCount;
     //退单
