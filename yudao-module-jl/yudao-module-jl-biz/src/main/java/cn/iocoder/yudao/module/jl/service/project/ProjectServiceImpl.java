@@ -429,11 +429,15 @@ public class ProjectServiceImpl implements ProjectService {
             if(pageReqVO.getIsDelay() != null) {
                 //查询截止日期小于当前日期的
                 predicates.add(cb.lessThan(root.get("endDate"), LocalDateTime.now()));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectStageEnums.OUTED.getStatus()));
             }
 
             if(pageReqVO.getExpireDayLimit()!=null){
                 //查询在getExpireDayLimit日内即将到期的
                 predicates.add(cb.between(root.get("endDate"), LocalDateTime.now(), LocalDateTime.now().plusDays(pageReqVO.getExpireDayLimit())));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectStageEnums.OUTED.getStatus()));
             }
 
 
