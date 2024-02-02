@@ -44,42 +44,35 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
 
         ProjectStatisticProjectResp resp = new ProjectStatisticProjectResp();
         //实例化idsList
-        List<List<Long>> idsList = new ArrayList<>();
-        resp.setIdsList(idsList);
         List<Long> idList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.PRE.getStatus()))
                 .map(ProjectOnly::getId)  // 假设项目类中有一个getId方法来获取项目ID
                 .collect(Collectors.toList());
         resp.setWaitCount(idList.size());
-        idsList.add(idList);
 
         List<Long> doingIdList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.DOING.getStatus()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setDoingCount(doingIdList.size());
-        idsList.add(doingIdList);
 
         List<Long> expArrangeIdList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.EXP_ARRANGE.getStatus()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setExpArrangeCount(expArrangeIdList.size());
-        idsList.add(expArrangeIdList);
 
         List<Long> settlementIdList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.SETTLEMENT.getStatus()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setSettlementCount(settlementIdList.size());
-        idsList.add(settlementIdList);
 
         List<Long> outApprovalIdList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.OUTING.getStatus()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setOutApprovalCount(outApprovalIdList.size());
-        idsList.add(outApprovalIdList);
 
         List<Long> delayIdList = projectList.stream()
                 .filter(project -> project.getEndDate() != null &&
@@ -88,7 +81,6 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setDelayCount(delayIdList.size());
-        idsList.add(delayIdList);
 
         List<Long> expireIdList = projectList.stream()
                 .filter(project -> project.getEndDate() != null &&
@@ -98,7 +90,6 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
         resp.setExpireCount(expireIdList.size());
-        idsList.add(expireIdList);
 
         return resp;
     }

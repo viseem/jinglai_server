@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -377,7 +378,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 创建 Specification
         Specification<Project> spec = getProjectCommonSpecification(pageReqVO);
-
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
         page.forEach(item->{
@@ -395,7 +395,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
             //这个是穿件来的创建者id，默认是null
-            if(pageReqVO.getIds()==null){
+            if(pageReqVO.getManagerIds()==null){
                 if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
                     if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
                         if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
@@ -419,14 +419,23 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
 
-
-            if(pageReqVO.getIds()!=null){
-                predicates.add(root.get("id").in(Arrays.stream(pageReqVO.getIds()).toArray()));
-            }
-
-
             //默认查询code不为空的
             predicates.add(cb.isNotNull(root.get("code")));
+
+            if(pageReqVO.getManagerIds()!=null){
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
+            }
+
+            if(pageReqVO.getIsDelay() != null) {
+                //查询截止日期小于当前日期的
+                predicates.add(cb.lessThan(root.get("endDate"), LocalDateTime.now()));
+            }
+
+            if(pageReqVO.getExpireDayLimit()!=null){
+                //查询在getExpireDayLimit日内即将到期的
+                predicates.add(cb.between(root.get("endDate"), LocalDateTime.now(), LocalDateTime.now().plusDays(pageReqVO.getExpireDayLimit())));
+            }
+
 
             if(pageReqVO.getFocusId() != null) {
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);

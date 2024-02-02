@@ -22,8 +22,11 @@ public class ProjectPageReqVO extends PageParam {
     private Long[] creators;
 
     // 上面那个是权限使用的，这个是直接传进来的
-    @Schema(description = "in 查询 creators")
-    private Long[] ids;
+    @Schema(description = "in 查询 managerIds")
+    private Long[] managerIds;
+
+    private Integer expireDayLimit;
+    private Boolean isDelay;
 
     private Boolean isSale;
 
