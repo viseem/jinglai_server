@@ -13,6 +13,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class ProjectStatisticProjectResp {
     Integer waitCount;
+    Integer doingApprovalCount;
     Integer doingCount;
     // 实验安排数量
     Integer expArrangeCount;

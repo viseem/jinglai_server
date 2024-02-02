@@ -2,10 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryApproval;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
@@ -57,5 +54,7 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
     private List<User>  focusList;
 
     private List<CommonTodoLog> preTodoList;
+
+    private ProjectCategoryOnly projectCategory;
 
 }

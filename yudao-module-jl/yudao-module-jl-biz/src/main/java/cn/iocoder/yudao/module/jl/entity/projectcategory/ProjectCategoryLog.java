@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -107,5 +108,15 @@ public class ProjectCategoryLog extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectCategoryAttachment> attachments = new ArrayList<>();
+
+
+    /*
+    * 级联实验
+    * */
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectCategoryOnly projectCategory;
 
 }

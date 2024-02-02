@@ -303,7 +303,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }
 
             if(pageReqVO.getTimeRange()!=null){
-                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+                predicates.add(cb.between(root.get("signedTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if (pageReqVO.getReceivedStatus() != null) {

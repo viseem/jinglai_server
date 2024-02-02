@@ -50,6 +50,12 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
                 .collect(Collectors.toList());
         resp.setWaitCount(idList.size());
 
+        List<Long> doingApprovalCount = projectList.stream()
+                .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus()))
+                .map(ProjectOnly::getId)  // 假设项目类中有一个getId方法来获取项目ID
+                .collect(Collectors.toList());
+        resp.setDoingApprovalCount(doingApprovalCount.size());
+
         List<Long> doingIdList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.DOING.getStatus()))
                 .map(ProjectOnly::getId)

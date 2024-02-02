@@ -146,6 +146,10 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
             if(pageReqVO.getOperatorId() != null) {
                 predicates.add(cb.equal(root.get("operatorId"), pageReqVO.getOperatorId()));
             }
