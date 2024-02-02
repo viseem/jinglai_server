@@ -15,12 +15,18 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectConstractPageReqVO extends PageParam {
 
-
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.ANY.getStatus();
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;
+
+    //上面的是权限规则，这个是传进来的
+    @Schema(description = "in 查询 creatorIds")
+    private Long[] creatorIds;
+
+    @Schema(description = "时间范围", example = "27395")
+    private String timeRange;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

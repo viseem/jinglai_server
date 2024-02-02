@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Schema(description = "")
 @Data
@@ -16,4 +17,6 @@ public class FinancialStatisticResp {
     BigDecimal invoiceAmount = BigDecimal.ZERO;
     // 回款金额
     BigDecimal paymentAmount = BigDecimal.ZERO;
+
+    List<Long> contractIds;
 }

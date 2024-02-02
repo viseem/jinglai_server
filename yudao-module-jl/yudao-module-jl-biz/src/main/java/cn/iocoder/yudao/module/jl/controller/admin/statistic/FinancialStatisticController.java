@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -118,6 +119,12 @@ public class FinancialStatisticController {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
             }
         }
+        //减去
+        resp.setAccountsReceivable(
+                resp.getAccountsReceivable().subtract(resp.getPaymentAmount())
+        );
+
+        resp.setContractIds(contractList.stream().map(ProjectConstractOnly::getId).collect(Collectors.toList()));
 
         return success(resp);
     }

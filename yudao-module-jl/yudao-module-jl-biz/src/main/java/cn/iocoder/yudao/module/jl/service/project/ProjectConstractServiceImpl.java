@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepos
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -125,16 +127,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }
 
 
-/*
-        if (createReqVO.getProjectId() != null&& createReqVO.getProjectId()>0) {
-            Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
-            if (byId.isEmpty()) {
-                throw exception(PROJECT_NOT_EXISTS);
-            }
-        }else{
-            createReqVO.setProjectId(null);
-        }
-*/
 
         ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
         if (bySn != null) {
@@ -296,15 +288,22 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             List<Predicate> predicates = new ArrayList<>();
 
 
-            if (pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            } else {
+            if(pageReqVO.getCreatorIds()==null){
+                if (pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                } else {
 
-                if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
-                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-//                    Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                    predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    }
                 }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if (pageReqVO.getReceivedStatus() != null) {
@@ -325,6 +324,13 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         ));
                         break;
                     // Add more cases if needed
+                    case "NOT_ALL_PAY":
+                    predicates.add(cb.or(
+                            cb.lessThan(root.get("receivedPrice"), root.get("price")),
+                            cb.equal(root.get("receivedPrice"), 0),
+                            cb.isNull(root.get("receivedPrice"))
+                    ));
+                    break;
                     default:
                         break;
                 }
