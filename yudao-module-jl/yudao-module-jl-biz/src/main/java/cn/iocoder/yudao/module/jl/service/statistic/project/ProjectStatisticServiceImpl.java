@@ -185,6 +185,7 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
     }
 
     public static boolean containsStr(String numbersString, String targetNumber) {
+        numbersString=numbersString==null?"":numbersString;
         // 将逗号分隔的数字字符串分割成字符串数组
         String[] numbersArray = numbersString.split(",");
 

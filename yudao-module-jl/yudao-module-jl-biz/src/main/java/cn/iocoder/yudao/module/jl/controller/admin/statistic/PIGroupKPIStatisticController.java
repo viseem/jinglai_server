@@ -99,7 +99,7 @@ public class PIGroupKPIStatisticController {
         dtoList.forEach(item->{
                 // 销售
                 if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.SALE.getStatus())){
-                    List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndCreateTimeBetweenAndStatus(new Long[]{item.getUserId()}, StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), ProjectContractStatusEnums.SIGNED.getStatus());
+                    List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndSignedTimeBetweenAndStatus(new Long[]{item.getUserId()}, StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), ProjectContractStatusEnums.SIGNED.getStatus());
                     for (ProjectConstractOnly contract : contractList) {
                         if(contract.getPrice() != null) {
                             item.setMonthOrderFund(item.getMonthOrderFund().add(contract.getPrice()));

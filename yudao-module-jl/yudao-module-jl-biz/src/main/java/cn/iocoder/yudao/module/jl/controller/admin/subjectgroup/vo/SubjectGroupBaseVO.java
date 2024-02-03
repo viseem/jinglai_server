@@ -32,8 +32,7 @@ public class SubjectGroupBaseVO {
     @NotNull(message = "领域不能为空")
     private String subject;
 
-    @Schema(description = "组长", requiredMode = Schema.RequiredMode.REQUIRED, example = "27395")
-    @NotNull(message = "组长不能为空")
+    @Schema(description = "组长")
     private Long leaderId;
 
     @Schema(description = "商户组长")
