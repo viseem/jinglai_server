@@ -83,6 +83,15 @@ public class ProjectCategoryLog extends BaseEntity {
     private User operator;
 
     /**
+     * JPA 级联出 user
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private User user;
+
+    /**
      * 备注
      */
     @Column(name = "mark", nullable = false)

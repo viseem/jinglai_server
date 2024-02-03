@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryAttachmentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectDocumentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -51,6 +53,9 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     private final ProjectCategoryRepository projectCategoryRepository;
 
     @Resource
+    private ProjectCategorySimpleRepository projectCategorySimpleRepository;
+
+    @Resource
     private ProjectDocumentServiceImpl projectDocumentService;
 
     public ProjectCategoryAttachmentServiceImpl(ProjectCategoryRepository projectCategoryRepository) {
@@ -61,14 +66,15 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     @Transactional
     public Long createProjectCategoryAttachment(ProjectCategoryAttachmentCreateReqVO createReqVO) {
 
-        Optional<ProjectCategory> byId = projectCategoryRepository.findById(createReqVO.getProjectCategoryId());
+        Optional<ProjectCategorySimple> byId = projectCategorySimpleRepository.findById(createReqVO.getProjectCategoryId());
         if (byId.isEmpty()){
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
         }
 
         // 插入
         ProjectCategoryAttachment projectCategoryAttachment = projectCategoryAttachmentMapper.toEntity(createReqVO);
-        ProjectCategoryAttachment save = projectCategoryAttachmentRepository.save(projectCategoryAttachment);
+        projectCategoryAttachment.setProjectId(byId.get().getProjectId());
+        projectCategoryAttachmentRepository.save(projectCategoryAttachment);
 
         // 如果是实验类型的数据，则存一份到projectDocument
         if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.EXP.getStatus())){
@@ -81,10 +87,18 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
 
     @Override
     public void updateProjectCategoryAttachment(ProjectCategoryAttachmentUpdateReqVO updateReqVO) {
+
         // 校验存在
         validateProjectCategoryAttachmentExists(updateReqVO.getId());
+
+        Optional<ProjectCategorySimple> byId = projectCategorySimpleRepository.findById(updateReqVO.getProjectCategoryId());
+        if (byId.isEmpty()){
+            throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+        }
+
         // 更新
         ProjectCategoryAttachment updateObj = projectCategoryAttachmentMapper.toEntity(updateReqVO);
+        updateObj.setProjectId(byId.get().getProjectId());
         projectCategoryAttachmentRepository.save(updateObj);
     }
 
@@ -133,6 +147,11 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
         // 创建 Specification
         Specification<ProjectCategoryAttachment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
 
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));

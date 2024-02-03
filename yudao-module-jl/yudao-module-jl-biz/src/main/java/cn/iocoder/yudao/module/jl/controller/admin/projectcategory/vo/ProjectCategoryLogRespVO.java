@@ -24,6 +24,7 @@ public class ProjectCategoryLogRespVO extends ProjectCategoryLogBaseVO {
 
     private ProjectSimple project;
     private User operator;
+    private User user;
 
     private List<ProjectCategoryAttachment> attachments;
 
