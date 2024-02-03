@@ -113,7 +113,7 @@ public class FinancialStatisticController {
                 resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
             }
             if(contract.getPrice() != null) {
-                resp.setAccountsReceivable(resp.getAccountsReceivable().add(contract.getPrice()));
+                resp.setOrderAmount(resp.getAccountsReceivable().add(contract.getPrice()));
             }
             if (contract.getInvoicedPrice() != null) {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
@@ -121,7 +121,7 @@ public class FinancialStatisticController {
         }
         //减去
         resp.setAccountsReceivable(
-                resp.getAccountsReceivable().subtract(resp.getPaymentAmount())
+                resp.getOrderAmount().subtract(resp.getPaymentAmount())
         );
 
         resp.setContractIds(contractList.stream().map(ProjectConstractOnly::getId).collect(Collectors.toList()));

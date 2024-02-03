@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 public class FinancialStatisticResp {
+    // 订单金额
+    BigDecimal orderAmount = BigDecimal.ZERO;
     // 应收款
     BigDecimal accountsReceivable = BigDecimal.ZERO;
     // 已开票数额
