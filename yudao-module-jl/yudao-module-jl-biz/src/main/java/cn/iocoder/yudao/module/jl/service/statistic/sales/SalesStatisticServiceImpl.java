@@ -68,7 +68,6 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         if(reqVO.getTimeRange()!=null){
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
-
         Integer totalCount = salesleadRepository.countByCreateTimeBetweenAndCreatorIn(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds());
         Integer focusCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.KeyFocus.getStatus()));
         Integer quotedCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
