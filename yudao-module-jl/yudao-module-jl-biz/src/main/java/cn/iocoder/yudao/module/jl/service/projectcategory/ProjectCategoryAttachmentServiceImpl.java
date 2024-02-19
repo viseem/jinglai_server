@@ -147,7 +147,9 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
         // 创建 Specification
         Specification<ProjectCategoryAttachment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
+            if(pageReqVO.getCreator() != null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getCreator()));
+            }
 
             if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
@@ -163,6 +165,10 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
 
             if(pageReqVO.getFileUrl() != null) {
                 predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
+            }
+
+            if(pageReqVO.getExpType() != null) {
+                predicates.add(cb.equal(root.get("expType"), pageReqVO.getExpType()));
             }
 
             if(pageReqVO.getType() != null) {
