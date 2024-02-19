@@ -382,14 +382,21 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      * @return
      */
     @Override
-    public Long getChargeItemQuotationByQuotationId(Long id) {
-        long cost = 0;
+    public BigDecimal getChargeItemQuotationByQuotationId(Long id) {
+        BigDecimal cost = BigDecimal.ZERO;
 
         // 计算收费项的成本
         List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
         for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
-            if (projectChargeitem.getUnitFee() != null) {
-                cost += projectChargeitem.getUnitFee().longValue() * projectChargeitem.getQuantity();
+            if (projectChargeitem.getUnitFee() != null&& projectChargeitem.getQuantity() != null) {
+                BigDecimal unitFee = new BigDecimal(projectChargeitem.getUnitFee());
+                BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
+                BigDecimal price = unitFee.multiply(quantity);
+                if(projectChargeitem.getDiscount()!=null){
+//                    BigDecimal discount = new BigDecimal(projectChargeitem.getDiscount()).divide(BigDecimal.valueOf(100));
+                    price=price.multiply(new BigDecimal(projectChargeitem.getDiscount())).divide(BigDecimal.valueOf(100));
+                }
+                cost = cost.add(price);
             }
         }
 
@@ -730,14 +737,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 修改报价金额
 //        accountSalesleadQuotation(save.getProjectId());
         return save.getId();
-    }
-
-    public void accountSalesleadQuotation(Long projectId, Long quotationId) {
-        //核算对应项目的商机的公司报价总价
-        Long supplyQuotation = getSupplyQuotationByQuotationId(quotationId);
-        Long chargeQuotation = getChargeItemQuotationByQuotationId(quotationId);
-
-        salesleadRepository.updateQuotationByProjectId(projectId, BigDecimal.valueOf(supplyQuotation + chargeQuotation));
     }
 
 
