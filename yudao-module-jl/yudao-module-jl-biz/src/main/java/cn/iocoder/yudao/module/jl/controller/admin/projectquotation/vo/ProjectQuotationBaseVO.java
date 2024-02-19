@@ -39,4 +39,7 @@ public class ProjectQuotationBaseVO {
     @Schema(description = "报价金额")
     private BigDecimal originPrice;
 
+    @Schema(description = "减免金额")
+    private BigDecimal reducePrice;
+
 }

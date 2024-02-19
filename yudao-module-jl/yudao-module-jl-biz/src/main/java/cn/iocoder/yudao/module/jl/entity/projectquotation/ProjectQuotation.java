@@ -72,4 +72,7 @@ public class ProjectQuotation extends BaseEntity {
 
     @Column(name = "origin_price", nullable = false )
     private BigDecimal originPrice;
+
+    @Column(name = "reduce_price", nullable = false )
+    private BigDecimal reducePrice;
 }
