@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatist
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -76,23 +77,8 @@ public class FinancialStatisticController {
             localDateStartTime = localDateStartTime.withHour(23).withMinute(59).withSecond(59);
         }
 
-        if(timeRange != null) {
-            switch (timeRange) {
-                case "week":
-                    // startTime 本周的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfWeek().getValue());
-                    break;
-                case "month":
-                    // startTime 本月的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfMonth());
-                    break;
-                case "year":
-                    // startTime 本年的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfYear());
-                    break;
-                default:
-                    break;
-            }
+        if(timeRange!=null){
+            localDateStartTime = StatisticUtils.getStartTimeByTimeRange(timeRange);
         }
 
         if(userId != null) {
@@ -104,16 +90,20 @@ public class FinancialStatisticController {
             subjectGroupMemberService.findMembersByGroupId(subjectGroupId).forEach(member -> userIds.add(member.getUserId()));
         }
 
+        System.out.println(localDateStartTime.toString()+localDateEndTime);
+
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(userIds, ProjectContractStatusEnums.SIGNED.getStatus(), localDateStartTime, localDateEndTime);
+        System.out.println("---"+contractList.size());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         FinancialStatisticResp resp = new FinancialStatisticResp();
         for (ProjectConstractOnly contract : contractList) {
             if(contract.getReceivedPrice() != null) {
                 resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
             }
+            System.out.println("===="+contract.getPrice());
             if(contract.getPrice() != null) {
-                resp.setOrderAmount(resp.getAccountsReceivable().add(contract.getPrice()));
+                resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
             if (contract.getInvoicedPrice() != null) {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
