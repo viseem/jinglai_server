@@ -33,8 +33,6 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 @Validated
 public class FinancialStatisticController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     // 合同 Repository
     @Resource
     private ProjectConstractOnlyRepository projectConstractOnlyRepository;
@@ -54,8 +52,6 @@ public class FinancialStatisticController {
             @RequestParam(name = "userId", required = false) Long userId
     ) {
         // 获取请求的数据
-        logger.info("getFinancialStatistic startTime = {}, endTime = {}, userIds = {}, subjectGroupId = {}, userId = {}",
-                startTime, endTime, userIds, subjectGroupId, userId);
 
         LocalDateTime localDateEndTime = LocalDateTime.now();
         LocalDateTime localDateStartTime = LocalDateTime.now();
@@ -89,19 +85,14 @@ public class FinancialStatisticController {
             // 查找groupId下的所有人员
             subjectGroupMemberService.findMembersByGroupId(subjectGroupId).forEach(member -> userIds.add(member.getUserId()));
         }
-
-        System.out.println(localDateStartTime.toString()+localDateEndTime);
-
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(userIds, ProjectContractStatusEnums.SIGNED.getStatus(), localDateStartTime, localDateEndTime);
-        System.out.println("---"+contractList.size());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         FinancialStatisticResp resp = new FinancialStatisticResp();
         for (ProjectConstractOnly contract : contractList) {
             if(contract.getReceivedPrice() != null) {
                 resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
             }
-            System.out.println("===="+contract.getPrice());
             if(contract.getPrice() != null) {
                 resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
