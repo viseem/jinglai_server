@@ -102,6 +102,7 @@ public class FollowupServiceImpl implements FollowupService {
         validateFollowupExists(id);
         // 删除
         followupRepository.deleteById(id);
+        commonAttachmentService.deleteAttachment(id,"CRM_FOLLOWUP");
     }
 
     private void validateFollowupExists(Long id) {
