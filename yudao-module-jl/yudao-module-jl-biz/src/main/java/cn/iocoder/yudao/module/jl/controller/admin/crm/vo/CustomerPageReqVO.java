@@ -99,6 +99,9 @@ public class CustomerPageReqVO extends PageParam {
     @Schema(description = "当前负责的销售人员", example = "5204")
     private Long salesId;
 
+    @Schema(description = "机构id", example = "5204")
+    private Long institutionId;
+
     @Schema(description = "最后一次的跟进 id", example = "5860")
     private Long lastFollowupId;
 

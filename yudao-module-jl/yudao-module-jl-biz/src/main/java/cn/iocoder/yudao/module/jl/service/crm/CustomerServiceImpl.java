@@ -252,6 +252,22 @@ public class CustomerServiceImpl implements CustomerService {
                    predicates.add(root.get("salesId").isNull());
                }
            }*/
+
+            // hospital_id or university_id or company_id
+            if(pageReqVO.getInstitutionId()!=null){
+                predicates.add(cb.or(
+                        cb.equal(root.get("hospitalId"), pageReqVO.getInstitutionId()),
+                        cb.equal(root.get("universityId"), pageReqVO.getInstitutionId()),
+                        cb.equal(root.get("companyId"), pageReqVO.getInstitutionId())
+                ));
+            }
+
+
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
+
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
