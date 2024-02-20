@@ -90,6 +90,12 @@ public class ProjectCategoryOnly extends BaseEntity {
     @Column(name = "operator_id")
     private Long operatorId;
 
+    /*
+     * 折扣
+     * */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
     /**
      * 客户需求
      */

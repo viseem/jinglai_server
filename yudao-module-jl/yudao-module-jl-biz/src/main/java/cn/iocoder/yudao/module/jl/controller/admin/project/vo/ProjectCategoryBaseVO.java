@@ -90,6 +90,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "周期")
     private String cycle;
 
+    @Schema(description = "折扣")
+    private Integer discount;
+
     @Schema(description = "项目负责人")
     private Long projectManagerId;
 

@@ -174,6 +174,12 @@ public class ProjectCategorySimple extends BaseEntity {
     @Column(name = "depend_ids")
     private String dependIds;
 
+    /*
+     * 折扣
+     * */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
     /**
      * 实验名目名字
      */

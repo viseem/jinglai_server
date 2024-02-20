@@ -204,6 +204,13 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "cycle")
     private String cycle;
 
+
+    /*
+    * 折扣
+    * */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
     /**
      * 项目的负责人id
      */
