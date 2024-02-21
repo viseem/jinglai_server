@@ -150,9 +150,32 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             List<Predicate> predicates = new ArrayList<>();
 
             //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+/*            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }*/
+
+            if(pageReqVO.getContractIds()==null){
+                if(pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                }else{
+                    //如果不是any，则都是in查询
+                    if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    }
+                }
+            }else{
+                predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getStatus() != null) {
@@ -167,9 +190,6 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }
 
             if(pageReqVO.getContractId() != null) {
                 predicates.add(cb.equal(root.get("contractId"), pageReqVO.getContractId()));
