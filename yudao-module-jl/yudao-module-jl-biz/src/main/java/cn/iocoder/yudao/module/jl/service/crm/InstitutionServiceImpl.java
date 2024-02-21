@@ -43,6 +43,12 @@ public class InstitutionServiceImpl implements InstitutionService {
 
     @Override
     public Long createInstitution(InstitutionCreateReqVO createReqVO) {
+
+        Institution byName = institutionRepository.findByName(createReqVO.getName());
+        if(byName!=null){
+            return 0L;
+        }
+
         // 插入
         Institution institution = institutionMapper.toEntity(createReqVO);
         institutionRepository.save(institution);
