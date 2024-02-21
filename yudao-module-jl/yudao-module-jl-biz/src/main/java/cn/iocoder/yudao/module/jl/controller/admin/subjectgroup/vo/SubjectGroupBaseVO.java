@@ -46,5 +46,5 @@ public class SubjectGroupBaseVO {
 
     private BigDecimal kpiOrderFund;
     private BigDecimal kpiReturnFund;
-
+    private BigDecimal kpiOutFund;
 }
