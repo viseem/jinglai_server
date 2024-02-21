@@ -3,7 +3,9 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatisticResp;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
@@ -39,6 +41,9 @@ public class FinancialStatisticController {
 
     @Resource
     private SubjectGroupMemberService subjectGroupMemberService;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
 
     @GetMapping("/accounts-receivable")
     @Operation(summary = "应收款统计")
@@ -90,9 +95,9 @@ public class FinancialStatisticController {
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         FinancialStatisticResp resp = new FinancialStatisticResp();
         for (ProjectConstractOnly contract : contractList) {
-            if(contract.getReceivedPrice() != null) {
+            /*if(contract.getReceivedPrice() != null) {
                 resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
-            }
+            }*/
             if(contract.getPrice() != null) {
                 resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
@@ -100,6 +105,12 @@ public class FinancialStatisticController {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
             }
         }
+
+        //查询contractFundLog表，获取已收金额
+        contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), localDateStartTime, localDateEndTime, userIds).forEach(contractFundLog -> {
+            resp.setPaymentAmount(resp.getPaymentAmount().add(contractFundLog.getReceivedPrice()));
+        });
+
         //减去
         resp.setAccountsReceivable(
                 resp.getOrderAmount().subtract(resp.getPaymentAmount())
