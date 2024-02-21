@@ -440,7 +440,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
             }
 
-            if(pageReqVO.getSalesId() != null&&pageReqVO.getManagerId()!=null) {
+            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
