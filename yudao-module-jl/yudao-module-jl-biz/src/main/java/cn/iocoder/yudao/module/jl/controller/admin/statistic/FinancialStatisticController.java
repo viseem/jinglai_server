@@ -95,9 +95,9 @@ public class FinancialStatisticController {
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         FinancialStatisticResp resp = new FinancialStatisticResp();
         for (ProjectConstractOnly contract : contractList) {
-            /*if(contract.getReceivedPrice() != null) {
-                resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
-            }*/
+            if(contract.getReceivedPrice() != null) {
+                resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
+            }
             if(contract.getPrice() != null) {
                 resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
@@ -113,7 +113,7 @@ public class FinancialStatisticController {
 
         //减去
         resp.setAccountsReceivable(
-                resp.getOrderAmount().subtract(resp.getPaymentAmount())
+                resp.getOrderAmount().subtract(resp.getContractPaymentAmount())
         );
 
         resp.setContractIds(contractList.stream().map(ProjectConstractOnly::getId).collect(Collectors.toList()));
