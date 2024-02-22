@@ -2,10 +2,8 @@ package cn.iocoder.yudao.module.jl.service.animal;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
-import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
-import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
@@ -21,8 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -235,42 +236,87 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
     private void processLatestFeedLog(AnimalFeedOrder animalFeedOrder) {
         List<AnimalFeedLog> logs = animalFeedOrder.getLogs();
-        if (logs != null&&logs.size()>0) {
+            final LocalDateTime[] startDate = {animalFeedOrder.getStartDate()};
+            LocalDateTime endDate = animalFeedOrder.getEndDate();
+            if(endDate==null){
+                endDate = LocalDateTime.now();
+            }
             Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
+            final AtomicInteger[] dayCount = {new AtomicInteger()};
+
             AtomicInteger totalAmount = new AtomicInteger();
-            AtomicInteger dayCount = new AtomicInteger();
+            AtomicReference<Integer> quantity = new AtomicReference<>(animalFeedOrder.getCageQuantity());
+            if(animalFeedOrder.getUnitFee()!=null&&quantity.get()!=null&&startDate[0]!=null){
+                if(logs!=null){
+                    logs.forEach(log -> {
 
-            logs.forEach(log -> {
-                String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                Integer count = log.getCageQuantity();
-                if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
-                    count = log.getQuantity();
-                }
-                Integer price = 0;
-                if (animalFeedOrder.getUnitFee() != null && animalFeedOrder.getUnitFee() > 0) {
-                    price = animalFeedOrder.getUnitFee();
-                }
-                int rowAmount = count * price;
+                        String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        Integer changeQuantity = log.getChangeCageQuantity();
+                        if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
+                            quantity.set(animalFeedOrder.getQuantity());
+                            changeQuantity = log.getChangeQuantity();
+                        }
+                        // 计算createTime和startDate的天数差
+                        Long dayDiff = log.getCreateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
+                        totalAmount.addAndGet(quantity.get() * animalFeedOrder.getUnitFee());
 
-                if (dateStrToRowAmountMap.containsKey(dateStr)) {
-                    // If dateStr already exists in the map, get the rowAmount from the map
-                    rowAmount = dateStrToRowAmountMap.get(dateStr);
-                } else {
-                    totalAmount.addAndGet(rowAmount);
-                    dayCount.incrementAndGet();
-                    // If dateStr is encountered for the first time, add it to the map with the rowAmount value
-                    dateStrToRowAmountMap.put(dateStr, rowAmount);
+                        if (dateStrToRowAmountMap.containsKey(dateStr)) {
+                        } else {
+                            totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee()*dayDiff));
+
+                            dayCount[0].incrementAndGet();
+                            dateStrToRowAmountMap.put(dateStr, 0);
+                        }
+                        startDate[0] = log.getCreateTime();
+                        quantity.set(quantity.get() + changeQuantity);
+
+                        log.setDateStr(dateStr);
+                        log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                    });
                 }
 
-                log.setDateStr(dateStr);
-                log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                log.setRowAmount(rowAmount);
-            });
-            animalFeedOrder.setDayCount(dayCount.get());
+                Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() +1;
+
+                totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee()*dayDiff));
+            }
+
+
+
+           /* List<LocalDate> dateRange = startDate.toLocalDate().datesUntil(endDate.toLocalDate().plusDays(1)).collect(Collectors.toList());
+
+            for (LocalDate localDate : dateRange) {
+
+                logs.forEach(log -> {
+                    String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    Integer changeCount = log.getChangeCageQuantity();
+                    if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
+                        changeCount = log.getChangeQuantity();
+                    }
+                    Integer price = 0;
+                    if (animalFeedOrder.getUnitFee() != null && animalFeedOrder.getUnitFee() > 0) {
+                        price = animalFeedOrder.getUnitFee();
+                    }
+                    int rowAmount = changeCount * price;
+
+                    if (dateStrToRowAmountMap.containsKey(dateStr)) {
+                        rowAmount = dateStrToRowAmountMap.get(dateStr);
+                    } else {
+                        totalAmount.addAndGet(rowAmount);
+                        dayCount.incrementAndGet();
+                        dateStrToRowAmountMap.put(dateStr, rowAmount);
+                    }
+
+                    log.setDateStr(dateStr);
+                    log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                    log.setRowAmount(rowAmount);
+                });
+            }*/
+
+
+            animalFeedOrder.setDayCount(dayCount[0].get());
             animalFeedOrder.setAmount(totalAmount.get());
 //            animalFeedOrder.setLatestLog(logs.get(0));
         }
-    }
 
     private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder){
         List<AnimalFeedStoreIn> stores = animalFeedOrder.getStores();
