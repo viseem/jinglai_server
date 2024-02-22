@@ -4,7 +4,6 @@ import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCat
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
-import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
@@ -383,24 +382,54 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      */
     @Override
     public BigDecimal getChargeItemQuotationByQuotationId(Long id) {
-        BigDecimal cost = BigDecimal.ZERO;
+
+        //查询category的折扣
+        List<ProjectCategory> categoryList = projectCategoryRepository.findByQuotationIdAndType(id,"schedule");
+        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
+        BigDecimal amount = BigDecimal.ZERO;
+
+
+        //ProjectCategory是一级分类，ProjectChargeitem是二级分类，ProjectCategory的折扣是二级分类的折扣
+        for (ProjectCategory projectCategory : categoryList) {
+            System.out.println("projectCategory:" + projectCategory.getName());
+
+            BigDecimal categoryPrice = BigDecimal.ZERO;
+            for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
+                if (Objects.equals(projectChargeitem.getProjectCategoryId(), projectCategory.getId())) {
+                    if (projectChargeitem.getUnitFee() != null && projectChargeitem.getQuantity() != null) {
+                        BigDecimal unitFee = new BigDecimal(projectChargeitem.getUnitFee());
+                        BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
+                        BigDecimal price = unitFee.multiply(quantity);
+                        if(projectChargeitem.getDiscount()!=null){
+                            price=price.multiply(new BigDecimal(projectChargeitem.getDiscount())).divide(BigDecimal.valueOf(100));
+                        }
+                        categoryPrice = categoryPrice.add(price);
+                    }
+                }
+            }
+
+            if(projectCategory.getDiscount()!=null){
+                categoryPrice=categoryPrice.multiply(new BigDecimal(projectCategory.getDiscount())).divide(BigDecimal.valueOf(100));
+            }
+
+            amount = amount.add(categoryPrice);
+        }
 
         // 计算收费项的成本
-        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
+/*        List<ProjectChargeitem> projectChargeitemList = projectChargeitemRepository.findByQuotationId(id);
         for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
             if (projectChargeitem.getUnitFee() != null&& projectChargeitem.getQuantity() != null) {
                 BigDecimal unitFee = new BigDecimal(projectChargeitem.getUnitFee());
                 BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
                 BigDecimal price = unitFee.multiply(quantity);
                 if(projectChargeitem.getDiscount()!=null){
-//                    BigDecimal discount = new BigDecimal(projectChargeitem.getDiscount()).divide(BigDecimal.valueOf(100));
                     price=price.multiply(new BigDecimal(projectChargeitem.getDiscount())).divide(BigDecimal.valueOf(100));
                 }
                 cost = cost.add(price);
             }
-        }
+        }*/
 
-        return cost;
+        return amount;
     }
 
     /**
