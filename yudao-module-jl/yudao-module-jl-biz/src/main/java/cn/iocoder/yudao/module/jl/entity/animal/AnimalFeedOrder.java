@@ -53,6 +53,18 @@ public class AnimalFeedOrder extends BaseEntity {
     private String breed;
 
     /**
+     * 品系
+     */
+    @Column(name = "breed_cate", nullable = false )
+    private String breedCate;
+
+    /**
+     * 品种
+     */
+    @Column(name = "strain_cate", nullable = false )
+    private String strainCate;
+
+    /**
      * 周龄
      */
     @Column(name = "age", nullable = false )

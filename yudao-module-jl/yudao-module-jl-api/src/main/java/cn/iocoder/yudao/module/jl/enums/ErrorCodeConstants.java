@@ -224,6 +224,8 @@ public interface ErrorCodeConstants {
 
     ErrorCode COMMON_LOG_NOT_EXISTS = new ErrorCode(1002500000, "管控记录不存在");
 
+    ErrorCode COMMON_CATE_NOT_EXISTS = new ErrorCode(1002600000, "通用分类不存在");
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");

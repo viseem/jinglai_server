@@ -31,6 +31,12 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "品系品种")
     private String breed;
 
+    @Schema(description = "品种")
+    private String breedCate;
+
+    @Schema(description = "品系")
+    private String strainCate;
+
     @Schema(description = "周龄")
     private String age;
 
