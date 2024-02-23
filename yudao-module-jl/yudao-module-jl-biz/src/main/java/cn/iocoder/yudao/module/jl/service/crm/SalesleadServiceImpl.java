@@ -435,9 +435,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
-                if(pageReqVO.getStatus() != null) {
+/*                if(pageReqVO.getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                }
+                }*/
             }
 
             if(pageReqVO.getSalesId() != null) {
@@ -478,7 +478,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }else{
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
+            }
 
+            //如果statusArr不为空，则查询statusArr中的状态
+            if(pageReqVO.getStatusArr() != null) {
+                predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
             }
 
             if(pageReqVO.getProjectId() != null) {

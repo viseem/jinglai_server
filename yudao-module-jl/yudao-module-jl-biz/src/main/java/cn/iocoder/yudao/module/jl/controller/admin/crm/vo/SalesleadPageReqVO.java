@@ -53,6 +53,9 @@ public class SalesleadPageReqVO extends PageParam {
     @Schema(description = "状态")
     private Integer status;
 
+    @Schema(description = "状态")
+    private String[] statusArr;
+
     @Schema(description = "客户id", example = "11635")
     private Long customerId;
 
