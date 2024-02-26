@@ -28,6 +28,12 @@ public class AnimalFeedOrderPageReqVO extends PageParam {
     @Schema(description = "品系品种")
     private String breed;
 
+    @Schema(description = "品种")
+    private String breedCate;
+
+    @Schema(description = "品系")
+    private String strainCate;
+
     @Schema(description = "周龄体重")
     private String age;
 

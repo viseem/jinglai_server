@@ -371,6 +371,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 predicates.add(cb.equal(root.get("breed"), pageReqVO.getBreed()));
             }
 
+            if (pageReqVO.getBreedCate() != null) {
+                predicates.add(cb.equal(root.get("breedCate"), pageReqVO.getBreedCate()));
+            }
+
+            if (pageReqVO.getStrainCate() != null) {
+                predicates.add(cb.equal(root.get("strainCate"), pageReqVO.getBreed()));
+            }
+
             if (pageReqVO.getAge() != null) {
                 predicates.add(cb.equal(root.get("age"), pageReqVO.getAge()));
             }
