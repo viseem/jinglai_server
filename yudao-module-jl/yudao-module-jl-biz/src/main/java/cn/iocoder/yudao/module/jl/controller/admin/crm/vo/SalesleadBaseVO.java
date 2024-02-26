@@ -76,4 +76,8 @@ public class SalesleadBaseVO {
     @Schema(description = "报价")
     private Long quotationPrice;
 
+    @Schema(description = "最近跟进时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime lastFollowTime;
+
 }

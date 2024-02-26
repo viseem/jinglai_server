@@ -52,4 +52,6 @@ public class ProjectPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String customerId;
 
+    @Schema(allowableValues = {"desc", "asc"})
+    private String lastFollowTimeSort;
 }

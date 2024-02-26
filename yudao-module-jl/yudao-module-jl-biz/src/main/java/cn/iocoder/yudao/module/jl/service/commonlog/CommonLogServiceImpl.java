@@ -1,11 +1,18 @@
 package cn.iocoder.yudao.module.jl.service.commonlog;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.enums.CommonTypeEnums;
+import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import org.apache.tomcat.jni.Time;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -47,6 +54,12 @@ public class CommonLogServiceImpl implements CommonLogService {
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
 
+    @Resource
+    private CommonAttachmentRepository commonAttachmentRepository;
+
+    @Resource
+    private ProjectRepository projectRepository;
+
     @Override
     @Transactional
     public Long createCommonLog(CommonLogCreateReqVO createReqVO) {
@@ -55,7 +68,12 @@ public class CommonLogServiceImpl implements CommonLogService {
         commonLogRepository.save(commonLog);
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
-        commonAttachmentService.saveAttachmentList(commonLog.getId(),"PROJECT_COMMON_LOG",createReqVO.getAttachmentList());
+        commonAttachmentService.saveAttachmentList(commonLog.getId(),createReqVO.getType(),createReqVO.getAttachmentList());
+
+        if(Objects.equals(createReqVO.getType(), CommonTypeEnums.PROJECT_COMMON_LOG.getStatus())){
+            projectRepository.updateLastFollowTimeById(LocalDateTime.now(),commonLog.getRefId());
+        }
+
 
         // 返回
         return commonLog.getId();
@@ -68,10 +86,14 @@ public class CommonLogServiceImpl implements CommonLogService {
         validateCommonLogExists(updateReqVO.getId());
         // 更新
         CommonLog updateObj = commonLogMapper.toEntity(updateReqVO);
-        commonLogRepository.save(updateObj);
+        CommonLog save = commonLogRepository.save(updateObj);
+
+        if(Objects.equals(updateReqVO.getType(), CommonTypeEnums.PROJECT_COMMON_LOG.getStatus())){
+            projectRepository.updateLastFollowTimeById(LocalDateTime.now(),save.getRefId());
+        }
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
-        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"PROJECT_COMMON_LOG",updateReqVO.getAttachmentList());
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),updateReqVO.getType(),updateReqVO.getAttachmentList());
     }
 
     @Override
@@ -132,6 +154,13 @@ public class CommonLogServiceImpl implements CommonLogService {
 
         // 执行查询
         Page<CommonLog> page = commonLogRepository.findAll(spec, pageable);
+
+        page.forEach(log->{
+            List<CommonAttachment> byTypeAndRefId = commonAttachmentRepository.findByTypeAndRefId(log.getType(), log.getId());
+            if (byTypeAndRefId != null&& !byTypeAndRefId.isEmpty()) {
+                log.setAttachmentList(byTypeAndRefId);
+            }
+        });
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

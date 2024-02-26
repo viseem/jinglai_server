@@ -137,6 +137,12 @@ public class Saleslead extends BaseEntity {
     @Column(name = "quotation_json_file")
     private String quotationJsonFile;
 
+    /*
+     * 最近跟进时间
+     * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
+
     /**
      * 报价的创建时间
      */

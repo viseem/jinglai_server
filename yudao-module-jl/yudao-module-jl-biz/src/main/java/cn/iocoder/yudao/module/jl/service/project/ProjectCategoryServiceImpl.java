@@ -371,6 +371,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
 
+
+
+
             if(pageReqVO.getStageArr()!=null){
                 predicates.add(root.get("stage").in(Arrays.stream(pageReqVO.getStageArr()).toArray()));
             }
@@ -612,6 +615,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "stage"));
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+
+        orders.add(new Sort.Order("asc".equals(order.getProjectId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "projectId"));
+
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

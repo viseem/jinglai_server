@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commonlog;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CommonLogExcelCellWriterHandler;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -91,7 +92,7 @@ public class CommonLogController {
         List<CommonLog> list = commonLogService.getCommonLogList(exportReqVO);
         // 导出 Excel
         List<CommonLogExcelVO> excelData = commonLogMapper.toExcelList(list);
-        ExcelUtils.write(response, "管控记录.xls", "数据", CommonLogExcelVO.class, excelData);
+        ExcelUtils.write(response, "管控记录.xls", "数据", CommonLogExcelVO.class, excelData,new CommonLogExcelCellWriterHandler());
     }
 
 }

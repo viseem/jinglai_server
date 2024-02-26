@@ -66,11 +66,14 @@ public class CommonLog extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @Where(clause = "type = 'PROJECT_COMMON_LOG'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();*/
+
+    @Transient
     private List<CommonAttachment> attachmentList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER)

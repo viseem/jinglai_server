@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -14,6 +15,11 @@ import java.util.List;
 *
 */
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
+    @Transactional
+    @Modifying
+    @Query("update Project p set p.lastFollowTime = ?1 where p.id = ?2")
+    int updateLastFollowTimeById(LocalDateTime lastFollowTime, Long id);
+
     @Transactional
     @Modifying
     @Query("update Project p set p.tagIds = ?1 where p.id = ?2")

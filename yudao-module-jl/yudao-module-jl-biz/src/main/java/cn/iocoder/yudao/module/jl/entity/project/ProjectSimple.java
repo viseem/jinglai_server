@@ -10,6 +10,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
@@ -84,6 +85,12 @@ public class ProjectSimple extends BaseEntity {
      */
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    /*
+     * 最近跟进时间
+     * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
 
     /**
      * 项目负责人

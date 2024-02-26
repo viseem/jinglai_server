@@ -125,6 +125,13 @@ public class Project extends BaseEntity{
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
+
+    /*
+    * 最近跟进时间
+    * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
+
     /**
      * 项目负责人
      */

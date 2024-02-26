@@ -49,4 +49,7 @@ public class SalesleadPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String managerId;
 
+    @Schema(allowableValues = {"desc", "asc"})
+    private String lastFollowTimeSort;
+
 }

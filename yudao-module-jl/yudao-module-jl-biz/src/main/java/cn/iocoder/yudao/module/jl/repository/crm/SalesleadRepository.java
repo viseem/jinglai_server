@@ -14,6 +14,10 @@ import java.util.Collection;
 *
 */
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.lastFollowTime = ?1 where s.id = ?2")
+    int updateLastFollowTimeById(LocalDateTime lastFollowTime, Long id);
     @Query("select count(s) from Saleslead s where s.createTime between ?1 and ?2 and s.creator in ?3 and s.status = ?4")
     Integer countByCreateTimeBetweenAndCreatorInAndStatus(LocalDateTime createTimeStart, LocalDateTime createTimeEnd, Long[] creators, Integer status);
     @Query("select count(s) from Saleslead s where s.createTime between ?1 and ?2 and s.creator in ?3")

@@ -91,6 +91,12 @@ public class ProjectOnly extends BaseEntity{
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    /*
+     * 最近跟进时间
+     * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
+
     /**
      * 项目负责人
      */

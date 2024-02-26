@@ -71,6 +71,7 @@ public class FollowupServiceImpl implements FollowupService {
 
         // 更新销售线索
         salesleadRepository.updateLastFollowUpIdById(createReqVO.getRefId(), followup.getId());
+        salesleadRepository.updateLastFollowTimeById(LocalDateTime.now(),followup.getRefId());
 
         // 更新客户最近的线索
         customerRepository.updateLastFollowupIdById(followup.getId(), createReqVO.getCustomerId());
@@ -90,10 +91,12 @@ public class FollowupServiceImpl implements FollowupService {
         validateFollowupExists(updateReqVO.getId());
         // 更新
         Followup updateObj = followupMapper.toEntity(updateReqVO);
-        followupRepository.save(updateObj);
+        Followup save = followupRepository.save(updateObj);
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CRM_FOLLOWUP",updateReqVO.getAttachmentList());
+        salesleadRepository.updateLastFollowTimeById(LocalDateTime.now(),save.getRefId());
+
     }
 
     @Override
