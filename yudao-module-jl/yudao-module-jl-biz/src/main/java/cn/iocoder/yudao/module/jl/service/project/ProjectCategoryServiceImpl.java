@@ -618,6 +618,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         orders.add(new Sort.Order("asc".equals(order.getProjectId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "projectId"));
 
+        if (order.getEndDateSort() != null) {
+            orders.add(new Sort.Order(order.getEndDateSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "deadline"));
+        }
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

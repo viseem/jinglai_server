@@ -55,4 +55,7 @@ public class ProjectCategoryPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String mark;
 
+    @Schema(allowableValues = {"desc", "asc"})
+    private String endDateSort;
+
 }
