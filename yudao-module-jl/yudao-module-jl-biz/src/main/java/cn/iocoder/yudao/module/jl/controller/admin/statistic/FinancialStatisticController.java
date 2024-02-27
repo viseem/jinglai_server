@@ -1,11 +1,18 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialAllStatisticResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatisticResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialAllStatisticReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticSalesleadResp;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
@@ -21,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,6 +52,36 @@ public class FinancialStatisticController {
 
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @GetMapping("/accounts-receivable-all")
+    @Operation(summary = "全部应收款统计")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<FinancialAllStatisticResp> getFinancialStatisticAll(@Valid FinancialAllStatisticReqVO reqVO) {
+        FinancialAllStatisticResp resp = new FinancialAllStatisticResp();
+        List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getUserIds());
+        for (ProjectConstractOnly contract : contractList) {
+            if(contract.getReceivedPrice() != null) {
+                resp.setAllContractPaymentAmount(resp.getAllContractPaymentAmount().add(contract.getReceivedPrice()));
+            }
+            if(contract.getPrice() != null) {
+                resp.setAllOrderAmount(resp.getAllOrderAmount().add(contract.getPrice()));
+            }
+        }
+        resp.setAllAccountsReceivable(
+                resp.getAllOrderAmount().subtract(resp.getAllContractPaymentAmount())
+        );
+
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByPriceStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
+
+        for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
+            resp.setAllUnreceivedInvoiceAmount(resp.getAllUnreceivedInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+        }
+
+        return success(resp);
+    }
 
     @GetMapping("/accounts-receivable")
     @Operation(summary = "应收款统计")

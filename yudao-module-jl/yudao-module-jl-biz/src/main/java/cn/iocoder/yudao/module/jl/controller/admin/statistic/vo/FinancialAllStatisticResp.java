@@ -10,19 +10,16 @@ import java.util.List;
 @Schema(description = "")
 @Data
 @ToString(callSuper = true)
-public class FinancialStatisticResp {
+public class FinancialAllStatisticResp {
     // 订单金额
-    BigDecimal orderAmount = BigDecimal.ZERO;
-    // 应收款 = 订单金额 - 合同上面的回款金额
-    BigDecimal accountsReceivable = BigDecimal.ZERO;
+    BigDecimal allOrderAmount = BigDecimal.ZERO;
+    // 合同上面的回款金额
+    BigDecimal allContractPaymentAmount = BigDecimal.ZERO;
     // 全部应收款 = 全部订单金额 - 合同上面的回款金额
     BigDecimal allAccountsReceivable = BigDecimal.ZERO;
-    // 已开票数额
-    BigDecimal invoiceAmount = BigDecimal.ZERO;
-    // 合同上面的回款金额
-    BigDecimal contractPaymentAmount = BigDecimal.ZERO;
-    // contractFundLog回款金额
-    BigDecimal paymentAmount = BigDecimal.ZERO;
+
+    // 全部未到账发票金额
+    BigDecimal allUnreceivedInvoiceAmount = BigDecimal.ZERO;
 
     List<Long> contractIds;
 }
