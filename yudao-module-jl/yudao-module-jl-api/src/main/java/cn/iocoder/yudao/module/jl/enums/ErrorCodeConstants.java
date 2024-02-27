@@ -226,6 +226,11 @@ public interface ErrorCodeConstants {
 
     ErrorCode COMMON_CATE_NOT_EXISTS = new ErrorCode(1002600000, "通用分类不存在");
 
+    ErrorCode SALES_GROUP_NOT_EXISTS = new ErrorCode(1002700000, "销售分组不存在");
+
+    ErrorCode SALES_GROUP_MEMBER_NOT_EXISTS = new ErrorCode(1002800000, "销售分组成员不存在");
+
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
