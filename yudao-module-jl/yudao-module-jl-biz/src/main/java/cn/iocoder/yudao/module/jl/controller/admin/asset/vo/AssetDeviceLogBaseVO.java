@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.asset.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -44,4 +45,6 @@ public class AssetDeviceLogBaseVO {
     private Long projectDeviceId;
 
     private Long customerId;
+
+    private User reserveUser;
 }
