@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -17,20 +20,30 @@ import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
  * @author 惟象科技
  */
 @Data
+//excel内容居中
+@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER,verticalAlignment= VerticalAlignmentEnum.CENTER)//内容样式
 public class SalesleadExcelVO {
 
-    @ExcelProperty("ID")
-    private Long id;
+    @ExcelProperty("客户")
+    private String customerName;
+
+    @ExcelProperty("销售")
+    private String salesName;
 
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
 
-    @ExcelProperty(value = "销售线索来源", converter = DictConvert.class)
+    @ExcelProperty(value = "商机来源", converter = DictConvert.class)
     @DictFormat("sales_lead_source") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
     private String source;
 
-    @ExcelProperty("关键需求")
-    private String requirement;
+    @ExcelProperty(value = "业务类型", converter = DictConvert.class)
+    @DictFormat("business_type") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
+    private String businessType;
+
+    @ExcelProperty(value = "状态", converter = DictConvert.class)
+    @DictFormat("sales_lead_status") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
+    private Integer status;
 
     @ExcelProperty("预算(元)")
     private Long budget;
@@ -38,23 +51,22 @@ public class SalesleadExcelVO {
     @ExcelProperty("报价")
     private Long quotation;
 
-    @ExcelProperty(value = "状态", converter = DictConvert.class)
-    @DictFormat("sales_lead_status") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
-    private Integer status;
-
-    @ExcelProperty("客户id")
+/*    @ExcelProperty("客户id")
     private Long customerId;
 
     @ExcelProperty("项目id")
-    private Long projectId;
+    private Long projectId;*/
 
-    @ExcelProperty("业务类型")
-    private String businessType;
+    @ExcelProperty("最近跟进时间")
+    private String lastFollowTime;
 
-    @ExcelProperty("丢单的说明")
-    private String lostNote;
+    @ExcelProperty("最近跟进内容")
+    private String lastFollowContent;
 
-    @ExcelProperty("绑定的销售报价人员")
-    private Long managerId;
+    @ExcelProperty("关键需求")
+    private String requirement;
+
+
+
 
 }

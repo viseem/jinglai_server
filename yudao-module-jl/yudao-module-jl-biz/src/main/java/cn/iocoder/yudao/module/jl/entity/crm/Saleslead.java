@@ -183,4 +183,16 @@ public class Saleslead extends BaseEntity {
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
     private List<SalesleadCustomerPlan> customerPlans;
 
+    // 客户姓名
+    @Transient
+    private String customerName;
+
+    // 销售姓名
+    @Transient
+    private String salesName;
+
+    // 最近跟进内容
+    @Transient
+    private String lastFollowContent;
+
 }

@@ -91,6 +91,6 @@ public interface SalesleadService {
      * @param exportReqVO 查询条件
      * @return 销售线索列表
      */
-    List<Saleslead> getSalesleadList(SalesleadExportReqVO exportReqVO);
+    List<Saleslead> getSalesleadList(SalesleadPageReqVO exportReqVO);
 
 }

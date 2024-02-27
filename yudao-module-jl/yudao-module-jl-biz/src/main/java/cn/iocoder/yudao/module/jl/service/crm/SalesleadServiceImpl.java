@@ -20,6 +20,7 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -408,6 +409,17 @@ public class SalesleadServiceImpl implements SalesleadService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
+        Specification<Saleslead> spec = getSalesleadSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Saleslead> page = salesleadRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private Specification<Saleslead> getSalesleadSpecification(SalesleadPageReqVO pageReqVO) {
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -502,65 +514,29 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Saleslead> page = salesleadRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
 
     @Override
-    public List<Saleslead> getSalesleadList(SalesleadExportReqVO exportReqVO) {
+    public List<Saleslead> getSalesleadList(SalesleadPageReqVO salesleadPageReqVO) {
         // 创建 Specification
-        Specification<Saleslead> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if(exportReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), exportReqVO.getSource()));
+        Specification<Saleslead> spec = getSalesleadSpecification(salesleadPageReqVO);
+        List<Saleslead> salesleadList = salesleadRepository.findAll(spec);
+        for (Saleslead saleslead : salesleadList) {
+            if(saleslead.getCustomer()!=null){
+                saleslead.setCustomerName(saleslead.getCustomer().getName());
+                if(saleslead.getCustomer().getSales()!=null){
+                    saleslead.setSalesName(saleslead.getCustomer().getSales().getNickname());
+                }
             }
 
-            if(exportReqVO.getRequirement() != null) {
-                predicates.add(cb.equal(root.get("requirement"), exportReqVO.getRequirement()));
+            if(saleslead.getLastFollowup()!=null){
+                saleslead.setLastFollowContent(saleslead.getLastFollowup().getContent());
+                saleslead.setLastFollowTime(saleslead.getLastFollowup().getCreateTime());
             }
 
-            if(exportReqVO.getBudget() != null) {
-                predicates.add(cb.equal(root.get("budget"), exportReqVO.getBudget()));
-            }
-
-            if(exportReqVO.getQuotation() != null) {
-                predicates.add(cb.equal(root.get("quotation"), exportReqVO.getQuotation()));
-            }
-
-            if(exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
-            }
-
-            if(exportReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
-            }
-
-            if(exportReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
-            }
-
-            if(exportReqVO.getBusinessType() != null) {
-                predicates.add(cb.equal(root.get("businessType"), exportReqVO.getBusinessType()));
-            }
-
-            if(exportReqVO.getLostNote() != null) {
-                predicates.add(cb.equal(root.get("lostNote"), exportReqVO.getLostNote()));
-            }
-
-            if(exportReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), exportReqVO.getManagerId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
+        }
         // 执行查询
         return salesleadRepository.findAll(spec);
     }
