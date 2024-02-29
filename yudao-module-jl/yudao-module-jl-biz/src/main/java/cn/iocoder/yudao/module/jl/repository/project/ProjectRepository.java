@@ -17,6 +17,10 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
     @Transactional
     @Modifying
+    @Query("update Project p set p.focusIds = ?1 where p.id = ?2")
+    int updateFocusIdsById(String focusIds, Long id);
+    @Transactional
+    @Modifying
     @Query("update Project p set p.lastFollowTime = ?1 where p.id = ?2")
     int updateLastFollowTimeById(LocalDateTime lastFollowTime, Long id);
 

@@ -88,6 +88,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Resource
     private CommonTodoRepository commonTodoRepository;
 
+    @Resource
+    private ProjectRepository projectRepository;
+
+    @Resource
+    private ProjectServiceImpl projectServiceImpl;
+
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
     private final UserRepository userRepository;
 
@@ -162,6 +168,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    @Transactional
     public void updateProjectCategory(ProjectCategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryExists(updateReqVO.getId());
@@ -173,6 +180,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         updateReqVO.setCustomerId(projectSimple.getCustomerId());
         updateReqVO.setProjectManagerId(projectSimple.getManagerId());
+
+        //更新一下项目的实验人员
+//        projectServiceImpl.updateProjectFocusIdsById(updateReqVO.getProjectId(), Collections.singletonList(updateReqVO.getOperatorId()),projectSimple.getFocusIds());
 
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);

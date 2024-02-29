@@ -20,11 +20,11 @@ public class SalesGroupMemberBaseVO {
 
     @Schema(description = "分组id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20497")
     @NotNull(message = "分组id不能为空")
-    private Integer groupId;
+    private Long groupId;
 
     @Schema(description = "用户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "13658")
     @NotNull(message = "用户id不能为空")
-    private Integer userId;
+    private Long userId;
 
     @Schema(description = "月度回款目标")
     private BigDecimal monthRefundKpi;

@@ -48,5 +48,12 @@ public class StatisticUtils {
         }
     }
 
+    //根据月份获取这个月的开始时间和结束时间
+    public static LocalDateTime[] getStartAndEndTimeByMonth(Integer month){
+        LocalDateTime startTime = LocalDateTime.now().withMonth(month).with(TemporalAdjusters.firstDayOfMonth()).with(LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.now().withMonth(month).with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+        return new LocalDateTime[]{startTime, endTime};
+    }
+
 
 }

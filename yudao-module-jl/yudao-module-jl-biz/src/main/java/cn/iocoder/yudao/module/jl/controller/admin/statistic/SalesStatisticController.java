@@ -1,16 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticFollowupResp;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticSalesleadResp;
-import cn.iocoder.yudao.module.jl.controller.admin.subjectgroup.vo.*;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticReqVO;
-import cn.iocoder.yudao.module.jl.entity.crm.Followup;
-import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.*;
 import cn.iocoder.yudao.module.jl.service.statistic.sales.SalesStatisticService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -45,5 +38,21 @@ public class SalesStatisticController {
     public CommonResult<SalesStatisticSalesleadResp> getSubjectGroupSalesleadStats(@Valid SalesStatisticReqVO reqVO) {
         SalesStatisticSalesleadResp salesStatisticSalesleadResp = salesStatisticService.countSaleslead(reqVO);
         return success(salesStatisticSalesleadResp);
+    }
+
+    @GetMapping("/group-stats")
+    @Operation(summary = "获取分组的统计数据")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesGroupStatisticResp> getSalesGroupStats(@Valid SalesGroupStatisticReqVO reqVO) {
+        SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStats(reqVO);
+        return success(salesGroupStatisticResp);
+    }
+
+    @GetMapping("/group-stats-not-pay")
+    @Operation(summary = "获取分组的统计数据 全部日期")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesGroupStatisticResp> getSalesGroupStatsAllDate(@Valid SalesGroupStatisticReqVO reqVO) {
+        SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStatsNotPay(reqVO);
+        return success(salesGroupStatisticResp);
     }
 }

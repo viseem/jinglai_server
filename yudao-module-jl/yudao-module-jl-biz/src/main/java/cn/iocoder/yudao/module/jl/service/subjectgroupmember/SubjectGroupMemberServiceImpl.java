@@ -61,6 +61,7 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
         return array.length>0?array:new Long[]{0L};
     }
 
+
     @Override
     public void updateSubjectGroupMember(SubjectGroupMemberUpdateReqVO updateReqVO) {
         // 校验存在

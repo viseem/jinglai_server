@@ -43,13 +43,13 @@ public class SalesGroupMember extends BaseEntity {
      * 分组id
      */
     @Column(name = "group_id", nullable = false )
-    private Integer groupId;
+    private Long groupId;
 
     /**
      * 用户id
      */
     @Column(name = "user_id", nullable = false )
-    private Integer userId;
+    private Long userId;
 
     /**
      * 月度回款目标
@@ -80,4 +80,39 @@ public class SalesGroupMember extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private SalesGroup group;
+
+    @Transient
+    private BigDecimal refundAmount = BigDecimal.ZERO;
+
+    @Transient
+    private Integer refundAmountPercent = 0;
+
+    public Integer getRefundAmountPercent() {
+        if (this.monthRefundKpi != null && this.monthRefundKpi.compareTo(BigDecimal.ZERO) != 0) {
+            this.refundAmountPercent = refundAmount.divide(this.monthRefundKpi, 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+        }
+        return refundAmountPercent;
+    }
+
+    @Transient
+    private BigDecimal orderAmount = BigDecimal.ZERO;
+
+    @Transient
+    private BigDecimal orderReceivedAmount = BigDecimal.ZERO;
+
+    @Transient
+    private Integer orderAmountPercent = 0;
+
+    public Integer getOrderAmountPercent() {
+        if (this.monthOrderKpi != null && this.monthOrderKpi.compareTo(BigDecimal.ZERO) != 0) {
+            this.orderAmountPercent = orderAmount.divide(this.monthOrderKpi, 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+        }
+        return orderAmountPercent;
+    }
+
+    @Transient
+    private BigDecimal notPayInvoiceAmount = BigDecimal.ZERO;
+
+    @Transient
+    private BigDecimal allNeedReceiveAmount = BigDecimal.ZERO;
 }

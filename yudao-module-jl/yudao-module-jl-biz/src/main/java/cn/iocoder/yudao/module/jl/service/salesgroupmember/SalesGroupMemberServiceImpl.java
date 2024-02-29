@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.salesgroupmember;
 
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +16,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.Valid;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.salesgroupmember.vo.*;
@@ -65,6 +67,26 @@ public class SalesGroupMemberServiceImpl implements SalesGroupMemberService {
         validateSalesGroupMemberExists(id);
         // 删除
         salesGroupMemberRepository.deleteById(id);
+    }
+
+    public Long[] findMembersUserIdsByGroupId(@Valid Long groupId) {
+        //把返回的List中的id取出来
+        Long[] array = salesGroupMemberRepository.findByGroupId(groupId).stream()
+                .map(SalesGroupMember::getUserId)
+                .toArray(Long[]::new);
+        return array.length>0?array:new Long[]{0L};
+    }
+
+    public List<SalesGroupMember> findMembersUserByGroupId(@Valid Long groupId) {
+        //把返回的List中的id取出来
+        List<SalesGroupMember> byGroupId = salesGroupMemberRepository.findByGroupId(groupId);
+        return byGroupId;
+    }
+
+    public List<SalesGroupMember> findMembersUserInGroupIds(@Valid Long[] groupId) {
+        //把返回的List中的id取出来
+        List<SalesGroupMember> byGroupId = salesGroupMemberRepository.findByGroupIdIn(groupId);
+        return byGroupId;
     }
 
     private void validateSalesGroupMemberExists(Long id) {

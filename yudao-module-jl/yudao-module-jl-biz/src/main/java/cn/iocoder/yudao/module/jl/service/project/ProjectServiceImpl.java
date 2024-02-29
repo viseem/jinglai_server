@@ -73,6 +73,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
 
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
     public static final String PROCESS_KEY = "PROJECT_OUTBOUND_APPLY";
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
@@ -174,6 +177,19 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 返回
         return project.getId();
+    }
+
+    public void updateProjectFocusIdsById(Long projectId,List<Long> ids,String oldFocusIds){
+
+        if(oldFocusIds==null){
+            Optional<ProjectOnly> byId = projectOnlyRepository.findById(projectId);
+            if(byId.get()!=null){
+                oldFocusIds = byId.get().getFocusIds();
+            }
+        }
+
+        projectRepository.updateFocusIdsById(processProjectFocusIds(oldFocusIds,ids),projectId);
+
     }
 
     public String processProjectFocusIds(String _focusIds,List<Long> ids) {

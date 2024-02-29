@@ -27,9 +27,18 @@ public class StatisticBaseVO {
     @Schema(description = "专题组id", example = "27395")
     private Long subjectGroupId;
 
+    @Schema(description = "销售分组id", example = "27395")
+    private Long groupId;
+
+    @Schema(description = "销售分组ids", example = "27395")
+    private Long[] groupIds;
+
     @Schema(description = "用户id", example = "27395")
     private Long userId;
 
     @Schema(description = "时间范围", example = "27395")
     private String timeRange = "month";
+
+    @Schema(description = "月份", example = "27395")
+    private Integer month = LocalDateTime.now().getMonthValue();
 }

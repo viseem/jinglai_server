@@ -537,8 +537,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
 
         }
+        List<Saleslead> salesleadList1 = salesleadRepository.findAll(spec);
         // 执行查询
-        return salesleadRepository.findAll(spec);
+        return salesleadList1;
     }
 
     private Sort createSort(SalesleadPageOrder order) {
