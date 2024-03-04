@@ -92,4 +92,31 @@ public class SupplierBaseVO {
     @Schema(description = "渠道类型")
     private String channelType;
 
+    @Schema(description = "服务目录")
+    private String serviceCatalog;
+
+    @Schema(description = "核心优势")
+    private String advantage;
+
+    @Schema(description = "劣势")
+    private String disadvantage;
+
+    @Schema(description = "公司负责人")
+    private String companyManager;
+
+    @Schema(description = "商务负责人")
+    private String businessManager;
+
+    @Schema(description = "技术负责人")
+    private String techManager;
+
+    @Schema(description = "售中负责人")
+    private String manager;
+
+    @Schema(description = "售后负责人")
+    private String afterManager;
+
+    @Schema(description = "公司地址")
+    private String address;
+
 }

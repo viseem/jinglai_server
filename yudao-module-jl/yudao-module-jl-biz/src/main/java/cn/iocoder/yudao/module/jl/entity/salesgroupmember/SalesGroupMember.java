@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.salesgroup.SalesGroup;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.io.Serializable;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -115,4 +117,12 @@ public class SalesGroupMember extends BaseEntity {
 
     @Transient
     private BigDecimal allNeedReceiveAmount = BigDecimal.ZERO;
+
+    //排名
+    @Transient
+    private Integer refundAmountRank = 0;
+
+    @Transient
+    private Integer orderAmountRank = 0;
+
 }

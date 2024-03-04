@@ -40,11 +40,19 @@ public class SalesStatisticController {
         return success(salesStatisticSalesleadResp);
     }
 
-    @GetMapping("/group-stats")
+    @GetMapping("/group-stats-order")
     @Operation(summary = "获取分组的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<SalesGroupStatisticResp> getSalesGroupStats(@Valid SalesGroupStatisticReqVO reqVO) {
-        SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStats(reqVO);
+    public CommonResult<SalesGroupStatisticResp> getSalesGroupStatsOrder(@Valid SalesGroupStatisticReqVO reqVO) {
+        SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStatsOrder(reqVO);
+        return success(salesGroupStatisticResp);
+    }
+
+    @GetMapping("/group-stats-refund")
+    @Operation(summary = "获取分组的统计数据")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesGroupStatisticResp> getSalesGroupStatsRefund(@Valid SalesGroupStatisticReqVO reqVO) {
+        SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStatsRefund(reqVO);
         return success(salesGroupStatisticResp);
     }
 
