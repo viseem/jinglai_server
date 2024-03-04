@@ -35,4 +35,7 @@ public class CustomerStatisticsRespVO {
     //已开发票金额
     @Schema(description = "已开发票金额")
     private BigDecimal invoiceAmount;
+    //应收金额 = 成交总额 - 已付款项总额
+    @Schema(description = "应收金额")
+    private BigDecimal receivableAmount;
 }

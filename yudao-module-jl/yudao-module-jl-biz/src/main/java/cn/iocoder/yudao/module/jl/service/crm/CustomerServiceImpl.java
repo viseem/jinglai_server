@@ -563,6 +563,7 @@ public class CustomerServiceImpl implements CustomerService {
         customerStatisticsRespVO.setDealAmount(dealTotalAmount);
         customerStatisticsRespVO.setPaidAmount(paidAmount);
         customerStatisticsRespVO.setInvoiceAmount(invoiceAmount);
+        customerStatisticsRespVO.setReceivableAmount(dealTotalAmount.subtract(paidAmount));
 //        customerStatisticsRespVO.setFundAmount(dealTotalAmount.subtract(paidAmount));
 //        customerStatisticsRespVO.setArrearsAmount(dealTotalAmount.subtract(paidAmount));
         customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));
