@@ -11,6 +11,8 @@ import java.util.List;
 *
 */
 public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvoiceLog, Long>, JpaSpecificationExecutor<ContractInvoiceLog> {
+    @Query("select c from ContractInvoiceLog c where c.customerId = ?1")
+    List<ContractInvoiceLog> findByCustomerId(Long customerId);
     @Query("select c from ContractInvoiceLog c where c.priceStatus = ?1 and c.salesId in ?2")
     List<ContractInvoiceLog> findByPriceStatusAndSalesIdIn(String priceStatus, Long[] salesIds);
     @Query("select c from ContractInvoiceLog c where c.contractId = ?1")

@@ -32,4 +32,7 @@ public class CustomerStatisticsRespVO {
     //出库的项目个数
     @Schema(description = "出库的项目个数")
     private BigDecimal projectOutedCount;
+    //已开发票金额
+    @Schema(description = "已开发票金额")
+    private BigDecimal invoiceAmount;
 }

@@ -1,14 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
@@ -65,6 +64,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
@@ -531,7 +533,7 @@ public class CustomerServiceImpl implements CustomerService {
         Integer projectDoingCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.DOING.getStatus(),id);
         Integer projectOutedCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.OUTED.getStatus(),id);
 
-        //计算客户的成交总金额
+        //计算客户的成交总金额、已开票金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
             dealTotalAmount = dealTotalAmount.add(projectConstract.getPrice());
@@ -545,11 +547,22 @@ public class CustomerServiceImpl implements CustomerService {
                 paidAmount = paidAmount.add(fundLog.getReceivedPrice());
             }
         }
+
+        //开票记录
+        BigDecimal invoiceAmount = new BigDecimal(0);
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByCustomerId(id);
+        for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
+            if(Objects.equals(contractInvoiceLog.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus())){
+                invoiceAmount = invoiceAmount.add(contractInvoiceLog.getPrice());
+            }
+        }
+
         //赋值返回值
         CustomerStatisticsRespVO customerStatisticsRespVO = new CustomerStatisticsRespVO();
         customerStatisticsRespVO.setDealCount(dealCount);
         customerStatisticsRespVO.setDealAmount(dealTotalAmount);
         customerStatisticsRespVO.setPaidAmount(paidAmount);
+        customerStatisticsRespVO.setInvoiceAmount(invoiceAmount);
 //        customerStatisticsRespVO.setFundAmount(dealTotalAmount.subtract(paidAmount));
 //        customerStatisticsRespVO.setArrearsAmount(dealTotalAmount.subtract(paidAmount));
         customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));
