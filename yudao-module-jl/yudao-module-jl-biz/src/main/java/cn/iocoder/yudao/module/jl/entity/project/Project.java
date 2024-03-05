@@ -168,6 +168,12 @@ public class Project extends BaseEntity{
     private String tagIds;
 
     /**
+     * 转移记录json
+     */
+    @Column(name = "transfer_log")
+    private String transferLog;
+
+    /**
      * 原设计 参与者 ids，数组
      */
     @Column(name = "participants")

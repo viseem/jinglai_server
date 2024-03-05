@@ -112,4 +112,13 @@ public interface ProjectService {
      */
     List<Project> getProjectList(ProjectExportReqVO exportReqVO);
 
+
+    /**
+     * 项目转公海池 或 领取
+     *
+     * @param updateReqVO 更新信息
+     */
+    void projectToSeasOrReceive(@Valid ProjectSeasVO updateReqVO);
+
+
 }

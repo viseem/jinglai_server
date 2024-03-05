@@ -82,6 +82,9 @@ public class ProjectBaseVO {
     @Schema(description = "实验负责人", example = "6150")
     private Long experId;
 
+    @Schema(description = "项目转移日志", example = "6150")
+    private String transferLog;
+
 /*    @Schema(description = "参与者 ids，数组")
     private String participants;*/
 

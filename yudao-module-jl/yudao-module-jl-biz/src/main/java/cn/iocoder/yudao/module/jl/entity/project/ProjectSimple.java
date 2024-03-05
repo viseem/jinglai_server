@@ -125,6 +125,12 @@ public class ProjectSimple extends BaseEntity {
     private String tagIds;
 
     /**
+     * 转移日志
+     */
+    @Column(name = "transfer_log")
+    private String transferLog;
+
+    /**
      * 销售 id
      */
     @Column(name = "sales_id")

@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.SalesleadSeasVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -412,30 +414,36 @@ public class ProjectServiceImpl implements ProjectService {
 
             //这个是穿件来的创建者id，默认是null
             if(pageReqVO.getManagerIds()==null){
-                if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
-                    if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
-                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
-                            mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
-                        }else{
-                            if(pageReqVO.getManagerId() != null) {
-                                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                    if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
+                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
+                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                                mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
                             }else{
-                                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                                if(pageReqVO.getManagerId() != null) {
+                                    predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                                }else{
+                                    predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                                }
                             }
                         }
-                    }
-                }else{
+                    }else{
 
-                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                    pageReqVO.setCreators(users);
-                    if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                        predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                    }
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        pageReqVO.setCreators(users);
+                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                        }
 
+                    }
                 }
             }else{
                 predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
 
+            }
+
+            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                predicates.add(root.get("managerId").isNull());
             }
 
             //默认查询code不为空的
@@ -738,6 +746,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 执行查询
         return projectRepository.findAll(spec);
+    }
+
+
+    @Override
+    @Transactional
+    public void projectToSeasOrReceive(ProjectSeasVO reqVO){
+        // 校验存在
+        ProjectSimple projectSimple = validateProjectExists(reqVO.getId());
+        projectSimple.setTransferLog(reqVO.getTransferLog());
+        projectSimple.setManagerId(reqVO.getType().equals(1)?null:getLoginUserId());
+        projectSimpleRepository.save(projectSimple);
     }
 
     private Sort createSort(ProjectPageOrder order) {
