@@ -75,4 +75,40 @@ public class ProjectQuotation extends BaseEntity {
 
     @Column(name = "reduce_price", nullable = false )
     private BigDecimal reducePrice;
+
+    /**
+     * 实验名称
+     */
+    @Column(name = "exp_name")
+    private String expName;
+
+    /**
+     * 实验目的
+     */
+    @Column(name = "exp_purpose")
+    private String expPurpose;
+
+    /**
+     * 操作方法
+     */
+    @Column(name = "operate_method")
+    private String operateMethod;
+
+    /**
+     * 注意事项
+     */
+    @Column(name = "attention")
+    private String attention;
+
+    /**
+     * 风险提示
+     */
+    @Column(name = "risk_tips")
+    private String riskTips;
+
+    /**
+     * 交付标准
+     */
+    @Column(name = "delivery_standard")
+    private String deliveryStandard;
 }

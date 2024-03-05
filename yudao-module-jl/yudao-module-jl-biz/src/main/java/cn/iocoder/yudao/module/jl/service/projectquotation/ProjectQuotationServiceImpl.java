@@ -153,6 +153,13 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
+    public void saveProjectQuotationBaseInfo(ProjectQuotationSaveReqVO updateReqVO){
+        validateProjectQuotationExists(updateReqVO.getId());
+        ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
+        projectQuotationRepository.save(updateObj);
+    }
+
+    @Override
     @Transactional
     public Long updateProjectQuotationPlan(ProjectQuotationUpdatePlanReqVO updateReqVO){
         if(updateReqVO.getId()==null){

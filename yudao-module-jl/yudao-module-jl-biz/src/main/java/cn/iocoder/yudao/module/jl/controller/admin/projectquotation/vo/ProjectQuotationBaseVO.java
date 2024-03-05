@@ -42,4 +42,22 @@ public class ProjectQuotationBaseVO {
     @Schema(description = "减免金额")
     private BigDecimal reducePrice;
 
+    @Schema(description = "实验名称", example = "李四")
+    private String expName;
+
+    @Schema(description = "实验目的")
+    private String expPurpose;
+
+    @Schema(description = "操作方法")
+    private String operateMethod;
+
+    @Schema(description = "注意事项")
+    private String attention;
+
+    @Schema(description = "风险提示")
+    private String riskTips;
+
+    @Schema(description = "交付标准")
+    private String deliveryStandard;
+
 }
