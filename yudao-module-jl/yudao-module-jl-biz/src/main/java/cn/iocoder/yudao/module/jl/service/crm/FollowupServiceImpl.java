@@ -139,18 +139,20 @@ public class FollowupServiceImpl implements FollowupService {
         // 创建 Specification
         Specification<Followup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            if(pageReqVO.getCreatorIds()==null){
-                if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
-                    if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                    }
-                }
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }else{
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                if(pageReqVO.getCreatorIds()==null){
+                    if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
+                        if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                        }
+                    }
+                }else{
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                }
+
             }
-
-
             if(pageReqVO.getTimeRange()!=null){
                 predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
@@ -158,6 +160,7 @@ public class FollowupServiceImpl implements FollowupService {
             if(pageReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
             }
+
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
