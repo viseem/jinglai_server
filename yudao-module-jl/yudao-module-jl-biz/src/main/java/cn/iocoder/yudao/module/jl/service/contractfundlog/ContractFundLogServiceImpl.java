@@ -6,12 +6,15 @@ import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -172,6 +175,11 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                 }
             }else{
                 predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getMonth()!=null){
+                LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(pageReqVO.getMonth());
+                predicates.add(cb.between(root.get("paidTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
 
             if(pageReqVO.getSalesId() != null) {
