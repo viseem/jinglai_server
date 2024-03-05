@@ -28,6 +28,8 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "时间范围", example = "27395")
     private String timeRange;
 
+    @Schema(description = "月份", example = "27395")
+    private Integer month = LocalDateTime.now().getMonthValue();
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
