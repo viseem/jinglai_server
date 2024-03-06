@@ -17,7 +17,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class ContractFundLogPageReqVO extends PageParam {
 
     @Schema(description = "月份", example = "27395")
-    private Integer month = LocalDateTime.now().getMonthValue();
+    private Integer month;
 
     @Schema(description = "in 查询 contractIds")
     private Long[] contractIds;
