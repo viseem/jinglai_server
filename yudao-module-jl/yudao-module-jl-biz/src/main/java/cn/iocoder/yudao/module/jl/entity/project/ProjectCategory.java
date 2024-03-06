@@ -43,6 +43,12 @@ public class ProjectCategory extends BaseEntity {
     private Long id;
 
     /**
+     * 父级id
+     */
+    @Column(name = "parent_id", nullable = false)
+    private Long parentId;
+
+    /**
      * 报价 id
      */
     @Column(name = "quote_id")
@@ -319,4 +325,7 @@ public class ProjectCategory extends BaseEntity {
 
     @Transient
     private List<User> focusList = new ArrayList<>();
+
+    @Transient
+    private List<ProjectCategory> children = new ArrayList<>();
 }

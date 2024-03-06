@@ -49,6 +49,12 @@ public class ProjectCategorySimple extends BaseEntity {
     private Long id;
 
     /**
+     * 父级id
+     */
+    @Column(name = "parent_id", nullable = false)
+    private Long parentId;
+
+    /**
      * 报价 id
      */
     @Column(name = "quote_id")

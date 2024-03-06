@@ -57,4 +57,6 @@ public class ProjectCategoryRespVO extends ProjectCategoryBaseVO {
 
     private ProjectCategoryOnly projectCategory;
 
+    private List<ProjectCategory> children;
+
 }

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.Transient;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
@@ -24,6 +26,9 @@ public class ProjectCategoryBaseVO {
 
     @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
+
+    @Schema(description = "父级id", example = "1")
+    private Long parentId=0L;
 
     @Schema(description = "客户id", example = "1")
     private Long customerId;
@@ -116,4 +121,5 @@ public class ProjectCategoryBaseVO {
     private Integer preTodoTotal = 0;
 
     private Integer preTodoDone = 0;
+
 }

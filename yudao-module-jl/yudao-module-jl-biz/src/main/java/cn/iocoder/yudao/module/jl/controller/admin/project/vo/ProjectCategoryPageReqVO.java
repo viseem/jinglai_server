@@ -16,6 +16,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ProjectCategoryPageReqVO extends PageParam {
+    @Schema(description = "父级id", example = "14245")
+    private Long parentId;
 
     private String[] stageArr;
 
