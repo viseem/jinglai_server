@@ -411,7 +411,6 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-
             //这个是穿件来的创建者id，默认是null
             if(pageReqVO.getManagerIds()==null){
                 if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
