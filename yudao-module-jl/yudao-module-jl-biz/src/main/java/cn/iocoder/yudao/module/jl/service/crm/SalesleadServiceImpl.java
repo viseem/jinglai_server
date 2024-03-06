@@ -194,7 +194,10 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(customerPlans != null && customerPlans.size() > 0) {
             // 过滤掉fileUrl为null的
             customerPlans = customerPlans.stream().filter(customerPlan -> customerPlan.getFileUrl() != null).collect(Collectors.toList());
-            customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
+            customerPlans.forEach(customerPlan -> {
+                customerPlan.setSalesleadId(salesleadId);
+                customerPlan.setCustomerId(updateReqVO.getCustomerId());
+            });
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
         }
@@ -347,6 +350,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 customerPlans.forEach(customerPlan -> {
                     if(customerPlan.getFileUrl()!=null){
                         customerPlan.setSalesleadId(salesleadId);
+                        customerPlan.setCustomerId(updateReqVO.getCustomerId());
                         ProjectDocument projectDocument = new ProjectDocument();
                         projectDocument.setProjectId(updateReqVO.getProjectId());
                         projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
@@ -488,13 +492,20 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
                     predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
                 }else{
+
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
+
             }
 
             //如果statusArr不为空，则查询statusArr中的状态
             if(pageReqVO.getStatusArr() != null) {
                 predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
+
+                //判断statusArr是否包含未转项目的状态
+                if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                }
             }
 
             if(pageReqVO.getProjectId() != null) {

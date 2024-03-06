@@ -26,4 +26,7 @@ public class SalesleadCustomerPlanBaseVO {
     @NotNull(message = "文件名字不能为空")
     private String fileName;
 
+    @Schema(description = "客户id")
+    private Long customerId;
+
 }
