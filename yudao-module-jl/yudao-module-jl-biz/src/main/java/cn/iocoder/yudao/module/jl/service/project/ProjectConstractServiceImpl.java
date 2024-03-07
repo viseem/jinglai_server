@@ -108,7 +108,8 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
-
+        //暂存一下salesId
+        Long salesId = createReqVO.getSalesId();
         // 如果有项目id，则校验项目是否存在
         if(createReqVO.getProjectId()!=null&& createReqVO.getProjectId()>0){
             ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
@@ -135,6 +136,12 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
         // 插入
 //        createReqVO.setSn(generateCode());
+
+        //如果传递了销售id，则重新设置一下传递的销售id
+        if(salesId!=null){
+            createReqVO.setSalesId(salesId);
+        }
+
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
         if (projectConstract.getRealPrice() == null) {
             projectConstract.setRealPrice(projectConstract.getPrice() == null ? BigDecimal.valueOf(0) : projectConstract.getPrice());
@@ -197,8 +204,15 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
+        // 暂存一下salesId
+        Long salesId = updateReqVO.getSalesId();
         // 校验存在
-        validateProjectConstractExists(updateReqVO.getId());
+        ProjectConstract projectConstract = validateProjectConstractExists(updateReqVO.getId());
+
+        // 如果salesId是null
+        if(salesId==null){
+            updateReqVO.setSalesId(projectConstract.getSalesId());
+        }
         // 更新
         ProjectConstract updateObj = projectConstractMapper.toEntity(updateReqVO);
         projectConstractRepository.save(updateObj);

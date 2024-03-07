@@ -96,6 +96,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
+        //暂存一下salesId
+        Long salesId = createReqVO.getSalesId();
 
         // 查询手机号是否存在
         if(createReqVO.getPhone()!=null&& !createReqVO.getPhone().isEmpty()){
@@ -113,6 +115,11 @@ public class CustomerServiceImpl implements CustomerService {
             createReqVO.setToCustomer(false);
         }
 
+        //如果传递了销售id，则重新设置一下传递的销售id
+        if(salesId!=null){
+            createReqVO.setSalesId(salesId);
+        }
+
         // 插入
         Customer customer = customerMapper.toEntity(createReqVO);
         customerRepository.save(customer);
@@ -122,8 +129,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void updateCustomer(CustomerUpdateReqVO updateReqVO) {
+        // 暂存一下salesId
+        Long salesId = updateReqVO.getSalesId();
         // 校验存在
-        validateCustomerExists(updateReqVO.getId());
+        Customer customer = validateCustomerExists(updateReqVO.getId());
+        // 如果salesId是null
+        if(salesId==null){
+            updateReqVO.setSalesId(customer.getSalesId());
+        }
         // 更新
         Customer updateObj = customerMapper.toEntity(updateReqVO);
         customerRepository.save(updateObj);
