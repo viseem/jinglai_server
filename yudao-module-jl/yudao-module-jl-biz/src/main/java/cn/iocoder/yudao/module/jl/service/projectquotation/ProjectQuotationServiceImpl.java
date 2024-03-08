@@ -132,6 +132,62 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         saveReqVO.setProjectQuotationId(save.getId());
         if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
             for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
+                if(Objects.equals(projectCategory.getParentId(),0L)){
+                    if(projectCategory.getIsOld()){
+                        projectCategory.setOriginId(projectCategory.getId());
+                        projectCategory.setId(null);
+                    }
+                    projectCategory.setQuotationId(saveReqVO.getProjectQuotationId());
+                    ProjectCategory save1 = projectCategoryRepository.save(projectCategoryMapper.toEntity(projectCategory));
+                    projectCategory.setId(save1.getId());
+                }
+            }
+            for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
+                if(!Objects.equals(projectCategory.getParentId(),0L)){
+                    Optional<ProjectCategoryQuotationVO> first = updateReqVO.getCategoryList().stream().filter(item -> Objects.equals(item.getOriginId(), projectCategory.getParentId())).findFirst();
+                    first.ifPresent(projectCategoryQuotationVO -> projectCategory.setParentId(projectCategoryQuotationVO.getId()));
+                    if(projectCategory.getIsOld()){
+                        projectCategory.setOriginId(projectCategory.getId());
+                        projectCategory.setId(null);
+                    }
+                    projectCategory.setQuotationId(saveReqVO.getProjectQuotationId());
+                    ProjectCategory save1 = projectCategoryRepository.save(projectCategoryMapper.toEntity(projectCategory));
+                    projectCategory.setId(save1.getId());
+                }
+            }
+        }
+        saveReqVO.setCategoryList(updateReqVO.getCategoryList());
+
+        projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
+        //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
+        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+
+    }
+
+    public void saveProjectQuotationBk(ProjectQuotationSaveReqVO updateReqVO) {
+
+        ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
+        updateReqVO.setCustomerId(projectSimple.getCustomerId());
+
+        if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
+            updateReqVO.setCode("默认");
+        }
+        ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
+        ProjectQuotation save = projectQuotationRepository.save(updateObj);
+
+        // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
+        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
+            projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
+        }
+
+        ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
+        saveReqVO.setProjectId(save.getProjectId());
+        saveReqVO.setSupplyList(updateReqVO.getSupplyList());
+        saveReqVO.setChargeList(updateReqVO.getChargeList());
+        saveReqVO.setProjectCategoryType("only");
+        saveReqVO.setProjectQuotationId(save.getId());
+        if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
+            for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
                 if(projectCategory.getIsOld()){
                     projectCategory.setOriginId(projectCategory.getId());
                     projectCategory.setId(null);

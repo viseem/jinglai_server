@@ -50,6 +50,15 @@ public class ProjectCategoryQuotationVO {
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")
     private String categoryType;
 
+    @Schema(description = "折扣")
+    private Integer discount;
+
+    @Schema(description = "周期")
+    private String cycle;
+
+    @Schema(description = "项目负责人")
+    private Long projectManagerId;
+
     @Schema(description = "实验名目库的名目 id")
     private Long categoryId;
 
