@@ -328,4 +328,10 @@ public class ProjectCategory extends BaseEntity {
 
     @Transient
     private List<ProjectCategory> children = new ArrayList<>();
+
+    @Transient
+    private  Boolean isOld;
+
+    @Transient
+    private Long originId;
 }

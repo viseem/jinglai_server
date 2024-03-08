@@ -130,7 +130,6 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         saveReqVO.setChargeList(updateReqVO.getChargeList());
         saveReqVO.setProjectCategoryType("only");
         saveReqVO.setProjectQuotationId(save.getId());
-
         if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
             for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
                 if(projectCategory.getIsOld()){

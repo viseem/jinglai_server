@@ -22,6 +22,9 @@ public class ProjectCategoryQuotationVO {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
+    @Schema(description = "父级id", example = "1")
+    private Long parentId;
+
     @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
 
