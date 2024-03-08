@@ -162,7 +162,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         Specification<ContractFundLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getContractIds()==null){
+            if(pageReqVO.getContractIds()==null&&pageReqVO.getUserIds()==null){
                 if(pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 }else{
@@ -174,7 +174,18 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                     }
                 }
             }else{
+            }
+
+            if(pageReqVO.getContractIds()!=null){
                 predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getUserIds()!=null){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getUserIds()).toArray()));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("paidTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if(pageReqVO.getMonth()!=null){

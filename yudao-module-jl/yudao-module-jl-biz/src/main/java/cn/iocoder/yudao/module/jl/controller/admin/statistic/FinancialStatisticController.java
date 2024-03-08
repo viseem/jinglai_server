@@ -139,10 +139,14 @@ public class FinancialStatisticController {
             if(contract.getPrice() != null) {
                 resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
-            if (contract.getInvoicedPrice() != null) {
+/*            if (contract.getInvoicedPrice() != null) {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
-            }
+            }*/
         }
+
+        contractInvoiceLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), localDateStartTime, localDateEndTime, userIds).forEach(contractInvoiceLog -> {
+            resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+        });
 
         //查询contractFundLog表，获取已收金额
         contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), localDateStartTime, localDateEndTime, userIds).forEach(contractFundLog -> {

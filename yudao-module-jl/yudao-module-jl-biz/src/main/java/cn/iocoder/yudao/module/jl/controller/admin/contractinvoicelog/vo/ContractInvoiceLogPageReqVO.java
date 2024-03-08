@@ -19,6 +19,12 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
     @Schema(description = "in 查询 contractIds")
     private Long[] contractIds;
 
+    @Schema(description = "时间范围", example = "27395")
+    private String timeRange;
+
+    @Schema(description = "in 查询 userIds")
+    private Long[] userIds;
+
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.MY.getStatus();
 

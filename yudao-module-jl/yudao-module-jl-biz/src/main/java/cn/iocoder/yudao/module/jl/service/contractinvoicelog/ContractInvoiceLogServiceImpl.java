@@ -7,12 +7,15 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -159,7 +162,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }*/
 
-            if(pageReqVO.getContractIds()==null){
+            if(pageReqVO.getContractIds()==null&&pageReqVO.getUserIds()==null){
                 if(pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 }else{
@@ -171,7 +174,17 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                     }
                 }
             }else{
+            }
+            if(pageReqVO.getContractIds()!=null){
                 predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getUserIds()!=null){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getUserIds()).toArray()));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("date"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if(pageReqVO.getSalesId() != null) {
