@@ -412,17 +412,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
         List<ProjectCategory> content = page.getContent();
 
-        if(Objects.equals(pageReqVO.getParentId(),0L)){
-
-            //
+/*        if(Objects.equals(pageReqVO.getParentId(),0L)){
             List<Object> objects = processCateTree(Collections.singletonList(content));
             content = objects.stream().map(o -> (ProjectCategory) o).collect(Collectors.toList());
         }else{
-            if(!content.isEmpty()){
-                content.forEach(this::processProjectCategoryItem);
-            }
-        }
 
+        }*/
+
+        if(!content.isEmpty()){
+            content.forEach(this::processProjectCategoryItem);
+        }
         // 转换为 PageResult 并返回
         return new PageResult<>(content, page.getTotalElements());
     }
@@ -479,6 +478,10 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getParentId() != null) {
+                predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
+            }
 
             if(pageReqVO.getAttribute() != null) {
                 if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
