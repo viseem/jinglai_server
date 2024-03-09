@@ -31,6 +31,14 @@ public interface ProjectService {
     void updateProject(@Valid ProjectUpdateReqVO updateReqVO);
 
 
+    /**
+     * 更新项目的标签
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateProjectTag(@Valid ProjectUpdateTagReqVO updateReqVO);
+
+
     void projectOutboundApply(@Valid ProjectOutboundApplyReqVO updateReqVO);
 
     /**
@@ -103,5 +111,14 @@ public interface ProjectService {
      * @return 项目管理列表
      */
     List<Project> getProjectList(ProjectExportReqVO exportReqVO);
+
+
+    /**
+     * 项目转公海池 或 领取
+     *
+     * @param updateReqVO 更新信息
+     */
+    void projectToSeasOrReceive(@Valid ProjectSeasVO updateReqVO);
+
 
 }

@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = false) // 设置 chain = false，避免用户导入有问题
 public class SupplierImportVO {
 
-    @ExcelProperty("供应商")
+    @ExcelProperty("供应商名称")
     private String name;
 
     @ExcelProperty("联系人")
@@ -28,8 +28,32 @@ public class SupplierImportVO {
     @ExcelProperty("联系方式")
     private Long contactPhone;
 
-    @ExcelProperty("类别")
+    @ExcelProperty("渠道类型")
+    private String channelTypeStr;
+
+    @ExcelProperty("开票类型")
+    private String billWayStr;
+
+    @ExcelProperty("结算周期")
+    private String paymentCycleStr;
+
+    @ExcelProperty("银行卡号")
+    private String bankAccount;
+
+    @ExcelProperty("银行支行")
+    private String subBranch;
+
+    @ExcelProperty("职位")
+    private String contactLevel;
+
+    @ExcelProperty("服务折扣")
+    private String discount;
+
+    @ExcelProperty("品类")
     private String product;
+
+    @ExcelProperty("备注")
+    private String mark;
 
 
 /*    @ExcelProperty(value = "用户性别", converter = DictConvert.class)

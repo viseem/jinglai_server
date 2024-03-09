@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
-import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
@@ -23,6 +21,13 @@ public class ProjectPageReqVO extends PageParam {
     @Schema(description = "in 查询 creators")
     private Long[] creators;
 
+    // 上面那个是权限使用的，这个是直接传进来的
+    @Schema(description = "in 查询 managerIds")
+    private Long[] managerIds;
+
+    private Integer expireDayLimit;
+    private Boolean isDelay;
+
     private Boolean isSale;
 
     @Schema(description = "in 查询 managers")
@@ -31,6 +36,8 @@ public class ProjectPageReqVO extends PageParam {
     private Long subjectGroupId;
 
     private Long focusId;
+
+    private Long tagId;
 
     private List<String> stageArr;
 

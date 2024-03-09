@@ -125,6 +125,13 @@ public class Project extends BaseEntity{
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
+
+    /*
+    * 最近跟进时间
+    * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
+
     /**
      * 项目负责人
      */
@@ -153,6 +160,18 @@ public class Project extends BaseEntity{
      */
     @Column(name = "focus_ids")
     private String focusIds;
+
+    /**
+     * tag ids
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
+     * 转移记录json
+     */
+    @Column(name = "transfer_log")
+    private String transferLog;
 
     /**
      * 原设计 参与者 ids，数组

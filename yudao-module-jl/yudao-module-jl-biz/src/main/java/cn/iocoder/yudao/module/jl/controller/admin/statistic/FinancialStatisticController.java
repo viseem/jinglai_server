@@ -1,10 +1,20 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialAllStatisticResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatisticResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialAllStatisticReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesStatisticSalesleadResp;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,10 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -31,14 +43,45 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 @Validated
 public class FinancialStatisticController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     // 合同 Repository
     @Resource
     private ProjectConstractOnlyRepository projectConstractOnlyRepository;
 
     @Resource
     private SubjectGroupMemberService subjectGroupMemberService;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @GetMapping("/accounts-receivable-all")
+    @Operation(summary = "全部应收款统计")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<FinancialAllStatisticResp> getFinancialStatisticAll(@Valid FinancialAllStatisticReqVO reqVO) {
+        FinancialAllStatisticResp resp = new FinancialAllStatisticResp();
+        List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getUserIds());
+        for (ProjectConstractOnly contract : contractList) {
+            if(contract.getReceivedPrice() != null) {
+                resp.setAllContractPaymentAmount(resp.getAllContractPaymentAmount().add(contract.getReceivedPrice()));
+            }
+            if(contract.getPrice() != null) {
+                resp.setAllOrderAmount(resp.getAllOrderAmount().add(contract.getPrice()));
+            }
+        }
+        resp.setAllAccountsReceivable(
+                resp.getAllOrderAmount().subtract(resp.getAllContractPaymentAmount())
+        );
+
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByPriceStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
+
+        for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
+            resp.setAllUnreceivedInvoiceAmount(resp.getAllUnreceivedInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+        }
+
+        return success(resp);
+    }
 
     @GetMapping("/accounts-receivable")
     @Operation(summary = "应收款统计")
@@ -52,8 +95,6 @@ public class FinancialStatisticController {
             @RequestParam(name = "userId", required = false) Long userId
     ) {
         // 获取请求的数据
-        logger.info("getFinancialStatistic startTime = {}, endTime = {}, userIds = {}, subjectGroupId = {}, userId = {}",
-                startTime, endTime, userIds, subjectGroupId, userId);
 
         LocalDateTime localDateEndTime = LocalDateTime.now();
         LocalDateTime localDateStartTime = LocalDateTime.now();
@@ -75,23 +116,8 @@ public class FinancialStatisticController {
             localDateStartTime = localDateStartTime.withHour(23).withMinute(59).withSecond(59);
         }
 
-        if(timeRange != null) {
-            switch (timeRange) {
-                case "week":
-                    // startTime 本周的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfWeek().getValue());
-                    break;
-                case "month":
-                    // startTime 本月的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfMonth());
-                    break;
-                case "year":
-                    // startTime 本年的第一天
-                    localDateStartTime = localDateEndTime.minusDays(localDateEndTime.getDayOfYear());
-                    break;
-                default:
-                    break;
-            }
+        if(timeRange!=null){
+            localDateStartTime = StatisticUtils.getStartTimeByTimeRange(timeRange);
         }
 
         if(userId != null) {
@@ -102,22 +128,37 @@ public class FinancialStatisticController {
             // 查找groupId下的所有人员
             subjectGroupMemberService.findMembersByGroupId(subjectGroupId).forEach(member -> userIds.add(member.getUserId()));
         }
-
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(userIds, ProjectContractStatusEnums.SIGNED.getStatus(), localDateStartTime, localDateEndTime);
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         FinancialStatisticResp resp = new FinancialStatisticResp();
         for (ProjectConstractOnly contract : contractList) {
             if(contract.getReceivedPrice() != null) {
-                resp.setPaymentAmount(resp.getPaymentAmount().add(contract.getReceivedPrice()));
+                resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
             }
             if(contract.getPrice() != null) {
-                resp.setAccountsReceivable(resp.getAccountsReceivable().add(contract.getPrice()));
+                resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
-            if (contract.getInvoicedPrice() != null) {
+/*            if (contract.getInvoicedPrice() != null) {
                 resp.setInvoiceAmount(resp.getInvoiceAmount().add(contract.getInvoicedPrice()));
-            }
+            }*/
         }
+
+        contractInvoiceLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), localDateStartTime, localDateEndTime, userIds).forEach(contractInvoiceLog -> {
+            resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+        });
+
+        //查询contractFundLog表，获取已收金额
+        contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), localDateStartTime, localDateEndTime, userIds).forEach(contractFundLog -> {
+            resp.setPaymentAmount(resp.getPaymentAmount().add(contractFundLog.getReceivedPrice()));
+        });
+
+        //减去
+        resp.setAccountsReceivable(
+                resp.getOrderAmount().subtract(resp.getContractPaymentAmount())
+        );
+
+        resp.setContractIds(contractList.stream().map(ProjectConstractOnly::getId).collect(Collectors.toList()));
 
         return success(resp);
     }

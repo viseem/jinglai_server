@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -23,6 +24,9 @@ public class ProjectCategoryLogRespVO extends ProjectCategoryLogBaseVO {
 
     private ProjectSimple project;
     private User operator;
+    private User user;
 
     private List<ProjectCategoryAttachment> attachments;
+
+    private ProjectCategoryOnly projectCategory;
 }

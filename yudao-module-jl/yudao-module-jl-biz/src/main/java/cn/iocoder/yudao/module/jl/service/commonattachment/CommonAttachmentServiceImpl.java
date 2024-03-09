@@ -53,6 +53,10 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
         commonAttachmentRepository.saveAll(list);
     }
 
+    public void deleteAttachment(Long refId,String type){
+        commonAttachmentRepository.deleteByRefIdAndType(refId,type);
+    }
+
     @Override
     public Long createCommonAttachment(CommonAttachmentCreateReqVO createReqVO) {
         // 插入

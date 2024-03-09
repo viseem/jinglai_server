@@ -88,6 +88,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Resource
     private CommonTodoRepository commonTodoRepository;
 
+    @Resource
+    private ProjectRepository projectRepository;
+
+    @Resource
+    private ProjectServiceImpl projectServiceImpl;
+
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
     private final UserRepository userRepository;
 
@@ -162,6 +168,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     @Override
+    @Transactional
     public void updateProjectCategory(ProjectCategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryExists(updateReqVO.getId());
@@ -173,6 +180,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         updateReqVO.setCustomerId(projectSimple.getCustomerId());
         updateReqVO.setProjectManagerId(projectSimple.getManagerId());
+
+        //更新一下项目的实验人员
+//        projectServiceImpl.updateProjectFocusIdsById(updateReqVO.getProjectId(), Collections.singletonList(updateReqVO.getOperatorId()),projectSimple.getFocusIds());
 
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);
@@ -300,6 +310,90 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 .collect(Collectors.toList());
     }
 
+    public static List<Object> processCateTree(List<Object> inputList) {
+        Map<Long, Object> idToNodeMap = new HashMap<>();
+
+        // 构建id到节点的映射
+        for (Object obj : inputList) {
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                Long id = node.getId();
+                idToNodeMap.put(id, node);
+            }
+        }
+
+        List<Object> result = new ArrayList<>();
+
+        // 遍历构建层级关系
+        for (Object obj : inputList) {
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                Long parentId = node.getParentId();
+                if (parentId == 0) {
+                    // 根节点直接加入结果列表
+                    result.add(node);
+                } else {
+                    // 子节点添加到父节点的child列表中
+                    Object parent = idToNodeMap.get(parentId);
+                    if (parent instanceof Node) {
+                        List<Node> children = ((Node) parent).getChildren();
+                        if (children == null) {
+                            children = new ArrayList<>();
+                            ((Node) parent).setChildren(children);
+                        }
+                        children.add(node);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    static class Node {
+        private Long id;
+        private String name;
+        private Long parentId;
+        private List<Node> children;
+
+        public Node(Long id, String name, Long parentId) {
+            this.id = id;
+            this.name = name;
+            this.parentId = parentId;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Long getParentId() {
+            return parentId;
+        }
+
+        public List<Node> getChildren() {
+            return children;
+        }
+
+        public void setChildren(List<Node> children) {
+            this.children = children;
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", parentId=" + parentId +
+                    ", children=" + children +
+                    '}';
+        }
+    }
+
+
     @Override
     public PageResult<ProjectCategory> getProjectCategoryPage(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
         // 创建 Sort 对象
@@ -318,8 +412,40 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
         List<ProjectCategory> content = page.getContent();
 
+/*        if(Objects.equals(pageReqVO.getParentId(),0L)){
+            List<Object> objects = processCateTree(Collections.singletonList(content));
+            content = objects.stream().map(o -> (ProjectCategory) o).collect(Collectors.toList());
+        }else{
+
+        }*/
+
         if(!content.isEmpty()){
             content.forEach(this::processProjectCategoryItem);
+        }
+        // 转换为 PageResult 并返回
+        return new PageResult<>(content, page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProjectCategory> getProjectCategoryPageCate(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0){
+        // 创建 Sort 对象
+        if(pageReqVO.getQuotationId()!=null){
+            orderV0.setCreateTime("asc");
+        }
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProjectCategory> spec = getProjectCategorySimpleSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
+        List<ProjectCategory> content = page.getContent();
+
+        if(!content.isEmpty()){
+//            content.forEach(this::processProjectCategoryItem);
         }
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -353,6 +479,10 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getParentId() != null) {
+                predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
+            }
+
             if(pageReqVO.getAttribute() != null) {
                 if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
                     mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
@@ -370,6 +500,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttributeManager());
                 predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
+
 
             if(pageReqVO.getStageArr()!=null){
                 predicates.add(root.get("stage").in(Arrays.stream(pageReqVO.getStageArr()).toArray()));
@@ -612,6 +743,12 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "stage"));
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+
+        orders.add(new Sort.Order("asc".equals(order.getProjectId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "projectId"));
+
+        if (order.getEndDateSort() != null) {
+            orders.add(new Sort.Order(order.getEndDateSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "deadline"));
+        }
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

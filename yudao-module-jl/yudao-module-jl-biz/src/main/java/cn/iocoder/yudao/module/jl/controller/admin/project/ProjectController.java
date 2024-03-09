@@ -72,6 +72,14 @@ public class ProjectController {
         return success(true);
     }
 
+    @PutMapping("/update-tag")
+    @Operation(summary = "更新项目的标签")
+    @PreAuthorize("@ss.hasPermission('jl:project:update')")
+    public CommonResult<Boolean> updateProjectTag(@Valid @RequestBody ProjectUpdateTagReqVO updateReqVO) {
+        projectService.updateProjectTag(updateReqVO);
+        return success(true);
+    }
+
     @PutMapping("/current-schedule")
     @Operation(summary = "设置当前的主安排单")
     @PreAuthorize("@ss.hasPermission('jl:project:update')")
@@ -79,6 +87,15 @@ public class ProjectController {
         projectService.setProjectCurrentSchedule(updateReqVO.getProjectId(), updateReqVO.getScheduleId());
         return success(true);
     }
+
+    @PostMapping("/to-seas-or-receive")
+    @Operation(summary = "项目转入公海池 或者 领取")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<Boolean> projectToSeasOrReceive(@Valid @RequestBody ProjectSeasVO updateReqVO) {
+        projectService.projectToSeasOrReceive(updateReqVO);
+        return success(true);
+    }
+
 
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目管理")

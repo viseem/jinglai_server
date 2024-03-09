@@ -1,14 +1,21 @@
 package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,13 +61,17 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createContractInvoiceLog(ContractInvoiceLogCreateReqVO createReqVO) {
         //查询合同是否存在
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(createReqVO.getStatus()!=null){
+        if(!Objects.equals(createReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
         }
 
@@ -72,17 +83,22 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         contractInvoiceLogRepository.save(contractInvoiceLog);
 
         projectConstractService.processContractInvoicedPrice2(projectConstract.getId());
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(contractInvoiceLog.getId(),"CONTRACT_INVOICE_LOG",createReqVO.getAttachmentList());
+
         // 返回
         return contractInvoiceLog.getId();
     }
 
     @Override
+    @Transactional
     public void updateContractInvoiceLog(ContractInvoiceLogUpdateReqVO updateReqVO) {
         // 校验存在
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(updateReqVO.getStatus()!=null){
+        if(!Objects.equals(updateReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
         }
 
@@ -92,6 +108,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
         projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
 
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_INVOICE_LOG",updateReqVO.getAttachmentList());
     }
 
     @Override
@@ -136,9 +153,42 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             List<Predicate> predicates = new ArrayList<>();
 
             //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+/*            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
                 Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            }
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }*/
+
+            if(pageReqVO.getContractIds()==null&&pageReqVO.getUserIds()==null){
+                if(pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                }else{
+                    //如果不是any，则都是in查询
+                    if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    }
+                }
+            }else{
+            }
+            if(pageReqVO.getContractIds()!=null){
+                predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getUserIds()!=null){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getUserIds()).toArray()));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("date"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+            }
+
+            if(pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if(pageReqVO.getStatus() != null) {
@@ -153,9 +203,6 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }
 
             if(pageReqVO.getContractId() != null) {
                 predicates.add(cb.equal(root.get("contractId"), pageReqVO.getContractId()));

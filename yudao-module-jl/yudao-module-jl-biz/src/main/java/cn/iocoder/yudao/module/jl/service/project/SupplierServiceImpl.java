@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import com.xingyuv.captcha.util.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -205,6 +206,10 @@ public class SupplierServiceImpl implements SupplierService {
         SupplierImportRespVO respVO = SupplierImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
         importUsers.forEach(importUser -> {
+
+
+
+
             // 校验，判断是否有不符合的原因
 /*            try {
                 validateUserForCreateOrUpdate(null, null, importUser.getMobile(), importUser.getEmail(),
@@ -213,10 +218,46 @@ public class SupplierServiceImpl implements SupplierService {
                 respVO.getFailureUsernames().put(importUser.getUsername(), ex.getMessage());
                 return;
             }*/
+            Supplier supplier = supplierMapper.toEntity(importUser);
+
+            //根据字典label查询字典id
+            if(StringUtils.contains(importUser.getChannelTypeStr(), "厂家")){
+                supplier.setChannelType("1");
+            }
+            if(StringUtils.contains(importUser.getChannelTypeStr(), "经销商")){
+                supplier.setChannelType("2");
+            }
+
+            if(StringUtils.contains(importUser.getBillWayStr(), "增值税专票")){
+                supplier.setBillWay("1");
+            }
+            if(StringUtils.contains(importUser.getBillWayStr(), "增值税普票")){
+                supplier.setBillWay("2");
+            }
+            if(StringUtils.contains(importUser.getBillWayStr(), "不开票")){
+                supplier.setBillWay("3");
+            }
+            if(StringUtils.contains(importUser.getBillWayStr(), "替票")){
+                supplier.setBillWay("4");
+            }
+            if(StringUtils.contains(importUser.getPaymentCycleStr(), "日度付款")){
+                supplier.setPaymentCycle("1");
+            }
+            if(StringUtils.contains(importUser.getPaymentCycleStr(), "周度付款")){
+                supplier.setPaymentCycle("2");
+            }
+            if(StringUtils.contains(importUser.getPaymentCycleStr(), "月度付款")){
+                supplier.setPaymentCycle("3");
+            }
+            if(StringUtils.contains(importUser.getPaymentCycleStr(), "季度付款")){
+                supplier.setPaymentCycle("4");
+            }
+            if(StringUtils.contains(importUser.getPaymentCycleStr(), "年度付款")){
+                supplier.setPaymentCycle("5");
+            }
             // 判断如果不存在，在进行插入
             Supplier byName = supplierRepository.findByName(importUser.getName());
             if (byName == null) {
-                Supplier supplier = supplierMapper.toEntity(importUser);
                 supplierRepository.save(supplier);
                 respVO.getCreateNames().add(importUser.getName());
                 return;
@@ -226,7 +267,6 @@ public class SupplierServiceImpl implements SupplierService {
                 respVO.getFailureNames().put(importUser.getName(), SUPPLIER_EXISTS.getMsg());
                 return;
             }
-            Supplier supplier = supplierMapper.toEntity(importUser);
             supplier.setId(byName.getId());
             supplierRepository.save(supplier);
             respVO.getUpdateNames().add(importUser.getName());

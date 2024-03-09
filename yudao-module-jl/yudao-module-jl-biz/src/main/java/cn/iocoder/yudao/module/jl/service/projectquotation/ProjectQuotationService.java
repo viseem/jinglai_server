@@ -44,6 +44,13 @@ public interface ProjectQuotationService {
      *
      * @param updateReqVO 更新信息
      */
+    void saveProjectQuotationBaseInfo(@Valid ProjectQuotationSaveReqVO updateReqVO);
+
+    /**
+     * 更新项目报价
+     *
+     * @param updateReqVO 更新信息
+     */
     Long updateProjectQuotationPlan(@Valid ProjectQuotationUpdatePlanReqVO updateReqVO);
 
 

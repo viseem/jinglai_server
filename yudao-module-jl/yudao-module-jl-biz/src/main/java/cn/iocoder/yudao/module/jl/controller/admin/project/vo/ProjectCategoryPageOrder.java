@@ -20,6 +20,9 @@ public class ProjectCategoryPageOrder {
     private String createTime;
 
     @Schema(allowableValues = {"desc", "asc"})
+    private String projectId;
+
+    @Schema(allowableValues = {"desc", "asc"})
     private String quoteId;
 
     @Schema(allowableValues = {"desc", "asc"})
@@ -51,5 +54,8 @@ public class ProjectCategoryPageOrder {
 
     @Schema(allowableValues = {"desc", "asc"})
     private String mark;
+
+    @Schema(allowableValues = {"desc", "asc"})
+    private String endDateSort;
 
 }

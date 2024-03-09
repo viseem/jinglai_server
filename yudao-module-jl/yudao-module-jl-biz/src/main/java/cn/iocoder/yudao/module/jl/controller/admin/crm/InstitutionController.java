@@ -46,7 +46,14 @@ public class InstitutionController {
     @Operation(summary = "创建机构/公司")
     @PreAuthorize("@ss.hasPermission('jl:institution:create')")
     public CommonResult<Long> createInstitution(@Valid @RequestBody InstitutionCreateReqVO createReqVO) {
-        return success(institutionService.createInstitution(createReqVO));
+
+        Long institution = institutionService.createInstitution(createReqVO);
+        String msg="";
+        if(institution==0){
+            msg="该机构已存在";
+        }
+
+        return success(institution,msg);
     }
 
     @PutMapping("/update")

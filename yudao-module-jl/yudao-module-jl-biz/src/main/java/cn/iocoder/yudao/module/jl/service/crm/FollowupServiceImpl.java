@@ -5,12 +5,15 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentService;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,6 +71,7 @@ public class FollowupServiceImpl implements FollowupService {
 
         // 更新销售线索
         salesleadRepository.updateLastFollowUpIdById(createReqVO.getRefId(), followup.getId());
+        salesleadRepository.updateLastFollowTimeById(LocalDateTime.now(),followup.getRefId());
 
         // 更新客户最近的线索
         customerRepository.updateLastFollowupIdById(followup.getId(), createReqVO.getCustomerId());
@@ -87,10 +91,12 @@ public class FollowupServiceImpl implements FollowupService {
         validateFollowupExists(updateReqVO.getId());
         // 更新
         Followup updateObj = followupMapper.toEntity(updateReqVO);
-        followupRepository.save(updateObj);
+        Followup save = followupRepository.save(updateObj);
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CRM_FOLLOWUP",updateReqVO.getAttachmentList());
+        salesleadRepository.updateLastFollowTimeById(LocalDateTime.now(),save.getRefId());
+
     }
 
     @Override
@@ -99,6 +105,7 @@ public class FollowupServiceImpl implements FollowupService {
         validateFollowupExists(id);
         // 删除
         followupRepository.deleteById(id);
+        commonAttachmentService.deleteAttachment(id,"CRM_FOLLOWUP");
     }
 
     private void validateFollowupExists(Long id) {
@@ -132,17 +139,28 @@ public class FollowupServiceImpl implements FollowupService {
         // 创建 Specification
         Specification<Followup> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-
-            if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
-                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }else{
+                if(pageReqVO.getCreatorIds()==null){
+                    if(pageReqVO.getAttribute()!=null&&pageReqVO.getRefId()==null){
+                        if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                        }
+                    }
+                }else{
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
                 }
+
+            }
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if(pageReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
             }
+
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));

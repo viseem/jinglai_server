@@ -25,7 +25,7 @@ public class ProjectCostStatsRespVO {
     private Long procurementCost;
 
     @Schema(description = "收费项的成本")
-    private Long chargeItemCost;
+    private BigDecimal chargeItemCost;
 
     @Schema(description = "委外的成本")
     private Long outsourceCost;

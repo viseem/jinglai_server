@@ -6,10 +6,14 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - 销售线索更新 Request VO")
 @Data
@@ -43,6 +47,9 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
     private BigDecimal paperPrice;
     @Schema(description = "合同编号")
     private String contractSn;
+    @Schema(description = "合同签订日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime signedTime;
     @Schema(description = "对方公司名称")
     private String contractCompanyName;
 

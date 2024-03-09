@@ -31,6 +31,9 @@ public class AssetDeviceLogPageReqVO extends PageParam {
     @Schema(description = "结束时间")
     private LocalDateTime endData;
 
+    @Schema(description = "预约人id", example = "13618")
+    private Long creator;
+
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
 

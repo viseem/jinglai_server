@@ -1,14 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
@@ -67,6 +66,9 @@ public class CustomerServiceImpl implements CustomerService {
     private ContractFundLogRepository contractFundLogRepository;
 
     @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
     @Resource
@@ -94,11 +96,15 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Long createCustomer(CustomerCreateReqVO createReqVO) {
+        //暂存一下salesId
+        Long salesId = createReqVO.getSalesId();
 
         // 查询手机号是否存在
-        CustomerOnly byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
-        if(byPhone!=null){
-            return 0L;
+        if(createReqVO.getPhone()!=null&& !createReqVO.getPhone().isEmpty()){
+            CustomerOnly byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
+            if(byPhone!=null){
+                return 0L;
+            }
         }
 
         if(!createReqVO.getIsSeas()){
@@ -107,6 +113,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         if(createReqVO.getIsSeas()){
             createReqVO.setToCustomer(false);
+        }
+
+        //如果传递了销售id，则重新设置一下传递的销售id
+        if(salesId!=null){
+            createReqVO.setSalesId(salesId);
         }
 
         // 插入
@@ -118,8 +129,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void updateCustomer(CustomerUpdateReqVO updateReqVO) {
+        // 暂存一下salesId
+        Long salesId = updateReqVO.getSalesId();
         // 校验存在
-        validateCustomerExists(updateReqVO.getId());
+        Customer customer = validateCustomerExists(updateReqVO.getId());
+        // 如果salesId是null
+        if(salesId==null){
+            updateReqVO.setSalesId(customer.getSalesId());
+        }
         // 更新
         Customer updateObj = customerMapper.toEntity(updateReqVO);
         customerRepository.save(updateObj);
@@ -252,6 +269,23 @@ public class CustomerServiceImpl implements CustomerService {
                    predicates.add(root.get("salesId").isNull());
                }
            }*/
+
+            // hospital_id or university_id or company_id or research_id
+            if(pageReqVO.getInstitutionId()!=null){
+                predicates.add(cb.or(
+                        cb.equal(root.get("hospitalId"), pageReqVO.getInstitutionId()),
+                        cb.equal(root.get("universityId"), pageReqVO.getInstitutionId()),
+                        cb.equal(root.get("companyId"), pageReqVO.getInstitutionId()),
+                        cb.equal(root.get("researchId"), pageReqVO.getInstitutionId())
+                ));
+            }
+
+
+
+            if(pageReqVO.getToCustomer() != null) {
+                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+            }
+
             if(pageReqVO.getToCustomer() != null) {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
@@ -514,7 +548,7 @@ public class CustomerServiceImpl implements CustomerService {
         Integer projectDoingCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.DOING.getStatus(),id);
         Integer projectOutedCount = projectSimpleRepository.countByCodeNotNullAndStageAndCustomerId(ProjectStageEnums.OUTED.getStatus(),id);
 
-        //计算客户的成交总金额
+        //计算客户的成交总金额、已开票金额
         BigDecimal dealTotalAmount = new BigDecimal(0);
         for (ProjectConstract projectConstract : byCustomerIdAndStatus) {
             dealTotalAmount = dealTotalAmount.add(projectConstract.getPrice());
@@ -528,11 +562,23 @@ public class CustomerServiceImpl implements CustomerService {
                 paidAmount = paidAmount.add(fundLog.getReceivedPrice());
             }
         }
+
+        //开票记录
+        BigDecimal invoiceAmount = new BigDecimal(0);
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByCustomerId(id);
+        for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
+            if(Objects.equals(contractInvoiceLog.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus())){
+                invoiceAmount = invoiceAmount.add(contractInvoiceLog.getPrice());
+            }
+        }
+
         //赋值返回值
         CustomerStatisticsRespVO customerStatisticsRespVO = new CustomerStatisticsRespVO();
         customerStatisticsRespVO.setDealCount(dealCount);
         customerStatisticsRespVO.setDealAmount(dealTotalAmount);
         customerStatisticsRespVO.setPaidAmount(paidAmount);
+        customerStatisticsRespVO.setInvoiceAmount(invoiceAmount);
+        customerStatisticsRespVO.setReceivableAmount(dealTotalAmount.subtract(paidAmount));
 //        customerStatisticsRespVO.setFundAmount(dealTotalAmount.subtract(paidAmount));
 //        customerStatisticsRespVO.setArrearsAmount(dealTotalAmount.subtract(paidAmount));
         customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));

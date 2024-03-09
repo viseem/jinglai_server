@@ -137,6 +137,12 @@ public class Saleslead extends BaseEntity {
     @Column(name = "quotation_json_file")
     private String quotationJsonFile;
 
+    /*
+     * 最近跟进时间
+     * */
+    @Column(name = "last_follow_time")
+    private LocalDateTime lastFollowTime;
+
     /**
      * 报价的创建时间
      */
@@ -176,5 +182,17 @@ public class Saleslead extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
     private List<SalesleadCustomerPlan> customerPlans;
+
+    // 客户姓名
+    @Transient
+    private String customerName;
+
+    // 销售姓名
+    @Transient
+    private String salesName;
+
+    // 最近跟进内容
+    @Transient
+    private String lastFollowContent;
 
 }

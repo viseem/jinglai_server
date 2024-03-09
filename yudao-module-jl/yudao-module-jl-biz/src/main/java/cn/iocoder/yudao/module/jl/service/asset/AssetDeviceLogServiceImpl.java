@@ -59,15 +59,17 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
         }
 
         // 先查询ProjectDevice里面是否有这个设备,如果没有这个设备,则新增
-        ProjectDevice byProjectIdAndDeviceId = projectDeviceRepository.findByProjectIdAndDeviceId(createReqVO.getProjectId(), createReqVO.getDeviceId());
-        if (byProjectIdAndDeviceId == null) {
-            ProjectDevice projectDevice = new ProjectDevice();
-            projectDevice.setDeviceId(createReqVO.getDeviceId());
-            projectDevice.setProjectId(createReqVO.getProjectId());
-            byProjectIdAndDeviceId = projectDeviceRepository.save(projectDevice);
-        }
+        if(createReqVO.getProjectId()!=null){
+            ProjectDevice byProjectIdAndDeviceId = projectDeviceRepository.findByProjectIdAndDeviceId(createReqVO.getProjectId(), createReqVO.getDeviceId());
+            if (byProjectIdAndDeviceId == null) {
+                ProjectDevice projectDevice = new ProjectDevice();
+                projectDevice.setDeviceId(createReqVO.getDeviceId());
+                projectDevice.setProjectId(createReqVO.getProjectId());
+                byProjectIdAndDeviceId = projectDeviceRepository.save(projectDevice);
+            }
 
-        createReqVO.setProjectDeviceId(byProjectIdAndDeviceId.getId());
+            createReqVO.setProjectDeviceId(byProjectIdAndDeviceId.getId());
+        }
 
         // 插入
         if(createReqVO.getStartDate()!=null&&createReqVO.getEndDate()!=null){
@@ -136,6 +138,10 @@ public class AssetDeviceLogServiceImpl implements AssetDeviceLogService {
 
             if(pageReqVO.getDeviceId() != null) {
                 predicates.add(cb.equal(root.get("deviceId"), pageReqVO.getDeviceId()));
+            }
+
+            if(pageReqVO.getCreator() != null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getCreator()));
             }
 
             if(pageReqVO.getMark() != null) {

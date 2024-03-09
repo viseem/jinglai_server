@@ -7,12 +7,10 @@ import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.Subject
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
-import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
-import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
@@ -69,6 +67,9 @@ public class PIGroupKPIStatisticController {
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
 
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
     @GetMapping("/kpi")
     @Operation(summary = "PI组 KPI 统计")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
@@ -99,15 +100,22 @@ public class PIGroupKPIStatisticController {
         dtoList.forEach(item->{
                 // 销售
                 if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.SALE.getStatus())){
-                    List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndCreateTimeBetweenAndStatus(new Long[]{item.getUserId()}, StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), ProjectContractStatusEnums.SIGNED.getStatus());
+                    List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndSignedTimeBetweenAndStatus(new Long[]{item.getUserId()}, StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), ProjectContractStatusEnums.SIGNED.getStatus());
                     for (ProjectConstractOnly contract : contractList) {
                         if(contract.getPrice() != null) {
                             item.setMonthOrderFund(item.getMonthOrderFund().add(contract.getPrice()));
                         }
-                        if (contract.getReceivedPrice() != null) {
+                       /* if (contract.getReceivedPrice() != null) {
                             item.setMonthReturnFund(item.getMonthReturnFund().add(contract.getReceivedPrice()));
-                        }
+                        }*/
                     }
+
+                    //查询contractFundLog表，获取已收金额
+                    contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now(), List.of(new Long[]{item.getUserId()})).forEach(contractFundLog -> {
+                        if (contractFundLog.getReceivedPrice() != null) {
+                            item.setMonthReturnFund(item.getMonthReturnFund().add(contractFundLog.getReceivedPrice()));
+                        }
+                    });
                 }
                 //项目
                 if(Objects.equals(item.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){

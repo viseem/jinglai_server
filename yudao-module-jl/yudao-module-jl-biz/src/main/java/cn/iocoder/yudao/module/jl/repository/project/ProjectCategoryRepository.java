@@ -45,8 +45,8 @@ public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory
     @Modifying
     @Query("delete from ProjectCategory p where p.quotationId = ?1")
     int deleteByQuotationId(Long quotationId);
-    @Query("select p from ProjectCategory p where p.quotationId = ?1")
-    List<ProjectCategory> findByQuotationId(Long quotationId);
+    @Query("select p from ProjectCategory p where p.quotationId = ?1 and p.type = ?2")
+    List<ProjectCategory> findByQuotationIdAndType(Long quotationId,String type);
     @Transactional
     @Modifying
     @Query("update ProjectCategory p set p.quotationId = ?1 where p.quotationId = ?2")

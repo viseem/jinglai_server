@@ -100,6 +100,15 @@ public class ProjectQuotationController {
         return success(updateReqVO.getId());
     }
 
+    @PutMapping("/save-base-info")
+    @Operation(summary = "存储基本信息，无其它逻辑")
+    @OperateLog(enable = false)
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Long> saveProjectQuotationPlanBaseInfo(@Valid @RequestBody ProjectQuotationSaveReqVO updateReqVO) {
+        projectQuotationService.saveProjectQuotationBaseInfo(updateReqVO);
+        return success(updateReqVO.getId());
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目报价")
     @Parameter(name = "id", description = "编号", required = true)

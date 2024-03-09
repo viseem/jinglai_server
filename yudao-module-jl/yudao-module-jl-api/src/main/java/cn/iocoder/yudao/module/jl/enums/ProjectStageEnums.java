@@ -18,10 +18,13 @@ public enum ProjectStageEnums implements StringArrayValuable {
 
     DOING("3", "开展中"),
     DOING_PREVIEW("2", "开展前审批"),
-    PRE("1","预开展"),
-    PAUSE("4","暂停"),
+    PRE("1","项目筹备"),
+    EXP_ARRANGE("101","实验安排制定"),
+    PAUSE("3","开展中，原先的暂停"),
     OUTED("9","已出库"),
     OUTING("7","出库审批"),
+    SETTLEMENT("11","结算"),
+
     ;
 
     private final String status;

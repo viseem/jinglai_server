@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteBaseVO
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteOrScheduleSaveReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectQuoteRespVO;
 import cn.iocoder.yudao.module.jl.entity.collaborationrecord.CollaborationRecord;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
@@ -46,4 +47,5 @@ public class SalesleadRespVO extends SalesleadBaseVO {
 
     @Schema(description = "协作记录", example = "[]")
     private List<CollaborationRecord> recordList = new ArrayList<>();
+
 }

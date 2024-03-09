@@ -28,4 +28,7 @@ public class SalesleadCustomerPlanPageReqVO extends PageParam {
     @Schema(description = "文件名字", example = "张三")
     private String fileName;
 
+    @Schema(description = "客户id", example = "1")
+    private Long customerId;
+
 }

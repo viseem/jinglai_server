@@ -6,12 +6,15 @@ import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,7 +71,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(createReqVO.getStatus()!=null){
+        if(Objects.equals(createReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
         }
 
@@ -101,7 +104,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(updateReqVO.getStatus()!=null){
+        if(Objects.equals(updateReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
         }
 
@@ -159,15 +162,35 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         Specification<ContractFundLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }else{
-                //如果不是any，则都是in查询
-                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
-                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-//                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                    predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            if(pageReqVO.getContractIds()==null&&pageReqVO.getUserIds()==null){
+                if(pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                }else{
+                    //如果不是any，则都是in查询
+                    if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        //                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    }
                 }
+            }else{
+            }
+
+            if(pageReqVO.getContractIds()!=null){
+                predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
+            }
+
+            if(pageReqVO.getUserIds()!=null){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getUserIds()).toArray()));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("paidTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+            }
+
+            if(pageReqVO.getMonth()!=null){
+                LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(pageReqVO.getMonth());
+                predicates.add(cb.between(root.get("paidTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
 
             if(pageReqVO.getSalesId() != null) {

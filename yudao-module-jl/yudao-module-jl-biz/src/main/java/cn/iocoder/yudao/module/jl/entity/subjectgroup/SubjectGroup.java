@@ -90,6 +90,11 @@ public class SubjectGroup extends BaseEntity {
     @Column(name = "kpi_return_fund", nullable = false )
     private BigDecimal kpiReturnFund;
 
+    /**
+     * 出库金额kpi
+     */
+    @Column(name = "kpi_out_fund", nullable = false )
+    private BigDecimal kpiOutFund;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

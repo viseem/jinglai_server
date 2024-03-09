@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CommonLogExcelCellWriterHandler;
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellSizeWriterHandler;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
@@ -174,11 +176,13 @@ public class SalesleadController {
     @Operation(summary = "导出销售线索 Excel")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:export')")
     @OperateLog(type = EXPORT)
-    public void exportSalesleadExcel(@Valid SalesleadExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
+    public void exportSalesleadExcel(@Valid SalesleadPageReqVO exportReqVO, HttpServletResponse response) throws IOException {
         List<Saleslead> list = salesleadService.getSalesleadList(exportReqVO);
         // 导出 Excel
         List<SalesleadExcelVO> excelData = salesleadMapper.toExcelList(list);
-        ExcelUtils.write(response, "销售线索.xls", "数据", SalesleadExcelVO.class, excelData);
+        Map<Integer, Integer> columnWidthMap = new HashMap<>();
+        columnWidthMap.put(2, 23);
+        ExcelUtils.write(response, "销售线索.xls", "数据", SalesleadExcelVO.class, excelData,new CustomExcelCellSizeWriterHandler(columnWidthMap));
     }
 
 }

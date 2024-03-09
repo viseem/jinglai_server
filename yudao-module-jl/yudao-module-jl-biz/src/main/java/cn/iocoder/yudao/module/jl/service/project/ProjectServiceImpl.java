@@ -2,18 +2,16 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.SalesleadSeasVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
-import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
@@ -30,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -75,6 +74,9 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectRepository projectRepository;
     @Resource
     private ProjectSimpleRepository projectSimpleRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
 
     public static final String PROCESS_KEY = "PROJECT_OUTBOUND_APPLY";
     @Resource
@@ -179,6 +181,19 @@ public class ProjectServiceImpl implements ProjectService {
         return project.getId();
     }
 
+    public void updateProjectFocusIdsById(Long projectId,List<Long> ids,String oldFocusIds){
+
+        if(oldFocusIds==null){
+            Optional<ProjectOnly> byId = projectOnlyRepository.findById(projectId);
+            if(byId.get()!=null){
+                oldFocusIds = byId.get().getFocusIds();
+            }
+        }
+
+        projectRepository.updateFocusIdsById(processProjectFocusIds(oldFocusIds,ids),projectId);
+
+    }
+
     public String processProjectFocusIds(String _focusIds,List<Long> ids) {
         List<Long> focusIds = new ArrayList<>();
         if(_focusIds!=null&& !_focusIds.isEmpty()) {
@@ -246,6 +261,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         //同时更新一下projectCategory的projectManagerId
         projectCategoryRepository.updateProjectManagerIdByProjectId(updateReqVO.getManagerId(),updateReqVO.getId());
+    }
+
+    @Override
+    public void updateProjectTag(ProjectUpdateTagReqVO updateTagReqVO){
+        projectRepository.updateTagIdsById(updateTagReqVO.getTagIds(),updateTagReqVO.getProjectId());
     }
 
     @Override
@@ -376,7 +396,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 创建 Specification
         Specification<Project> spec = getProjectCommonSpecification(pageReqVO);
-
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
         page.forEach(item->{
@@ -392,35 +411,65 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
-                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
-                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
-                        mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
-                    }else{
-                        if(pageReqVO.getManagerId() != null) {
-                            predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-                        }else{
-                            predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+            //这个是穿件来的创建者id，默认是null
+            if(pageReqVO.getManagerIds()==null){
+                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                    if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
+                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
+                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                                mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                            }else{
+                                if(pageReqVO.getManagerId() != null) {
+                                    predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                                }else{
+                                    predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
+                                }
+                            }
                         }
+                    }else{
+
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        pageReqVO.setCreators(users);
+                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                        }
+
                     }
                 }
             }else{
-
-                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                pageReqVO.setCreators(users);
-                if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                }
+                predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
 
             }
 
-
+            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                predicates.add(root.get("managerId").isNull());
+            }
 
             //默认查询code不为空的
             predicates.add(cb.isNotNull(root.get("code")));
 
+
+            if(pageReqVO.getIsDelay() != null) {
+                //查询截止日期小于当前日期的
+                predicates.add(cb.lessThan(root.get("endDate"), LocalDateTime.now()));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectStageEnums.OUTED.getStatus()));
+            }
+
+            if(pageReqVO.getExpireDayLimit()!=null){
+                //查询在getExpireDayLimit日内即将到期的
+                predicates.add(cb.between(root.get("endDate"), LocalDateTime.now(), LocalDateTime.now().plusDays(pageReqVO.getExpireDayLimit())));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectStageEnums.OUTED.getStatus()));
+            }
+
+
             if(pageReqVO.getFocusId() != null) {
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
+            }
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
             }
 
             // 课题组
@@ -698,14 +747,29 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findAll(spec);
     }
 
+
+    @Override
+    @Transactional
+    public void projectToSeasOrReceive(ProjectSeasVO reqVO){
+        // 校验存在
+        ProjectSimple projectSimple = validateProjectExists(reqVO.getId());
+        projectSimple.setTransferLog(reqVO.getTransferLog());
+        projectSimple.setManagerId(reqVO.getType().equals(1)?null:getLoginUserId());
+        projectSimpleRepository.save(projectSimple);
+    }
+
     private Sort createSort(ProjectPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+        if (order.getLastFollowTimeSort() != null) {
+            orders.add(new Sort.Order(order.getLastFollowTimeSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "lastFollowTime"));
+        }
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

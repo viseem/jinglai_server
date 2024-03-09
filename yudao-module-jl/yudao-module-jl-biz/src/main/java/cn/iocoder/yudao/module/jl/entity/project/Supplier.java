@@ -127,4 +127,58 @@ public class Supplier extends BaseEntity {
     @Column(name = "channel_type", nullable = false )
     private String channelType;
 
+    /**
+     * 服务目录
+     */
+    @Column(name = "service_catalog")
+    private String serviceCatalog;
+
+    /**
+     * 核心优势
+     */
+    @Column(name = "advantage")
+    private String advantage;
+
+    /**
+     * 劣势
+     */
+    @Column(name = "disadvantage")
+    private String disadvantage;
+
+    /**
+     * 公司负责人
+     */
+    @Column(name = "company_manager")
+    private String companyManager;
+
+    /**
+     * 商务负责人
+     */
+    @Column(name = "business_manager")
+    private String businessManager;
+
+    /**
+     * 技术负责人
+     */
+    @Column(name = "tech_manager")
+    private String techManager;
+
+    /**
+     * 售中负责人
+     */
+    @Column(name = "manager")
+    private String manager;
+
+    /**
+     * 售后负责人
+     */
+    @Column(name = "after_manager")
+    private String afterManager;
+
+    /**
+     * 公司地址
+     */
+    @Column(name = "address")
+    private String address;
+
 }

@@ -24,4 +24,7 @@ public class SalesleadCustomerPlanItemVO {
     @NotNull(message = "文件名字不能为空")
     private String fileName;
 
+
+    private Long customerId;
+
 }

@@ -22,6 +22,12 @@ public class ProjectCategoryAttachmentPageReqVO extends PageParam {
     @Schema(description = "实验名目 id", example = "4209")
     private Long projectCategoryId;
 
+    @Schema(description = "项目id", example = "4209")
+    private Long projectId;
+
+    @Schema(description = "创建者", example = "4209")
+    private Long creator;
+
     @Schema(description = "文件名", example = "张三")
     private String fileName;
 
@@ -31,4 +37,7 @@ public class ProjectCategoryAttachmentPageReqVO extends PageParam {
     @Schema(description = "文件类型", example = "1")
     private String type;
 
+
+    @Schema(description = "实验结果文件类型", example = "1")
+    private String expType;
 }

@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.*;
 *
 */
 public interface InstitutionRepository extends JpaRepository<Institution, Long>, JpaSpecificationExecutor<Institution> {
+    @Query("select i from Institution i where i.name = ?1")
+    Institution findByName(String name);
 
 }

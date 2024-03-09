@@ -24,4 +24,7 @@ public class AssetDeviceLogRespVO extends AssetDeviceLogBaseVO {
     private ProjectSimple project;
 
     private CustomerOnly customer;
+
+    private Long creator;
+
 }

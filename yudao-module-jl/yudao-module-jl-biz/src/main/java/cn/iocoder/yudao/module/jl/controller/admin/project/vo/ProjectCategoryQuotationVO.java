@@ -22,6 +22,9 @@ public class ProjectCategoryQuotationVO {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
+    @Schema(description = "父级id", example = "1")
+    private Long parentId;
+
     @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long projectId;
 
@@ -46,6 +49,15 @@ public class ProjectCategoryQuotationVO {
 
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")
     private String categoryType;
+
+    @Schema(description = "折扣")
+    private Integer discount;
+
+    @Schema(description = "周期")
+    private String cycle;
+
+    @Schema(description = "项目负责人")
+    private Long projectManagerId;
 
     @Schema(description = "实验名目库的名目 id")
     private Long categoryId;

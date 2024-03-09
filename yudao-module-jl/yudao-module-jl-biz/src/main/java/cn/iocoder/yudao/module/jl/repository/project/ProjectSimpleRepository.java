@@ -1,11 +1,13 @@
 package cn.iocoder.yudao.module.jl.repository.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,6 +15,14 @@ import java.util.List;
 *
 */
 public interface ProjectSimpleRepository extends JpaRepository<ProjectSimple, Long>, JpaSpecificationExecutor<ProjectSimple> {
+    @Query(value = "SELECT * FROM jl_project_base WHERE creator IN ?1", nativeQuery = true)
+    List<ProjectSimple> findByCreatorIn(Long[] creators);
+    @Query("select count(p) from ProjectSimple p where p.endDate between ?1 and ?2 and p.creator in ?3 and p.stage <> ?4")
+    Integer countByEndDateBetweenAndCreatorInAndStageNot(LocalDate endDateStart, LocalDate endDateEnd, Long[] creators, String stage);
+    @Query("select count(p) from ProjectSimple p where p.endDate < ?1 and p.creator in ?2 and p.stage <> ?3")
+    Integer countByEndDateLessThanAndCreatorInAndStageNot(LocalDate endDate,  Long[] creators, String stage);
+    @Query("select count(p) from ProjectSimple p where p.creator in ?1 and p.stage = ?2")
+    Integer countByCreatorInAndStage(Long[]creators, String stage);
     @Query("select count(p) from ProjectSimple p where p.endDate between ?1 and ?2 and p.creator in ?3")
     Integer countByEndDateBetweenAndCreatorIn(LocalDate endDateStart, LocalDate endDateEnd, Long[] creators);
 

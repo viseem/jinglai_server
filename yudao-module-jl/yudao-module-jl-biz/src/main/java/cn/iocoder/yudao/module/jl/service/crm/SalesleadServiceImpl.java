@@ -18,7 +18,9 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -192,7 +194,10 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(customerPlans != null && customerPlans.size() > 0) {
             // 过滤掉fileUrl为null的
             customerPlans = customerPlans.stream().filter(customerPlan -> customerPlan.getFileUrl() != null).collect(Collectors.toList());
-            customerPlans.forEach(customerPlan -> customerPlan.setSalesleadId(salesleadId));
+            customerPlans.forEach(customerPlan -> {
+                customerPlan.setSalesleadId(salesleadId);
+                customerPlan.setCustomerId(updateReqVO.getCustomerId());
+            });
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
         }
@@ -316,6 +321,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
                 contract.setSn(updateReqVO.getContractSn());
                 contract.setCompanyName(updateReqVO.getContractCompanyName());
+                contract.setSignedTime(updateReqVO.getSignedTime());
                 projectConstractRepository.save(contract);
             }
 
@@ -344,6 +350,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 customerPlans.forEach(customerPlan -> {
                     if(customerPlan.getFileUrl()!=null){
                         customerPlan.setSalesleadId(salesleadId);
+                        customerPlan.setCustomerId(updateReqVO.getCustomerId());
                         ProjectDocument projectDocument = new ProjectDocument();
                         projectDocument.setProjectId(updateReqVO.getProjectId());
                         projectDocument.setType(ProjectDocumentTypeEnums.CUSTOMER_PLAN.getStatus());
@@ -406,6 +413,17 @@ public class SalesleadServiceImpl implements SalesleadService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
+        Specification<Saleslead> spec = getSalesleadSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Saleslead> page = salesleadRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private Specification<Saleslead> getSalesleadSpecification(SalesleadPageReqVO pageReqVO) {
         Specification<Saleslead> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -430,67 +448,64 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
             }
 
-/*            if(Objects.equals(pageReqVO.getQuotationStatus(), "1")) {
-                // 待报价的
-                predicates.add(cb.isNull(root.get("quotation")));
-            } else if (Objects.equals(pageReqVO.getQuotationStatus(), "2")) {
-                // 已报价的
-                predicates.add(cb.isNotNull(root.get("quotation")));
-            }*/
 
-
-
-/*
-            if(pageReqVO.getQuotation() != null) {
-                predicates.add(cb.equal(root.get("quotation"), pageReqVO.getQuotation()));
-            }
-*/
-
-
-
-//                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             if(pageReqVO.getManagerId() != null) {
                 predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
-                if(pageReqVO.getStatus() != null) {
+/*                if(pageReqVO.getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                }
+                }*/
             }
 
-            if(pageReqVO.getSalesId() != null&&pageReqVO.getManagerId()!=null) {
+            if(pageReqVO.getSalesId() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }else{
-                if(pageReqVO.getManagerId() != null) {
-                    /*predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
-                    if(pageReqVO.getStatus() != null) {
-                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-                    }*/
+            if(pageReqVO.getCreatorIds()==null){
+                if(pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 }else{
-                    if(pageReqVO.getAttribute()!=null){
-                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                            predicates.add(root.get("creator").isNull());
-                        }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                            Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                            pageReqVO.setCreators(users);
-                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                    if (pageReqVO.getManagerId() == null) {
+                        if(pageReqVO.getAttribute()!=null){
+                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                                predicates.add(root.get("creator").isNull());
+                            }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                                pageReqVO.setCreators(users);
+                                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                            }
                         }
+
+
                     }
-
-
                 }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
             }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+            }
+
 
             if(pageReqVO.getStatus() != null) {
                 //查询未转项目的
                 if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
                     predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
                 }else{
+
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
 
+            }
+
+            //如果statusArr不为空，则查询statusArr中的状态
+            if(pageReqVO.getStatusArr() != null) {
+                predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
+
+                //判断statusArr是否包含未转项目的状态
+                if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                }
             }
 
             if(pageReqVO.getProjectId() != null) {
@@ -510,67 +525,32 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Saleslead> page = salesleadRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
 
     @Override
-    public List<Saleslead> getSalesleadList(SalesleadExportReqVO exportReqVO) {
+    public List<Saleslead> getSalesleadList(SalesleadPageReqVO salesleadPageReqVO) {
         // 创建 Specification
-        Specification<Saleslead> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if(exportReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), exportReqVO.getSource()));
+        Specification<Saleslead> spec = getSalesleadSpecification(salesleadPageReqVO);
+        List<Saleslead> salesleadList = salesleadRepository.findAll(spec);
+        for (Saleslead saleslead : salesleadList) {
+            if(saleslead.getCustomer()!=null){
+                saleslead.setCustomerName(saleslead.getCustomer().getName());
+                if(saleslead.getCustomer().getSales()!=null){
+                    saleslead.setSalesName(saleslead.getCustomer().getSales().getNickname());
+                }
             }
 
-            if(exportReqVO.getRequirement() != null) {
-                predicates.add(cb.equal(root.get("requirement"), exportReqVO.getRequirement()));
+            if(saleslead.getLastFollowup()!=null){
+                saleslead.setLastFollowContent(saleslead.getLastFollowup().getContent());
+                saleslead.setLastFollowTime(saleslead.getLastFollowup().getCreateTime());
             }
 
-            if(exportReqVO.getBudget() != null) {
-                predicates.add(cb.equal(root.get("budget"), exportReqVO.getBudget()));
-            }
-
-            if(exportReqVO.getQuotation() != null) {
-                predicates.add(cb.equal(root.get("quotation"), exportReqVO.getQuotation()));
-            }
-
-            if(exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
-            }
-
-            if(exportReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
-            }
-
-            if(exportReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
-            }
-
-            if(exportReqVO.getBusinessType() != null) {
-                predicates.add(cb.equal(root.get("businessType"), exportReqVO.getBusinessType()));
-            }
-
-            if(exportReqVO.getLostNote() != null) {
-                predicates.add(cb.equal(root.get("lostNote"), exportReqVO.getLostNote()));
-            }
-
-            if(exportReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), exportReqVO.getManagerId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
+        }
+        List<Saleslead> salesleadList1 = salesleadRepository.findAll(spec);
         // 执行查询
-        return salesleadRepository.findAll(spec);
+        return salesleadList1;
     }
 
     private Sort createSort(SalesleadPageOrder order) {
@@ -579,6 +559,10 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        if (order.getLastFollowTimeSort() != null) {
+            orders.add(new Sort.Order(order.getLastFollowTimeSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "lastFollowTime"));
+        }
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 

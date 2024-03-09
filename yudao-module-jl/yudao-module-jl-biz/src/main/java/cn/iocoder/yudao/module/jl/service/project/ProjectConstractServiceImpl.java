@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepos
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -106,7 +108,8 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
-
+        //暂存一下salesId
+        Long salesId = createReqVO.getSalesId();
         // 如果有项目id，则校验项目是否存在
         if(createReqVO.getProjectId()!=null&& createReqVO.getProjectId()>0){
             ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
@@ -125,16 +128,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }
 
 
-/*
-        if (createReqVO.getProjectId() != null&& createReqVO.getProjectId()>0) {
-            Optional<Project> byId = projectRepository.findById(createReqVO.getProjectId());
-            if (byId.isEmpty()) {
-                throw exception(PROJECT_NOT_EXISTS);
-            }
-        }else{
-            createReqVO.setProjectId(null);
-        }
-*/
 
         ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
         if (bySn != null) {
@@ -143,6 +136,12 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
         // 插入
 //        createReqVO.setSn(generateCode());
+
+        //如果传递了销售id，则重新设置一下传递的销售id
+        if(salesId!=null){
+            createReqVO.setSalesId(salesId);
+        }
+
         ProjectConstract projectConstract = projectConstractMapper.toEntity(createReqVO);
         if (projectConstract.getRealPrice() == null) {
             projectConstract.setRealPrice(projectConstract.getPrice() == null ? BigDecimal.valueOf(0) : projectConstract.getPrice());
@@ -205,8 +204,15 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Override
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
+        // 暂存一下salesId
+        Long salesId = updateReqVO.getSalesId();
         // 校验存在
-        validateProjectConstractExists(updateReqVO.getId());
+        ProjectConstract projectConstract = validateProjectConstractExists(updateReqVO.getId());
+
+        // 如果salesId是null
+        if(salesId==null){
+            updateReqVO.setSalesId(projectConstract.getSalesId());
+        }
         // 更新
         ProjectConstract updateObj = projectConstractMapper.toEntity(updateReqVO);
         projectConstractRepository.save(updateObj);
@@ -296,15 +302,27 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             List<Predicate> predicates = new ArrayList<>();
 
 
-            if (pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            } else {
+            if(pageReqVO.getCreatorIds()==null){
+                if (pageReqVO.getCustomerId() != null) {
+                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                } else {
 
-                if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
-                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-//                    Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                    predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                    }
                 }
+            }else{
+                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+            if(pageReqVO.getMonth()!=null){
+                LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(pageReqVO.getMonth());
+                predicates.add(cb.between(root.get("signedTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
+            }
+
+            if(pageReqVO.getTimeRange()!=null){
+                predicates.add(cb.between(root.get("signedTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
             if (pageReqVO.getReceivedStatus() != null) {
@@ -325,6 +343,13 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         ));
                         break;
                     // Add more cases if needed
+                    case "NOT_ALL_PAY":
+                    predicates.add(cb.or(
+                            cb.lessThan(root.get("receivedPrice"), root.get("price")),
+                            cb.equal(root.get("receivedPrice"), 0),
+                            cb.isNull(root.get("receivedPrice"))
+                    ));
+                    break;
                     default:
                         break;
                 }

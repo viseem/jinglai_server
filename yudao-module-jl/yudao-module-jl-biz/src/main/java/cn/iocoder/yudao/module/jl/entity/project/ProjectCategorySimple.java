@@ -49,6 +49,12 @@ public class ProjectCategorySimple extends BaseEntity {
     private Long id;
 
     /**
+     * 父级id
+     */
+    @Column(name = "parent_id", nullable = false)
+    private Long parentId;
+
+    /**
      * 报价 id
      */
     @Column(name = "quote_id")
@@ -173,6 +179,12 @@ public class ProjectCategorySimple extends BaseEntity {
      */
     @Column(name = "depend_ids")
     private String dependIds;
+
+    /*
+     * 折扣
+     * */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
 
     /**
      * 实验名目名字

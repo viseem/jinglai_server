@@ -66,6 +66,10 @@ public class ProjectBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endDate;
 
+    @Schema(description = "最近跟进时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime lastFollowTime;
+
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
 
@@ -78,11 +82,17 @@ public class ProjectBaseVO {
     @Schema(description = "实验负责人", example = "6150")
     private Long experId;
 
+    @Schema(description = "项目转移日志", example = "6150")
+    private String transferLog;
+
 /*    @Schema(description = "参与者 ids，数组")
     private String participants;*/
 
     @Schema(description = "参与者 ids，数组")
     private String focusIds;
+
+    @Schema(description = "tag ids")
+    private String tagIds;
 
     @Schema(description = "销售 id", example = "16310")
     private Long salesId;
