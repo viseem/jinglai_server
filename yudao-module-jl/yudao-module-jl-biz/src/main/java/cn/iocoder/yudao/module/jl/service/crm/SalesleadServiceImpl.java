@@ -503,9 +503,12 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
 
                 //判断statusArr是否包含未转项目的状态
-                if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
-                    predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getIsWorkstation()==null || !pageReqVO.getIsWorkstation()){
+                    if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                        predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                    }
                 }
+
             }
 
             if(pageReqVO.getProjectId() != null) {
