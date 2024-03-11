@@ -231,6 +231,9 @@ public interface ErrorCodeConstants {
     ErrorCode SALES_GROUP_MEMBER_NOT_EXISTS = new ErrorCode(1002800000, "销售分组成员不存在");
     ErrorCode PI_COLLABORATION_NOT_EXISTS = new ErrorCode(1002900000, "销售分组成员不存在");
 
+    ErrorCode PI_COLLABORATION_ITEM_NOT_EXISTS = new ErrorCode(1003000000, "pi组协作明细不存在");
+
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
