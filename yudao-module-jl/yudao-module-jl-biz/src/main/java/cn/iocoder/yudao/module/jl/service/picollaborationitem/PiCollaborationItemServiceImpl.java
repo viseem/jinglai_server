@@ -38,6 +38,7 @@ public class PiCollaborationItemServiceImpl implements PiCollaborationItemServic
     @Resource
     private PiCollaborationItemRepository piCollaborationItemRepository;
 
+
     @Resource
     private PiCollaborationItemMapper piCollaborationItemMapper;
 
