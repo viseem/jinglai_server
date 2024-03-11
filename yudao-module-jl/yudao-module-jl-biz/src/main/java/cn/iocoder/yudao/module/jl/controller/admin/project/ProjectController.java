@@ -145,6 +145,7 @@ public class ProjectController {
 
         ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
         ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
+        ret.setInvoiceAmount(projectScheduleService.getInvoiceAmountByProjectId(id));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByProjectId(id));
         ret.setProcurementCost(projectScheduleService.getProcurementCostByProjectId(id));

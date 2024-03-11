@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
@@ -8,6 +9,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
@@ -114,6 +116,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectQuotationRepository projectQuotationRepository;
 
     @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @Resource
     private CommonTodoServiceImpl commonTodoService;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
@@ -139,6 +144,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         for (ProjectConstract projectConstract : byProjectIdAndStatus) {
             if (projectConstract.getPrice() != null) {
                 cost = cost.add(projectConstract.getPrice());
+            }
+        }
+        return cost;
+    }
+
+    @Override
+    public BigDecimal getInvoiceAmountByProjectId(Long id){
+        List<ContractInvoiceLog> byProjectId = contractInvoiceLogRepository.findByProjectId(id);
+        BigDecimal cost = BigDecimal.ZERO;
+        for (ContractInvoiceLog contractInvoiceLog : byProjectId) {
+            if (contractInvoiceLog.getReceivedPrice() != null) {
+                cost = cost.add(contractInvoiceLog.getReceivedPrice());
             }
         }
         return cost;

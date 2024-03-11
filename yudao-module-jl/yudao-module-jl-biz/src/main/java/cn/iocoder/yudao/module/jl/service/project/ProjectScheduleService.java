@@ -109,6 +109,9 @@ public interface ProjectScheduleService {
     List<ProjectSchedule> getProjectScheduleList(ProjectScheduleExportReqVO exportReqVO);
 
     BigDecimal getContractAmountByProjectId(Long id);
+    BigDecimal getInvoiceAmountByProjectId(Long id);
+
+
     BigDecimal getContractReceivedAmountByProjectId(Long id);
 
 }
