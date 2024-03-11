@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
@@ -154,7 +156,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         List<ContractInvoiceLog> byProjectId = contractInvoiceLogRepository.findByProjectId(id);
         BigDecimal cost = BigDecimal.ZERO;
         for (ContractInvoiceLog contractInvoiceLog : byProjectId) {
-            if (contractInvoiceLog.getReceivedPrice() != null) {
+            if (contractInvoiceLog.getReceivedPrice() != null&&Objects.equals(contractInvoiceLog.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())) {
                 cost = cost.add(contractInvoiceLog.getReceivedPrice());
             }
         }
