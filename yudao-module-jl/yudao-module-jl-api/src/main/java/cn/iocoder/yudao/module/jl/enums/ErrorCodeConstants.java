@@ -229,7 +229,11 @@ public interface ErrorCodeConstants {
     ErrorCode SALES_GROUP_NOT_EXISTS = new ErrorCode(1002700000, "销售分组不存在");
 
     ErrorCode SALES_GROUP_MEMBER_NOT_EXISTS = new ErrorCode(1002800000, "销售分组成员不存在");
+    ErrorCode PI_COLLABORATION_NOT_EXISTS = new ErrorCode(1002900000, "销售分组成员不存在");
 
+    ErrorCode PI_COLLABORATION_ITEM_NOT_EXISTS = new ErrorCode(1003000000, "pi组协作明细不存在");
+    ErrorCode COMMON_OPERATE_LOG_NOT_EXISTS = new ErrorCode(1003100000, "通用变更日志不存在");
+    ErrorCode PROJECT_PUSH_LOG_NOT_EXISTS = new ErrorCode(1003200000, "项目推进记录不存在");
 
     // ========== AUTH 模块 1004003000 ==========
 
