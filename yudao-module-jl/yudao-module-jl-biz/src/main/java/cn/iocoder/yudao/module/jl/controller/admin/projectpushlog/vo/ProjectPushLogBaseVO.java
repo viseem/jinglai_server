@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectpushlog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -47,5 +48,8 @@ public class ProjectPushLogBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    private List<CommonAttachment> attachmentList;
+
 
 }

@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.projectpushlog;
 
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,22 +44,33 @@ public class ProjectPushLogServiceImpl implements ProjectPushLogService {
     @Resource
     private ProjectPushLogMapper projectPushLogMapper;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createProjectPushLog(ProjectPushLogCreateReqVO createReqVO) {
         // 插入
         ProjectPushLog projectPushLog = projectPushLogMapper.toEntity(createReqVO);
         projectPushLogRepository.save(projectPushLog);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(projectPushLog.getId(),"PROJECT_PUSH_LOG",createReqVO.getAttachmentList());
         // 返回
         return projectPushLog.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectPushLog(ProjectPushLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectPushLogExists(updateReqVO.getId());
         // 更新
         ProjectPushLog updateObj = projectPushLogMapper.toEntity(updateReqVO);
         projectPushLogRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"PROJECT_PUSH_LOG",updateReqVO.getAttachmentList());
     }
 
     @Override
