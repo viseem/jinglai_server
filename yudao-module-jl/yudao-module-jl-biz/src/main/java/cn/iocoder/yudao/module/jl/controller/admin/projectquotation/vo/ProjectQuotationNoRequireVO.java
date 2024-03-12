@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 /**
  * 项目报价 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -33,5 +34,8 @@ public class ProjectQuotationNoRequireVO {
 
     @Schema(description = "折扣")
     private Integer discount;
+
+    @Schema(description = "实验材料折扣")
+    private BigDecimal supplyDiscount;
 
 }

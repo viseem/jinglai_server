@@ -76,6 +76,9 @@ public class ProjectQuotation extends BaseEntity {
     @Column(name = "reduce_price", nullable = false )
     private BigDecimal reducePrice;
 
+    @Column(name = "supply_discount", nullable = false )
+    private BigDecimal supplyDiscount;
+
     /**
      * 实验名称
      */

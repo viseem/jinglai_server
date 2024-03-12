@@ -15,6 +15,10 @@ import java.util.Optional;
 public interface ProjectQuotationRepository extends JpaRepository<ProjectQuotation, Long>, JpaSpecificationExecutor<ProjectQuotation> {
     @Transactional
     @Modifying
+    @Query("update ProjectQuotation p set p.supplyDiscount = ?1 where p.id = ?2")
+    int updateSupplyDiscountById(BigDecimal supplyDiscount, Long id);
+    @Transactional
+    @Modifying
     @Query("update ProjectQuotation p set p.originPrice = ?1 where p.id = ?2")
     int updateOriginPriceById(BigDecimal originPrice, Long id);
     @Transactional
