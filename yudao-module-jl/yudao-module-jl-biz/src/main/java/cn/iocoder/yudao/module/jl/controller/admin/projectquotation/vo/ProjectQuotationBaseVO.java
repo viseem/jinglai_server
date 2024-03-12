@@ -36,6 +36,9 @@ public class ProjectQuotationBaseVO {
     @Schema(description = "折扣")
     private Integer discount;
 
+    @Schema(description = "实验材料折扣")
+    private BigDecimal supplyDiscount;
+
     @Schema(description = "报价金额")
     private BigDecimal originPrice;
 
