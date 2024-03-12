@@ -346,11 +346,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setSpec(projectSupply.getSpec());
             quotationList.add(item);
         }
-        quotationList.add(new ProjectQuotationItemVO(){
-            {
-                setProjectCategoryName("实验材料费小计");
-            }
-        });
+            quotationList.add(new ProjectQuotationItemVO(){
+                {
+                    setProjectCategoryName("实验材料费小计");
+                }
+            });
 
         // 查询收费项列表，并按照projectCategoryId排序
         List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
@@ -361,7 +361,6 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         for (ProjectChargeitem projectChargeitem : byQuotationId1) {
             ProjectQuotationItemVO item = new ProjectQuotationItemVO();
             if(projectChargeitem.getCategory()!=null){
-                System.out.println("category---"+projectChargeitem.getCategory().getName());
                 item.setProjectCategoryName(projectChargeitem.getCategory().getName());
                 item.setProjectCategoryCycle(projectChargeitem.getCategory().getCycle());
             }

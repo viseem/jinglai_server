@@ -66,12 +66,21 @@ public class CustomExcelCellWriterHandler  implements CellWriteHandler {
 
         //实验材料合计
         if(cell.getRowIndex()==supplyCount+1 && 5 == cell.getColumnIndex()){
-            cell.setCellFormula("SUM(F2:F" + cell.getRowIndex() +")");
+            if(supplyCount>0){
+                cell.setCellFormula("SUM(F2:F" + cell.getRowIndex() +")");
+            }else{
+                cell.setCellValue(0);
+            }
             //合并
         }
 
+        //实验费用合计
         if(cell.getRowIndex()==supplyCount+chargeCount+2 && 5 == cell.getColumnIndex()){
-            cell.setCellFormula("SUM(F"+(supplyCount+3)+":F" + cell.getRowIndex() +")");
+            if(chargeCount>0){
+                cell.setCellFormula("SUM(F"+(supplyCount+3)+":F" + cell.getRowIndex() +")");
+            }else{
+                cell.setCellValue(0);
+            }
         }
         if(cell.getRowIndex()==rowCount && 5 == cell.getColumnIndex()){
             cell.setCellFormula("SUM(F"+(supplyCount+2)+"+F" + cell.getRowIndex() +")");
