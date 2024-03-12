@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -168,6 +169,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
 
+        //更新一下商机的操作时间
+        salesleadRepository.updateLastFollowTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
     }
 
     public void saveProjectQuotationBk(ProjectQuotationSaveReqVO updateReqVO) {
