@@ -234,6 +234,7 @@ public interface ErrorCodeConstants {
     ErrorCode PI_COLLABORATION_ITEM_NOT_EXISTS = new ErrorCode(1003000000, "pi组协作明细不存在");
     ErrorCode COMMON_OPERATE_LOG_NOT_EXISTS = new ErrorCode(1003100000, "通用变更日志不存在");
     ErrorCode PROJECT_PUSH_LOG_NOT_EXISTS = new ErrorCode(1003200000, "项目推进记录不存在");
+    ErrorCode VISIT_LOG_NOT_EXISTS = new ErrorCode(1003300000, "拜访记录不存在");
 
     // ========== AUTH 模块 1004003000 ==========
 
