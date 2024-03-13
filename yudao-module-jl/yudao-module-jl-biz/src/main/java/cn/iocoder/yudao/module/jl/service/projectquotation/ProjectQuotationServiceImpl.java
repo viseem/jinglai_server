@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -168,6 +169,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
 
+        //更新一下商机的操作时间
+        salesleadRepository.updateLastFollowTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
     }
 
     public void saveProjectQuotationBk(ProjectQuotationSaveReqVO updateReqVO) {
@@ -346,11 +349,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setSpec(projectSupply.getSpec());
             quotationList.add(item);
         }
-        quotationList.add(new ProjectQuotationItemVO(){
-            {
-                setProjectCategoryName("实验材料费小计");
-            }
-        });
+            quotationList.add(new ProjectQuotationItemVO(){
+                {
+                    setProjectCategoryName("实验材料费小计");
+                }
+            });
 
         // 查询收费项列表，并按照projectCategoryId排序
         List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
@@ -361,7 +364,6 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         for (ProjectChargeitem projectChargeitem : byQuotationId1) {
             ProjectQuotationItemVO item = new ProjectQuotationItemVO();
             if(projectChargeitem.getCategory()!=null){
-                System.out.println("category---"+projectChargeitem.getCategory().getName());
                 item.setProjectCategoryName(projectChargeitem.getCategory().getName());
                 item.setProjectCategoryCycle(projectChargeitem.getCategory().getCycle());
             }
