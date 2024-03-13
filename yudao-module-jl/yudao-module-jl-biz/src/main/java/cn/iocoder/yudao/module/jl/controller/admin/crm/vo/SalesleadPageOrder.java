@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
+import cn.iocoder.yudao.framework.common.pojo.CommonSortParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -11,7 +12,7 @@ import javax.validation.constraints.*;
  * 销售线索 Order 设置，用于分页使用
  */
 @Data
-public class SalesleadPageOrder {
+public class SalesleadPageOrder extends CommonSortParam {
 
     @Schema(allowableValues = {"desc", "asc"})
     private String id;

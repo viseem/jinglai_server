@@ -19,6 +19,7 @@ import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRe
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -405,7 +406,6 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 //        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
 
-
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -431,6 +431,12 @@ public class SalesleadServiceImpl implements SalesleadService {
             if (pageReqVO.getQuotation() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
             }
+
+            // price小于指定金额的
+            if (pageReqVO.getQuotationBig() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotationBig()));
+            }
+
 
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
@@ -562,6 +568,19 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        // sortFields是createTime_desc,source_asc这种格式，需要先拆分，再排序
+/*        if(order.getSortFields()!=null){
+            String[] sortFields = order.getSortFields();
+            for (String sortField : sortFields) {
+                String[] split = sortField.split("_");
+                if(split.length==2){
+                    orders.add(new Sort.Order(split[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, split[0]));
+                }
+            }
+        }*/
+
+        CommonPageSortUtils.parseAndAddSort(orders, order.getSortFields());
 
         if (order.getLastFollowTimeSort() != null) {
             orders.add(new Sort.Order(order.getLastFollowTimeSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "lastFollowTime"));
