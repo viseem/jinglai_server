@@ -38,6 +38,9 @@ public class AssetDeviceLogBaseVO {
     @Schema(description = "项目id", example = "13618")
     private Long projectId;
 
+    @Schema(description = "使用人id", example = "13618")
+    private Long useUserId;
+
     @Schema(description = "用途分类", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private String useType;
 
@@ -47,4 +50,6 @@ public class AssetDeviceLogBaseVO {
     private Long customerId;
 
     private User reserveUser;
+
+    private User useUser;
 }
