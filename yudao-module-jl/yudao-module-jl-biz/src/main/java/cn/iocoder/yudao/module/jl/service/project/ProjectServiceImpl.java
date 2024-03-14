@@ -189,6 +189,7 @@ public class ProjectServiceImpl implements ProjectService {
                 oldFocusIds = byId.get().getFocusIds();
             }
         }
+        System.out.println("old==="+oldFocusIds+"new==="+ids);
 
         projectRepository.updateFocusIdsById(processProjectFocusIds(oldFocusIds,ids),projectId);
 

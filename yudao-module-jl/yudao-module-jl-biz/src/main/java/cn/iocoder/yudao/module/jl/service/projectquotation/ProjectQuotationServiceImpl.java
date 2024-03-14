@@ -123,6 +123,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
             updateReqVO.setCode("默认");
         }
+        System.out.println("-----------"+updateReqVO);
         ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
         ProjectQuotation save = projectQuotationRepository.save(updateObj);
 

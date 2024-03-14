@@ -121,7 +121,10 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
     @Resource
-    private CommonTodoServiceImpl commonTodoService;
+    private ProjectServiceImpl projectServiceImpl;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -719,7 +722,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         //注入一下todo
 //        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
-
+        // 设置一下实验人员
+        Optional<ProjectOnly> byId = projectOnlyRepository.findById(category.getProjectId());
+        byId.ifPresent(projectOnly -> projectServiceImpl.updateProjectFocusIdsById(category.getProjectId(), Collections.singletonList(category.getOperatorId()), projectOnly.getFocusIds()));
 
         // 保存收费项
         List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();
