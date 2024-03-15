@@ -1,13 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryAttachmentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectDocumentServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -35,6 +41,7 @@ import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachme
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -58,6 +65,12 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     @Resource
     private ProjectDocumentServiceImpl projectDocumentService;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
     public ProjectCategoryAttachmentServiceImpl(ProjectCategoryRepository projectCategoryRepository) {
         this.projectCategoryRepository = projectCategoryRepository;
     }
@@ -70,6 +83,7 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
         if (byId.isEmpty()){
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
         }
+        ProjectCategorySimple projectCategorySimple = byId.get();
 
         // 插入
         ProjectCategoryAttachment projectCategoryAttachment = projectCategoryAttachmentMapper.toEntity(createReqVO);
@@ -78,7 +92,35 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
 
         // 如果是实验类型的数据，则存一份到projectDocument
         if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.EXP.getStatus())){
-            projectDocumentService.createProjectDocumentWithoutReq(byId.get().getProjectId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.EXP_DATA.getStatus());
+            projectDocumentService.createProjectDocumentWithoutReq(projectCategorySimple.getProjectId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.EXP_DATA.getStatus());
+
+            //发送通知
+            if(projectCategorySimple.getProject()!=null){
+                ProjectSimple project = projectCategorySimple.getProject();
+                User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
+                Map<String, Object> templateParams = new HashMap<>();
+                templateParams.put("fromName", user.getNickname());
+                templateParams.put("projectId", projectCategorySimple.getProjectId());
+                templateParams.put("projectCategoryId", projectCategorySimple.getId());
+                templateParams.put("projectName", projectCategorySimple.getProject().getName());
+                templateParams.put("projectCategoryName", projectCategorySimple.getName());
+                templateParams.put("content",createReqVO.getMark());
+                List<Long> sendUserIds = new ArrayList<>();
+                if(!Objects.equals(project.getManagerId(),user.getId())){
+                    sendUserIds.add(project.getManagerId());
+                }
+                if(!Objects.equals(project.getSalesId(),user.getId())){
+                    sendUserIds.add(project.getSalesId());
+                }
+
+                for (Long sendUserId : sendUserIds) {
+                    System.out.println("sendUserId:"+sendUserId);
+                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                            sendUserId,
+                            BpmMessageEnum.NOTIFY_WHEN_EXP_ATTACHMENT.getTemplateCode(), templateParams
+                    ));
+                }
+            }
         }
 
         // 返回

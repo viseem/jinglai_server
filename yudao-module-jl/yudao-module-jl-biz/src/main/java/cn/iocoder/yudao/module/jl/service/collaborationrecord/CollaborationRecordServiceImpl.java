@@ -78,12 +78,12 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
         // 如果是商机沟通
         if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD.getStatus())){
             //发送通知
-            Map<String, Object> templateParams = new HashMap<>();
 
             //获取当前登录人的姓名
             User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
             SalesleadOnly salesleadOnly = salesleadOnlyRepository.findById(createReqVO.getRefId()).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
 
+            Map<String, Object> templateParams = new HashMap<>();
             templateParams.put("fromName", user.getNickname());
             templateParams.put("id", createReqVO.getRefId());
             templateParams.put("content",createReqVO.getContent());
