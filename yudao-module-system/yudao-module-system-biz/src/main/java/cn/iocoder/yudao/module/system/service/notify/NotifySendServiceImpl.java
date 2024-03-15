@@ -54,6 +54,7 @@ public class NotifySendServiceImpl implements NotifySendService {
 
         // 发送站内信
         String content = notifyTemplateService.formatNotifyTemplateContent(template.getContent(), templateParams);
+        template.setNickname(template.getName());
         return notifyMessageService.createNotifyMessage(userId, userType, template, content, templateParams);
     }
 

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
@@ -19,6 +20,8 @@ import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAtta
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,6 +48,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -125,6 +129,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -685,6 +692,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     }
 
+    // 完成报价
     @Override
     @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO) {
@@ -694,6 +702,18 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
         projectQuotationRepository.updateOriginPriceById(updateReqVO.getQuotationAmount(), updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+
+        //发送通知
+        //发送站内通知
+        Map<String, Object> templateParams = new HashMap<>();
+//        templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
+        templateParams.put("id", updateReqVO.getSalesleadId());
+        //发送通知
+        System.out.println("update---"+updateReqVO.getSalesId());
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                updateReqVO.getSalesId(),
+                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
+        ));
         return null;
     }
 
