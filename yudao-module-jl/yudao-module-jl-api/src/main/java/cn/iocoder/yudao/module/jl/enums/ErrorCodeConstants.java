@@ -222,6 +222,11 @@ public interface ErrorCodeConstants {
 
     ErrorCode COLLABORATION_RECORD_NOT_EXISTS = new ErrorCode(1002400000, "通用协作记录不存在");
 
+
+    // 工作任务模块 1002400000
+    ErrorCode WORK_TODO_NOT_EXISTS = new ErrorCode(1002400001, "工作任务 TODO不存在");
+    ErrorCode WORK_TODO_TAG_NOT_EXISTS = new ErrorCode(1002400002, "工作任务 TODO 的标签不存在");
+    ErrorCode WORK_TODO_TAG_RELATION_NOT_EXISTS = new ErrorCode(1002400003, "工作任务 TODO 与标签的关联不存在");
     ErrorCode COMMON_LOG_NOT_EXISTS = new ErrorCode(1002500000, "管控记录不存在");
 
     ErrorCode COMMON_CATE_NOT_EXISTS = new ErrorCode(1002600000, "通用分类不存在");
