@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
@@ -21,6 +22,8 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -110,6 +113,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -326,18 +332,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                 projectConstractRepository.save(contract);
             }
 
-/*           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
-           if(projectConstracts != null && projectConstracts.size() > 0) {
-               // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
-               projectConstracts.forEach(projectConstract -> {
-                   projectConstract.setProjectId(updateReqVO.getProjectId());
-                   projectConstract.setCustomerId(updateReqVO.getCustomerId());
-                   projectConstract.setSalesId(saleleadsObj.getCreator()); // 线索的销售人员 id
-                   projectConstract.setName(updateReqVO.getProjectName());
-               });
-               List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
-               projectConstractRepository.saveAll(contracts);
-           }*/
         }
         // 更新客户方案
         // 删除原有的
@@ -366,6 +360,17 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
+        }
+
+        // 发送通知
+        if(updateReqVO.getIsQuotation()!=null&&updateReqVO.getIsQuotation()){
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("id", updateReqVO.getId());
+            //发给商机的销售
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    updateReqVO.getManagerId(),
+                    BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams
+            ));
         }
 
 

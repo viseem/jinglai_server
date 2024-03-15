@@ -708,8 +708,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         Map<String, Object> templateParams = new HashMap<>();
 //        templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
         templateParams.put("id", updateReqVO.getSalesleadId());
-        //发送通知
-        System.out.println("update---"+updateReqVO.getSalesId());
+        //发给商机的销售
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 updateReqVO.getSalesId(),
                 BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
