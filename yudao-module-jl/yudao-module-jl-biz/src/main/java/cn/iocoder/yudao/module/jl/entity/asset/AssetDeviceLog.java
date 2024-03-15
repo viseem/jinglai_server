@@ -99,6 +99,12 @@ public class AssetDeviceLog extends BaseEntity {
     @Column(name="customer_id")
     private Long customerId;
 
+    /*
+     * 使用人
+     * */
+    @Column(name="use_user_Id")
+    private Long useUserId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -110,4 +116,10 @@ public class AssetDeviceLog extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator",  insertable = false, updatable = false)
     private User reserveUser;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "use_user_id",  insertable = false, updatable = false)
+    private User useUser;
 }

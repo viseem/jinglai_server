@@ -48,6 +48,8 @@ public class SalesleadBaseVO {
     @NotNull(message = "状态不能为空")
     private String status;
 
+    private Boolean isQuotation;
+
     @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11635")
     @NotNull(message = "客户id不能为空")
     private Long customerId;

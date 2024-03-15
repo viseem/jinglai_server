@@ -120,6 +120,8 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         //type=PROJECT_CATEGORY查询一下CommonTodo表，并批量插入CommonTodoLog表
 //        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(),projectCategory.getId());
+        //更新一下项目的实验人员
+        projectServiceImpl.updateProjectFocusIdsById(createReqVO.getProjectId(), Collections.singletonList(createReqVO.getOperatorId()),projectSimple.getFocusIds());
 
 
         // 返回
@@ -182,7 +184,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         updateReqVO.setProjectManagerId(projectSimple.getManagerId());
 
         //更新一下项目的实验人员
-//        projectServiceImpl.updateProjectFocusIdsById(updateReqVO.getProjectId(), Collections.singletonList(updateReqVO.getOperatorId()),projectSimple.getFocusIds());
+        projectServiceImpl.updateProjectFocusIdsById(updateReqVO.getProjectId(), Collections.singletonList(updateReqVO.getOperatorId()),projectSimple.getFocusIds());
 
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);

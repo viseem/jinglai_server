@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
@@ -19,6 +20,8 @@ import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAtta
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,6 +48,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -121,7 +125,13 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
     @Resource
-    private CommonTodoServiceImpl commonTodoService;
+    private ProjectServiceImpl projectServiceImpl;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
         this.salesleadRepository = salesleadRepository;
@@ -682,6 +692,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     }
 
+    // 完成报价
     @Override
     @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO) {
@@ -691,6 +702,17 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
         projectQuotationRepository.updateOriginPriceById(updateReqVO.getQuotationAmount(), updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+
+        //发送通知
+        //发送站内通知
+        Map<String, Object> templateParams = new HashMap<>();
+//        templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
+        templateParams.put("id", updateReqVO.getSalesleadId());
+        //发给商机的销售
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                updateReqVO.getSalesId(),
+                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
+        ));
         return null;
     }
 
@@ -719,7 +741,9 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
         //注入一下todo
 //        commonTodoService.injectCommonTodoLogByTypeAndRefId(CommonTodoEnums.TYPE_PROJECT_CATEGORY.getStatus(), save.getId());
-
+        // 设置一下实验人员
+        Optional<ProjectOnly> byId = projectOnlyRepository.findById(category.getProjectId());
+        byId.ifPresent(projectOnly -> projectServiceImpl.updateProjectFocusIdsById(category.getProjectId(), Collections.singletonList(category.getOperatorId()), projectOnly.getFocusIds()));
 
         // 保存收费项
         List<ProjectChargeitemSubClass> chargetItemList = category.getChargeList();

@@ -25,4 +25,6 @@ public class CommonTodoPageReqVO extends PageParam {
     @Schema(description = "类型", example = "2")
     private String type;
 
+    private Long refId;
+
 }

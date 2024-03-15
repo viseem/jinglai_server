@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
@@ -19,7 +20,10 @@ import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRe
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -109,6 +113,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -325,18 +332,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                 projectConstractRepository.save(contract);
             }
 
-/*           List<ProjectConstractItemVO> projectConstracts = updateReqVO.getProjectConstracts();
-           if(projectConstracts != null && projectConstracts.size() > 0) {
-               // 遍历 projectConstracts，将它的 projectId 字段设置为 project.getId()
-               projectConstracts.forEach(projectConstract -> {
-                   projectConstract.setProjectId(updateReqVO.getProjectId());
-                   projectConstract.setCustomerId(updateReqVO.getCustomerId());
-                   projectConstract.setSalesId(saleleadsObj.getCreator()); // 线索的销售人员 id
-                   projectConstract.setName(updateReqVO.getProjectName());
-               });
-               List<ProjectConstract> contracts = projectConstractMapper.toEntityList(projectConstracts);
-               projectConstractRepository.saveAll(contracts);
-           }*/
         }
         // 更新客户方案
         // 删除原有的
@@ -365,6 +360,17 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
+        }
+
+        // 发送通知
+        if(updateReqVO.getIsQuotation()!=null&&updateReqVO.getIsQuotation()){
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("id", updateReqVO.getId());
+            //发给商机的销售
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    updateReqVO.getManagerId(),
+                    BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams
+            ));
         }
 
 
@@ -405,7 +411,6 @@ public class SalesleadServiceImpl implements SalesleadService {
 
 //        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
 
-
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -431,6 +436,12 @@ public class SalesleadServiceImpl implements SalesleadService {
             if (pageReqVO.getQuotation() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
             }
+
+            // price小于指定金额的
+            if (pageReqVO.getQuotationBig() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotationBig()));
+            }
+
 
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
@@ -562,6 +573,19 @@ public class SalesleadServiceImpl implements SalesleadService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        // sortFields是createTime_desc,source_asc这种格式，需要先拆分，再排序
+/*        if(order.getSortFields()!=null){
+            String[] sortFields = order.getSortFields();
+            for (String sortField : sortFields) {
+                String[] split = sortField.split("_");
+                if(split.length==2){
+                    orders.add(new Sort.Order(split[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, split[0]));
+                }
+            }
+        }*/
+
+        CommonPageSortUtils.parseAndAddSort(orders, order.getSortFields());
 
         if (order.getLastFollowTimeSort() != null) {
             orders.add(new Sort.Order(order.getLastFollowTimeSort().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "lastFollowTime"));

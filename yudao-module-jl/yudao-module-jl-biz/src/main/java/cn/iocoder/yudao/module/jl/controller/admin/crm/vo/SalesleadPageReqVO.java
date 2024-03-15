@@ -44,6 +44,9 @@ public class SalesleadPageReqVO extends PageParam {
     @Schema(description = "报价")
     private Long quotation;
 
+    @Schema(description = "报价")
+    private Long quotationBig;
+
     @Schema(description = "销售人员")
     private Long salesId;
 
