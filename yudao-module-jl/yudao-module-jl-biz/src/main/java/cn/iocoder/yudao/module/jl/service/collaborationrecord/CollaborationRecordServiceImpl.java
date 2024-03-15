@@ -1,6 +1,16 @@
 package cn.iocoder.yudao.module.jl.service.collaborationrecord;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.CollaborationRecordStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -28,6 +38,7 @@ import cn.iocoder.yudao.module.jl.mapper.collaborationrecord.CollaborationRecord
 import cn.iocoder.yudao.module.jl.repository.collaborationrecord.CollaborationRecordRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -45,6 +56,15 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
     @Resource
     private CollaborationRecordMapper collaborationRecordMapper;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private SalesleadOnlyRepository salesleadOnlyRepository;
+
     @Override
     @Transactional
     public Long createCollaborationRecord(CollaborationRecordCreateReqVO createReqVO) {
@@ -54,6 +74,38 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(collaborationRecord.getId(),"COLLABORATION_RECORD",createReqVO.getAttachmentList());
+
+        // 如果是商机沟通
+        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD.getStatus())){
+            //发送通知
+            Map<String, Object> templateParams = new HashMap<>();
+
+            //获取当前登录人的姓名
+            User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
+            SalesleadOnly salesleadOnly = salesleadOnlyRepository.findById(createReqVO.getRefId()).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
+
+            templateParams.put("fromName", user.getNickname());
+            templateParams.put("id", createReqVO.getRefId());
+            templateParams.put("content",createReqVO.getContent());
+            List<Long> sendUserIds = new ArrayList<>();
+            if(!Objects.equals(salesleadOnly.getManagerId(),user.getId())){
+                sendUserIds.add(salesleadOnly.getManagerId());
+            }
+            if(!Objects.equals(salesleadOnly.getCreator(),user.getId())){
+                sendUserIds.add(salesleadOnly.getCreator());
+            }
+
+            for (Long sendUserId : sendUserIds) {
+                System.out.println("sendUserId:"+sendUserId);
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        sendUserId,
+                        BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_REPLY.getTemplateCode(), templateParams
+                ));
+            }
+
+
+        }
+
 
         // 返回
         return collaborationRecord.getId();
