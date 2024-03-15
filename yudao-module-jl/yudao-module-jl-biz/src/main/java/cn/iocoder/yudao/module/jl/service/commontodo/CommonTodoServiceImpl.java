@@ -133,6 +133,16 @@ public class CommonTodoServiceImpl implements CommonTodoService {
 
         // 执行查询
         Page<CommonTodo> page = commonTodoRepository.findAll(spec, pageable);
+        page.getContent().forEach(
+                todo->{
+                    todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
+                    CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId( todo.getId(),pageReqVO.getRefId());
+                    if(byTypeAndRefId!=null){
+                        todo.setTodoLogId(byTypeAndRefId.getId());
+                        todo.setStatus(byTypeAndRefId.getStatus());
+                    }
+                }
+        );
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
