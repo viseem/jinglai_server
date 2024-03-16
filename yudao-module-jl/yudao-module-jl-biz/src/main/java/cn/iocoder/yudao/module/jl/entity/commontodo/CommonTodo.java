@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.commontodo;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -49,4 +50,7 @@ public class CommonTodo extends BaseEntity {
 
     @Transient
     private Long todoLogId;
+
+    @Transient
+    private User updateUser;
 }

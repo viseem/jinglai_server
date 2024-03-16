@@ -76,9 +76,8 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
         commonAttachmentService.saveAttachmentList(collaborationRecord.getId(),"COLLABORATION_RECORD",createReqVO.getAttachmentList());
 
         // 如果是商机沟通
-        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD.getStatus())){
+        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD.getStatus()) || Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD_SUGGEST.getStatus())){
             //发送通知
-
             //获取当前登录人的姓名
             User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
             SalesleadOnly salesleadOnly = salesleadOnlyRepository.findById(createReqVO.getRefId()).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
@@ -96,7 +95,6 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
             }
 
             for (Long sendUserId : sendUserIds) {
-                System.out.println("sendUserId:"+sendUserId);
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                         sendUserId,
                         BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_REPLY.getTemplateCode(), templateParams

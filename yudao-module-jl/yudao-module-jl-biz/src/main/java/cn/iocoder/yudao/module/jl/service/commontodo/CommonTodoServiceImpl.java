@@ -138,6 +138,7 @@ public class CommonTodoServiceImpl implements CommonTodoService {
                     todo.setStatus(CommonTodoEnums.UN_DONE.getStatus());
                     CommonTodoLog byTypeAndRefId = commonTodoLogRepository.findByTodoIdAndRefId( todo.getId(),pageReqVO.getRefId());
                     if(byTypeAndRefId!=null){
+                        todo.setUpdateUser(byTypeAndRefId.getUpdateUser());
                         todo.setTodoLogId(byTypeAndRefId.getId());
                         todo.setStatus(byTypeAndRefId.getStatus());
                     }
