@@ -77,6 +77,7 @@ public class WeixinCPController {
         // http get 请求
         String url = "https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo?access_token=" + accessToken + "&code=" + code;
         String result = HttpUtil.get(url);  // {"userid":"ChenKai","errcode":0,"errmsg":"ok"} 解析出 userid, errcode
+        logger.info(result);
         JSONObject jsonObject = JSONUtil.parseObj(result);
         Integer errCode = jsonObject.getInt("errcode", 50000);
         String wxUserId = jsonObject.getStr("userid");
