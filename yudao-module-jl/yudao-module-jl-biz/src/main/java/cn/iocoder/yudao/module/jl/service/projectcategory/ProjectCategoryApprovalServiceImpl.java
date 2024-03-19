@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.auditconfig.AuditConfigRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,9 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
     @Resource
     private ProjectCategoryApprovalMapper projectCategoryApprovalMapper;
 
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     @Override
     @Transactional
     public Long createProjectCategoryApproval(ProjectCategoryApprovalCreateReqVO createReqVO) {
@@ -108,7 +112,8 @@ public class ProjectCategoryApprovalServiceImpl implements ProjectCategoryApprov
             projectCategoryApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
         }else{
             projectCategoryApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
-            projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
+            projectCategoryService.updateProjectCategoryStageById(createReqVO.getProjectCategoryId(),createReqVO.getStage(),null,createReqVO.getStageMark());
+//            projectCategoryRepository.updateStageById(createReqVO.getStage(), createReqVO.getProjectCategoryId());
         }
 
 

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
@@ -16,6 +17,7 @@ import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
@@ -88,6 +90,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
+    @Resource
+    private UserRepository userRepository;
+
     @Override
     @Transactional
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
@@ -124,27 +129,21 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                projectSimpleRepository.findById(save.getProjectId()).ifPresent(project -> {
                    //查询字典
                    DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
-                   String originStageLabel = originStageDictData.getLabel();
+                   String originStageLabel = originStageDictData!=null?originStageDictData.getLabel():" ";
                    DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
-                   String stageLabel = stageDictData.getLabel();
+                   String stageLabel = stageDictData!=null?stageDictData.getLabel():" ";
 
                    //发送消息
                    Map<String, Object> templateParams = new HashMap<>();
-                   if(project.getCustomer()!=null){
-                       templateParams.put("customerName", project.getCustomer().getName());
-                   }else{
-                       templateParams.put("customerName", "未知");
-                   }
+                   Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
+                   templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname(): WebFrameworkUtils.getLoginUserId());
+                   templateParams.put("customerName", project.getCustomer()!=null?project.getCustomer().getName():"未知");
                    templateParams.put("projectName", project.getName());
                    templateParams.put("originStage", originStageLabel);
                    templateParams.put("stage", stageLabel);
-                   String mark = " ";
-                   if(createReqVO.getStageMark()!=null){
-                       mark = "原因："+createReqVO.getStageMark();
-                   }
-                   templateParams.put("mark", mark);
+                   templateParams.put("mark", createReqVO.getStageMark()!=null?"原因："+createReqVO.getStageMark():" ");
                    //查询PI组成员
-                   List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
+                   List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(project.getManagerId());
                    for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
                        if(subjectGroupMember.getUserId().equals(getLoginUserId())){
                            continue;

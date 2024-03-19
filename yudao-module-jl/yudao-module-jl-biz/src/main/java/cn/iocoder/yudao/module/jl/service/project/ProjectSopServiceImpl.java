@@ -50,6 +50,9 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private ProjectSopMapper projectSopMapper;
 
+    @Resource
+    private ProjectCategoryServiceImpl projectCategoryService;
+
     @Override
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
@@ -84,9 +87,11 @@ public class ProjectSopServiceImpl implements ProjectSopService {
         }
         if(doneCount>0){
             if(doneCount==totalCount){
-                projectCategoryRepository.updateStageByIdAndStageNot(ProjectCategoryStatusEnums.DONE.getStatus(), projectCategoryId,ProjectCategoryStatusEnums.COMPLETE.getStatus());
+                projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DONE.getStatus(),ProjectCategoryStatusEnums.COMPLETE.getStatus(),null);
+//                projectCategoryRepository.updateStageByIdAndStageNot(ProjectCategoryStatusEnums.DONE.getStatus(), projectCategoryId,ProjectCategoryStatusEnums.COMPLETE.getStatus());
             }else{
-                projectCategoryRepository.updateStageById(ProjectCategoryStatusEnums.DOING.getStatus(), projectCategoryId);
+                projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DOING.getStatus(),null,null);
+//                projectCategoryRepository.updateStageById(ProjectCategoryStatusEnums.DOING.getStatus(), projectCategoryId);
             }
         }
     }

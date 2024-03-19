@@ -1,10 +1,15 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
@@ -17,7 +22,12 @@ import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAtta
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
+import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,14 +98,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Resource
     private CommonTodoRepository commonTodoRepository;
 
-    @Resource
-    private ProjectRepository projectRepository;
 
     @Resource
     private ProjectServiceImpl projectServiceImpl;
 
     private final ProjectCategorySupplierRepository projectCategorySupplierRepository;
     private final UserRepository userRepository;
+
+    @Resource
+    private DictDataApiImpl dictDataApi;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
     public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository,
                                       UserRepository userRepository) {
@@ -167,6 +184,51 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         projectSupplyRepository.saveAll(supplyList);
 
         return null;
+    }
+
+    //更新category状态
+    @Transactional
+    public void updateProjectCategoryStageById(Long id,String stage,String stageNot,String mark){
+
+        Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
+        if(byId.isPresent()&&!byId.get().getStage().equals(stage)){
+            ProjectCategory projectCategory = byId.get();
+            //查询字典
+            DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.Experimental_status, projectCategory.getStage());
+            String originStageLabel = originStageDictData!=null?originStageDictData.getLabel():" ";
+            DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.Experimental_status, stage);
+            String stageLabel = stageDictData!=null?stageDictData.getLabel():" ";
+
+            Optional<User> byId1 = userRepository.findById(getLoginUserId());
+            //发送消息
+            Map<String, Object> templateParams = new HashMap<>();
+
+            templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname():getLoginUserId());
+            templateParams.put("projectName", projectCategory.getProject()!=null?projectCategory.getProject().getName():"未知");
+            templateParams.put("categoryName", projectCategory.getName());
+            templateParams.put("originStage", originStageLabel);
+            templateParams.put("stage", stageLabel);
+            templateParams.put("mark", mark!=null?"原因："+mark:" ");
+            //查询PI组成员
+            List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(projectCategory.getProject()!=null?projectCategory.getProject().getManagerId():getLoginUserId());
+            for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
+                if(subjectGroupMember.getUserId().equals(SecurityFrameworkUtils.getLoginUserId())){
+                    continue;
+                }
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        subjectGroupMember.getUserId(),
+                        BpmMessageEnum.NOTIFY_WHEN_CATEGORY_STAGE_CHANGE.getTemplateCode(), templateParams
+                ));
+            }
+        }
+
+        if(stageNot!=null){
+            projectCategoryRepository.updateStageByIdAndStageNot(stage, id,stageNot);
+        }else{
+            projectCategoryRepository.updateStageById(stage, id);
+        }
+
+
     }
 
     @Override

@@ -12,4 +12,7 @@ public interface DictTypeConstants {
 
     String PROJECT_STAGE = "Project_Status"; // 项目进度
 
+    String Experimental_status = "Experimental_status"; // 项目进度
+
+
 }
