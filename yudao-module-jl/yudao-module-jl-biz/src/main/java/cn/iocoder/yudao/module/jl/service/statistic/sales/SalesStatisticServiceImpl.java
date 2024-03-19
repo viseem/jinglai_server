@@ -94,6 +94,7 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         if(reqVO.getMonth()!=null){
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
+        System.out.println("----"+reqVO);
         Integer totalCount = salesleadRepository.countByCreateTimeBetweenAndCreatorIn(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds());
         Integer focusCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.KeyFocus.getStatus()));
         Integer quotedCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
@@ -105,6 +106,38 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         resp.setQuotedCount(quotedCount);
         resp.setDealCount(dealCount);
         resp.setLostCount(lostCount);
+        return resp;
+    }
+
+    @Override
+    // 统计商机数量
+    public SalesStatisticSalesleadMonthResp countSalesleadMonth(SalesStatisticReqVO reqVO) {
+        SalesStatisticSalesleadMonthResp resp = new SalesStatisticSalesleadMonthResp();
+
+        if(reqVO.getSubjectGroupId()!=null){
+            //把返回的List中的id取出来
+            reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+        }
+
+        reqVO.setMonth(null);
+
+        //按照月份遍历今年的每个月，然后统计每个月的商机数量
+
+        List<SalesStatisticSalesleadResp> salesleadCountList = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            //大于当前月份的不统计
+            if(i>LocalDateTime.now().getMonthValue()){
+                break;
+            }
+            LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(i);
+            reqVO.setStartTime(startAndEndTimeByMonth[0]);
+            reqVO.setEndTime(startAndEndTimeByMonth[1]);
+            SalesStatisticSalesleadResp salesStatisticSalesleadResp = countSaleslead(reqVO);
+            salesleadCountList.add(salesStatisticSalesleadResp);
+        }
+
+        resp.setSalesleadCountList(salesleadCountList);
+
         return resp;
     }
 

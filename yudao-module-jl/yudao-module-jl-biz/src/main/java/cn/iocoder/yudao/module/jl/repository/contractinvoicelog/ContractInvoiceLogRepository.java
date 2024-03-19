@@ -27,5 +27,5 @@ public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvo
     Integer countByStatusNotOrPriceStatusNot(String status,String priceStatus);
 
     @Query("select c from ContractInvoiceLog c where c.status = ?1 and c.date between ?2 and ?3 and c.salesId in ?4")
-    List<ContractInvoiceLog> findByStatusAndPaidTimeBetweenAndSalesIdIn(String status, LocalDateTime paidTimeStart, LocalDateTime paidTimeEnd, Collection<Long> salesIds);
+    List<ContractInvoiceLog> findByStatusAndPaidTimeBetweenAndSalesIdIn(String status, LocalDateTime paidTimeStart, LocalDateTime paidTimeEnd, Long[] salesIds);
 }

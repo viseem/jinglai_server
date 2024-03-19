@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "SubjectGroupMember")
 @Table(name = "jl_subject_group_member")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SubjectGroupMember extends BaseEntity {
 
     /**
@@ -96,7 +96,7 @@ public class SubjectGroupMember extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "group_id",  insertable = false, updatable = false)
+    @JoinColumn(name = "group_id",referencedColumnName = "id",  insertable = false, updatable = false)
     private SubjectGroup group;
 
     @OneToOne(fetch = FetchType.EAGER)

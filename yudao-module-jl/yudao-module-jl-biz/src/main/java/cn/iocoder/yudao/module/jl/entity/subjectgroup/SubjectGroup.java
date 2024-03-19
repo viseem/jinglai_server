@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.entity.subjectgroup;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -14,6 +17,8 @@ import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 专题小组 Entity
@@ -25,7 +30,7 @@ import java.math.BigDecimal;
 @Setter
 @Entity(name = "SubjectGroup")
 @Table(name = "jl_subject_group")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SubjectGroup extends BaseEntity {
 
     /**
@@ -107,5 +112,15 @@ public class SubjectGroup extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "business_leader_id",  insertable = false, updatable = false)
     private User businessLeaderUser;
+
+    /**
+     * 查询款项列表
+     */
+    @JsonBackReference
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "group_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<SubjectGroupMember> memberList;
 
 }

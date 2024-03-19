@@ -12,6 +12,8 @@ public interface SalesStatisticService {
     SalesStatisticFollowupResp countFollowup(SalesStatisticReqVO reqVO);
 
     SalesStatisticSalesleadResp countSaleslead(SalesStatisticReqVO reqVO);
+    SalesStatisticSalesleadMonthResp countSalesleadMonth(SalesStatisticReqVO reqVO);
+
 
     SalesGroupStatisticResp groupStatsOrder(SalesGroupStatisticReqVO reqVO);
     SalesGroupStatisticResp groupStatsRefund(SalesGroupStatisticReqVO reqVO);

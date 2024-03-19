@@ -23,5 +23,5 @@ public interface ProjectConstractOnlyRepository extends JpaRepository<ProjectCon
 //     and p.createTime > ?3 and p.createTime < ?4
     @Query("select p from ProjectConstractOnly p " +
             "where p.creator in ?1 and p.status = ?2 and p.signedTime between ?3 and ?4")
-    List<ProjectConstractOnly> getContractFinancialStatistic(Collection<Long> creators, String status, LocalDateTime createTime, LocalDateTime createTime1);
+    List<ProjectConstractOnly> getContractFinancialStatistic(Long[] creators, String status, LocalDateTime createTime, LocalDateTime createTime1);
 }

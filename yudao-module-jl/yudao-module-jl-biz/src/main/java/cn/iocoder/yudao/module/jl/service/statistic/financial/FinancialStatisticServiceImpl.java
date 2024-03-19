@@ -1,0 +1,129 @@
+package cn.iocoder.yudao.module.jl.service.statistic.financial;
+
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatisticResp;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialReceivableStatisticReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.*;
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.salesgroupmember.SalesGroupMember;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
+import cn.iocoder.yudao.module.jl.service.salesgroupmember.SalesGroupMemberServiceImpl;
+import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+import javax.annotation.Resource;
+import java.io.*;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+/**
+ * 专题小组 Service 实现类
+ *
+ */
+@Service
+@Validated
+public class FinancialStatisticServiceImpl implements FinancialStatisticService {
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
+
+    @Resource
+    private ProjectConstractOnlyRepository projectConstractOnlyRepository;
+
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
+    @Resource
+    private ContractFundLogRepository contractFundLogRepository;
+
+    @Override
+    public FinancialStatisticResp accountsReceivable(FinancialReceivableStatisticReqVO reqVO) {
+        FinancialStatisticResp resp = new FinancialStatisticResp();
+
+        if(reqVO.getSubjectGroupId()!=null){
+            //把返回的List中的id取出来
+            reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+        }
+
+        if(reqVO.getMonth()!=null){
+            reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
+        }
+        // 查询数据
+        List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(reqVO.getUserIds(), ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime());
+        // 遍历 contract list, 求和应收金额，已收金额，已开票金额
+        for (ProjectConstractOnly contract : contractList) {
+            if(contract.getReceivedPrice() != null) {
+                resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
+            }
+            if(contract.getPrice() != null) {
+                resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
+            }
+        }
+
+        contractInvoiceLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
+            resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+        });
+
+        //查询contractFundLog表，获取已收金额
+        contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), List.of(reqVO.getUserIds())).forEach(contractFundLog -> {
+            resp.setPaymentAmount(resp.getPaymentAmount().add(contractFundLog.getReceivedPrice()));
+        });
+
+        //减去
+        resp.setAccountsReceivable(
+                resp.getOrderAmount().subtract(resp.getContractPaymentAmount())
+        );
+
+        resp.setContractIds(contractList.stream().map(ProjectConstractOnly::getId).collect(Collectors.toList()));
+        return resp;
+    }
+
+    @Override
+    public List<FinancialStatisticResp> accountsReceivableMonth(FinancialReceivableStatisticReqVO reqVO) {
+
+        List<FinancialStatisticResp> respList = new ArrayList<>();
+
+        if(reqVO.getSubjectGroupId()!=null){
+            //把返回的List中的id取出来
+            reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+        }
+
+        reqVO.setMonth(null);
+
+        //按照月份遍历今年的每个月,查询数据
+        for (int i = 1; i <= 12; i++) {
+            //大于当前月份的不统计
+            if(i>LocalDateTime.now().getMonthValue()){
+                break;
+            }
+            LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(i);
+            reqVO.setStartTime(startAndEndTimeByMonth[0]);
+            reqVO.setEndTime(startAndEndTimeByMonth[1]);
+            FinancialStatisticResp financialStatisticResp = accountsReceivable(reqVO);
+            respList.add(financialStatisticResp);
+        }
+
+        return respList;
+
+    }
+}

@@ -40,6 +40,14 @@ public class SalesStatisticController {
         return success(salesStatisticSalesleadResp);
     }
 
+    @GetMapping("/saleslead-count-month")
+    @Operation(summary = "获取商机的统计数据")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesStatisticSalesleadMonthResp> getSubjectGroupSalesleadStatsMonth(@Valid SalesStatisticReqVO reqVO) {
+        SalesStatisticSalesleadMonthResp salesStatisticSalesleadMonthResp = salesStatisticService.countSalesleadMonth(reqVO);
+        return success(salesStatisticSalesleadMonthResp);
+    }
+
     @GetMapping("/group-stats-order")
     @Operation(summary = "获取分组的统计数据")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
