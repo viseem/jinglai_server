@@ -20,6 +20,9 @@ public class ProjectCategoryPageOrder {
     private String createTime;
 
     @Schema(allowableValues = {"desc", "asc"})
+    private String sort;
+
+    @Schema(allowableValues = {"desc", "asc"})
     private String projectId;
 
     @Schema(allowableValues = {"desc", "asc"})

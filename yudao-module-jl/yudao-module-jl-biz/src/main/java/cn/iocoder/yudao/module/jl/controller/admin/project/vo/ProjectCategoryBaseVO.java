@@ -95,6 +95,9 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "周期")
     private String cycle;
 
+    @Schema(description = "排序")
+    private Integer sort;
+
     @Schema(description = "折扣")
     private Integer discount;
 

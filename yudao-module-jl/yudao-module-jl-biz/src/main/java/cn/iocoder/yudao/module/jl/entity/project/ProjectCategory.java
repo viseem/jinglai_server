@@ -210,6 +210,11 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "cycle")
     private String cycle;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
 
     /*
     * 折扣

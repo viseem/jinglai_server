@@ -231,6 +231,12 @@ public class ProjectCategorySimple extends BaseEntity {
     private String cycle;
 
     /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
+    /**
      * 项目的负责人id
      */
     @Column(name = "project_manager_id")

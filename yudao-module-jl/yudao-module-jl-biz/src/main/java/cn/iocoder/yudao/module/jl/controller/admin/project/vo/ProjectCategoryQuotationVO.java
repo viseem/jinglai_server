@@ -56,6 +56,9 @@ public class ProjectCategoryQuotationVO {
     @Schema(description = "周期")
     private String cycle;
 
+    @Schema(description = "排序")
+    private Integer sort;
+
     @Schema(description = "项目负责人")
     private Long projectManagerId;
 
@@ -93,6 +96,7 @@ public class ProjectCategoryQuotationVO {
 
     @Schema(description = "备注")
     private String mark;
+
 
     /**
      * 当前实验的状态，未开展、开展中、数据审核、已完成
