@@ -22,6 +22,8 @@ public class CategoryPageReqVO extends PageParam {
     @Schema(description = "名字", example = "张三")
     private String name;
 
+    private Long tagId;
+
     @Schema(description = "技术难度")
     private String difficultyLevel;
 

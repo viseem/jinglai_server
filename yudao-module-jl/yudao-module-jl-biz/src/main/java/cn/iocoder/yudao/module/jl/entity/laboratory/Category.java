@@ -63,6 +63,36 @@ public class Category extends BaseEntity {
     private Long labId;
 
     /**
+     * 原理
+     */
+    @Column(name = "principle", nullable = false)
+    private String principle;
+
+    /**
+     * 目的
+     */
+    @Column(name = "purpose", nullable = false)
+    private String purpose;
+
+    /**
+     * 准备
+     */
+    @Column(name = "preparation", nullable = false)
+    private String preparation;
+
+    /**
+     * 注意事项
+     */
+    @Column(name = "caution", nullable = false)
+    private String caution;
+
+    /**
+     * tag ids
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
      * JPA 级联出 open
      */
     @OneToOne(fetch = FetchType.EAGER)

@@ -26,6 +26,7 @@ import cn.iocoder.yudao.module.jl.repository.laboratory.CategoryRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 实验名目 Service 实现类
@@ -96,6 +97,10 @@ public class CategoryServiceImpl implements CategoryService {
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
             }
 
             if(pageReqVO.getDifficultyLevel() != null) {

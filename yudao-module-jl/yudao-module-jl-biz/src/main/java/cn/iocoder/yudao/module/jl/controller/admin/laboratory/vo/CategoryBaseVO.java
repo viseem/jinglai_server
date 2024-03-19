@@ -27,10 +27,25 @@ public class CategoryBaseVO {
     @Schema(description = "类型")
     private String type;
 
-    @Schema(description = "实验室id", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
+    @Schema(description = "实验室id")
     private Long labId;
 
     @Schema(description = "历史操作次数", example = "0")
     private Integer actionCount;
+
+    @Schema(description = "原理")
+    private String principle;
+
+    @Schema(description = "目的")
+    private String purpose;
+
+    @Schema(description = "准备")
+    private String preparation;
+
+    @Schema(description = "注意事项")
+    private String caution;
+
+    @Schema(description = "标签")
+    private String tagIds;
 
 }
