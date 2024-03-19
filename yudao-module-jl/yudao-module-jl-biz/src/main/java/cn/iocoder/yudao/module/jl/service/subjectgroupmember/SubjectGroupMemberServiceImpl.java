@@ -49,6 +49,16 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
         return subjectGroupMember.getId();
     }
 
+    //通过成员id查询所在组的成员
+
+    public List<SubjectGroupMember> findMembersByMemberId(@Valid Long memberId) {
+        SubjectGroupMember member = subjectGroupMemberRepository.findByUserId(memberId);
+        if(member!=null){
+            return subjectGroupMemberRepository.findByGroupId(member.getGroupId());
+        }
+        return new ArrayList<>();
+    }
+
     public List<SubjectGroupMember> findMembersByGroupId(@Valid Long groupId) {
         return subjectGroupMemberRepository.findByGroupId(groupId);
     }

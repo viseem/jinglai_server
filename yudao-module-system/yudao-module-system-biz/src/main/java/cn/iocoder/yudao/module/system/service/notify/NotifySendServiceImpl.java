@@ -44,7 +44,7 @@ public class NotifySendServiceImpl implements NotifySendService {
     private AdminUserService userService;
 
 
-    public void sendTextMessage(String userCPId,String title, String content,Long msgId) {
+    public void sendWeixinCPMessage(String userCPId, String title, String content, Long msgId) {
         WxCpMessageServiceImpl wxCpMessageService = new WxCpMessageServiceImpl(wxCpService);
         WxCpMessage wxCpMessage = new WxCpMessage();
         wxCpMessage.setSafe("0");
@@ -91,7 +91,7 @@ public class NotifySendServiceImpl implements NotifySendService {
         if(user!=null&&user.getWxCpId()!=null){
             //去除content中的html标签
             content = content.replaceAll("<[^>]+>", "");
-            sendTextMessage(user.getWxCpId(),template.getName(),content,notifyMessage);
+            sendWeixinCPMessage(user.getWxCpId(),template.getName(),content,notifyMessage);
         }
         return notifyMessage;
     }

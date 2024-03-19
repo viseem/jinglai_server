@@ -3,15 +3,25 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.entity.approval.Approval;
 import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
+import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
+import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -66,7 +76,17 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private ProjectApprovalMapper projectApprovalMapper;
 
+    @Resource
+    private DictDataApiImpl dictDataApi;
 
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
     @Override
     @Transactional
@@ -91,12 +111,52 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
            //直接更新审批的状态
            projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
 
+
        }
 
        //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
        if(!createReqVO.getNeedAudit()||Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
-           //直接更新项目状态
-           projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
+           if(!createReqVO.getOriginStage().equals(createReqVO.getStage())){
+               //直接更新项目状态
+               projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
+
+               // 发送系统消息
+               projectSimpleRepository.findById(save.getProjectId()).ifPresent(project -> {
+                   //查询字典
+                   DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
+                   String originStageLabel = originStageDictData.getLabel();
+                   DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
+                   String stageLabel = stageDictData.getLabel();
+
+                   //发送消息
+                   Map<String, Object> templateParams = new HashMap<>();
+                   if(project.getCustomer()!=null){
+                       templateParams.put("customerName", project.getCustomer().getName());
+                   }else{
+                       templateParams.put("customerName", "未知");
+                   }
+                   templateParams.put("projectName", project.getName());
+                   templateParams.put("originStage", originStageLabel);
+                   templateParams.put("stage", stageLabel);
+                   String mark = " ";
+                   if(createReqVO.getStageMark()!=null){
+                       mark = "原因："+createReqVO.getStageMark();
+                   }
+                   templateParams.put("mark", mark);
+                   //查询PI组成员
+                   List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
+                   for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
+                       if(subjectGroupMember.getUserId().equals(getLoginUserId())){
+                           continue;
+                       }
+                       notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                               subjectGroupMember.getUserId(),
+                               BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
+                       ));
+                   }
+               });
+           }
+
        }
 
         // 返回
