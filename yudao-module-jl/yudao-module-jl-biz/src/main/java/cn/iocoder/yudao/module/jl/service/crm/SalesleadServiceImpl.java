@@ -1,11 +1,14 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
@@ -17,9 +20,11 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -50,6 +55,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -116,6 +122,12 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -251,6 +263,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
 
+        Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
 
 
         if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
@@ -269,7 +282,6 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             if(updateReqVO.getProjectId()==null){
                 //如果客户不存在，则抛出异常
-                Customer customer = customerRepository.findById(updateReqVO.getCustomerId()).orElseThrow(() -> exception(CUSTOMER_NOT_EXISTS));
                 String projectName = updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus()) ? customer.getName()+"的报价" : updateReqVO.getProjectName();
                 project.setName(projectName);
                 Project saveProject = projectRepository.save(project);
@@ -330,6 +342,29 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setCompanyName(updateReqVO.getContractCompanyName());
                 contract.setSignedTime(updateReqVO.getSignedTime());
                 projectConstractRepository.save(contract);
+
+                // 发送消息
+                Map<String, Object> templateParams = new HashMap<>();
+                Optional<User> byId1 = userRepository.findById(getLoginUserId());
+                templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname(): getLoginUserId());
+                templateParams.put("customerName",customer.getName());
+                templateParams.put("contractName",updateReqVO.getProjectName());
+                templateParams.put("contractPrice",updateReqVO.getPaperPrice());
+                List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
+                for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
+                    if(subjectGroupMember.getUserId().equals(getLoginUserId())){
+                        continue;
+                    }
+                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                            subjectGroupMember.getUserId(),
+                            BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
+                    ));
+                }
+
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        getSuperUserId(),
+                        BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
+                ));
             }
 
         }

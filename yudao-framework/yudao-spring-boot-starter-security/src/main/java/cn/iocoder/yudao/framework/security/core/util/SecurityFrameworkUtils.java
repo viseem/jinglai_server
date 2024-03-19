@@ -88,6 +88,10 @@ public class SecurityFrameworkUtils {
         return loginUser != null ? loginUser.getId() : null;
     }
 
+    public static Long getSuperUserId() {
+        return 211L;
+    }
+
     /**
      * 设置当前用户
      *
