@@ -151,6 +151,27 @@ public class UserController {
         return success(new PageResult<>(userList, pageResult.getTotal()));
     }
 
+    @GetMapping("/page-simple")
+    @Operation(summary = "获得用户分页列表")
+    @PreAuthorize("@ss.hasPermission('system:user:list')")
+    //不记录日志
+    @OperateLog(enable = false)
+    public CommonResult<PageResult<UserPageItemRespVO>> getUserPageSimple(@Valid UserPageReqVO reqVO) {
+
+        // 获得用户分页列表
+        PageResult<AdminUserDO> pageResult = userService.getUserPage(reqVO);
+        if (CollUtil.isEmpty(pageResult.getList())) {
+            return success(new PageResult<>(pageResult.getTotal())); // 返回空
+        }
+
+        List<UserPageItemRespVO> userList = new ArrayList<>(pageResult.getList().size());
+        pageResult.getList().forEach(user -> {
+            UserPageItemRespVO respVO = UserConvert.INSTANCE.convert(user);
+            userList.add(respVO);
+        });
+        return success(new PageResult<>(userList, pageResult.getTotal()));
+    }
+
     @GetMapping("/list-all-simple")
     //不记录日志
     @OperateLog(enable = false)

@@ -38,7 +38,7 @@ public class NotifyMessageController {
     @GetMapping("/get")
     @Operation(summary = "获得站内信")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('system:notify-message:query')")
+//    @PreAuthorize("@ss.hasPermission('system:notify-message:query')")
     public CommonResult<NotifyMessageRespVO> getNotifyMessage(@RequestParam("id") Long id) {
         NotifyMessageDO notifyMessage = notifyMessageService.getNotifyMessage(id);
         return success(NotifyMessageConvert.INSTANCE.convert(notifyMessage));

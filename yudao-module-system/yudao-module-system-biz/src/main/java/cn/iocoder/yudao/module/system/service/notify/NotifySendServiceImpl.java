@@ -3,9 +3,16 @@ package cn.iocoder.yudao.module.system.service.notify;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.module.system.dal.dataobject.notify.NotifyTemplateDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.cp.api.WxCpService;
+import me.chanjar.weixin.cp.api.impl.WxCpMessageServiceImpl;
+import me.chanjar.weixin.cp.bean.message.WxCpMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
@@ -24,12 +31,34 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.*;
 @Validated
 @Slf4j
 public class NotifySendServiceImpl implements NotifySendService {
+    @Resource
+    private WxCpService wxCpService;
 
     @Resource
     private NotifyTemplateService notifyTemplateService;
 
     @Resource
     private NotifyMessageService notifyMessageService;
+
+    @Resource
+    private AdminUserService userService;
+
+
+    public void sendTextMessage(String userCPId,String title, String content,Long msgId) {
+        WxCpMessageServiceImpl wxCpMessageService = new WxCpMessageServiceImpl(wxCpService);
+        WxCpMessage wxCpMessage = new WxCpMessage();
+        wxCpMessage.setSafe("0");
+        wxCpMessage.setMsgType("textcard");  // 设置消息形式
+        wxCpMessage.setToUser(userCPId); // u.getWxCpId()
+        wxCpMessage.setTitle(title);
+        wxCpMessage.setDescription(content);
+        wxCpMessage.setUrl("https://szhpt.genelb.cn/index?msgId="+msgId);
+        wxCpMessage.setBtnTxt("点击查看");
+        try {
+            wxCpMessageService.send(wxCpMessage);
+        } catch (WxErrorException e) {
+        }
+    }
 
     @Override
     public Long sendSingleNotifyToAdmin(Long userId, String templateCode, Map<String, Object> templateParams) {
@@ -42,6 +71,7 @@ public class NotifySendServiceImpl implements NotifySendService {
     }
 
     @Override
+    @Transactional
     public Long sendSingleNotify(Long userId, Integer userType, String templateCode, Map<String, Object> templateParams) {
         // 校验模版
         NotifyTemplateDO template = validateNotifyTemplate(templateCode);
@@ -55,7 +85,15 @@ public class NotifySendServiceImpl implements NotifySendService {
         // 发送站内信
         String content = notifyTemplateService.formatNotifyTemplateContent(template.getContent(), templateParams);
         template.setNickname(template.getName());
-        return notifyMessageService.createNotifyMessage(userId, userType, template, content, templateParams);
+        Long notifyMessage = notifyMessageService.createNotifyMessage(userId, userType, template, content, templateParams);
+
+        AdminUserDO user = userService.getUser(userId);
+        if(user!=null&&user.getWxCpId()!=null){
+            //去除content中的html标签
+            content = content.replaceAll("<[^>]+>", "");
+            sendTextMessage(user.getWxCpId(),template.getName(),content,notifyMessage);
+        }
+        return notifyMessage;
     }
 
     @VisibleForTesting

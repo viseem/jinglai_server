@@ -241,6 +241,11 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_PUSH_LOG_NOT_EXISTS = new ErrorCode(1003200000, "项目推进记录不存在");
     ErrorCode VISIT_LOG_NOT_EXISTS = new ErrorCode(1003300000, "拜访记录不存在");
 
+
+    // ========== 企业微信模块 ==========
+    ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");
+
+
     // ========== AUTH 模块 1004003000 ==========
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
