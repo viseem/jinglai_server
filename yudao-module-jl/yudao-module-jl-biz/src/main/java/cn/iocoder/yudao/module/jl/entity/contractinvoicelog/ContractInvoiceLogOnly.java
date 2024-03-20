@@ -5,22 +5,22 @@ import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 合同发票记录 Entity
@@ -30,10 +30,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ContractInvoiceLog")
+@Entity(name = "ContractInvoiceLogOnly")
 @Table(name = "jl_contract_invoice_log")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class ContractInvoiceLog extends BaseEntity {
+public class ContractInvoiceLogOnly extends BaseEntity {
 
     /**
      * ID
@@ -68,8 +68,6 @@ public class ContractInvoiceLog extends BaseEntity {
      */
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
-
-
 
     /**
      * 项目id
@@ -271,37 +269,4 @@ public class ContractInvoiceLog extends BaseEntity {
     @Column(name = "attachment_name", nullable = false )
     private String attachmentName;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectConstractOnly contract;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "audit_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User auditor;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
-    private User user;
-
-    /*
-     * 级联附件
-     * */
-    @OneToMany(fetch = FetchType.EAGER)
-    @Where(clause = "type = 'CONTRACT_INVOICE_LOG'")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> attachmentList = new ArrayList<>();
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
 }

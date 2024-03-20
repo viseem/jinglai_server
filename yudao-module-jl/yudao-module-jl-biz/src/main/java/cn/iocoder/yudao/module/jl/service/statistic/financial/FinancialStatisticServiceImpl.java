@@ -2,38 +2,21 @@ package cn.iocoder.yudao.module.jl.service.statistic.financial;
 
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatisticResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialReceivableStatisticReqVO;
-import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.*;
-import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
-import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
-import cn.iocoder.yudao.module.jl.entity.salesgroupmember.SalesGroupMember;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
-import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
-import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
-import cn.iocoder.yudao.module.jl.service.salesgroupmember.SalesGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
-import java.io.*;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -51,10 +34,10 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
     private ProjectConstractOnlyRepository projectConstractOnlyRepository;
 
     @Resource
-    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+    private ContractInvoiceLogOnlyRepository contractInvoiceLogOnlyRepository;
 
     @Resource
-    private ContractFundLogRepository contractFundLogRepository;
+    private ContractFundLogOnlyRepository contractFundLogOnlyRepository;
 
     @Override
     public FinancialStatisticResp accountsReceivable(FinancialReceivableStatisticReqVO reqVO) {
@@ -80,12 +63,12 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
             }
         }
 
-        contractInvoiceLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
+        contractInvoiceLogOnlyRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
             resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
         });
 
         //查询contractFundLog表，获取已收金额
-        contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), List.of(reqVO.getUserIds())).forEach(contractFundLog -> {
+        contractFundLogOnlyRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), List.of(reqVO.getUserIds())).forEach(contractFundLog -> {
             resp.setPaymentAmount(resp.getPaymentAmount().add(contractFundLog.getReceivedPrice()));
         });
 
