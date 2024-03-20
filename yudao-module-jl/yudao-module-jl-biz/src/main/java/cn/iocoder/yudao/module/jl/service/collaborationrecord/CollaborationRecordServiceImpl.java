@@ -95,6 +95,9 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
             }
 
             for (Long sendUserId : sendUserIds) {
+                if(sendUserId==null){
+                    continue;
+                }
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                         sendUserId,
                         BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_REPLY.getTemplateCode(), templateParams

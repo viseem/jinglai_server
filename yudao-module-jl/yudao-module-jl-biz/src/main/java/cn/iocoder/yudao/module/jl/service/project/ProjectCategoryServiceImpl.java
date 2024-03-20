@@ -202,13 +202,13 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             Optional<User> byId1 = userRepository.findById(getLoginUserId());
             //发送消息
             Map<String, Object> templateParams = new HashMap<>();
-
+            templateParams.put("projectId",projectCategory.getProjectId());
             templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname():getLoginUserId());
             templateParams.put("projectName", projectCategory.getProject()!=null?projectCategory.getProject().getName():"未知");
             templateParams.put("categoryName", projectCategory.getName());
             templateParams.put("originStage", originStageLabel);
             templateParams.put("stage", stageLabel);
-            templateParams.put("mark", mark!=null?"原因："+mark:" ");
+            templateParams.put("mark", mark!=null?"说明："+mark:" ");
             //查询PI组成员
             List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(projectCategory.getProject()!=null?projectCategory.getProject().getManagerId():getLoginUserId());
             for (SubjectGroupMember subjectGroupMember : membersByMemberId) {

@@ -136,12 +136,13 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                    //发送消息
                    Map<String, Object> templateParams = new HashMap<>();
                    Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
+                   templateParams.put("projectId",save.getProjectId());
                    templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname(): WebFrameworkUtils.getLoginUserId());
                    templateParams.put("customerName", project.getCustomer()!=null?project.getCustomer().getName():"未知");
                    templateParams.put("projectName", project.getName());
                    templateParams.put("originStage", originStageLabel);
                    templateParams.put("stage", stageLabel);
-                   templateParams.put("mark", createReqVO.getStageMark()!=null?"原因："+createReqVO.getStageMark():" ");
+                   templateParams.put("mark", createReqVO.getStageMark()!=null?"说明："+createReqVO.getStageMark():" ");
                    //查询PI组成员
                    List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(project.getManagerId());
                    for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
