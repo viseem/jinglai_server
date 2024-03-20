@@ -4,8 +4,10 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectS
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticProjectTagResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project.ProjectStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStatusTagEnums;
+import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,13 +39,50 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
     @Override
     public ProjectStatisticProjectResp countProject(ProjectStatisticReqVO reqVO){
 
+        List<Long> salesIds = new ArrayList<>();
+        List<Long> managerIds = new ArrayList<>();
+
         if(reqVO.getSubjectGroupId()!=null){
-            reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
+            List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByGroupId(reqVO.getSubjectGroupId());
+
+            reqVO.setUserIds(membersByMemberId.stream().map(SubjectGroupMember::getUserId).toArray(Long[]::new));
+
+            for (SubjectGroupMember member : membersByMemberId) {
+                if(Objects.equals(member.getRole(), SubjectGroupMemberRoleEnums.SALE.getStatus())){
+                    salesIds.add(member.getUserId());
+                }
+                if(Objects.equals(member.getRole(), SubjectGroupMemberRoleEnums.PROJECT.getStatus())){
+                    managerIds.add(member.getUserId());
+                }
+            }
+        }
+        for (Long userId : reqVO.getUserIds()) {
+            System.out.println("-----"+userId);
+        }
+        List<ProjectOnly> projectList = new ArrayList<>();
+        if(reqVO.getIsCoop()){
+            projectList = projectOnlyRepository.findBySalesIdInAndCodeNotNullAndManagerIdNotIn(salesIds,managerIds);
+        }else{
+            projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
         }
 
-        List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
-
         ProjectStatisticProjectResp resp = new ProjectStatisticProjectResp();
+
+        resp.setManagerIds( managerIds);
+        resp.setSalesIds(salesIds);
+
+        /*resp.setManagerIds(
+                projectList.stream()
+                        .map(ProjectOnly::getManagerId)
+                        .collect(Collectors.toSet())
+        );
+
+        resp.setSalesIds(
+                projectList.stream()
+                        .map(ProjectOnly::getSalesId)
+                        .collect(Collectors.toSet())
+        );*/
+
         //实例化idsList
         List<Long> idList = projectList.stream()
                 .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.PRE.getStatus()))

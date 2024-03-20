@@ -12,5 +12,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class ProjectStatisticReqVO extends StatisticBaseVO {
 
+    // 是否查询协作项目
+    private Boolean isCoop = false;
 
 }

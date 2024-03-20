@@ -25,6 +25,11 @@ public class ProjectPageReqVO extends PageParam {
     @Schema(description = "in 查询 managerIds")
     private Long[] managerIds;
 
+    @Schema(description = "in 查询 managerIds")
+    private Long[] notManagerIds;
+
+    private Long[] salesIds;
+
     private Integer expireDayLimit;
     private Boolean isDelay;
 

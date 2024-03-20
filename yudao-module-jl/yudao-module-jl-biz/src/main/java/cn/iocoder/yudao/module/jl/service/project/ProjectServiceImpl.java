@@ -442,6 +442,15 @@ public class ProjectServiceImpl implements ProjectService {
 
             }
 
+            if(pageReqVO.getSalesIds()!=null){
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getSalesIds()).toArray()));
+            }
+
+            if(pageReqVO.getNotManagerIds()!=null){
+                // not in 不是in
+                predicates.add(cb.not(root.get("managerId").in(Arrays.stream(pageReqVO.getNotManagerIds()).toArray())));
+            }
+
             if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
                 predicates.add(root.get("managerId").isNull());
             }

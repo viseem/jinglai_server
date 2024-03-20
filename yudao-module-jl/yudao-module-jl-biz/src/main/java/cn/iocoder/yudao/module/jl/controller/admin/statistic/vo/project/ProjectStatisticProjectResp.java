@@ -1,12 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.project;
 
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Set;
 
 @Schema(description = "项目端 项目统计数据")
 @Data
@@ -27,5 +26,10 @@ public class ProjectStatisticProjectResp {
     Integer delayCount;
 
     List<List<Long>> idsList;
+
+    List<Long> managerIds;
+
+    List<Long> salesIds;
+
 
 }

@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>, JpaSpecificationExecutor<ProjectOnly> {
+    @Query("select p from ProjectOnly p where p.salesId in ?1 and p.code is not null and p.managerId not in ?2")
+    List<ProjectOnly> findBySalesIdInAndCodeNotNullAndManagerIdNotIn(List<Long> salesIds, List<Long> managerIds);
     @Query("select p from ProjectOnly p where p.managerId in ?1 and p.code is not null")
     List<ProjectOnly> findByInManagerIdAndCodeNotNull(Long[] managerIds);
 
