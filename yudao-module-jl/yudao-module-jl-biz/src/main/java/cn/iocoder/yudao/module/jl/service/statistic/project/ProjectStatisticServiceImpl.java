@@ -56,9 +56,6 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
                 }
             }
         }
-        for (Long userId : reqVO.getUserIds()) {
-            System.out.println("-----"+userId);
-        }
         List<ProjectOnly> projectList = new ArrayList<>();
         if(reqVO.getIsCoop()){
             projectList = projectOnlyRepository.findBySalesIdInAndCodeNotNullAndManagerIdNotIn(salesIds,managerIds);
