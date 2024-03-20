@@ -33,8 +33,12 @@ public class SubjectGroupMemberRespVO extends SubjectGroupMemberBaseVO {
     private Integer notOutProjectNum = 0;
     @Schema(description = "两周内到期的项目数")
     private Integer twoWeekExpireProjectNum = 0;
-
-
+    @Schema(description = "待报价的商机数")
+    private Integer waitQuoteNum = 0;
+    @Schema(description = "已报价的商机数")
+    private Integer monthQuotedNum = 0;
+    @Schema(description = "已成交的商机数")
+    private Integer montDealSalesleadNum = 0;
     /*
      * 实验
      * */

@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.jl.repository.crm;
 
-import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -17,6 +16,12 @@ import java.time.LocalDateTime;
 *
 */
 public interface SalesleadOnlyRepository extends JpaRepository<SalesleadOnly, Long>, JpaSpecificationExecutor<SalesleadOnly> {
+    @Query("select count(s) from SalesleadOnly s where s.managerId = ?1 and s.quotation > ?2")
+    int countByManagerIdAndQuotationGreaterThan(Long managerId, Long quotation);
+
+    @Query("select count(s) from SalesleadOnly s where s.managerId = ?1 and s.quotation > ?2 and s.updateTime between ?3 and ?4")
+    int countByManagerIdAndQuotationGreaterThanAndUpdateTimeBetween(Long managerId, BigDecimal quotation,LocalDateTime start, LocalDateTime end);
+
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.lastFollowTime = ?1 where s.projectId = ?2")
@@ -55,6 +60,9 @@ public interface SalesleadOnlyRepository extends JpaRepository<SalesleadOnly, Lo
     int updateStatusByProjectId(Integer status, Long projectId);
     @Query("select count(s) from Saleslead s where s.managerId = ?1 and s.status = ?2")
     Integer countByManagerIdAndStatus(Long managerId, Integer status);
+
+    @Query("select count(s) from Saleslead s where s.managerId = ?1 and s.status = ?2 and s.updateTime between ?3 and ?4")
+    Integer countByManagerIdAndStatusAndUpdateTimeBetween(Long managerId, Integer status,LocalDateTime start, LocalDateTime end);
     @Query("select count(s) from Saleslead s where s.creator = ?1 and (s.status != ?2 or s.status is null)")
     Integer countByCreatorAndStatusNot(Long creator, Integer status);
     @Query("select count(s) from Saleslead s where s.status != ?1")

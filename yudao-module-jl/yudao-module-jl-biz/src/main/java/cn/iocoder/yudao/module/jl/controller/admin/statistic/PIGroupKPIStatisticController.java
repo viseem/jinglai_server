@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroup.SubjectGroupMapper;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
@@ -70,6 +71,9 @@ public class PIGroupKPIStatisticController {
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
 
+    @Resource
+    private SalesleadOnlyRepository salesleadOnlyRepository;
+
     @GetMapping("/kpi")
     @Operation(summary = "PI组 KPI 统计")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
@@ -123,6 +127,12 @@ public class PIGroupKPIStatisticController {
                     item.setNotOutProjectNum(projectSimpleRepository.countByStageNotAndManagerInAndCodeNotNull(ProjectStageEnums.OUTED.getStatus(), new Long[]{item.getUserId()}));
                     // 2周内到期的项目数
                     item.setTwoWeekExpireProjectNum(projectSimpleRepository.countByEndDateBetweenAndManagerInAndCodeNotNull(LocalDate.now(), LocalDate.now().plusDays(14), new Long[]{item.getUserId()}));
+                    // 待报价的数量
+                    item.setWaitQuoteNum(salesleadOnlyRepository.countByManagerIdAndStatus(item.getUserId(), Integer.valueOf(SalesLeadStatusEnums.QUOTATION.getStatus())));
+                    // 已报价的数量
+                    item.setMonthQuotedNum(salesleadOnlyRepository.countByManagerIdAndQuotationGreaterThanAndUpdateTimeBetween(item.getUserId(), BigDecimal.ZERO,StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now()));
+                    // 已成交的数量
+                    item.setMontDealSalesleadNum(salesleadOnlyRepository.countByManagerIdAndStatusAndUpdateTimeBetween(item.getUserId(), Integer.valueOf(SalesLeadStatusEnums.ToProject.getStatus()),StatisticUtils.getStartTimeByTimeRange("month"), LocalDateTime.now()));
                 }
 
                 //实验
