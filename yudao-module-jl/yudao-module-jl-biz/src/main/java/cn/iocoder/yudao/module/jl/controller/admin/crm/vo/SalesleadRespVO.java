@@ -27,6 +27,9 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
+
     private CustomerRespVO customer;
 
     private ProjectQuoteRespVO quote;
