@@ -26,7 +26,7 @@ public class SupplierImportVO {
     private String contactName;
 
     @ExcelProperty("联系方式")
-    private Long contactPhone;
+    private String contactPhone;
 
     @ExcelProperty("渠道类型")
     private String channelTypeStr;

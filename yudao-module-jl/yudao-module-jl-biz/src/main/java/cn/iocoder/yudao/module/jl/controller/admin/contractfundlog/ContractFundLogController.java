@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +32,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.mapper.contractfundlog.ContractFundLogMapper;
 import cn.iocoder.yudao.module.jl.service.contractfundlog.ContractFundLogService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 合同收款记录")
 @RestController
@@ -92,6 +96,20 @@ public class ContractFundLogController {
         // 导出 Excel
         List<ContractFundLogExcelVO> excelData = contractFundLogMapper.toExcelList(list);
         ExcelUtils.write(response, "合同收款记录.xls", "数据", ContractFundLogExcelVO.class, excelData);
+    }
+
+    //excel导入
+    @PostMapping("/import-excel")
+    @Operation(summary = "导入用户")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    @PreAuthorize("@ss.hasPermission('system:user:import')")
+    public CommonResult<ContractFundLogImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
+                                                          @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<ContractFundLogImportVO> list = ExcelUtils.read(file, ContractFundLogImportVO.class);
+        return success(contractFundLogService.importList(list, updateSupport));
     }
 
 }

@@ -74,6 +74,9 @@ public class ContractFundLogBaseVO {
     @Schema(description = "状态")
     private Long auditId;
 
+    @Schema(description = "客户信息备注")
+    private String customerMark;
+
     private ProjectConstractOnly contract;
 
     private CustomerOnly customer;

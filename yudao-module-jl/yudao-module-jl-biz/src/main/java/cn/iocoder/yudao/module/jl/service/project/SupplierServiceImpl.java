@@ -236,17 +236,6 @@ public class SupplierServiceImpl implements SupplierService {
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
         importUsers.forEach(importUser -> {
 
-
-
-
-            // 校验，判断是否有不符合的原因
-/*            try {
-                validateUserForCreateOrUpdate(null, null, importUser.getMobile(), importUser.getEmail(),
-                        importUser.getDeptId(), null);
-            } catch (ServiceException ex) {
-                respVO.getFailureUsernames().put(importUser.getUsername(), ex.getMessage());
-                return;
-            }*/
             Supplier supplier = supplierMapper.toEntity(importUser);
 
             //根据字典label查询字典id
@@ -255,6 +244,9 @@ public class SupplierServiceImpl implements SupplierService {
             }
             if(StringUtils.contains(importUser.getChannelTypeStr(), "经销商")){
                 supplier.setChannelType("2");
+            }
+            if(StringUtils.contains(importUser.getChannelTypeStr(), "厂家/经销商") || StringUtils.contains(importUser.getChannelTypeStr(), "经销商/厂家") ){
+                supplier.setChannelType("3");
             }
 
             if(StringUtils.contains(importUser.getBillWayStr(), "增值税专票")){

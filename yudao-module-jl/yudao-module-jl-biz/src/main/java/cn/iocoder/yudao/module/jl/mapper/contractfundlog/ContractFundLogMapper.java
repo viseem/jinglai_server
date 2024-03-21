@@ -3,7 +3,9 @@ package cn.iocoder.yudao.module.jl.mapper.contractfundlog;
 import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
+import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import org.mapstruct.*;
 
 
@@ -13,6 +15,9 @@ public interface ContractFundLogMapper {
     ContractFundLog toEntity(ContractFundLogCreateReqVO dto);
 
     ContractFundLog toEntity(ContractFundLogUpdateReqVO dto);
+
+    ContractFundLog toEntity(ContractFundLogImportVO dto);
+
 
     ContractFundLogRespVO toDto(ContractFundLog entity);
 

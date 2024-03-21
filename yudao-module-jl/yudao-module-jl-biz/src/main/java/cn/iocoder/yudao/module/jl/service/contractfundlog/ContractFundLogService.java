@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.contractfundlog;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
@@ -66,4 +68,6 @@ public interface ContractFundLogService {
      */
     List<ContractFundLog> getContractFundLogList(ContractFundLogExportReqVO exportReqVO);
 
+
+    ContractFundLogImportRespVO importList(List<ContractFundLogImportVO> imports, boolean isUpdateSupport);
 }

@@ -134,6 +134,12 @@ public class ContractFundLog extends BaseEntity {
     @Column(name = "status", nullable = false )
     private String status;
 
+    /*
+     * 客户信息备注
+     * */
+    @Column(name = "customer_mark", nullable = false )
+    private String customerMark;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

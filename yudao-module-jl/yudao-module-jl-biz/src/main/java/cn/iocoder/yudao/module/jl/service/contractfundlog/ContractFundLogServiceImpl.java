@@ -1,6 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.contractfundlog;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
@@ -8,6 +12,7 @@ import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServi
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import com.xingyuv.captcha.util.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -39,6 +44,7 @@ import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepo
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 
 /**
  * 合同收款记录 Service 实现类
@@ -308,6 +314,30 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
         // 执行查询
         return contractFundLogRepository.findAll(spec);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public ContractFundLogImportRespVO importList(List<ContractFundLogImportVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        ContractFundLogImportRespVO respVO = ContractFundLogImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
+        importUsers.forEach(item -> {
+
+            // entity.
+            ContractFundLog entity = contractFundLogMapper.toEntity(item);
+
+            contractFundLogRepository.save(entity);
+
+
+
+            respVO.getCreateNames().add(item.getPayCompanyName());
+
+
+        });
+        return respVO;
     }
 
     private Sort createSort(ContractFundLogPageOrder order) {
