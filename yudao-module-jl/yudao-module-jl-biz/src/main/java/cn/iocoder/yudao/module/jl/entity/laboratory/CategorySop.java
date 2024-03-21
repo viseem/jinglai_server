@@ -35,6 +35,12 @@ public class CategorySop extends BaseEntity {
     private Long categoryId;
 
     /**
+     * 操作步骤的名称
+     */
+    @Column(name = "name", nullable = false )
+    private String name;
+
+    /**
      * 操作步骤的内容
      */
     @Column(name = "content", nullable = false )

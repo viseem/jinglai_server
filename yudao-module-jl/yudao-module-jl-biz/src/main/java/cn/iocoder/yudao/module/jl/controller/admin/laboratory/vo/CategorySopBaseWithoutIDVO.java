@@ -19,6 +19,9 @@ public class CategorySopBaseWithoutIDVO {
     @NotNull(message = "步骤序号不能为空")
     private Integer step;
 
+    @Schema(description = "名称")
+    private String name;
+
     @Schema(description = "注意事项")
     private String mark;
 

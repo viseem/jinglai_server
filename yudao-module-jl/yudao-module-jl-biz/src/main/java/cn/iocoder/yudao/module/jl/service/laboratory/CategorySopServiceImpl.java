@@ -71,6 +71,7 @@ public class CategorySopServiceImpl implements CategorySopService {
             categorySop.setContent(sop.getContent());
             categorySop.setDependIds(sop.getDependIds());
             categorySop.setMark(sop.getMark());
+            categorySop.setName(sop.getName());
             categorySopList.add(categorySop);
         }
 
