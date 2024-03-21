@@ -19,6 +19,10 @@ import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import com.xingyuv.captcha.util.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -337,6 +341,14 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         return contractFundLogRepository.findAll(spec);
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    private class FundSales{
+        private Long salesId;
+        private String content;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
     public ContractFundLogImportRespVO importList(List<ContractFundLogImportVO> importUsers, boolean isUpdateSupport) {
@@ -346,7 +358,9 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         ContractFundLogImportRespVO respVO = ContractFundLogImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
 
-        Set<Long> salesIds = new HashSet<>();
+//        Set<Long> salesIds = new HashSet<>();
+
+        List<FundSales> salesList = new ArrayList<>();
 
         importUsers.forEach(item -> {
 
@@ -360,7 +374,14 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             item.setReceiveDate(item.getReceiveDate()+" 09:00:00");
             User salesUser = byNickname.get(0);
 
-            salesIds.add(salesUser.getId());
+            //格式化字符串 您的客户【客户名称】已经支付【金额】给您
+            String content = String.format("您的客户【%s】到账%s【%s】元",
+                    item.getCustomerMark(),
+                    item.getMark(),
+                    item.getPrice());
+            salesList.add(new FundSales(salesUser.getId(),content));
+
+//            salesIds.add(salesUser.getId());
 
             ContractFundLog contractFundLog = contractFundLogMapper.toEntity(item);
             contractFundLog.setSalesId(salesUser.getId());
@@ -375,13 +396,23 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             respVO.getCreateNames().add(item.getPayer()+":"+item.getPrice()+":"+item.getSalesName());
             contractFundLogRepository.save(contractFundLog);
         });
-
+/*
         for (Long salesId : salesIds) {
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     salesId,
                     BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(), new HashMap<>()
             ));
+        }*/
+
+        for (FundSales fundSales : salesList) {
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("content",fundSales.getContent());
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    fundSales.getSalesId(),
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),templateParams
+            ));
         }
+
 
         return respVO;
     }
