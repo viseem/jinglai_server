@@ -240,6 +240,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
         }
 
+        Optional<User> userOptional = userRepository.findById(getLoginUserId());
+        
+
         // 更新线索
         Saleslead saleleadsObj = salesleadMapper.toEntity(updateReqVO);
 
@@ -345,10 +348,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
                 // 发送消息
                 Map<String, Object> templateParams = new HashMap<>();
-                Optional<User> byId1 = userRepository.findById(getLoginUserId());
                 templateParams.put("salesleadId",updateReqVO.getId());
                 templateParams.put("contractId",save.getId());
-                templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname(): getLoginUserId());
+                templateParams.put("userName",userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
                 templateParams.put("customerName",customer.getName());
                 templateParams.put("contractName",updateReqVO.getProjectName());
                 templateParams.put("contractPrice",updateReqVO.getPaperPrice());
@@ -403,6 +405,10 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(updateReqVO.getIsQuotation()!=null&&updateReqVO.getIsQuotation()){
             Map<String, Object> templateParams = new HashMap<>();
             templateParams.put("id", updateReqVO.getId());
+            templateParams.put("salesName", userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
+            templateParams.put("customerName", customer.getName());
+            templateParams.put("mark", updateReqVO.getQuotationMark()!=null?"说明："+updateReqVO.getQuotationMark():"");
+
             //发给商机的销售
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     updateReqVO.getManagerId(),
