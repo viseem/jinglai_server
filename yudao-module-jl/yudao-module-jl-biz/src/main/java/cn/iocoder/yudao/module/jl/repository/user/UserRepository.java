@@ -15,6 +15,9 @@ import java.util.List;
 *
 */
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    @Query("select u from User u where u.nickname = ?1")
+    List<User> findByNickname(String nickname);
+
     @Transactional
     @Modifying
     @Query("update User u set u.wxCpId = ?1 where u.id = ?2")

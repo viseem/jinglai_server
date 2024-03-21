@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProjectConstractOnly")
 @Table(name = "jl_project_constract")
+// 查询时，过滤掉 contractId 不等于 0 的数据
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProjectConstractOnly extends BaseEntity {
 

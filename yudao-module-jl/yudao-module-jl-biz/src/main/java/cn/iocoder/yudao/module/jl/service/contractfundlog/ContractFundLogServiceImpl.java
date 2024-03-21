@@ -5,9 +5,11 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportResp
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.commonattachment.CommonAttachmentRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
@@ -19,7 +21,9 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,6 +72,9 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
 
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
+
+    @Resource
+    private UserRepository userRepository;
 
 
     @Override
@@ -179,7 +186,14 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                     }
                 }
+            }
+
+
+            if(pageReqVO.getNoContract() != null&&pageReqVO.getNoContract()){
+                predicates.add(cb.equal(root.get("contractId"), 0L));
             }else{
+                // 查询contractId不等于0的
+                predicates.add(cb.notEqual(root.get("contractId"), 0L));
             }
 
             if(pageReqVO.getContractIds()!=null){
@@ -324,18 +338,28 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         }
         ContractFundLogImportRespVO respVO = ContractFundLogImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
+
         importUsers.forEach(item -> {
 
-            // entity.
-            ContractFundLog entity = contractFundLogMapper.toEntity(item);
+            List<User> byNickname = userRepository.findByNickname(item.getSalesName());
+            if(byNickname.isEmpty()){
+                respVO.getFailureNames().put(item.getSalesName(),"：未匹配到销售人员");
+                return;
+            }
+            item.setReceiveDate(item.getReceiveDate()+" 09:00:00");
+            User salesUser = byNickname.get(0);
+            ContractFundLog contractFundLog = contractFundLogMapper.toEntity(item);
+            contractFundLog.setSalesId(salesUser.getId());
+            contractFundLog.setPrice(new BigDecimal(item.getPrice()));
+            contractFundLog.setReceivedPrice(new BigDecimal(item.getPrice()));
+            contractFundLog.setPaidTime(LocalDateTime.parse(item.getReceiveDate(), DateTimeFormatter.ofPattern("yyyy/M/d HH:mm:ss")));
+            contractFundLog.setStatus(ContractFundStatusEnums.AUDITED.getStatus());
+            contractFundLog.setCustomerId(0L);
+            contractFundLog.setContractId(0L);
+            contractFundLog.setAuditId(getLoginUserId());
 
-            contractFundLogRepository.save(entity);
-
-
-
-            respVO.getCreateNames().add(item.getPayCompanyName());
-
-
+            respVO.getCreateNames().add(item.getPayer()+":"+item.getPrice()+":"+item.getSalesName());
+            contractFundLogRepository.save(contractFundLog);
         });
         return respVO;
     }

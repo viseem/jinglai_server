@@ -28,7 +28,7 @@ public class ContractFundLogPageReqVO extends PageParam {
     @Schema(description = "in 查询 contractIds")
     private Long[] contractIds;
 
-
+    private Boolean noContract;
 
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.MY.getStatus();

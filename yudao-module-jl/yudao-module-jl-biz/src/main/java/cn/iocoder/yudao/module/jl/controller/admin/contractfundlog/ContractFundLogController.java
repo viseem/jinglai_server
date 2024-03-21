@@ -105,7 +105,7 @@ public class ContractFundLogController {
             @Parameter(name = "file", description = "Excel 文件", required = true),
             @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
     })
-    @PreAuthorize("@ss.hasPermission('system:user:import')")
+    @PreAuthorize("@ss.hasPermission('system:fund-log:import')")
     public CommonResult<ContractFundLogImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
                                                           @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
         List<ContractFundLogImportVO> list = ExcelUtils.read(file, ContractFundLogImportVO.class);

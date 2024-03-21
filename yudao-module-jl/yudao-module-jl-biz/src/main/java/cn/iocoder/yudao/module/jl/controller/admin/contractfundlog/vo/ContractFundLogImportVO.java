@@ -16,20 +16,23 @@ import lombok.experimental.Accessors;
 @Accessors(chain = false) // 设置 chain = false，避免用户导入有问题
 public class ContractFundLogImportVO {
 
+    @ExcelProperty("款项名称")
+    private String name;
+
     @ExcelProperty("回款日期")
-    private String returnDate;
+    private String receiveDate;
 
     @ExcelProperty("金额")
     private String price;
 
     @ExcelProperty("转账单位")
-    private String payCompanyName;
+    private String payer;
 
     @ExcelProperty("客户")
-    private String customerName;
+    private String customerMark;
 
     @ExcelProperty("收款账户")
-    private String receiveAccount;
+    private String payee;
 
     @ExcelProperty("销售人员")
     private String salesName;
