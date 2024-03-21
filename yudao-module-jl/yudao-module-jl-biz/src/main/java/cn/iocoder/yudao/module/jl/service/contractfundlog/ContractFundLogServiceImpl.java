@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.contractfundlog;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
@@ -14,6 +16,8 @@ import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServi
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import com.xingyuv.captcha.util.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -57,6 +61,9 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPOR
 @Service
 @Validated
 public class ContractFundLogServiceImpl implements ContractFundLogService {
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
@@ -339,6 +346,8 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         ContractFundLogImportRespVO respVO = ContractFundLogImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
 
+        Set<Long> salesIds = new HashSet<>();
+
         importUsers.forEach(item -> {
 
             List<User> byNickname = userRepository.findByNickname(item.getSalesName());
@@ -346,8 +355,13 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                 respVO.getFailureNames().put(item.getSalesName(),"：未匹配到销售人员");
                 return;
             }
+
+
             item.setReceiveDate(item.getReceiveDate()+" 09:00:00");
             User salesUser = byNickname.get(0);
+
+            salesIds.add(salesUser.getId());
+
             ContractFundLog contractFundLog = contractFundLogMapper.toEntity(item);
             contractFundLog.setSalesId(salesUser.getId());
             contractFundLog.setPrice(new BigDecimal(item.getPrice()));
@@ -361,6 +375,14 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             respVO.getCreateNames().add(item.getPayer()+":"+item.getPrice()+":"+item.getSalesName());
             contractFundLogRepository.save(contractFundLog);
         });
+
+        for (Long salesId : salesIds) {
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    salesId,
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(), new HashMap<>()
+            ));
+        }
+
         return respVO;
     }
 
