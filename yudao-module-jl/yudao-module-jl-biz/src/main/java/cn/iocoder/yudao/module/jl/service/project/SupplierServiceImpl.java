@@ -2,8 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
+import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
+import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
 import com.xingyuv.captcha.util.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -52,6 +55,9 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Resource
     private ProjectSupplierInvoiceServiceImpl projectSupplierInvoiceService;
+
+    @Resource
+    private DictDataApiImpl dictDataApi;
 
     @Override
     public Long createSupplier(SupplierCreateReqVO createReqVO) {
@@ -194,7 +200,30 @@ public class SupplierServiceImpl implements SupplierService {
         };
 
         // 执行查询
-        return supplierRepository.findAll(spec);
+        List<Supplier> supplierList = supplierRepository.findAll(spec);
+        List<DictDataRespDTO> channelTypes = dictDataApi.getDictDataByType(DictTypeConstants.SUPPLIER_CHANNEL_TYPE);
+        List<DictDataRespDTO> billWays = dictDataApi.getDictDataByType(DictTypeConstants.SUPPLIER_BILL_WAY_TYPE);
+        List<DictDataRespDTO> paymentCycles = dictDataApi.getDictDataByType(DictTypeConstants.SUPPLIER_PAYMENT_CYCLE);
+
+        for (Supplier supplier : supplierList) {
+            for (DictDataRespDTO channelType : channelTypes) {
+                if (channelType.getValue().equals(supplier.getChannelType())) {
+                    supplier.setChannelTypeStr(channelType.getLabel());
+                }
+            }
+            for (DictDataRespDTO billWay : billWays) {
+                if (billWay.getValue().equals(supplier.getBillWay())) {
+                    supplier.setBillWayStr(billWay.getLabel());
+                }
+            }
+            for (DictDataRespDTO paymentCycle : paymentCycles) {
+                if (paymentCycle.getValue().equals(supplier.getPaymentCycle())) {
+                    supplier.setPaymentCycleStr(paymentCycle.getLabel());
+                }
+            }
+        }
+
+        return supplierList;
     }
 
     @Override

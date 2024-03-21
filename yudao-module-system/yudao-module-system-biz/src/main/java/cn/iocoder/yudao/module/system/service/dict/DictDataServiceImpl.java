@@ -175,6 +175,12 @@ public class DictDataServiceImpl implements DictDataService {
     public DictDataDO getDictData(String dictType, String value) {
         return dictDataMapper.selectByDictTypeAndValue(dictType, value);
     }
+    @Override
+    public List<DictDataDO> getDictDataByType(String dictType) {
+        return dictDataMapper.selectList(
+                new DictDataExportReqVO().setDictType(dictType).setStatus(CommonStatusEnum.ENABLE.getStatus())
+        );
+    }
 
     @Override
     public DictDataDO parseDictData(String dictType, String label) {

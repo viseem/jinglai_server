@@ -70,6 +70,8 @@ public interface DictDataService {
      */
     DictDataDO getDictData(Long id);
 
+
+
     /**
      * 获得指定字典类型的数据数量
      *
@@ -96,6 +98,14 @@ public interface DictDataService {
      * @return 字典数据
      */
     DictDataDO getDictData(String dictType, String value);
+
+    /**
+     * 获得指定的字典数据
+     *
+     * @param dictType 字典类型
+     * @return 字典数据
+     */
+    List<DictDataDO> getDictDataByType(String dictType);
 
     /**
      * 解析获得指定的字典数据，从缓存中

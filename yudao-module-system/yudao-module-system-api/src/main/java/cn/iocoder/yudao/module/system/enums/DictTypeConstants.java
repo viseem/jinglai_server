@@ -26,4 +26,10 @@ public interface DictTypeConstants {
     String SMS_SEND_STATUS = "system_sms_send_status"; // 短信发送状态
     String SMS_RECEIVE_STATUS = "system_sms_receive_status"; // 短信接收状态
 
+
+    // =================采购
+    String SUPPLIER_CHANNEL_TYPE = "SUPPLIER_CHANNEL_TYPE"; // 供应商渠道类型
+    String SUPPLIER_BILL_WAY_TYPE = "SUPPLIER_BILL_WAY_TYPE"; // 供应商结算方式类型
+    String SUPPLIER_PAYMENT_CYCLE = "SUPPLIER_PAYMENT_CYCLE"; // 供应商付款周期类型
+
 }

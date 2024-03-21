@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -180,5 +181,13 @@ public class Supplier extends BaseEntity {
      */
     @Column(name = "address")
     private String address;
+
+
+    @Transient
+    private String channelTypeStr;
+    @Transient
+    private String billWayStr;
+    @Transient
+    private String paymentCycleStr;
 
 }

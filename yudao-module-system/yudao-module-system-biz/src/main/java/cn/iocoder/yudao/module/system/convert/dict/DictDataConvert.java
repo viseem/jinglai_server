@@ -21,6 +21,9 @@ public interface DictDataConvert {
 
     PageResult<DictDataRespVO> convertPage(PageResult<DictDataDO> page);
 
+    List<DictDataRespDTO> convertPage02(List<DictDataDO> page);
+
+
     DictDataDO convert(DictDataUpdateReqVO bean);
 
     DictDataDO convert(DictDataCreateReqVO bean);

@@ -20,6 +20,7 @@ public interface DictDataMapper extends BaseMapperX<DictDataDO> {
         return selectOne(DictDataDO::getDictType, dictType, DictDataDO::getValue, value);
     }
 
+
     default DictDataDO selectByDictTypeAndLabel(String dictType, String label) {
         return selectOne(DictDataDO::getDictType, dictType, DictDataDO::getLabel, label);
     }
