@@ -210,13 +210,32 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             templateParams.put("stage", stageLabel);
             templateParams.put("mark", mark!=null?"说明："+mark:" ");
             //查询PI组成员
-            List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(projectCategory.getProject()!=null?projectCategory.getProject().getManagerId():getLoginUserId());
-            for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
-                if(subjectGroupMember.getUserId().equals(SecurityFrameworkUtils.getLoginUserId())){
+            List<Long> userIds = new ArrayList<>();
+            if(projectCategory.getProject()!=null){
+                ProjectSimple project = projectCategory.getProject();
+                if(project.getManagerId()!=null){
+                    userIds.add(project.getManagerId());
+                }
+                if(project.getSalesId()!=null){
+                    userIds.add(project.getSalesId());
+                }
+                if(project.getFocusIds()!=null){
+                    String[] split = project.getFocusIds().split(",");
+                    for (String s : split) {
+                        if(Long.parseLong(s)>0){
+                            userIds.add(Long.valueOf(s));
+                        }
+                    }
+                }
+            }
+
+//            List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(projectCategory.getProject()!=null?projectCategory.getProject().getManagerId():getLoginUserId());
+            for (Long userId : userIds) {
+                if(userId.equals(getLoginUserId())){
                     continue;
                 }
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                        subjectGroupMember.getUserId(),
+                        userId,
                         BpmMessageEnum.NOTIFY_WHEN_CATEGORY_STAGE_CHANGE.getTemplateCode(), templateParams
                 ));
             }
