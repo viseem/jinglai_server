@@ -52,9 +52,9 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
     //通过成员id查询所在组的成员
 
     public List<SubjectGroupMember> findMembersByMemberId(@Valid Long memberId) {
-        SubjectGroupMember member = subjectGroupMemberRepository.findByUserId(memberId);
-        if(member!=null){
-            return subjectGroupMemberRepository.findByGroupId(member.getGroupId());
+        List<SubjectGroupMember> members = subjectGroupMemberRepository.findByUserId(memberId);
+        if(members!=null&& !members.isEmpty()){
+            return subjectGroupMemberRepository.findByGroupId(members.get(0).getGroupId());
         }
         return new ArrayList<>();
     }

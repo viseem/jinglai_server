@@ -11,7 +11,7 @@ import java.util.List;
 */
 public interface SubjectGroupMemberRepository extends JpaRepository<SubjectGroupMember, Long>, JpaSpecificationExecutor<SubjectGroupMember> {
     @Query("select s from SubjectGroupMember s where s.userId = ?1")
-    SubjectGroupMember findByUserId(Long userId);
+    List<SubjectGroupMember> findByUserId(Long userId);
     List<SubjectGroupMember> findByGroupId(Long groupId);
 
 }

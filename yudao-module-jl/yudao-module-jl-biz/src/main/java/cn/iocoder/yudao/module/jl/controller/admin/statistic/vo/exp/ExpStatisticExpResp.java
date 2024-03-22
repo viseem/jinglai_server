@@ -15,6 +15,8 @@ public class ExpStatisticExpResp {
     Integer doingCount;
     //已完成
     Integer completeCount;
+    // 已出库
+    Integer outCount;
     //已暂停
     Integer pauseCount;
     // 已延期

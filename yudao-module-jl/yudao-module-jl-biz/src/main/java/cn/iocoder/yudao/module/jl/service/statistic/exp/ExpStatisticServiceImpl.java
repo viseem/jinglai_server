@@ -40,7 +40,8 @@ public class ExpStatisticServiceImpl implements ExpStatisticService {
 
         Integer waitCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), new String[]{ProjectCategoryStatusEnums.WAIT_DO.getStatus()});
         Integer doingCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), ProjectCategoryStatusEnums.getDoingStages());
-        Integer completeCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), new String[]{ProjectCategoryStatusEnums.COMPLETE.getStatus()});
+        Integer completeCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), new String[]{ProjectCategoryStatusEnums.DONE.getStatus()});
+        Integer outCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), new String[]{ProjectCategoryStatusEnums.COMPLETE.getStatus()});
         Integer pauseCount = projectCategoryRepository.countByOperatorIdInAndStageIn( reqVO.getUserIds(), new String[]{ProjectCategoryStatusEnums.PAUSE.getStatus()});
         Integer delayCount = projectCategoryRepository.countByDeadlineLessThanAndOperatorIdInAndStageNot(LocalDateTime.now(), reqVO.getUserIds(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
         Integer twoWeekExpireCount = projectCategoryRepository.countByDeadlineBetweenAndOperatorIdInAndStageNot(LocalDateTime.now(), LocalDateTime.now().plusDays(14), reqVO.getUserIds(), ProjectCategoryStatusEnums.COMPLETE.getStatus());
@@ -48,6 +49,7 @@ public class ExpStatisticServiceImpl implements ExpStatisticService {
         expStatisticExpResp.setWaitCount(waitCount);
         expStatisticExpResp.setDoingCount(doingCount);
         expStatisticExpResp.setCompleteCount(completeCount);
+        expStatisticExpResp.setOutCount(outCount);
         expStatisticExpResp.setPauseCount(pauseCount);
         expStatisticExpResp.setDelayCount(delayCount);
         expStatisticExpResp.setExpireCount(twoWeekExpireCount);

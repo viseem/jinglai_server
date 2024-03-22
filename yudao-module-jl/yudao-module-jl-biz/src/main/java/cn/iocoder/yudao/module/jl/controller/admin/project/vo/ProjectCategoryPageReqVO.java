@@ -32,6 +32,12 @@ public class ProjectCategoryPageReqVO extends PageParam {
 
     private String stage;
 
+    @Schema(description = "实验人员", example = "17520")
+    private Long[] operatorIds;
+
+    private Boolean isDelay;
+    private Integer expireDayLimit;
+
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;

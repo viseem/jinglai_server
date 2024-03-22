@@ -13,6 +13,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 import cn.iocoder.yudao.module.jl.repository.commontodo.CommonTodoRepository;
 import cn.iocoder.yudao.module.jl.repository.commontodolog.CommonTodoLogRepository;
@@ -40,6 +41,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -584,6 +586,23 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 predicates.add(root.get("projectManagerId").in(Arrays.stream(users).toArray()));
             }
 
+            if(pageReqVO.getOperatorIds()!=null){
+                predicates.add(root.get("operatorId").in(Arrays.stream(pageReqVO.getOperatorIds()).toArray()));
+            }
+
+            if(pageReqVO.getIsDelay() != null) {
+                //查询截止日期小于当前日期的
+                predicates.add(cb.lessThan(root.get("deadline"), LocalDateTime.now()));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectCategoryStatusEnums.COMPLETE.getStatus()));
+            }
+
+            if(pageReqVO.getExpireDayLimit()!=null){
+                //查询在getExpireDayLimit日内即将到期的
+                predicates.add(cb.between(root.get("deadline"), LocalDateTime.now(), LocalDateTime.now().plusDays(pageReqVO.getExpireDayLimit())));
+                //并且状态不是已出库的
+                predicates.add(cb.notEqual(root.get("stage"), ProjectStageEnums.OUTED.getStatus()));
+            }
 
             if(pageReqVO.getStageArr()!=null){
                 predicates.add(root.get("stage").in(Arrays.stream(pageReqVO.getStageArr()).toArray()));
