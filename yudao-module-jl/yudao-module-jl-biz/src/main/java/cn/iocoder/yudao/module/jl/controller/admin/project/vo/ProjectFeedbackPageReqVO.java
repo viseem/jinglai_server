@@ -16,12 +16,15 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class ProjectFeedbackPageReqVO extends PageParam {
 
     @Schema(description = "归属：ALL MY SUB")
-    private String attribute = DataAttributeTypeEnums.ALL.getStatus();
+    private String attribute;
 
     @Schema(description = "in 查询 creators")
     private Long[] creators;
 
     private Long creator;
+
+    private Long responsibleUserId;
+
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

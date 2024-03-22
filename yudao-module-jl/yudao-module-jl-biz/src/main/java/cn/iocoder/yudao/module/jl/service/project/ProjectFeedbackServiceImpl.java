@@ -160,17 +160,26 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         Specification<ProjectFeedback> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             //如果是看自己的
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
-                if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
+            if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+/*                if(pageReqVO.getCreator()!=null&& pageReqVO.getCreator()==1){
                     predicates.add(cb.equal(root.get("creator"), pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?pageReqVO.getUserId():getLoginUserId()));
                 }else{
-                    //不是看自己的 默认查由自己处理的
+
                     if (pageReqVO.getUserId() != null) {
                         predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
                     }else{
                         predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                     }
-                }
+                }*/
+                predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+            }
+
+            if (pageReqVO.getCreator() != null) {
+                predicates.add(cb.equal(root.get("creator"), pageReqVO.getCreator()));
+            }
+
+            if (pageReqVO.getResponsibleUserId() != null) {
+                predicates.add(cb.equal(root.get("userId"), pageReqVO.getResponsibleUserId()));
             }
 
             if (pageReqVO.getProjectId() != null) {

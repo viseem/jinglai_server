@@ -20,12 +20,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProjectFeedbackBaseVO {
 
-    @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15989")
+    @Schema(description = "项目 id")
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
 
-    @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "5559")
+    @Schema(description = "实验名目 id")
     private Long projectCategoryId;
 
     @Schema(description = "售前/售中/售后")
@@ -38,7 +38,7 @@ public class ProjectFeedbackBaseVO {
     @NotNull(message = "责任人 id不能为空")
     private Long userId;
 
-    @Schema(description = "客户 id", example = "13743", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "客户 id")
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")

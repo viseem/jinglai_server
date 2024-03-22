@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,4 +19,6 @@ public class ProjectQuotationRespVO extends ProjectQuotationBaseVO {
 
     @Schema(description = "更新时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime updateTime;
+
+    private User user;
 }
