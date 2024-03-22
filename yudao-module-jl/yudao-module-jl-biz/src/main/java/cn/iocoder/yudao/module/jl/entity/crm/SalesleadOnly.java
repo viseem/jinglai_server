@@ -151,6 +151,12 @@ public class SalesleadOnly extends BaseEntity {
     @Column(name = "quotation_create_time")
     private LocalDateTime quotationCreateTime;
 
+    /**
+     * 报价最近更新时间
+     */
+    @Column(name = "quotation_update_time")
+    private LocalDateTime quotationUpdateTime;
+
 
 
     @Column(name = "last_followup_id")

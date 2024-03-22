@@ -167,10 +167,16 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
         projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
         //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
-        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+//        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
 
         //更新一下商机的操作时间
-        salesleadRepository.updateLastFollowTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
+//        salesleadRepository.updateLastFollowTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
+
+        // 更新一下商机的报价时间
+//        salesleadRepository.updateQuotationUpdateTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
+
+        // 以上三个一起更新
+        salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeByProjectId(updateReqVO.getQuotationAmount(),LocalDateTime.now(),LocalDateTime.now(),updateReqVO.getProjectId());
     }
 
     public void saveProjectQuotationBk(ProjectQuotationSaveReqVO updateReqVO) {

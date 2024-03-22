@@ -16,6 +16,15 @@ import java.util.Collection;
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.quotation = ?1, s.lastFollowTime = ?2, s.quotationUpdateTime = ?3 " +
+            "where s.projectId = ?4")
+    int updateQuotationAndLastFollowTimeAndQuotationUpdateTimeByProjectId(BigDecimal quotation, LocalDateTime lastFollowTime, LocalDateTime quotationUpdateTime, Long projectId);
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.quotationUpdateTime = ?1 where s.projectId = ?2")
+    int updateQuotationUpdateTimeByProjectId(LocalDateTime quotationUpdateTime, Long projectId);
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.lastFollowTime = ?1 where s.projectId = ?2")
     int updateLastFollowTimeByProjectId(LocalDateTime lastFollowTime, Long projectId);
     @Transactional

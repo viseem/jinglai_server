@@ -143,11 +143,19 @@ public class Saleslead extends BaseEntity {
     @Column(name = "last_follow_time")
     private LocalDateTime lastFollowTime;
 
+
     /**
      * 报价的创建时间
      */
     @Column(name = "quotation_create_time")
     private LocalDateTime quotationCreateTime;
+
+
+    /**
+     * 报价最近更新时间
+     */
+    @Column(name = "quotation_update_time")
+    private LocalDateTime quotationUpdateTime;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
