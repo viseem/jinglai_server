@@ -39,9 +39,8 @@ public class ProjectOnly extends BaseEntity{
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false )
     private Long id;
-
 
     /**
      * 课题组id
@@ -50,20 +49,47 @@ public class ProjectOnly extends BaseEntity{
     private Long subjectGroupId;
 
     /**
+     * 项目编号
+     */
+    @Column(name = "code", nullable = false )
+    private String code;
+
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
+
+
+
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
+
+    /*
+     * 项目出库申请结果
+     * */
+
+    @Column(name = "outbound_apply_result", nullable = false )
+    private String outboundApplyResult;
+
+    @Column(name = "outbound_user_id", nullable = false )
+    private Long outboundUserId;
+
+
+
+
+    /**
      * 销售线索 id
      */
     @Column(name = "saleslead_id")
     private Long salesleadId;
 
-
     /**
      * 项目名字
      */
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false )
     private String name;
-
-    @Column(name = "code", nullable = false)
-    private String code;
 
     /**
      * 项目开展阶段
@@ -80,20 +106,21 @@ public class ProjectOnly extends BaseEntity{
     /**
      * 项目类型
      */
-    @Column(name = "type")
+    @Column(name = "type", nullable = false )
     private String type;
 
     /**
      * 启动时间
      */
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     /**
      * 截止时间
      */
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
+
 
     /*
      * 最近跟进时间
@@ -107,12 +134,22 @@ public class ProjectOnly extends BaseEntity{
     @Column(name = "manager_id")
     private Long managerId;
 
+    /**
+     * 项目售前负责人
+     */
+    @Column(name = "pre_manager_id")
+    private Long preManagerId;
 
     /**
-     * 原设计 参与者 ids，数组
+     * 项目售后负责人
      */
-    @Column(name = "participants")
-    private String participants;
+    @Column(name = "after_manager_id")
+    private Long afterManagerId;
+    /**
+     * 实验负责人
+     */
+    @Column(name = "exper_id")
+    private Long experId;
 
     /**
      * 参与者 ids，数组
@@ -121,33 +158,42 @@ public class ProjectOnly extends BaseEntity{
     private String focusIds;
 
     /**
-     * 销售 id
-     */
-    @Column(name = "sales_id")
-    private Long salesId;
-
-    /**
-     * 客户 id
-     */
-    @Column(name = "customer_id")
-    private Long customerId;
-    /**
-     * 当前安排单 id
-     */
-    @Column(name = "current_quotation_id")
-    private Long currentQuotationId;
-
-    /**
      * tag ids
      */
     @Column(name = "tag_ids")
     private String tagIds;
 
     /**
+     * 转移记录json
+     */
+    @Column(name = "transfer_log")
+    private String transferLog;
+
+    /**
+     * 原设计 参与者 ids，数组
+     */
+    @Column(name = "participants")
+    private String participants;
+    /**
+     * 销售 id
+     */
+    @Column(name = "sales_id")
+    private Long salesId;
+
+
+
+    /**
      * 当前安排单 id
      */
     @Column(name = "current_schedule_id")
     private Long currentScheduleId;
+
+    /**
+     * 当前安排单 id
+     */
+    @Column(name = "current_quotation_id",insertable =false, updatable = false)
+    private Long currentQuotationId;
+
 
     @Transient
     private Integer completePercent;

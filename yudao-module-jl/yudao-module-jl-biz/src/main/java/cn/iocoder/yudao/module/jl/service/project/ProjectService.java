@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerPr
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 
 /**
@@ -76,6 +77,9 @@ public interface ProjectService {
      * @return 项目管理分页
      */
     PageResult<Project> getProjectPage(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+
+    PageResult<ProjectOnly> getProjectPageOnly(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0);
+
 
     ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO);
 

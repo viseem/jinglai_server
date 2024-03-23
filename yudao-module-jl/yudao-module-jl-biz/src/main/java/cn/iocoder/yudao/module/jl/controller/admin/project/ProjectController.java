@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
@@ -165,6 +166,14 @@ public class ProjectController {
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<PageResult<Project>> getProjectPage(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
         PageResult<Project> pageResult = projectService.getProjectPage(pageVO, orderV0);
+        return success(pageResult);
+    }
+
+    @GetMapping("/page-only")
+    @Operation(summary = "(分页)获得项目管理列表")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<PageResult<ProjectOnly>> getProjectPageOnly(@Valid ProjectPageReqVO pageVO, @Valid ProjectPageOrder orderV0) {
+        PageResult<ProjectOnly> pageResult = projectService.getProjectPageOnly(pageVO, orderV0);
         return success(pageResult);
     }
 

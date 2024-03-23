@@ -60,13 +60,7 @@ public class Project extends BaseEntity{
     @Column(name = "customer_id")
     private Long customerId;
 
-    /**
-     * 级联出客户信息
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+
 
 
     @Column(name = "process_instance_id", nullable = false )
@@ -186,6 +180,48 @@ public class Project extends BaseEntity{
     @Column(name = "sales_id")
     private Long salesId;
 
+
+
+    /**
+     * 当前安排单 id
+     */
+    @Column(name = "current_schedule_id")
+    private Long currentScheduleId;
+
+    /**
+     * 当前安排单 id
+     */
+    @Column(name = "current_quotation_id",insertable =false, updatable = false)
+    private Long currentQuotationId;
+
+
+    @Transient
+    private Integer completePercent;
+    @Transient
+    private Long completeCount;
+    @Transient
+    private Long allCount;
+    @Transient
+    private Long doingCount;
+    @Transient
+    private Long pauseCount;
+    @Transient
+    private Long waitDoCount;
+    @Transient
+    private List<User> focusList = new ArrayList<>();
+
+    //这个是客户的课题组合集
+    @Transient
+    private List<CrmSubjectGroup> subjectGroupList = new ArrayList<>();
+
+
+    /**
+     * 级联出客户信息
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
     /**
      * JPA 级联出 sales
      */
@@ -213,18 +249,6 @@ public class Project extends BaseEntity{
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User exper;
-
-    /**
-     * 当前安排单 id
-     */
-    @Column(name = "current_schedule_id")
-    private Long currentScheduleId;
-
-    /**
-     * 当前安排单 id
-     */
-    @Column(name = "current_quotation_id",insertable =false, updatable = false)
-    private Long currentQuotationId;
 
     /**
      * 当前安排单
@@ -256,23 +280,4 @@ public class Project extends BaseEntity{
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "subject_group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CrmSubjectGroup subjectGroup;
-
-    @Transient
-    private Integer completePercent;
-    @Transient
-    private Long completeCount;
-    @Transient
-    private Long allCount;
-    @Transient
-    private Long doingCount;
-    @Transient
-    private Long pauseCount;
-    @Transient
-    private Long waitDoCount;
-    @Transient
-    private List<User> focusList = new ArrayList<>();
-
-    //这个是客户的课题组合集
-    @Transient
-    private List<CrmSubjectGroup> subjectGroupList = new ArrayList<>();
 }

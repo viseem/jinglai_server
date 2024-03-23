@@ -407,6 +407,30 @@ public class ProjectServiceImpl implements ProjectService {
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
+    @Override
+    public PageResult<ProjectOnly> getProjectPageOnly(ProjectPageReqVO pageReqVO, ProjectPageOrder orderV0) {
+
+        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+        pageReqVO.setManagers(users);
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProjectOnly> spec = getProjectCommonSpecification(pageReqVO);
+        // 执行查询
+        Page<ProjectOnly> page = projectOnlyRepository.findAll(spec, pageable);
+/*        page.forEach(item->{
+            processProjectItem(item,false);
+        });*/
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
     @NotNull
     private <T>Specification<T> getProjectCommonSpecification(ProjectPageReqVO pageReqVO) {
         Specification<T> spec = (root, query, cb) -> {

@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -119,7 +120,7 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
 
         List<Long> delayIdList = projectList.stream()
                 .filter(project -> project.getEndDate() != null &&
-                        project.getEndDate().isBefore(LocalDate.now()) &&
+                        project.getEndDate().isBefore(LocalDateTime.now()) &&
                         !ProjectStageEnums.OUTED.getStatus().equals(project.getStage()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
@@ -127,8 +128,8 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
 
         List<Long> expireIdList = projectList.stream()
                 .filter(project -> project.getEndDate() != null &&
-                        project.getEndDate().isAfter(LocalDate.now()) &&
-                        project.getEndDate().isBefore(LocalDate.now().plusDays(14)) &&
+                        project.getEndDate().isAfter(LocalDateTime.now()) &&
+                        project.getEndDate().isBefore(LocalDateTime.now().plusDays(14)) &&
                         !ProjectStageEnums.OUTED.getStatus().equals(project.getStage()))
                 .map(ProjectOnly::getId)
                 .collect(Collectors.toList());
