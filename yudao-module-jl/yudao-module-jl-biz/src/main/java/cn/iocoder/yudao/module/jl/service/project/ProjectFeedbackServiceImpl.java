@@ -72,13 +72,17 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     @Override
     @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
-        //查询项目是否存在
-        Project project = projectRepository.findById(createReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
-        // 校验是否已经反馈过
-        // 插入
         ProjectFeedback projectFeedback = projectFeedbackMapper.toEntity(createReqVO);
-        projectFeedback.setStatus(ProjectFeedbackEnums.NOT_PROCESS.getStatus());
-        projectFeedback.setCustomerId(project.getCustomerId());
+
+        if(createReqVO.getProjectId()!=null){
+            //查询项目是否存在
+            Project project = projectRepository.findById(createReqVO.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+            // 校验是否已经反馈过
+            // 插入
+            projectFeedback.setStatus(ProjectFeedbackEnums.NOT_PROCESS.getStatus());
+            projectFeedback.setCustomerId(project.getCustomerId());
+        }
+
         projectFeedbackRepository.save(projectFeedback);
 
         // 如果是projectCategory的反馈，则更新projectCategory的字段 TODO 可能会更新失败

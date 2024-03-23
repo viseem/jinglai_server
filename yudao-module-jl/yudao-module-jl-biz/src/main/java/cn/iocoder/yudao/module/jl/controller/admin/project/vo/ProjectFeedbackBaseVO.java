@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.IsOrNotEnums;
+import cn.iocoder.yudao.module.jl.enums.IsResolvedEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,7 +24,6 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class ProjectFeedbackBaseVO {
 
     @Schema(description = "项目 id")
-    @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
 
@@ -42,10 +44,11 @@ public class ProjectFeedbackBaseVO {
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")
-    private String type = ProjectFeedbackEnums.INNER_TYPE.getStatus();
+    @NotNull(message = "反馈分类不能为空")
+    private String type;
 
     @Schema(description = "状态", example = "1")
-    private String status;
+    private String status = IsResolvedEnums.NOT.getStatus();
 
     @Schema(description = "反馈的内容",requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "这是反馈的内容")
     @NotNull(message = "反馈的内容不能为空")
