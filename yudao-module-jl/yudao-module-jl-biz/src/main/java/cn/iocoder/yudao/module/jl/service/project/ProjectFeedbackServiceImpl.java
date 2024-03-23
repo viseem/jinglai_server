@@ -148,10 +148,7 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     @Override
     public PageResult<ProjectFeedback> getProjectFeedbackPage(ProjectFeedbackPageReqVO pageReqVO, ProjectFeedbackPageOrder orderV0) {
 
-        //获取attribute
-        Long[] users = pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(),pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-        //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
-        pageReqVO.setCreators(users);
+
 
 
         // 创建 Sort 对象
@@ -175,6 +172,10 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
                         predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                     }
                 }*/
+                //获取attribute
+                Long[] users = pageReqVO.getUserId()!=null&&pageReqVO.getUserId()>0?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(),pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                //这里注意 是起错名字了 这个是责任人 不是创建人 逻辑没错
+                pageReqVO.setCreators(users);
                 predicates.add(root.get("userId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
             }
 
@@ -303,6 +304,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+        orders.add(new Sort.Order( Sort.Direction.DESC , "level"));
+
+        orders.add(new Sort.Order( Sort.Direction.DESC , "status"));
 
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
