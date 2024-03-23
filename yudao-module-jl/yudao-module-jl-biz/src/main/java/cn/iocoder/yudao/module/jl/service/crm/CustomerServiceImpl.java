@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
@@ -101,7 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 查询手机号是否存在
         if(createReqVO.getPhone()!=null&& !createReqVO.getPhone().isEmpty()){
-            CustomerOnly byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
+            CustomerSimple byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
             if(byPhone!=null){
                 return 0L;
             }
@@ -143,9 +143,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerOnly updateAppCustomer(AppCustomerUpdateReqVO updateReqVO) {
+    public CustomerSimple updateAppCustomer(AppCustomerUpdateReqVO updateReqVO) {
         // 校验存在
-        CustomerOnly customer = validateSimpleCustomerExists(updateReqVO.getId());
+        CustomerSimple customer = validateSimpleCustomerExists(updateReqVO.getId());
         //copy对象
         BeanUtils.copyProperties(updateReqVO,customer);
         // 更新
@@ -188,9 +188,9 @@ public class CustomerServiceImpl implements CustomerService {
         return byId.get();
     }
 
-    private CustomerOnly validateSimpleCustomerExists(Long id) {
+    private CustomerSimple validateSimpleCustomerExists(Long id) {
 
-        Optional<CustomerOnly> byId = customerSimpleRepository.findById(id);
+        Optional<CustomerSimple> byId = customerSimpleRepository.findById(id);
         if(!byId.isPresent()){
             throw exception(CUSTOMER_NOT_EXISTS);
         }
@@ -390,7 +390,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    public PageResult<CustomerOnly> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
+    public PageResult<CustomerSimple> getCustomerSimplePage(CustomerPageReqVO pageReqVO, CustomerPageOrder orderV0) {
 
         //获取attributeUsers
 //        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
@@ -403,10 +403,10 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<CustomerOnly> spec = getCustomerSpecification(pageReqVO);
+        Specification<CustomerSimple> spec = getCustomerSpecification(pageReqVO);
 
         // 执行查询
-        Page<CustomerOnly> page = customerSimpleRepository.findAll(spec, pageable);
+        Page<CustomerSimple> page = customerSimpleRepository.findAll(spec, pageable);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

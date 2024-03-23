@@ -3,17 +3,13 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import java.util.*;
+
 import javax.persistence.*;
-import javax.validation.constraints.*;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 客户联系人 Entity
@@ -124,6 +120,6 @@ public class CrmContact extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
 }

@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo;
 
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -20,5 +20,5 @@ public class VisitAppointmentRespVO extends VisitAppointmentBaseVO {
 
     private AssetDeviceLog deviceLog;
 
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 }

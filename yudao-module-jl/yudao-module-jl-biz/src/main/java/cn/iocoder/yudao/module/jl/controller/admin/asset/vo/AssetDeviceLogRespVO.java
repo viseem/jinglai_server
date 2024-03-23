@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.asset.vo;
 
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -23,7 +23,7 @@ public class AssetDeviceLogRespVO extends AssetDeviceLogBaseVO {
 
     private ProjectSimple project;
 
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     private Long creator;
 

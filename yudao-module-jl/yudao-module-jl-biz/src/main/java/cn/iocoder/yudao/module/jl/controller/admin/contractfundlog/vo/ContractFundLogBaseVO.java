@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
@@ -10,8 +10,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import javax.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -79,7 +77,7 @@ public class ContractFundLogBaseVO {
 
     private ProjectConstractOnly contract;
 
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     private User auditor;
     private User createUser;

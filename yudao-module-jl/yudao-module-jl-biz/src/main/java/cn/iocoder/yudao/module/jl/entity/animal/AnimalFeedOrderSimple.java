@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.animal;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 动物饲养申请单 Entity
@@ -179,7 +177,7 @@ public class AnimalFeedOrderSimple extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     /**
      * 状态

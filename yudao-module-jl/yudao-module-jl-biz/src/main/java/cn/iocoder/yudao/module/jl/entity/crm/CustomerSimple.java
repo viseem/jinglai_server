@@ -1,8 +1,6 @@
 package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +22,7 @@ import java.time.LocalDateTime;
 @Entity(name = "CustomerOnly")
 @Table(name = "jl_crm_customer")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class CustomerOnly extends BaseEntity {
+public class CustomerSimple extends BaseEntity {
 
     /**
      * ID
@@ -112,10 +110,7 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "hospital_id")
     private Long hospitalId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "hospital_id", insertable = false, updatable = false)
-    private Institution hospital;
+
 
     /**
      * 学校机构
@@ -123,10 +118,7 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "university_id")
     private Long universityId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "university_id", insertable = false, updatable = false)
-    private Institution university;
+
 
     /**
      * 公司
@@ -134,10 +126,7 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "company_id")
     private Long companyId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "company_id", insertable = false, updatable = false)
-    private Institution company;
+
 
     /**
      * 研究所
@@ -145,10 +134,7 @@ public class CustomerOnly extends BaseEntity {
     @Column(name = "research_id")
     private Long researchId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "research_id", insertable = false, updatable = false)
-    private Institution research;
+
 
     /**
      * 省
@@ -217,5 +203,26 @@ public class CustomerOnly extends BaseEntity {
      */
     @Column(name = "last_saleslead_id")
     private Long lastSalesleadId;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "hospital_id", insertable = false, updatable = false)
+    private Institution hospital;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "university_id", insertable = false, updatable = false)
+    private Institution university;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "company_id", insertable = false, updatable = false)
+    private Institution company;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "research_id", insertable = false, updatable = false)
+    private Institution research;
 
 }

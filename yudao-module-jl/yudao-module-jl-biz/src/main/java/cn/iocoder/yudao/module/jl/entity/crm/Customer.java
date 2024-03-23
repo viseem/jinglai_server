@@ -113,10 +113,7 @@ public class Customer extends BaseEntity {
     @Column(name = "hospital_id")
     private Long hospitalId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "hospital_id", insertable = false, updatable = false)
-    private Institution hospital;
+
 
     /**
      * 学校机构
@@ -124,22 +121,13 @@ public class Customer extends BaseEntity {
     @Column(name = "university_id")
     private Long universityId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "university_id", insertable = false, updatable = false)
-    private Institution university;
+
 
     /**
      * 公司
      */
     @Column(name = "company_id")
     private Long companyId;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "company_id", insertable = false, updatable = false)
-    private Institution company;
-
 
 
     /**
@@ -148,10 +136,7 @@ public class Customer extends BaseEntity {
     @Column(name = "research_id")
     private Long researchId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "research_id", insertable = false, updatable = false)
-    private Institution research;
+
 
     /**
      * 省
@@ -207,6 +192,43 @@ public class Customer extends BaseEntity {
     @Column(name = "sales_id")
     private Long salesId;
 
+
+    /**
+     * 最后一次的跟进 id
+     */
+    @Column(name = "last_followup_id")
+    private Long lastFollowupId;
+
+    /**
+     * 最后一次销售线索
+     */
+    @Column(name = "last_saleslead_id")
+    private Long lastSalesleadId;
+
+    @Transient
+    private List<CrmSubjectGroup> subjectGroupList;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "hospital_id", insertable = false, updatable = false)
+    private Institution hospital;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "university_id", insertable = false, updatable = false)
+    private Institution university;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "company_id", insertable = false, updatable = false)
+    private Institution company;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "research_id", insertable = false, updatable = false)
+    private Institution research;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -218,29 +240,14 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "creator",  insertable = false, updatable = false)
     private User user;
 
-    /**
-     * 最后一次的跟进 id
-     */
-    @Column(name = "last_followup_id")
-    private Long lastFollowupId;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "last_followup_id", insertable = false, updatable = false)
     private Followup lastFollowup;
-
-    /**
-     * 最后一次销售线索
-     */
-    @Column(name = "last_saleslead_id")
-    private Long lastSalesleadId;
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "last_saleslead_id", insertable = false, updatable = false)
     @JsonManagedReference
     private Saleslead lastSaleslead;
-
-    @Transient
-    private List<CrmSubjectGroup> subjectGroupList;
 }

@@ -1,21 +1,15 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import javax.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -143,7 +137,7 @@ public class ContractInvoiceLogBaseVO {
 
     private ProjectConstractOnly contract;
 
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     private User auditor;
 

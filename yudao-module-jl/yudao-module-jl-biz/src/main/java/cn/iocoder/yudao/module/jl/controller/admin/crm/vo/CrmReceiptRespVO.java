@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectFundOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -21,7 +21,7 @@ public class CrmReceiptRespVO extends CrmReceiptBaseVO {
     private LocalDateTime createTime;
 
     private User manageUser;
-    private CustomerOnly customer;
+    private CustomerSimple customer;
     private ProjectConstractOnly contract;
     private ProjectFundOnly fund;
 

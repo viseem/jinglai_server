@@ -17,13 +17,12 @@ import cn.iocoder.yudao.module.jl.controller.admin.visitappointment.vo.VisitAppo
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
 import cn.iocoder.yudao.module.jl.entity.asset.AssetDeviceLog;
 import cn.iocoder.yudao.module.jl.entity.cmsarticle.CmsArticle;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.visitappointment.VisitAppointment;
 import cn.iocoder.yudao.module.jl.enums.AssetDeviceUseTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.asset.AssetDeviceMapper;
 import cn.iocoder.yudao.module.jl.mapper.cmsarticle.CmsArticleMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectFeedbackMapper;
@@ -31,7 +30,6 @@ import cn.iocoder.yudao.module.jl.mapper.visitappointment.VisitAppointmentMapper
 import cn.iocoder.yudao.module.jl.repository.cmsarticle.CmsArticleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.AppProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFeedbackRepository;
 import cn.iocoder.yudao.module.jl.repository.visitappointment.VisitAppointmentRepository;
 import cn.iocoder.yudao.module.jl.service.asset.AssetDeviceLogServiceImpl;
@@ -42,7 +40,6 @@ import cn.iocoder.yudao.module.jl.service.project.*;
 import cn.iocoder.yudao.module.jl.service.visitappointment.VisitAppointmentServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import liquibase.pro.packaged.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -180,10 +177,10 @@ public class JLAppUserController {
     @PostMapping("/update")
     //实际上更新的是customer表的信息
     @Operation(summary = "更新信息")
-    public CommonResult<CustomerOnly> updateCustomer(@Valid @RequestBody AppCustomerUpdateReqVO updateReqVO) {
+    public CommonResult<CustomerSimple> updateCustomer(@Valid @RequestBody AppCustomerUpdateReqVO updateReqVO) {
         Long loginUserId = validLoginUser();
         updateReqVO.setId(loginUserId);
-        CustomerOnly customerOnly = customerService.updateAppCustomer(updateReqVO);
+        CustomerSimple customerOnly = customerService.updateAppCustomer(updateReqVO);
         return success(customerOnly);
     }
 

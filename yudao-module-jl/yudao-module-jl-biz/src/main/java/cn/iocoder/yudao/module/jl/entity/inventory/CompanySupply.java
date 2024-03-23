@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -87,7 +87,7 @@ public class CompanySupply extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     /**
      * 所属项目

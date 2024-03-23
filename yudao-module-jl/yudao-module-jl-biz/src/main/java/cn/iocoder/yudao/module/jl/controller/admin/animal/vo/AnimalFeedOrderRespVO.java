@@ -3,7 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedCard;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -23,7 +23,7 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
     private LocalDateTime createTime;
 
     private ProjectSimple project;
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     private List<AnimalFeedCard> cards;
 

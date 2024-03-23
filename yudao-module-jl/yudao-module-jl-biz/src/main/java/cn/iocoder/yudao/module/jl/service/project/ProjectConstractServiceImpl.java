@@ -2,16 +2,14 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
@@ -19,7 +17,6 @@ import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +46,6 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -120,7 +116,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         }
 
         if(createReqVO.getCustomerId()!=null){
-            Optional<CustomerOnly> customerOnlyOptional = customerSimpleRepository.findById(createReqVO.getCustomerId());
+            Optional<CustomerSimple> customerOnlyOptional = customerSimpleRepository.findById(createReqVO.getCustomerId());
             if (customerOnlyOptional.isEmpty()) {
                 throw exception(CUSTOMER_NOT_EXISTS);
             }

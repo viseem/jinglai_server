@@ -11,9 +11,6 @@ import org.hibernate.annotations.Where;
 
 import java.util.*;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 
 /**
  * 销售跟进 Entity
@@ -51,7 +48,7 @@ public class Followup extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerOnly customer;
+    private CustomerSimple customer;
 
     /**
      * 跟进实体的 id，项目、线索、款项，客户等

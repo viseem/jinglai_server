@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -119,7 +119,7 @@ public class CustomerController {
     @Operation(summary = "(分页)获得客户列表 simple")
     @PreAuthorize("@ss.hasPermission('jl:customer:query')")
     public CommonResult<PageResult<CustomerRespVO>> getCustomerSimplePage(@Valid CustomerPageReqVO pageVO, @Valid CustomerPageOrder orderV0) {
-        PageResult<CustomerOnly> pageResult = customerService.getCustomerSimplePage(pageVO, orderV0);
+        PageResult<CustomerSimple> pageResult = customerService.getCustomerSimplePage(pageVO, orderV0);
         return success(customerMapper.toPageSimple(pageResult));
     }
 
