@@ -199,6 +199,10 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                 }
             }
 
+            if(pageReqVO.getCustomerMark() != null) {
+                predicates.add(cb.like(root.get("customerMark"), "%" + pageReqVO.getCustomerMark() + "%"));
+            }
+
 
             if(pageReqVO.getNoContract() != null&&pageReqVO.getNoContract()){
                 predicates.add(cb.equal(root.get("contractId"), 0L));
