@@ -231,7 +231,6 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 }
             }
 
-//            List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(projectCategory.getProject()!=null?projectCategory.getProject().getManagerId():getLoginUserId());
             for (Long userId : userIds) {
                 if(userId.equals(getLoginUserId())){
                     continue;

@@ -1,9 +1,18 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -28,6 +37,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectSopMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -53,6 +63,15 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private ProjectCategoryServiceImpl projectCategoryService;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
     @Override
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
@@ -66,10 +85,55 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Transactional
     public void updateProjectSop(ProjectSopUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectSopExists(updateReqVO.getId());
+        ProjectSop projectSop = validateProjectSopExists(updateReqVO.getId());
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
         projectSopRepository.save(updateObj);
+
+        if(Objects.equals(updateReqVO.getStatus(),CommonTodoEnums.DONE.getStatus())&&projectSop.getCategory()!=null&&projectSop.getCategory().getProjectId()!=null){
+            ProjectCategoryOnly category = projectSop.getCategory();
+            Optional<ProjectOnly> projectOptional = projectOnlyRepository.findById(category.getProjectId());
+            Optional<User> userOptional = userRepository.findById(getLoginUserId());
+            if(projectOptional.isPresent()&&userOptional.isPresent()){
+                ProjectOnly project = projectOptional.get();
+                User user = userOptional.get();
+
+                //发送消息
+                Map<String, Object> templateParams = new HashMap<>();
+                templateParams.put("projectId",project.getId());
+                templateParams.put("userName",user.getNickname());
+                templateParams.put("projectName", project.getName());
+                templateParams.put("categoryName", category.getName());
+                //查询PI组成员
+                List<Long> userIds = new ArrayList<>();
+
+                if(project.getManagerId()!=null){
+                    userIds.add(project.getManagerId());
+                }
+                if(project.getSalesId()!=null){
+                    userIds.add(project.getSalesId());
+                }
+                if(project.getFocusIds()!=null){
+                    String[] split = project.getFocusIds().split(",");
+                    for (String s : split) {
+                        if(Long.parseLong(s)>0){
+                            userIds.add(Long.valueOf(s));
+                        }
+                    }
+                }
+
+                for (Long userId : userIds) {
+                    if(userId.equals(getLoginUserId())){
+                        continue;
+                    }
+                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                            userId,
+                            BpmMessageEnum.NOTIFY_WHEN_CATEGORY_STAGE_CHANGE.getTemplateCode(), templateParams
+                    ));
+                }
+            }
+
+        }
 
         //
         updateProjectCategoryStageById(updateReqVO.getProjectCategoryId());
@@ -126,8 +190,12 @@ public class ProjectSopServiceImpl implements ProjectSopService {
         projectSopRepository.deleteById(id);
     }
 
-    private void validateProjectSopExists(Long id) {
-        projectSopRepository.findById(id).orElseThrow(() -> exception(PROJECT_SOP_NOT_EXISTS));
+    private ProjectSop validateProjectSopExists(Long id) {
+        Optional<ProjectSop> byId = projectSopRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(PROJECT_SOP_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override

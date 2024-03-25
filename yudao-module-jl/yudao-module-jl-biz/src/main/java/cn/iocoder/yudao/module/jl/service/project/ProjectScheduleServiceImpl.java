@@ -700,7 +700,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 //        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
         projectRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getProjectId());
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
-        projectQuotationRepository.updateOriginPriceById(updateReqVO.getQuotationAmount(), updateReqVO.getQuotationId());
+        projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
 
         //发送通知

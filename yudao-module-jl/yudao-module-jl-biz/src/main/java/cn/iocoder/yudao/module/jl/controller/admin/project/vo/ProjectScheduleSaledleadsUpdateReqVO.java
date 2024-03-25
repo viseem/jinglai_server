@@ -27,6 +27,9 @@ public class ProjectScheduleSaledleadsUpdateReqVO {
 
     private BigDecimal quotationAmount;
 
+    private BigDecimal originPrice;
+
+
     private Integer quotationDiscount;
 
 
