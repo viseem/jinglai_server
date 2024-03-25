@@ -7,12 +7,11 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
+import liquibase.pro.packaged.R;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -34,7 +33,6 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectSopMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
@@ -72,6 +70,9 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
 
+    @Resource
+    private ProjectCategoryOnlyRepository projectCategoryOnlyRepository;
+
     @Override
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
@@ -90,47 +91,57 @@ public class ProjectSopServiceImpl implements ProjectSopService {
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
         projectSopRepository.save(updateObj);
 
-        if(Objects.equals(updateReqVO.getStatus(),CommonTodoEnums.DONE.getStatus())&&projectSop.getCategory()!=null&&projectSop.getCategory().getProjectId()!=null){
-            ProjectCategoryOnly category = projectSop.getCategory();
-            Optional<ProjectOnly> projectOptional = projectOnlyRepository.findById(category.getProjectId());
-            Optional<User> userOptional = userRepository.findById(getLoginUserId());
-            if(projectOptional.isPresent()&&userOptional.isPresent()){
-                ProjectOnly project = projectOptional.get();
-                User user = userOptional.get();
 
-                //发送消息
-                Map<String, Object> templateParams = new HashMap<>();
-                templateParams.put("projectId",project.getId());
-                templateParams.put("userName",user.getNickname());
-                templateParams.put("projectName", project.getName());
-                templateParams.put("categoryName", category.getName());
-                //查询PI组成员
-                List<Long> userIds = new ArrayList<>();
+        if(Objects.equals(updateReqVO.getStatus(),CommonTodoEnums.DONE.getStatus())&&projectSop.getProjectCategoryId()!=null){
+            Optional<ProjectCategoryOnly> projectCategoryOnlyOptional = projectCategoryOnlyRepository.findById(updateReqVO.getProjectCategoryId());
+            if(projectCategoryOnlyOptional.isPresent()){
+                ProjectCategoryOnly category = projectCategoryOnlyOptional.get();
+                Optional<ProjectOnly> projectOptional = projectOnlyRepository.findById(category.getProjectId());
+                Optional<User> userOptional = userRepository.findById(getLoginUserId());
 
-                if(project.getManagerId()!=null){
-                    userIds.add(project.getManagerId());
-                }
-                if(project.getSalesId()!=null){
+                if(projectOptional.isPresent()&&userOptional.isPresent()){
+                    ProjectOnly project = projectOptional.get();
+                    User user = userOptional.get();
+
+                    System.out.println("project.getManagerId()----"+project.getManagerId());
+
+                    //发送消息
+                    Map<String, Object> templateParams = new HashMap<>();
+                    templateParams.put("projectId",project.getId());
+                    templateParams.put("content",projectSop.getContent());
+                    templateParams.put("userName",user.getNickname());
+                    templateParams.put("projectName", project.getName());
+                    templateParams.put("categoryName", category.getName());
+                    //查询PI组成员
+                    List<Long> userIds = new ArrayList<>();
+
+                    if(project.getManagerId()!=null){
+                        userIds.add(project.getManagerId());
+                    }
+/*                if(project.getSalesId()!=null){
                     userIds.add(project.getSalesId());
-                }
-                if(project.getFocusIds()!=null){
-                    String[] split = project.getFocusIds().split(",");
-                    for (String s : split) {
-                        if(Long.parseLong(s)>0){
-                            userIds.add(Long.valueOf(s));
+                }*/
+                    if(project.getFocusIds()!=null){
+                        String[] split = project.getFocusIds().split(",");
+                        for (String s : split) {
+                            if(Long.parseLong(s)>0){
+                                userIds.add(Long.valueOf(s));
+                            }
                         }
                     }
-                }
 
-                for (Long userId : userIds) {
-                    if(userId.equals(getLoginUserId())){
-                        continue;
+                    for (Long userId : userIds) {
+                        System.out.println("userid----"+userId);
+                        if(userId.equals(getLoginUserId())){
+                            continue;
+                        }
+                        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                                userId,
+                                BpmMessageEnum.NOTIFY_WHEN_SOP_DONE.getTemplateCode(), templateParams
+                        ));
                     }
-                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                            userId,
-                            BpmMessageEnum.NOTIFY_WHEN_CATEGORY_STAGE_CHANGE.getTemplateCode(), templateParams
-                    ));
-                }
+                } // if  projectOptional.isPresent()&&userOptional.isPresent() end
+
             }
 
         }
