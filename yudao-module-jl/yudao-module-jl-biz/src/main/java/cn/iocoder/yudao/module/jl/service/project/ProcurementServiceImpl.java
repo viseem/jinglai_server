@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.hutool.core.date.DateUtil;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
@@ -45,7 +44,6 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -136,9 +134,9 @@ public class ProcurementServiceImpl implements ProcurementService {
         validateProcurementExists(updateReqVO.getId());
 
         //如果是等待采购确认，则清空流程实例编号
-        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateReqVO.getStatus())){
+/*        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateReqVO.getStatus())){
             updateReqVO.setProcessInstanceId(null);
-        }
+        }*/
 
         // 更新
         Procurement updateObj = procurementMapper.toEntity(updateReqVO);
@@ -173,7 +171,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         Long procurementId = updateObj.getId();
 
         // 如果是传入的状态是等待公司审批，则加入审批流
-        if (ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus().equals(updateObj.getStatus())) {
+//        if (ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus().equals(updateObj.getStatus())) {}
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
             String processInstanceId = processInstanceApi.createProcessInstance(updateObj.getCreator(),
@@ -182,12 +180,12 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             // 更新流程实例编号
             procurementRepository.updateProcessInstanceIdById(processInstanceId,procurementId);
-        }
+
 
         //如果是等待采购确认，则清空流程实例编号
-        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateObj.getStatus())){
+/*        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateObj.getStatus())){
             procurementRepository.updateProcessInstanceIdById(null,procurementId);
-        }
+        }*/
 
         // 删除原有的采购单明细？
         procurementItemRepository.deleteByProcurementId(procurementId);
@@ -236,16 +234,15 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Override
     public ProcurementStatsRespVO getProcurementStats(ProcurementPageReqVO pageReqVO){
         Map<String, Integer> countMap = new HashMap<>();
-        Integer waitingConfirmCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus());
-        Integer waitingAuditCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus());
-        Integer financeCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
-        Integer  waitingStartCount= procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_START_PROCUREMENT.getStatus());
-
-        countMap.put(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus(), waitingConfirmCount);
-        countMap.put(ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus(), waitingAuditCount);
-        countMap.put(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus(), financeCount);
-        countMap.put(ProcurementStatusEnums.WAITING_START_PROCUREMENT.getStatus(), waitingStartCount);
-
+        countMap.put(ProcurementStatusEnums.CONFIRM_INFO.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus()));
+        countMap.put(ProcurementStatusEnums.LEADER_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.LEADER_APPROVAL.getStatus()));
+        countMap.put(ProcurementStatusEnums.PURCHASE_SALES_CONTRACT.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.PURCHASE_SALES_CONTRACT.getStatus()));
+        countMap.put(ProcurementStatusEnums.FINANCE_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.FINANCE_APPROVAL.getStatus()));
+        countMap.put(ProcurementStatusEnums.LEADER_SECOND_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.LEADER_SECOND_APPROVAL.getStatus()));
+        countMap.put(ProcurementStatusEnums.CASHIER_MAKE_OUT.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.CASHIER_MAKE_OUT.getStatus()));
+        countMap.put(ProcurementStatusEnums.PAYMENT_VOUCHER.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.PAYMENT_VOUCHER.getStatus()));
+        countMap.put(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus()));
+        countMap.put(ProcurementStatusEnums.IS_IN.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.IS_IN.getStatus()));
         ProcurementStatsRespVO procurementStatsRespVO = new ProcurementStatsRespVO();
         procurementStatsRespVO.setCountMap(countMap);
         return procurementStatsRespVO;
@@ -383,7 +380,7 @@ public class ProcurementServiceImpl implements ProcurementService {
             }
 
 
-                predicates.add(root.get("status").in(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus(),ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus(),ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus()).not());
+//                predicates.add(root.get("status").in(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus(),ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus(),ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus()).not());
 
 
 
@@ -526,11 +523,11 @@ public class ProcurementServiceImpl implements ProcurementService {
         }
 
         //更新子项item的状态
-        procurementItemRepository.updateStatusByProcurementId(ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString(), saveReqVO.getProcurementId());
+//        procurementItemRepository.updateStatusByProcurementId(ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString(), saveReqVO.getProcurementId());
 
         // 更新状态
-        procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString());
-        procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(),true);
+//        procurementRepository.updateStatusById(saveReqVO.getProcurementId(), ProcurementStatusEnums.WAITING_START_PROCUREMENT.toString());
+//        procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(),true);
     }
 
     /**

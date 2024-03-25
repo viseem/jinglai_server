@@ -15,14 +15,17 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ProcurementStatusEnums implements StringArrayValuable {
-
-    WAITING_CONFIRM_INFO("WAITING_CONFIRM_INFO", "提交信息"),
-    WAITING_COMPANY_CONFIRM("WAITING_COMPANY_CONFIRM", "公司审核"),
-    WAITING_FINANCE_CONFIRM("WAITING_FINANCE_CONFIRM", "财务审核"),
-    WAITING_START_PROCUREMENT("WAITING_START_PROCUREMENT", "采购中"),
-    WAITING_CHECK_IN("WAITING_CHECK_IN", "等待签收"),
-    WAITING_IN("WAITING_IN", "等待入库"),
-    IS_IN("IS_IN", "已入库"),
+    //信息确认 领导审批 购销合同 财务审批 领导二次审批 出纳制单 打款凭证 已签收
+    CONFIRM_INFO("1", "信息确认"),
+    LEADER_APPROVAL("2", "领导审批"),
+    PURCHASE_SALES_CONTRACT("3", "购销合同"),
+    FINANCE_APPROVAL("4", "财务审批"),
+    LEADER_SECOND_APPROVAL("5", "领导二次审批"),
+    CASHIER_MAKE_OUT("6", "出纳制单"),
+    PAYMENT_VOUCHER("7", "打款凭证"),
+    WAITING_CHECK_IN("8", "待签收"),
+    WAITING_IN("9", "待入库"),
+    IS_IN("100", "已签收"),
     ;
 
     private final String status;

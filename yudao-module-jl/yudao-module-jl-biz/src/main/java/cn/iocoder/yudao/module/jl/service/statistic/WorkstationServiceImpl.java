@@ -147,8 +147,8 @@ public class WorkstationServiceImpl implements WorkstationService {
         resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
 
         //全部的 未打款采购单数量
-        Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
-        resp.setProcurementNotPayCount(procurementNotPayCount);
+//        Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());
+//        resp.setProcurementNotPayCount(procurementNotPayCount);
 
         //全部的 为打款的打款单数量
         Integer integer = financePaymentRepository.countByAuditStatusNot(FinancePaymentEnums.PAYED.getStatus());
