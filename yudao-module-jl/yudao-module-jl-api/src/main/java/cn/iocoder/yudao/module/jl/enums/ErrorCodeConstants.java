@@ -56,6 +56,9 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_SCHEDULE_NOT_EXISTS = new ErrorCode(2026000001, "安排单不存在");
 
     ErrorCode PROJECT_CATEGORY_NOT_EXISTS = new ErrorCode(2027000001, "项目中的实验名目不存在");
+    ErrorCode PROJECT_CATEGORY_SON_EXISTS = new ErrorCode(2027000001, "该实验包含子实验，请先删除子实验");
+
+    ErrorCode PROJECT_CATEGORY_SUPPLY_EXISTS = new ErrorCode(2027000001, "该实验包含收费项，不可删除");
 
     ErrorCode SALESLEAD_COMPETITOR_NOT_EXISTS = new ErrorCode(2028000001, "销售线索的竞争报价信息不存在");
 

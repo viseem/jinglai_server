@@ -17,5 +17,7 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryOnlyRepository extends JpaRepository<ProjectCategoryOnly, Long>, JpaSpecificationExecutor<ProjectCategoryOnly> {
+    @Query("select p from ProjectCategoryOnly p where p.parentId = ?1")
+    List<ProjectCategoryOnly> findByParentId(Long parentId);
 
 }

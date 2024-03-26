@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
@@ -49,7 +50,7 @@ import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CATEGORY_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
@@ -66,6 +67,9 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectCategoryOnlyRepository projectCategoryOnlyRepository;
 
     @Resource
     private ProjectCategorySimpleRepository projectCategorySimpleRepository;
@@ -279,6 +283,16 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 校验存在
         validateProjectCategoryExists(id);
 
+        List<ProjectCategoryOnly> byParentId = projectCategoryOnlyRepository.findByParentId(id);
+        if(byParentId!=null&& !byParentId.isEmpty()){
+            throw exception(PROJECT_CATEGORY_SON_EXISTS);
+        }
+
+        List<ProjectChargeitem> byProjectCategoryId = projectChargeitemRepository.findByProjectCategoryId(id);
+        if(byProjectCategoryId!=null&& !byProjectCategoryId.isEmpty()){
+            throw exception(PROJECT_CATEGORY_SUPPLY_EXISTS);
+        }
+
         //删除物资
         projectSupplyRepository.deleteByProjectCategoryId(id);
         //删除收费项
@@ -365,7 +379,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     }
 
     private void validateProjectCategoryExists(Long id) {
-        projectCategoryRepository.findById(id).orElseThrow(() -> exception(PROJECT_CATEGORY_NOT_EXISTS));
+        projectCategoryOnlyRepository.findById(id).orElseThrow(() -> exception(PROJECT_CATEGORY_NOT_EXISTS));
     }
 
     @Override
