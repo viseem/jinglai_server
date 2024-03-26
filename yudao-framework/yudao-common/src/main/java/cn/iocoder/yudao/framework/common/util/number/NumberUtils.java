@@ -8,7 +8,9 @@ import cn.hutool.core.util.StrUtil;
  * @author 芋道源码
  */
 public class NumberUtils {
-
+    public static Integer parseInt(String str) {
+        return StrUtil.isNotEmpty(str) ? Integer.valueOf(str) : null;
+    }
     public static Long parseLong(String str) {
         return StrUtil.isNotEmpty(str) ? Long.valueOf(str) : null;
     }

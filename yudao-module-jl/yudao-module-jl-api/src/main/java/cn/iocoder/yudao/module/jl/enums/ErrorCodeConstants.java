@@ -250,4 +250,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode AUTH_WX_APP_PHONE_CODE_ERROR = new ErrorCode(1004003006, "获得手机号失败");
 
+
+    // ========== BPM ==========
+
+    ErrorCode BPM_PARAMS_ERROR = new ErrorCode(1005003006, "参数错误");
+
 }

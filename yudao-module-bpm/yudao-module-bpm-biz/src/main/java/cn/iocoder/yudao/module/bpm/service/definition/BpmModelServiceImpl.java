@@ -283,5 +283,10 @@ public class BpmModelServiceImpl implements BpmModelService {
         processDefinitionService.updateProcessDefinitionState(oldDefinition.getId(), SuspensionState.SUSPENDED.getStateCode());
     }
 
+    @Override
+    public BpmnModel getBpmnModelByDefinitionId(String processDefinitionId) {
+        return repositoryService.getBpmnModel(processDefinitionId);
+    }
+
 
 }

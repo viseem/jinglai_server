@@ -83,6 +83,8 @@ public interface BpmTaskService {
      */
     void approveTask(Long userId, @Valid BpmTaskApproveReqVO reqVO);
 
+    void returnTask(Long userId,@Valid BpmTaskReturnReqVO reqVO);
+
     /**
      * 删除任务
      *

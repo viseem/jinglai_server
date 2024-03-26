@@ -74,6 +74,14 @@ public class BpmTaskController {
         return success(true);
     }
 
+    @PutMapping("/return")
+    @Operation(summary = "回退任务", description = "用于【流程详情】的【回退】按钮")
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<Boolean> returnTask(@Valid @RequestBody BpmTaskReturnReqVO reqVO) {
+        taskService.returnTask(getLoginUserId(), reqVO);
+        return success(true);
+    }
+
     @PutMapping("/reject")
     @Operation(summary = "不通过任务")
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")

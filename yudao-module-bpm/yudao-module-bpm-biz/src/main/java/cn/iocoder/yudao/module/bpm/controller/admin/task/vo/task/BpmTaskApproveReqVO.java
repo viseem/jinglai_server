@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.Map;
 
 @Schema(description = "管理后台 - 通过流程任务的 Request VO")
 @Data
@@ -15,5 +16,6 @@ public class BpmTaskApproveReqVO {
 
     @Schema(description = "审批意见")
     private String reason;
+
 
 }
