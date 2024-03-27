@@ -12,6 +12,8 @@ public class BpmTaskTodoPageItemRespVO {
     @Schema(description = "任务编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private String id;
 
+    @Schema(description = "任务定义的标识", requiredMode = Schema.RequiredMode.REQUIRED, example = "Activity_one")
+    private String taskDefinitionKey;
     @Schema(description = "任务名字", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋道")
     private String name;
 

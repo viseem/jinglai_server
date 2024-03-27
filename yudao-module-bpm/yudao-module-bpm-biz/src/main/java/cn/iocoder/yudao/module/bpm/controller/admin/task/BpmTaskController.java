@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.bpm.service.task.BpmTaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
+import org.flowable.bpmn.model.UserTask;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 流程任务实例")
@@ -80,6 +82,16 @@ public class BpmTaskController {
     public CommonResult<Boolean> returnTask(@Valid @RequestBody BpmTaskReturnReqVO reqVO) {
         taskService.returnTask(getLoginUserId(), reqVO);
         return success(true);
+    }
+
+    @GetMapping("/list-by-return")
+    @Operation(summary = "获取所有可回退的节点", description = "用于【流程详情】的【回退】按钮")
+    @Parameter(name = "taskId", description = "当前任务ID", required = true)
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<List<BpmTaskRespVO>> getTaskListByReturn(@RequestParam("id") String id) {
+        List<UserTask> userTaskList = taskService.getUserTaskListByReturn(id);
+        return success(convertList(userTaskList, userTask -> // 只返回 id 和 name
+                (BpmTaskRespVO) new BpmTaskRespVO().setName(userTask.getName()).setTaskDefinitionKey(userTask.getId())));
     }
 
     @PutMapping("/reject")

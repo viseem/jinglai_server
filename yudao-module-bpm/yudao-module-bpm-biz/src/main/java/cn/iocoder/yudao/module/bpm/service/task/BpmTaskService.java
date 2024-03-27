@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.*;
+import org.flowable.bpmn.model.UserTask;
 import org.flowable.task.api.Task;
 
 import javax.validation.Valid;
@@ -84,7 +85,7 @@ public interface BpmTaskService {
     void approveTask(Long userId, @Valid BpmTaskApproveReqVO reqVO);
 
     void returnTask(Long userId,@Valid BpmTaskReturnReqVO reqVO);
-
+     List<UserTask> getUserTaskListByReturn(String id);
     /**
      * 删除任务
      *

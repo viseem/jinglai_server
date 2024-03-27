@@ -228,7 +228,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 if(project.getFocusIds()!=null){
                     String[] split = project.getFocusIds().split(",");
                     for (String s : split) {
-                        if(Long.parseLong(s)>0){
+                        if(!s.isEmpty()&&Long.parseLong(s)>0){
                             userIds.add(Long.valueOf(s));
                         }
                     }
