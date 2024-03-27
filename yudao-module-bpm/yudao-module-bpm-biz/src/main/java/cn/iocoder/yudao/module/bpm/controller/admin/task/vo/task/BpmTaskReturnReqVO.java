@@ -21,4 +21,8 @@ public class BpmTaskReturnReqVO {
     @NotEmpty(message = "回退意见不能为空")
     private String reason;
 
+    private Integer taskIndex;
+
+    private Long refId;
+
 }

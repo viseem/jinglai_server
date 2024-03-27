@@ -1,21 +1,21 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service.JLBpmServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 公司资产（设备）")
 @RestController
@@ -35,5 +35,12 @@ public class JLBpmController {
         return success(true);
     }
 
+    @PutMapping("/return")
+    @Operation(summary = "回退任务", description = "用于【流程详情】的【回退】按钮")
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<Boolean> returnTask(@Valid @RequestBody BpmTaskReturnReqVO reqVO) {
+        jLBpmService.returnTask(reqVO);
+        return success(true);
+    }
 
 }

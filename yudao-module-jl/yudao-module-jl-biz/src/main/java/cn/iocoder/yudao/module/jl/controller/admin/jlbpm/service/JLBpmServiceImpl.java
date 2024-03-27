@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service;
 
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskApproveReqVO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
@@ -51,6 +52,24 @@ public class JLBpmServiceImpl implements JLBpmService {
         bpmTaskApproveReqVO.setId(approveReqVO.getId());
         bpmTaskApproveReqVO.setReason(approveReqVO.getReason());
         taskService.approveTask(getLoginUserId(), bpmTaskApproveReqVO);
+    }
+
+    @Override
+    @Transactional
+    public void returnTask(BpmTaskReturnReqVO reqVO) {
+
+        ProcessInstance instance = taskService.getProcessInstanceByTaskId(reqVO.getId());
+
+        String processDefinitionKey = instance.getProcessDefinitionKey();
+
+        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
+            if(reqVO.getRefId()==null){
+                throw exception(BPM_PARAMS_ERROR);
+            }
+            procurementRepository.updateStatusById(reqVO.getRefId(), String.valueOf(reqVO.getTaskIndex()));
+        }
+
+        taskService.returnTask(getLoginUserId(), reqVO);
     }
 
 }
