@@ -103,8 +103,6 @@ public class ProjectSopServiceImpl implements ProjectSopService {
                     ProjectOnly project = projectOptional.get();
                     User user = userOptional.get();
 
-                    System.out.println("project.getManagerId()----"+project.getManagerId());
-
                     //发送消息
                     Map<String, Object> templateParams = new HashMap<>();
                     templateParams.put("projectId",project.getId());
@@ -124,14 +122,14 @@ public class ProjectSopServiceImpl implements ProjectSopService {
                     if(project.getFocusIds()!=null){
                         String[] split = project.getFocusIds().split(",");
                         for (String s : split) {
-                            if(Long.parseLong(s)>0){
+                            //判断s是否是字符串数字
+                            if(s!=null&&s.matches("-?\\d+(\\.\\d+)?")){
                                 userIds.add(Long.valueOf(s));
                             }
                         }
                     }
 
                     for (Long userId : userIds) {
-                        System.out.println("userid----"+userId);
                         if(userId.equals(getLoginUserId())){
                             continue;
                         }
