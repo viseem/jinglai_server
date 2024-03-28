@@ -1,9 +1,13 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service;
 
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskApproveReqVO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,9 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Resource
     private ProcurementRepository procurementRepository;
 
+    @Resource
+    private ProcurementItemRepository procurementItemRepository;
+
     @Override
     @Transactional
     public void approveTask(JLBpmTaskReqVO approveReqVO) {
@@ -42,10 +49,13 @@ public class JLBpmServiceImpl implements JLBpmService {
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
         if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
-            if(approveReqVO.getRefId()==null){
+            if(approveReqVO.getRefId()==null||approveReqVO.getTaskStatus()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
-        procurementRepository.updateStatusById(approveReqVO.getRefId(), String.valueOf(approveReqVO.getTaskIndex()+1));
+        procurementRepository.updateStatusById(approveReqVO.getRefId(), approveReqVO.getTaskStatus());
+            if(Objects.equals(approveReqVO.getTaskStatus(),ProcurementStatusEnums.APPROVE.getStatus())){
+                procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), approveReqVO.getRefId());
+            }
         }
 
         BpmTaskApproveReqVO bpmTaskApproveReqVO = new BpmTaskApproveReqVO();
@@ -63,13 +73,31 @@ public class JLBpmServiceImpl implements JLBpmService {
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
         if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
-            if(reqVO.getRefId()==null){
+            if(reqVO.getRefId()==null||reqVO.getTaskStatus()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
-            procurementRepository.updateStatusById(reqVO.getRefId(), String.valueOf(reqVO.getTaskIndex()));
+            procurementRepository.updateStatusById(reqVO.getRefId(), reqVO.getTaskStatus());
         }
 
         taskService.returnTask(getLoginUserId(), reqVO);
+    }
+
+    @Override
+    @Transactional
+    public void rejectTask(BpmTaskRejectReqVO reqVO) {
+
+        ProcessInstance instance = taskService.getProcessInstanceByTaskId(reqVO.getId());
+
+        String processDefinitionKey = instance.getProcessDefinitionKey();
+
+        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
+            if(reqVO.getRefId()==null){
+                throw exception(BPM_PARAMS_ERROR);
+            }
+            procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
+        }
+
+        taskService.rejectTask(getLoginUserId(), reqVO);
     }
 
 }

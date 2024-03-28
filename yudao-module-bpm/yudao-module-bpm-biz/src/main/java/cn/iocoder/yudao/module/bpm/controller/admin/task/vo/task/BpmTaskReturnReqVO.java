@@ -23,6 +23,8 @@ public class BpmTaskReturnReqVO {
 
     private Integer taskIndex;
 
+    private String taskStatus;
+
     private Long refId;
 
 }

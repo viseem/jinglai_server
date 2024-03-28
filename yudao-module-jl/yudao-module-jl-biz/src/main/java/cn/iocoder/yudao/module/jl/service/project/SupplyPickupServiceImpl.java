@@ -177,13 +177,13 @@ public class SupplyPickupServiceImpl implements SupplyPickupService {
                 predicates.add(cb.like(root.get("shipmentCodes"), "%" + pageReqVO.getShipmentCodes() + "%"));
             }
 
-            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+/*            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitCheckIn"), true));
             }
 
             if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitStoreIn"), true));
-            }
+            }*/
 
 
             if (pageReqVO.getMark() != null) {

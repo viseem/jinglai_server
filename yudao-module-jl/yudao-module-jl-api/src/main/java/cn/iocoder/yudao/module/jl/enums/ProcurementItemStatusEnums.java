@@ -14,12 +14,15 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor
-public enum ProcurementStatusEnums implements StringArrayValuable {
-    //信息确认 领导审批 购销合同 财务审批 领导二次审批 出纳制单 打款凭证 已签收
-    CONFIRM_INFO("1", "采购确认"),
-    LEADER_APPROVAL("2", "领导审批"),
-    APPROVE("3", "已批准"),
-    REJECT("4", "已拒绝"),
+public enum ProcurementItemStatusEnums implements StringArrayValuable {
+    //申请采购 已批准采购 发起订购 已订购 已发货 部分入库 全部入库
+    APPLY_PROCUREMENT("1", "申请采购"),
+    APPROVE_PROCUREMENT("2", "已批准采购"),
+    INITIATE_ORDER("3", "发起订购"),
+    ORDERED("4", "已订购"),
+    SHIPPED("5", "已发货"),
+    PART_STORAGE("6", "部分入库"),
+    ALL_STORAGE("7", "全部入库"),
     ;
 
     private final String status;

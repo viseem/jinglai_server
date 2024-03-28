@@ -36,7 +36,7 @@ public class BpmProjectProcurementAuditResultListener extends BpmProcessInstance
         long id = Long.parseLong(event.getBusinessKey());
         String result = event.getResult().toString();
         if(Objects.equals(result, BpmProcessInstanceResultEnum.APPROVE.getResult().toString())){
-            procurementRepository.updateStatusById(id,ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
+//            procurementRepository.updateStatusById(id,ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
         }else if(Objects.equals(result, BpmProcessInstanceResultEnum.REJECT.getResult().toString())){
             procurementRepository.updateStatusById(id,null);
         }

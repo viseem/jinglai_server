@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service.JLBpmServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
@@ -32,6 +33,14 @@ public class JLBpmController {
     @Operation(summary = "(分页)获得公司资产（设备）列表")
     public CommonResult<Boolean> getAssetDevicePage(@Valid @RequestBody JLBpmTaskReqVO reqVO) {
         jLBpmService.approveTask(reqVO);
+        return success(true);
+    }
+
+    @PutMapping("/reject")
+    @Operation(summary = "不通过任务")
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<Boolean> rejectTask(@Valid @RequestBody BpmTaskRejectReqVO reqVO) {
+        jLBpmService.rejectTask(reqVO);
         return success(true);
     }
 

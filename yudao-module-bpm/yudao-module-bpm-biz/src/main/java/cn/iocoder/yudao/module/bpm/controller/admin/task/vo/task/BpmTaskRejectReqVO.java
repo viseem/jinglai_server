@@ -16,4 +16,5 @@ public class BpmTaskRejectReqVO {
     @Schema(description = "审批意见")
     private String reason;
 
+    private Long refId;
 }

@@ -236,13 +236,8 @@ public class ProcurementServiceImpl implements ProcurementService {
         Map<String, Integer> countMap = new HashMap<>();
         countMap.put(ProcurementStatusEnums.CONFIRM_INFO.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus()));
         countMap.put(ProcurementStatusEnums.LEADER_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.LEADER_APPROVAL.getStatus()));
-        countMap.put(ProcurementStatusEnums.PURCHASE_SALES_CONTRACT.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.PURCHASE_SALES_CONTRACT.getStatus()));
-        countMap.put(ProcurementStatusEnums.FINANCE_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.FINANCE_APPROVAL.getStatus()));
-        countMap.put(ProcurementStatusEnums.LEADER_SECOND_APPROVAL.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.LEADER_SECOND_APPROVAL.getStatus()));
-        countMap.put(ProcurementStatusEnums.CASHIER_MAKE_OUT.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.CASHIER_MAKE_OUT.getStatus()));
-        countMap.put(ProcurementStatusEnums.PAYMENT_VOUCHER.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.PAYMENT_VOUCHER.getStatus()));
-        countMap.put(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_CHECK_IN.getStatus()));
-        countMap.put(ProcurementStatusEnums.IS_IN.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.IS_IN.getStatus()));
+        countMap.put(ProcurementStatusEnums.APPROVE.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.APPROVE.getStatus()));
+        countMap.put(ProcurementStatusEnums.REJECT.getStatus(),procurementRepository.countByStatus(ProcurementStatusEnums.REJECT.getStatus()));
         ProcurementStatsRespVO procurementStatsRespVO = new ProcurementStatsRespVO();
         procurementStatsRespVO.setCountMap(countMap);
         return procurementStatsRespVO;
@@ -304,13 +299,13 @@ public class ProcurementServiceImpl implements ProcurementService {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
+/*            if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_CHECK_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitCheckIn"), true));
             }
 
             if (Objects.equals(pageReqVO.getQueryStatus(), ProcurementStatusEnums.WAITING_IN.toString())) {
                 predicates.add(cb.equal(root.get("waitStoreIn"), true));
-            }
+            }*/
 
 //            if(pageReqVO.getQueryStatus()!=null){
 //                predicates.add(cb.equal(root.get("status"), pageReqVO.getQueryStatus()));
@@ -580,10 +575,10 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(), !allCheckIn.get());
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), true);
             if(allCheckIn.get()){
-                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
+//                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
             }
         }else{
-            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
+//            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.WAITING_IN.getStatus());
             procurementRepository.updateWaitCheckInById(saveReqVO.getProcurementId(), false);
         }
 
@@ -661,12 +656,12 @@ public class ProcurementServiceImpl implements ProcurementService {
             // 更新采购单的待入库状态
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), !allStoreIn.get());
             if(allStoreIn.get()){
-                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
+//                procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
             }
 
         }else{
             procurementRepository.updateWaitStoreInById(saveReqVO.getProcurementId(), false);
-            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
+//            procurementRepository.updateStatusById(saveReqVO.getProcurementId(),ProcurementStatusEnums.IS_IN.getStatus());
         }
 
     }

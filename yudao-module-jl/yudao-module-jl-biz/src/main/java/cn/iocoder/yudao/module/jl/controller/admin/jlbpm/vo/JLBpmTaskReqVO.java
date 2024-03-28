@@ -27,6 +27,8 @@ public class JLBpmTaskReqVO {
 
     private Integer taskIndex;
 
+    private String taskStatus;
+
     private Long refId;
 
 }

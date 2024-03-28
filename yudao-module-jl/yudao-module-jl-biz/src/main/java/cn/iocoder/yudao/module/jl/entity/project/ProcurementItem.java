@@ -43,6 +43,10 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "quotation_id")
     private Long quotationId;
 
+    @Column(name = "purchase_contract_id")
+    private Long purchaseContractId;
+    @Column(name = "unit")
+    private String unit;
     /**
      * 采购单id
      */

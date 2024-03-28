@@ -18,6 +18,11 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
  */
 @Data
 public class ProcurementItemBaseVO {
+
+    private String unit;
+
+    private Long purchaseContractId;
+
     @Schema(description = "原价")
     private Integer originPrice = 0;
 
@@ -36,6 +41,9 @@ public class ProcurementItemBaseVO {
     @Schema(description = "预计到达日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime arrivalDate;
+
+    @Schema(description = "项目id")
+    private Long projectId;
 
     @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26560")
     @NotNull(message = "采购单id不能为空")
@@ -66,7 +74,6 @@ public class ProcurementItemBaseVO {
     @Schema(description = "采购数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "采购数量不能为空")
     private Integer quantity = 0;
-
 
 
     @Schema(description = "供货商id")
@@ -101,7 +108,7 @@ public class ProcurementItemBaseVO {
     private String deliveryDate;
 
     @Schema(description = "状态:等待采购信息、等待打款、等待采购、等待签收、等待入库", example = "2")
-    private String status;
+    private String status = "1";
 
     private Long roomId;
     private Long placeId;
