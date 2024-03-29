@@ -58,18 +58,17 @@ public class ProcurementBaseVO {
     @Schema(description = "签收陪审人")
     private Long checkUserId;
 
-    @Schema(description = "收货地址", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    @Schema(description = "收货地址")
     private String address;
-
 
     @Schema(description = "附件json")
     private String attachments;
 
     @Schema(description = "收货人id", example = "29752")
     private String receiverUserId;
-    @Schema(description = "收货类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    @Schema(description = "收货类型")
     private String receiverType;
-    @Schema(description = "收货人姓名", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "20159")
+    @Schema(description = "收货人姓名")
     private String receiverName;
     @Schema(description = "收货人联系方式")
     private String receiverPhone;

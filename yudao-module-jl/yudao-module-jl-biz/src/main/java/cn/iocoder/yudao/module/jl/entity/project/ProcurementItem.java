@@ -226,4 +226,15 @@ public class ProcurementItem extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "purchase_contract_id", referencedColumnName = "id", insertable = false, updatable = false)
     private PurchaseContractOnly purchaseContract;
+
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProcurementOnly procurement;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectOnly project;
 }

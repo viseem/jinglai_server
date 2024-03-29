@@ -163,15 +163,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 更新或者创建
         Procurement updateObj = procurementMapper.toEntity(saveReqVO);
-//        String dateStr = DateUtil.format(new Date(), "yyyyMMdd");
-//        long count = procurementRepository.countByProjectId(saveReqVO.getProjectId());
-//        updateObj.setCode(dateStr + "-" + updateObj.getProjectId() + "-" + count);
-//        updateObj.setWaitCheckIn(true);// 可以在check in列表中看到
         updateObj = procurementRepository.save(updateObj);
         Long procurementId = updateObj.getId();
 
-        // 如果是传入的状态是等待公司审批，则加入审批流
-//        if (ProcurementStatusEnums.WAITING_COMPANY_CONFIRM.getStatus().equals(updateObj.getStatus())) {}
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
             String processInstanceId = processInstanceApi.createProcessInstance(updateObj.getCreator(),
@@ -181,11 +175,6 @@ public class ProcurementServiceImpl implements ProcurementService {
             // 更新流程实例编号
             procurementRepository.updateProcessInstanceIdById(processInstanceId,procurementId);
 
-
-        //如果是等待采购确认，则清空流程实例编号
-/*        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateObj.getStatus())){
-            procurementRepository.updateProcessInstanceIdById(null,procurementId);
-        }*/
 
         // 删除原有的采购单明细？
         procurementItemRepository.deleteByProcurementId(procurementId);

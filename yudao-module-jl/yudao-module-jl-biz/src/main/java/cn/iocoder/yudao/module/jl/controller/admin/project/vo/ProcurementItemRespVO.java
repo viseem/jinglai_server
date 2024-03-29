@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContract;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContractOnly;
@@ -22,4 +24,8 @@ public class ProcurementItemRespVO extends ProcurementItemBaseVO {
     private Supplier supplier;
 
     private PurchaseContractOnly purchaseContract;
+
+    private ProcurementOnly procurement;
+
+    private ProjectOnly project;
 }
