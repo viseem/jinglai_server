@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -75,4 +76,7 @@ public class ProcurementBaseVO {
 
     @Schema(description = "流程实例id", example = "29752")
     private String processInstanceId;
+
+    private List<CommonAttachment> attachmentList;
+
 }

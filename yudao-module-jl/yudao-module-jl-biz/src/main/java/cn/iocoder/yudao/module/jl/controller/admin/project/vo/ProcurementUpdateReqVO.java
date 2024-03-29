@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -14,5 +15,6 @@ public class ProcurementUpdateReqVO extends ProcurementBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "13907")
     @NotNull(message = "ID不能为空")
     private Long id;
+
 
 }

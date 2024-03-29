@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -168,13 +170,13 @@ public class Procurement extends BaseEntity {
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "check_user_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User checkUser;
+    private User checkUser;*/
 
 
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
     @Fetch(FetchMode.SUBSELECT)
@@ -184,5 +186,15 @@ public class Procurement extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
     @Fetch(FetchMode.SUBSELECT)
-    private List<ProcurementPayment> payments = new ArrayList<>();
+    private List<ProcurementPayment> payments = new ArrayList<>();*/
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.LAZY)
+    @Where(clause = "type = 'PROCUREMENT_ORDER'")
+//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 }

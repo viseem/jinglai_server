@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
 
@@ -112,6 +113,8 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private InventoryStoreInRepository inventoryStoreInRepository;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
 
     @Resource
     private ProcurementPaymentMapper procurementPaymentMapper;
@@ -133,14 +136,13 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 校验存在
         validateProcurementExists(updateReqVO.getId());
 
-        //如果是等待采购确认，则清空流程实例编号
-/*        if(ProcurementStatusEnums.WAITING_CONFIRM_INFO.getStatus().equals(updateReqVO.getStatus())){
-            updateReqVO.setProcessInstanceId(null);
-        }*/
 
         // 更新
         Procurement updateObj = procurementMapper.toEntity(updateReqVO);
         updateObj = procurementRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROCUREMENT_ORDER",updateReqVO.getAttachmentList());
     }
 
     /**
@@ -186,6 +188,9 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
             procurementItemRepository.save(procurementItem);
         });
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROCUREMENT_ORDER",saveReqVO.getAttachmentList());
 
     }
 
