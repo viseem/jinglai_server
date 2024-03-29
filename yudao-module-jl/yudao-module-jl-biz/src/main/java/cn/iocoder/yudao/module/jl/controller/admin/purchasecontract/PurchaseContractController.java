@@ -49,6 +49,13 @@ public class PurchaseContractController {
         return success(purchaseContractService.createPurchaseContract(createReqVO));
     }
 
+    @PostMapping("/save")
+    @Operation(summary = "创建购销合同和明细")
+    @PreAuthorize("@ss.hasPermission('jl:purchase-contract:create')")
+    public CommonResult<Long> savePurchaseContract(@Valid @RequestBody PurchaseContractSaveReqVO createReqVO) {
+        return success(purchaseContractService.savePurchaseContract(createReqVO));
+    }
+
     @PutMapping("/update")
     @Operation(summary = "更新购销合同")
     @PreAuthorize("@ss.hasPermission('jl:purchase-contract:update')")

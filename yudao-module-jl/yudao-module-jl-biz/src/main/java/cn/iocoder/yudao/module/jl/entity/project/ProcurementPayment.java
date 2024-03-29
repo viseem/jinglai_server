@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -39,15 +40,13 @@ public class ProcurementPayment extends BaseEntity {
     private Long projectId;
 
     /**
-     * JPA 级联出 user
+     * 购销合同id
      */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectSimple project;
+    @Column(name = "purchase_contract_id", nullable = false)
+    private Long purchaseContractId;
 
     /**
-     * 采购单id
+     * 采购单id 已弃用
      */
     @Column(name = "procurement_id", nullable = false)
     private Long procurementId;
@@ -62,7 +61,7 @@ public class ProcurementPayment extends BaseEntity {
      * 打款金额
      */
     @Column(name = "amount")
-    private Long amount;
+    private BigDecimal amount;
 
     /**
      * 供货商 id
@@ -92,9 +91,4 @@ public class ProcurementPayment extends BaseEntity {
     @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private Supplier supplier;
-
-    @OneToOne
-    @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private Procurement procurement;
 }

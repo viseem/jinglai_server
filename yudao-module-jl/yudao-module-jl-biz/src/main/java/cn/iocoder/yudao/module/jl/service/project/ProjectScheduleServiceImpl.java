@@ -470,23 +470,14 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Override
     public Long getProcurementCostByProjectId(Long id) {
         long cost = 0;
-
+/*
         List<ProcurementPayment> byProjectId = procurementPaymentRepository.findByProjectId(id);
         for (ProcurementPayment procurementPayment : byProjectId) {
             if (procurementPayment.getAmount() != null) {
                 cost += procurementPayment.getAmount();
             }
-        }
+        }*/
 
-        // 计算采购的成本 TODO 没有projectID
-/*
-        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectId(id);
-        for (ProcurementItem procurementItem : procurementItemList) {
-            if(procurementItem.getBuyPrice() != null) {
-                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
-            }
-        }
-*/
 
         return cost;
     }

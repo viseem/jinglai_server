@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -41,7 +43,7 @@ public class ProjectSupplierInvoice extends BaseEntity {
      * 金额
      */
     @Column(name = "price", nullable = false )
-    private Long price;
+    private BigDecimal price;
 
     /**
      * 凭证
@@ -56,13 +58,19 @@ public class ProjectSupplierInvoice extends BaseEntity {
     private String fileUrl;
 
     /**
-     * 项目id
+     * 购销合同id
+     */
+    @Column(name = "purchaseContractId", nullable = false )
+    private Long purchaseContractId;
+
+    /**
+     * 项目id 已弃用
      */
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
     /**
-     * 采购单id
+     * 采购单id 已弃用
      */
     @Column(name = "procurement_id", nullable = false )
     private Long procurementId;
@@ -85,10 +93,5 @@ public class ProjectSupplierInvoice extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectSimple project;
 
 }

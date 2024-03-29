@@ -28,6 +28,9 @@ public class ProjectSupplierInvoicePageReqVO extends PageParam {
     @Schema(description = "凭证", example = "https://www.iocoder.cn")
     private String fileUrl;
 
+    @Schema(description = "购销合同id", example = "26620")
+    private Long purchaseContractId;
+
     @Schema(description = "项目id", example = "26620")
     private Long projectId;
 

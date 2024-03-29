@@ -19,6 +19,9 @@ public class ProcurementPaymentPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    @Schema(description = "购销合同id", example = "21105")
+    private Long purchaseContractId;
+
     @Schema(description = "项目id", example = "21105")
     private Long projectId;
 

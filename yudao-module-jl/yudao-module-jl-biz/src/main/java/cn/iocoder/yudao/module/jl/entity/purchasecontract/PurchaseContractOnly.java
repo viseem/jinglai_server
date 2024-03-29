@@ -5,19 +5,18 @@ import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 购销合同 Entity
@@ -27,10 +26,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "PurchaseContract")
+@Entity(name = "PurchaseContractOnly")
 @Table(name = "jl_purchase_contract")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class PurchaseContract extends BaseEntity {
+public class PurchaseContractOnly extends BaseEntity {
 
     /**
      * ID
@@ -65,12 +64,6 @@ public class PurchaseContract extends BaseEntity {
     private String status;
 
     /**
-     * 付款状态
-     */
-    @Column(name = "price_status", nullable = false )
-    private String priceStatus;
-
-    /**
      * 总价
      */
     @Column(name = "amount", nullable = false )
@@ -83,29 +76,5 @@ public class PurchaseContract extends BaseEntity {
     private String processInstanceId;
 
 
-    /*
-     * 级联附件
-     * */
-    @OneToMany(fetch = FetchType.EAGER)
-    @Where(clause = "type = 'PROCUREMENT_PURCHASE_CONTRACT'")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> attachmentList = new ArrayList<>();
-
-    /**
-     * 查询款项列表
-     */
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "purchase_contract_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProcurementItem> procurementItemList;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Supplier supplier;
 
 }

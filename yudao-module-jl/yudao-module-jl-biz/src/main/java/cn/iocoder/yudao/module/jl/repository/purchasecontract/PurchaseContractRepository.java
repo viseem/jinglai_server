@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PurchaseContractRepository extends JpaRepository<PurchaseContract, Long>, JpaSpecificationExecutor<PurchaseContract> {
     @Transactional
     @Modifying
+    @Query("update PurchaseContract p set p.processInstanceId = ?1 where p.id = ?2")
+    int updateProcessInstanceIdById(String processInstanceId, Long id);
+    @Transactional
+    @Modifying
     @Query("update PurchaseContract p set p.status = ?1 where p.id = ?2")
     int updateStatusById(String status, Long id);
 

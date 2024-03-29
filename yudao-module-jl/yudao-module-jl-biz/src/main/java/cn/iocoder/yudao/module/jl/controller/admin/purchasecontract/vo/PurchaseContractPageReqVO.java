@@ -30,6 +30,9 @@ public class PurchaseContractPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "支付状态", example = "1")
+    private String priceStatus;
+
     @Schema(description = "状态", example = "1")
     private String status;
 

@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.projectsupplierinvoice.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -18,9 +20,10 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProjectSupplierInvoiceBaseVO {
 
+
     @Schema(description = "金额", requiredMode = Schema.RequiredMode.REQUIRED, example = "14573")
     @NotNull(message = "金额不能为空")
-    private Long price;
+    private BigDecimal price;
 
     @Schema(description = "凭证", example = "李四")
     private String fileName;
@@ -28,11 +31,14 @@ public class ProjectSupplierInvoiceBaseVO {
     @Schema(description = "凭证", example = "https://www.iocoder.cn")
     private String fileUrl;
 
-    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26620")
-    @NotNull(message = "项目id不能为空")
+    @Schema(description = "购销合同id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26620")
+    @NotNull(message = "购销合同不能为空")
+    private Long purchaseContractId;
+
+    @Schema(description = "项目id")
     private Long projectId;
 
-    @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26620")
+    @Schema(description = "采购单id")
     private Long procurementId;
 
     @Schema(description = "供应商id", requiredMode = Schema.RequiredMode.REQUIRED, example = "17470")

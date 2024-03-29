@@ -84,13 +84,14 @@ public class NotifySendServiceImpl implements NotifySendService {
 
         // 发送站内信
         String content = notifyTemplateService.formatNotifyTemplateContent(template.getContent(), templateParams);
+        content = content.replaceAll("<[^>]+>", "");
+        System.out.println("content===="+content);
         template.setNickname(template.getName());
         Long notifyMessage = notifyMessageService.createNotifyMessage(userId, userType, template, content, templateParams);
 
         AdminUserDO user = userService.getUser(userId);
         if(user!=null&&user.getWxCpId()!=null){
             //去除content中的html标签
-            content = content.replaceAll("<[^>]+>", "");
             sendWeixinCPMessage(user.getWxCpId(),template.getName(),content,notifyMessage);
         }
         return notifyMessage;

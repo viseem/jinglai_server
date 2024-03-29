@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContract;
+import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContractOnly;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -26,7 +29,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProcurementItem")
 @Table(name = "jl_project_procurement_item")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProcurementItem extends BaseEntity {
 
     /**
@@ -217,4 +220,10 @@ public class ProcurementItem extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Supplier supplier;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "purchase_contract_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private PurchaseContractOnly purchaseContract;
 }

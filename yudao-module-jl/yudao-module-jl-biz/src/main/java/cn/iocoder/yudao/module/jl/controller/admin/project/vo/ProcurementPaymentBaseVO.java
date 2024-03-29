@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -18,12 +19,14 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProcurementPaymentBaseVO {
 
-    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21105")
-    @NotNull(message = "项目id不能为空")
+    @Schema(description = "购销合同id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21105")
+    @NotNull(message = "购销合同不能为空")
+    private Long purchaseContractId;
+
+    @Schema(description = "项目id")
     private Long projectId;
 
-    @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "21105")
-    @NotNull(message = "采购单id不能为空")
+    @Schema(description = "采购单id")
     private Long procurementId;
 
     @Schema(description = "打款时间", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -32,7 +35,7 @@ public class ProcurementPaymentBaseVO {
     private LocalDateTime paymentDate;
 
     @Schema(description = "打款金额")
-    private Long amount;
+    private BigDecimal amount;
 
     @Schema(description = "供货商 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "14390")
     @NotNull(message = "供货商 id不能为空")

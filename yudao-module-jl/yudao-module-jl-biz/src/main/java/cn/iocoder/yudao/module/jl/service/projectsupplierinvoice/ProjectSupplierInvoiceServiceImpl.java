@@ -4,6 +4,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,11 +45,11 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
     private ProjectSupplierInvoiceMapper projectSupplierInvoiceMapper;
 
     //根据supplierId计算总金额
-    public Long sumAmountBySupplierId(Long supplierId){
+    public BigDecimal sumAmountBySupplierId(Long supplierId){
         List<ProjectSupplierInvoice> bySupplierId = projectSupplierInvoiceRepository.findBySupplierId(supplierId);
-        Long sum = 0L;
+        BigDecimal sum = BigDecimal.ZERO;
         for (ProjectSupplierInvoice supplierInvoice : bySupplierId) {
-            sum += supplierInvoice.getPrice();
+           sum= sum.add(supplierInvoice.getPrice());
         }
         return sum;
     }
@@ -105,6 +107,10 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
         Specification<ProjectSupplierInvoice> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getPurchaseContractId() != null) {
+                predicates.add(cb.equal(root.get("purchaseContractId"), pageReqVO.getPurchaseContractId()));
+            }
+
             if(pageReqVO.getPrice() != null) {
                 predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
             }
@@ -121,13 +127,13 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
             }
 
-            if(pageReqVO.getProjectId() != null) {
+/*            if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
             if(pageReqVO.getSupplierId() != null) {
                 predicates.add(cb.equal(root.get("supplierId"), pageReqVO.getSupplierId()));
-            }
+            }*/
 
             if(pageReqVO.getDate() != null) {
                 predicates.add(cb.between(root.get("date"), pageReqVO.getDate()[0], pageReqVO.getDate()[1]));

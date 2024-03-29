@@ -31,9 +31,16 @@ public class PurchaseContractBaseVO {
     @NotNull(message = "状态不能为空")
     private String status="1";
 
+    @Schema(description = "付款状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "付款状态不能为空")
+    private String priceStatus="1";
+
     @Schema(description = "总价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "总价不能为空")
     private BigDecimal amount;
+
+    @Schema(description = "流程实例id")
+    private String processInstanceId;
 
     private List<CommonAttachment> attachmentList;
 

@@ -70,7 +70,7 @@ public class JLBpmServiceImpl implements JLBpmService {
             }
             purchaseContractRepository.updateStatusById( approveReqVO.getTaskStatus(),approveReqVO.getRefId());
             if(Objects.equals(approveReqVO.getTaskStatus(), PurchaseContractStatusEnums.APPROVE.getStatus())){
-                procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.ORDERED.getStatus(), approveReqVO.getRefId());
+                procurementItemRepository.updateStatusByPurchaseContractId(ProcurementItemStatusEnums.ORDERED.getStatus(), approveReqVO.getRefId());
             }
         }
 

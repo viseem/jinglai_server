@@ -1,5 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.purchasecontract;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentService;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,8 @@ import cn.iocoder.yudao.module.jl.mapper.purchasecontract.PurchaseContractMapper
 import cn.iocoder.yudao.module.jl.repository.purchasecontract.PurchaseContractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROCUREMENT_PURCHASE_CONTRACT_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -47,6 +53,12 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
 
+    @Resource
+    private ProcurementItemRepository procurementItemRepository;
+
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
     @Override
     @Transactional
     public Long createPurchaseContract(PurchaseContractCreateReqVO createReqVO) {
@@ -56,6 +68,36 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(purchaseContract.getId(),"PROCUREMENT_PURCHASE_CONTRACT",createReqVO.getAttachmentList());
+
+        // 返回
+        return purchaseContract.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long savePurchaseContract(PurchaseContractSaveReqVO reqVO) {
+        // 插入
+        PurchaseContract purchaseContract = purchaseContractMapper.toEntity(reqVO);
+        purchaseContractRepository.save(purchaseContract);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(purchaseContract.getId(),"PROCUREMENT_PURCHASE_CONTRACT",reqVO.getAttachmentList());
+
+        //保存procurementItemList
+        reqVO.getProcurementItemList().forEach(item->{
+            item.setStatus(ProcurementItemStatusEnums.INITIATE_ORDER.getStatus());
+            item.setPurchaseContractId(purchaseContract.getId());
+        });
+
+        procurementItemRepository.saveAll(reqVO.getProcurementItemList());
+
+        //加入审批流
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCUREMENT_PURCHASE_CONTRACT_AUDIT)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(purchaseContract.getId())));
+
+        purchaseContractRepository.updateProcessInstanceIdById( processInstanceId,purchaseContract.getId());
 
         // 返回
         return purchaseContract.getId();
@@ -121,6 +163,10 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
+            if(pageReqVO.getPriceStatus() != null) {
+                predicates.add(cb.equal(root.get("priceStatus"), pageReqVO.getPriceStatus()));
+            }
+
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
@@ -180,6 +226,8 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

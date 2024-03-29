@@ -11,6 +11,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PurchaseContractMapper {
     PurchaseContract toEntity(PurchaseContractCreateReqVO dto);
+    PurchaseContract toEntity(PurchaseContractSaveReqVO dto);
 
     PurchaseContract toEntity(PurchaseContractUpdateReqVO dto);
 

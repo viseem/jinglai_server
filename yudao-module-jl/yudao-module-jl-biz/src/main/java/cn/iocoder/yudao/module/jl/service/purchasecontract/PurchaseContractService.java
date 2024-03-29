@@ -21,6 +21,14 @@ public interface PurchaseContractService {
     Long createPurchaseContract(@Valid PurchaseContractCreateReqVO createReqVO);
 
     /**
+     * 创建购销合同和明细
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
+    Long savePurchaseContract(@Valid PurchaseContractSaveReqVO createReqVO);
+
+    /**
      * 更新购销合同
      *
      * @param updateReqVO 更新信息

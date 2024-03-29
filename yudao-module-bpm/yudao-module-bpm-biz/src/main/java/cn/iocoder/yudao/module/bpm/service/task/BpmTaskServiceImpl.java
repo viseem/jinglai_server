@@ -287,7 +287,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             // 更新任务拓展表为通过
             taskExtMapper.updateByTaskId(
                     new BpmTaskExtDO().setTaskId(task.getId()).setResult(BpmTaskStatustEnum.RETURN.getStatus())
-                            .setReason(reqVO.getReason()));
+                            .setReason(reqVO.getReason()).setEndTime(LocalDateTime.now()));
 //            updateTaskStatusAndReason(task.getId(), BpmTaskStatustEnum.RETURN.getStatus(), reqVO.getReason());
         });
 

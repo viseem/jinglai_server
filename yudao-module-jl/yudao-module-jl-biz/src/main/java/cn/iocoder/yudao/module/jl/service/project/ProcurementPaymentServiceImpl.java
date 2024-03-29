@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.project;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,11 +44,11 @@ public class ProcurementPaymentServiceImpl implements ProcurementPaymentService 
     private ProcurementPaymentMapper procurementPaymentMapper;
 
     //根据supplierId计算总金额
-    public Long sumAmountBySupplierId(Long supplierId){
+    public BigDecimal sumAmountBySupplierId(Long supplierId){
         List<ProcurementPayment> bySupplierId = procurementPaymentRepository.findBySupplierId(supplierId);
-        Long sum = 0L;
+        BigDecimal sum = BigDecimal.ZERO;
         for (ProcurementPayment procurementPayment : bySupplierId) {
-            sum += procurementPayment.getAmount();
+               sum= sum.add(procurementPayment.getAmount());
         }
         return sum;
     }
@@ -104,13 +106,17 @@ public class ProcurementPaymentServiceImpl implements ProcurementPaymentService 
         Specification<ProcurementPayment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProjectId() != null) {
+            if(pageReqVO.getPurchaseContractId() != null) {
+                predicates.add(cb.equal(root.get("purchaseContractId"), pageReqVO.getPurchaseContractId()));
+            }
+
+/*            if(pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
             if(pageReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
-            }
+            }*/
 
             if(pageReqVO.getPaymentDate() != null) {
                 predicates.add(cb.between(root.get("paymentDate"), pageReqVO.getPaymentDate()[0], pageReqVO.getPaymentDate()[1]));
