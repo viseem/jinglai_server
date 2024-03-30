@@ -114,6 +114,15 @@ public class ProcurementController {
         return success(procurement.map(procurementMapper::toDto).orElseThrow(() -> exception(PROCUREMENT_NOT_EXISTS)));
     }
 
+    @GetMapping("/again-process")
+    @Operation(summary = "通过 ID 更新采购单流程")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:query')")
+    public CommonResult<Boolean> againProcurementProcess(@RequestParam("id") Long id) {
+        procurementService.againProcurementProcess(id);
+        return success(true);
+    }
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得项目采购单申请列表")
     @PreAuthorize("@ss.hasPermission('jl:procurement:query')")

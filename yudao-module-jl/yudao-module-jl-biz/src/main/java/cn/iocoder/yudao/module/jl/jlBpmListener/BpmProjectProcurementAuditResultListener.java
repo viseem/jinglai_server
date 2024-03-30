@@ -38,7 +38,7 @@ public class BpmProjectProcurementAuditResultListener extends BpmProcessInstance
         if(Objects.equals(result, BpmProcessInstanceResultEnum.APPROVE.getResult().toString())){
 //            procurementRepository.updateStatusById(id,ProcurementStatusEnums.WAITING_CHECK_IN.getStatus());
         }else if(Objects.equals(result, BpmProcessInstanceResultEnum.REJECT.getResult().toString())){
-            procurementRepository.updateStatusById(id,null);
+//            procurementRepository.updateStatusById(id,null);
         }
 
         //获取

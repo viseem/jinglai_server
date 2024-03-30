@@ -45,6 +45,14 @@ public interface ProcurementService {
     Optional<Procurement> getProcurement(Long id);
 
     /**
+     * 重新发起采购单流程
+     *
+     * @param id 编号
+     * @return 项目采购单申请
+     */
+    void againProcurementProcess(Long id);
+
+    /**
      * 获得项目采购单申请列表
      *
      * @param ids 编号

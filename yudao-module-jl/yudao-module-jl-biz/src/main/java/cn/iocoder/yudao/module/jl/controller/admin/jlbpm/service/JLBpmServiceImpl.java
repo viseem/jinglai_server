@@ -117,8 +117,10 @@ public class JLBpmServiceImpl implements JLBpmService {
             if(reqVO.getRefId()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
+            System.out.println("---==="+reqVO.getRefId()+"---"+ProcurementStatusEnums.REJECT.getStatus());
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
-        }
+     }
+
 
         if(Objects.equals(processDefinitionKey,PROCUREMENT_PURCHASE_CONTRACT_AUDIT)){
             if(reqVO.getRefId()==null){

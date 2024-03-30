@@ -45,6 +45,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -192,6 +193,24 @@ public class ProcurementServiceImpl implements ProcurementService {
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROCUREMENT_ORDER",saveReqVO.getAttachmentList());
 
+    }
+
+    @Override
+    @Transactional
+    public void againProcurementProcess(Long id){
+
+
+
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(id)));
+
+        // 更新流程实例编号
+        procurementRepository.updateProcessInstanceIdById(processInstanceId,id);
+
+        procurementRepository.updateStatusById(id,ProcurementStatusEnums.CONFIRM_INFO.getStatus());
     }
 
     @Override
