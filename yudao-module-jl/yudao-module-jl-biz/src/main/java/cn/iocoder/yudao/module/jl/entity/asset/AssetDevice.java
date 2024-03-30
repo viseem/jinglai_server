@@ -54,11 +54,6 @@ public class AssetDevice extends BaseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User manager;
 
     /**
      * 备注
@@ -136,4 +131,9 @@ public class AssetDevice extends BaseEntity {
     private Boolean busy;
 
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User manager;
 }

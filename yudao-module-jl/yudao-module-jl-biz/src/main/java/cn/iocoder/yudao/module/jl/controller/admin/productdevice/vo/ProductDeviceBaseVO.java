@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productdevice.vo;
 
+import cn.iocoder.yudao.module.jl.entity.asset.AssetDevice;
+import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -24,5 +26,9 @@ public class ProductDeviceBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+
+    private ProductOnly product;
+    private AssetDevice device;
 
 }
