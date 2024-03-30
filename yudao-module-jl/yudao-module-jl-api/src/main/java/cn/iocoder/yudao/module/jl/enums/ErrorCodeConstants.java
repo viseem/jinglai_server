@@ -250,7 +250,7 @@ public interface ErrorCodeConstants {
     ErrorCode PRODUCT_NOT_EXISTS = new ErrorCode(1003500000, "产品库不存在");
     ErrorCode PRODUCT_DEVICE_NOT_EXISTS = new ErrorCode(1003600000, "产品库设备不存在");
     ErrorCode PRODUCT_SOP_NOT_EXISTS = new ErrorCode(1003700000, "产品sop不存在");
-
+    ErrorCode PRODUCT_USER_NOT_EXISTS = new ErrorCode(1003800000, "产品库人员不存在");
 
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");
