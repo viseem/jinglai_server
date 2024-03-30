@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productuser.vo;
 
+import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -25,4 +27,6 @@ public class ProductUserBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    private ProductOnly product;
+    private User user;
 }
