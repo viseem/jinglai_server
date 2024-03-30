@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productsop.vo;
 
+import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -24,5 +25,7 @@ public class ProductSopBaseVO {
 
     @Schema(description = "内容")
     private String content;
+
+    private ProductOnly product;
 
 }

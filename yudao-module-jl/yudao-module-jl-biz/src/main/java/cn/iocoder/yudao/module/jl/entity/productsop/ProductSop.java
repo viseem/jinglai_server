@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.entity.productsop;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -48,5 +52,13 @@ public class ProductSop extends BaseEntity {
      */
     @Column(name = "content")
     private String content;
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "product", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProductOnly product;
 
 }
