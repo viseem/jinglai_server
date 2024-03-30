@@ -29,7 +29,7 @@ import java.math.BigDecimal;
 @Setter
 @Entity(name = "Product")
 @Table(name = "jl_product")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Product extends BaseEntity {
 
     /**

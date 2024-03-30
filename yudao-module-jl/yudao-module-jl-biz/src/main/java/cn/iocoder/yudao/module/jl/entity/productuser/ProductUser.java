@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity(name = "ProductUser")
 @Table(name = "jl_product_user")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProductUser extends BaseEntity {
 
     /**
