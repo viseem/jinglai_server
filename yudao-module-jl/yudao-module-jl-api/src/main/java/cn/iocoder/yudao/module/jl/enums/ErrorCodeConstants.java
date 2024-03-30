@@ -226,6 +226,8 @@ public interface ErrorCodeConstants {
     ErrorCode COLLABORATION_RECORD_NOT_EXISTS = new ErrorCode(1002400000, "通用协作记录不存在");
 
 
+
+
     // 工作任务模块 1002400000
     ErrorCode WORK_TODO_NOT_EXISTS = new ErrorCode(1002400001, "工作任务 TODO不存在");
     ErrorCode WORK_TODO_TAG_NOT_EXISTS = new ErrorCode(1002400002, "工作任务 TODO 的标签不存在");
@@ -245,6 +247,7 @@ public interface ErrorCodeConstants {
     ErrorCode VISIT_LOG_NOT_EXISTS = new ErrorCode(1003300000, "拜访记录不存在");
 
     ErrorCode PURCHASE_CONTRACT_NOT_EXISTS = new ErrorCode(1003400000, "购销合同不存在");
+    ErrorCode PRODUCT_NOT_EXISTS = new ErrorCode(1003500000, "产品库不存在");
 
 
     // ========== 企业微信模块 ==========
