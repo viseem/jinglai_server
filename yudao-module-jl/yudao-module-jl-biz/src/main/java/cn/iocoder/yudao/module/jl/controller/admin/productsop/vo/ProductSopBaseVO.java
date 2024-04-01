@@ -19,13 +19,12 @@ public class ProductSopBaseVO {
     @NotNull(message = "产品不能为空")
     private Long productId;
 
-    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
-    @NotNull(message = "名称不能为空")
-    private String name;
+    @Schema(description = "SOP", requiredMode = Schema.RequiredMode.REQUIRED, example = "11146")
+    @NotNull(message = "SOP不能为空")
+    private Long sopId;
 
-    @Schema(description = "内容")
-    private String content;
+    @Schema(description = "备注")
+    private String mark;
 
-    private ProductOnly product;
 
 }

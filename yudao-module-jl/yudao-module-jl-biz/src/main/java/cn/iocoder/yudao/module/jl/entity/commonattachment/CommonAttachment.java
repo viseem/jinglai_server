@@ -38,6 +38,12 @@ public class CommonAttachment extends BaseEntity {
     private String type;
 
     /**
+     * 类型
+     */
+    @Column(name = "sub_type", nullable = false )
+    private String subType;
+
+    /**
      * id
      */
     @Column(name = "ref_id", nullable = false )

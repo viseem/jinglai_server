@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 @Setter
 @Entity(name = "ProductOnly")
 @Table(name = "jl_product")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ProductOnly extends BaseEntity {
 
     /**
@@ -44,8 +44,8 @@ public class ProductOnly extends BaseEntity {
     /**
      * 分类
      */
-    @Column(name = "cate")
-    private String cate;
+    @Column(name = "cate_id")
+    private Long cate;
 
     /**
      * 状态
@@ -102,6 +102,12 @@ public class ProductOnly extends BaseEntity {
     private BigDecimal costPrice;
 
     /**
+     * 销售价格
+     */
+    @Column(name = "sale_price")
+    private BigDecimal salePrice;
+
+    /**
      * 竞品价格
      */
     @Column(name = "compete_price")
@@ -124,4 +130,10 @@ public class ProductOnly extends BaseEntity {
      */
     @Column(name = "sold_count")
     private Integer soldCount;
+
+    /**
+     * 存量
+     */
+    @Column(name = "stock_count")
+    private Integer stockCount;
 }

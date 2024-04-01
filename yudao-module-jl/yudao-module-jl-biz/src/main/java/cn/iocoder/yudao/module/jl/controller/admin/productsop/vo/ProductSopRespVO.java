@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productsop.vo;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
+import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -16,4 +18,5 @@ public class ProductSopRespVO extends ProductSopBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    private Category sop;
 }

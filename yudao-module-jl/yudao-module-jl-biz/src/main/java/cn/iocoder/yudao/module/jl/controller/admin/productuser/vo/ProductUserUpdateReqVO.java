@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productuser.vo;
 
+import cn.iocoder.yudao.module.jl.entity.productuser.ProductUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -15,4 +16,5 @@ public class ProductUserUpdateReqVO extends ProductUserBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    private List<ProductUser> list;
 }

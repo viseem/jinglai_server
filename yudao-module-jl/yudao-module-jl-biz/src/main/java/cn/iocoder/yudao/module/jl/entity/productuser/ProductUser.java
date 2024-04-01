@@ -57,10 +57,10 @@ public class ProductUser extends BaseEntity {
     /**
      * 级联产品
      */
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProductOnly product;
+    private ProductOnly product;*/
 
     /**
      * 级联用户

@@ -24,11 +24,11 @@ public class ProductBaseVO {
     private String name;
 
     @Schema(description = "分类")
-    private String cate;
+    private Long cateId;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "状态不能为空")
-    private String status;
+    private String status="1";
 
     @Schema(description = "备注")
     private String mark;
@@ -54,6 +54,9 @@ public class ProductBaseVO {
     @Schema(description = "成本价格", example = "5952")
     private BigDecimal costPrice;
 
+    @Schema(description = "销售价格", example = "5952")
+    private BigDecimal salePrice;
+
     @Schema(description = "竞品价格", example = "5940")
     private BigDecimal competePrice;
 
@@ -65,5 +68,8 @@ public class ProductBaseVO {
 
     @Schema(description = "已售份数", example = "21751")
     private Integer soldCount;
+
+    @Schema(description = "存量", example = "21751")
+    private Integer stockCount;
 
 }

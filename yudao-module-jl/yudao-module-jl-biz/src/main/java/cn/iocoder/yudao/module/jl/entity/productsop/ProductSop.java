@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.productsop;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import cn.iocoder.yudao.module.jl.entity.product.ProductOnly;
 import lombok.*;
 import java.util.*;
@@ -42,23 +43,23 @@ public class ProductSop extends BaseEntity {
     private Long productId;
 
     /**
-     * 名称
+     * 产品
      */
-    @Column(name = "name", nullable = false )
-    private String name;
+    @Column(name = "sop_id", nullable = false )
+    private Long sopId;
 
     /**
-     * 内容
+     * 备注
      */
-    @Column(name = "content")
-    private String content;
+    @Column(name = "mark")
+    private String mark;
 
     /**
      * 级联
      */
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "product", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProductOnly product;
+    @JoinColumn(name = "sop_id",  insertable = false, updatable = false)
+    private Category sop;
 
 }

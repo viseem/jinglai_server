@@ -31,7 +31,7 @@ public class ProductExcelVO {
     private String name;
 
     @ExcelProperty("分类")
-    private String cate;
+    private Long cateId;
 
     @ExcelProperty("状态")
     private String status;

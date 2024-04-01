@@ -42,6 +42,8 @@ public class ProductUserController {
     @Resource
     private ProductUserMapper productUserMapper;
 
+
+
     @PostMapping("/create")
     @Operation(summary = "创建产品库人员")
     @PreAuthorize("@ss.hasPermission('jl:product-user:create')")

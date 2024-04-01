@@ -95,10 +95,10 @@ public class Category extends BaseEntity {
     /**
      * JPA 级联出 open
      */
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private LaboratoryLab lab;
+    private LaboratoryLab lab;*/
 
     /**
      * 历史操作次数
@@ -109,32 +109,32 @@ public class Category extends BaseEntity {
     /**
      * 实验名目的擅长人员
      */
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+/*    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(
             name = "jl_laboratory_category_skilluser",
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> skillUsers = new HashSet<>();
+    private Set<User> skillUsers = new HashSet<>();*/
 
     /**
      * charge list
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<CategoryChargeitem> chargeList = new ArrayList<>();
+    private List<CategoryChargeitem> chargeList = new ArrayList<>();*/
 
     /**
      * supply list
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<CategorySupply> supplyList = new ArrayList<>();
+    private List<CategorySupply> supplyList = new ArrayList<>();*/
 
     /**
      * attachment list

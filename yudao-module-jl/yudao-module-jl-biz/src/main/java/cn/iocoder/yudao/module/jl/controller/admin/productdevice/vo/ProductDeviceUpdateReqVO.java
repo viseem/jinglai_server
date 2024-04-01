@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productdevice.vo;
 
+import cn.iocoder.yudao.module.jl.entity.productdevice.ProductDevice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -14,5 +15,8 @@ public class ProductDeviceUpdateReqVO extends ProductDeviceBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "9099")
     @NotNull(message = "ID不能为空")
     private Long id;
+
+
+    private List<ProductDevice> list;
 
 }

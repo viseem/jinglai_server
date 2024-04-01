@@ -11,10 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.productuser.vo.*;
@@ -52,11 +49,16 @@ public class ProductUserServiceImpl implements ProductUserService {
 
     @Override
     public void updateProductUser(ProductUserUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProductUserExists(updateReqVO.getId());
-        // 更新
-        ProductUser updateObj = productUserMapper.toEntity(updateReqVO);
-        productUserRepository.save(updateObj);
+        if(updateReqVO.getList()!=null){
+            productUserRepository.deleteByProductId(updateReqVO.getProductId());
+            productUserRepository.saveAll(updateReqVO.getList());
+        }else{
+            // 校验存在
+            validateProductUserExists(updateReqVO.getId());
+            // 更新
+            ProductUser updateObj = productUserMapper.toEntity(updateReqVO);
+            productUserRepository.save(updateObj);
+        }
     }
 
     @Override

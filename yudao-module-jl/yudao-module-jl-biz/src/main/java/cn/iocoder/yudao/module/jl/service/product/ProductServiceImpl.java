@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.product;
 
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,6 +44,9 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private ProductMapper productMapper;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
     public Long createProduct(ProductCreateReqVO createReqVO) {
         // 插入
@@ -51,12 +57,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void updateProduct(ProductUpdateReqVO updateReqVO) {
         // 校验存在
         validateProductExists(updateReqVO.getId());
         // 更新
         Product updateObj = productMapper.toEntity(updateReqVO);
         productRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        if(updateReqVO.getAttachmentType()!=null){
+            commonAttachmentService.saveAttachmentListWithSubType(updateObj.getId(),"JL_PRODUCT",updateReqVO.getAttachmentType(),updateReqVO.getAttachmentList());
+        }
     }
 
     @Override
@@ -98,8 +110,8 @@ public class ProductServiceImpl implements ProductService {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getCate() != null) {
-                predicates.add(cb.equal(root.get("cate"), pageReqVO.getCate()));
+            if(pageReqVO.getCateId() != null) {
+                predicates.add(cb.equal(root.get("cateId"), pageReqVO.getCateId()));
             }
 
             if(pageReqVO.getStatus() != null) {
@@ -245,6 +257,8 @@ public class ProductServiceImpl implements ProductService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

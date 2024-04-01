@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.laboratory;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.CategoryOnly;
+import cn.iocoder.yudao.module.jl.repository.laboratory.CategoryOnlyRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +42,9 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     @Resource
+    private CategoryOnlyRepository categoryOnlyRepository;
+
+    @Resource
     private CategoryMapper categoryMapper;
 
     @Override
@@ -75,6 +80,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Optional<Category> getCategory(Long id) {
         return categoryRepository.findById(id);
+    }
+
+    @Override
+    public Optional<CategoryOnly> getCategoryOnly(Long id) {
+        return categoryOnlyRepository.findById(id);
     }
 
     @Override
@@ -120,6 +130,48 @@ public class CategoryServiceImpl implements CategoryService {
 
         // 执行查询
         Page<Category> page = categoryRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<CategoryOnly> getCategoryPageOnly(CategoryPageReqVO pageReqVO, CategoryPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<CategoryOnly> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
+            }
+
+            if(pageReqVO.getDifficultyLevel() != null) {
+                predicates.add(cb.equal(root.get("difficultyLevel"), pageReqVO.getDifficultyLevel()));
+            }
+
+            if(pageReqVO.getMark() != null) {
+                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if(pageReqVO.getLabId() != null) {
+                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 执行查询
+        Page<CategoryOnly> page = categoryOnlyRepository.findAll(spec, pageable);
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

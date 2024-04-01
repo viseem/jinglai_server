@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo.*;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
+import cn.iocoder.yudao.module.jl.entity.laboratory.CategoryOnly;
 import org.mapstruct.*;
 
 
@@ -12,9 +13,15 @@ import org.mapstruct.*;
 public interface CategoryMapper {
     Category toEntity(CategoryCreateReqVO dto);
 
+
+
     Category toEntity(CategoryUpdateReqVO dto);
 
     CategoryRespVO toDto(Category entity);
+
+    CategoryRespVO toDto(CategoryOnly entity);
+
+    CategorySimpleRespVO toDtoSimple(CategoryOnly entity);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -23,4 +30,6 @@ public interface CategoryMapper {
     List<CategoryExcelVO> toExcelList(List<Category> list);
 
     PageResult<CategoryRespVO> toPage(PageResult<Category> page);
+
+    PageResult<CategorySimpleRespVO> toPageOnly(PageResult<CategoryOnly> page);
 }

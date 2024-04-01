@@ -53,6 +53,18 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
         commonAttachmentRepository.saveAll(list);
     }
 
+    public void saveAttachmentListWithSubType(Long refId,String type,String subType,List<CommonAttachment> list){
+        if(list == null || list.isEmpty()){
+            return;
+        }
+        for(CommonAttachment attachment : list){
+            attachment.setRefId(refId);
+            attachment.setType(type);
+            attachment.setSubType(subType);
+        }
+        commonAttachmentRepository.saveAll(list);
+    }
+
     public void deleteAttachment(Long refId,String type){
         commonAttachmentRepository.deleteByRefIdAndType(refId,type);
     }

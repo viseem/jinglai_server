@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.laboratory;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.CategoryOnly;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -75,12 +76,29 @@ public class CategoryController {
         return success(category.map(categoryMapper::toDto).orElseThrow(() -> exception(CATEGORY_NOT_EXISTS)));
     }
 
+    @GetMapping("/get-only")
+    @Operation(summary = "通过 ID 获得实验名目")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:category:query')")
+    public CommonResult<CategorySimpleRespVO> getCategoryOnly(@RequestParam("id") Long id) {
+        Optional<CategoryOnly> category = categoryService.getCategoryOnly(id);
+        return success(category.map(categoryMapper::toDtoSimple).orElseThrow(() -> exception(CATEGORY_NOT_EXISTS)));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得实验名目列表")
     @PreAuthorize("@ss.hasPermission('jl:category:query')")
     public CommonResult<PageResult<CategoryRespVO>> getCategoryPage(@Valid CategoryPageReqVO pageVO, @Valid CategoryPageOrder orderV0) {
         PageResult<Category> pageResult = categoryService.getCategoryPage(pageVO, orderV0);
         return success(categoryMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/page-only")
+    @Operation(summary = "(分页)获得实验名目列表")
+    @PreAuthorize("@ss.hasPermission('jl:category:query')")
+    public CommonResult<PageResult<CategorySimpleRespVO>> getCategoryPageOnly(@Valid CategoryPageReqVO pageVO, @Valid CategoryPageOrder orderV0) {
+        PageResult<CategoryOnly> pageResult = categoryService.getCategoryPageOnly(pageVO, orderV0);
+        return success(categoryMapper.toPageOnly(pageResult));
     }
 
     @GetMapping("/export-excel")

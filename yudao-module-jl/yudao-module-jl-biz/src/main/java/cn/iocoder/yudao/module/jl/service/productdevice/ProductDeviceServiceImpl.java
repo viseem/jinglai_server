@@ -11,10 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.productdevice.vo.*;
@@ -52,11 +49,18 @@ public class ProductDeviceServiceImpl implements ProductDeviceService {
 
     @Override
     public void updateProductDevice(ProductDeviceUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProductDeviceExists(updateReqVO.getId());
-        // 更新
-        ProductDevice updateObj = productDeviceMapper.toEntity(updateReqVO);
-        productDeviceRepository.save(updateObj);
+
+        if(updateReqVO.getList()!=null){
+            productDeviceRepository.deleteByProductId(updateReqVO.getProductId());
+            productDeviceRepository.saveAll(updateReqVO.getList());
+        }else{
+            // 校验存在
+            validateProductDeviceExists(updateReqVO.getId());
+            // 更新
+            ProductDevice updateObj = productDeviceMapper.toEntity(updateReqVO);
+            productDeviceRepository.save(updateObj);
+        }
+
     }
 
     @Override

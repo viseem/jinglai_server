@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.laboratory.vo.*;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.laboratory.CategoryOnly;
 
 /**
  * 实验名目 Service 接口
@@ -43,6 +44,14 @@ public interface CategoryService {
     Optional<Category> getCategory(Long id);
 
     /**
+     * 获得实验名目
+     *
+     * @param id 编号
+     * @return 实验名目
+     */
+    Optional<CategoryOnly> getCategoryOnly(Long id);
+
+    /**
      * 获得实验名目列表
      *
      * @param ids 编号
@@ -57,6 +66,14 @@ public interface CategoryService {
      * @return 实验名目分页
      */
     PageResult<Category> getCategoryPage(CategoryPageReqVO pageReqVO, CategoryPageOrder orderV0);
+
+    /**
+     * 获得实验名目分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 实验名目分页
+     */
+    PageResult<CategoryOnly> getCategoryPageOnly(CategoryPageReqVO pageReqVO, CategoryPageOrder orderV0);
 
     /**
      * 获得实验名目列表, 用于 Excel 导出

@@ -52,11 +52,18 @@ public class ProductSopServiceImpl implements ProductSopService {
 
     @Override
     public void updateProductSop(ProductSopUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProductSopExists(updateReqVO.getId());
-        // 更新
-        ProductSop updateObj = productSopMapper.toEntity(updateReqVO);
-        productSopRepository.save(updateObj);
+
+        if(updateReqVO.getList()!=null){
+            productSopRepository.deleteByProductId(updateReqVO.getProductId());
+            productSopRepository.saveAll(updateReqVO.getList());
+        }else{
+            // 校验存在
+            validateProductSopExists(updateReqVO.getId());
+            // 更新
+            ProductSop updateObj = productSopMapper.toEntity(updateReqVO);
+            productSopRepository.save(updateObj);
+        }
+
     }
 
     @Override

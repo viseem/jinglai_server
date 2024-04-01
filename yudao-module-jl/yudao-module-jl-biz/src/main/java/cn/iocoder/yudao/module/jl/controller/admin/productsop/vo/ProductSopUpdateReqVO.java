@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productsop.vo;
 
+import cn.iocoder.yudao.module.jl.entity.productsop.ProductSop;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -15,4 +16,5 @@ public class ProductSopUpdateReqVO extends ProductSopBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    private List<ProductSop> list;
 }
