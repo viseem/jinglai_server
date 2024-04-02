@@ -94,6 +94,12 @@ public class ContractInvoiceLog extends BaseEntity {
     private BigDecimal price;
 
     /**
+     * 冲红金额
+     */
+    @Column(name = "red_price", nullable = false )
+    private BigDecimal redPrice;
+
+    /**
      * 开票日期
      */
     @Column(name = "date")
@@ -104,6 +110,12 @@ public class ContractInvoiceLog extends BaseEntity {
      */
     @Column(name = "type", nullable = false )
     private String type;
+
+    /**
+     * 客户信息备注
+     */
+    @Column(name = "customer_mark")
+    private String customerMark;
 
     /**
      * 备注
@@ -176,6 +188,13 @@ public class ContractInvoiceLog extends BaseEntity {
      */
     @Column(name = "phone")
     private String phone;
+
+
+    /**
+     * 开票公司
+     */
+    @Column(name = "bill_company")
+    private String billCompany;
 
     /**
      * 抬头类型
@@ -301,4 +320,9 @@ public class ContractInvoiceLog extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CustomerSimple customer;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User sales;
 }

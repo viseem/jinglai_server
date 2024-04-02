@@ -1,45 +1,46 @@
 package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
+import cn.iocoder.yudao.module.jl.mapper.contractinvoicelog.ContractInvoiceLogMapper;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
-import cn.iocoder.yudao.module.jl.service.project.ProjectConstractService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
-import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.contractinvoicelog.ContractInvoiceLogMapper;
-import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.CONTRACT_INVOICE_LOG_NOT_EXISTS;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 
 /**
  * 合同发票记录 Service 实现类
@@ -48,6 +49,9 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService {
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
@@ -64,6 +68,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
 
+    @Resource
+    private UserRepository userRepository;
+
     @Override
     @Transactional
     public Long createContractInvoiceLog(ContractInvoiceLogCreateReqVO createReqVO) {
@@ -71,9 +78,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(!Objects.equals(createReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
+/*        if(!Objects.equals(createReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
-        }
+        }*/
 
         // 插入
         ContractInvoiceLog contractInvoiceLog = contractInvoiceLogMapper.toEntity(createReqVO);
@@ -98,9 +105,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
 
         // 如果status不为空，则记录auditId为当前登录用户
-        if(!Objects.equals(updateReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
+/*        if(!Objects.equals(updateReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
-        }
+        }*/
 
         // 更新
         ContractInvoiceLog updateObj = contractInvoiceLogMapper.toEntity(updateReqVO);
@@ -195,9 +202,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getPriceStatus() != null) {
+/*            if(pageReqVO.getPriceStatus() != null) {
                 predicates.add(cb.equal(root.get("priceStatus"), pageReqVO.getPriceStatus()));
-            }
+            }*/
 
             if(pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
@@ -447,9 +454,8 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
-
+        orders.add(new Sort.Order(Sort.Direction.ASC, "status"));
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
-
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
@@ -570,5 +576,89 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
         // 创建 Sort 对象
         return Sort.by(orders);
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    private class InvoiceSales{
+        private Long salesId;
+        private String content;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public ContractInvoiceLogImportRespVO importList(List<ContractInvoiceLogImportVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        ContractInvoiceLogImportRespVO respVO = ContractInvoiceLogImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
+
+        List<InvoiceSales> salesList = new ArrayList<>();
+
+        importUsers.forEach(item -> {
+
+            List<User> byNickname = userRepository.findByNickname(item.getSalesName());
+            if(byNickname.isEmpty()){
+                respVO.getFailureNames().put(item.getSalesName(),"：未匹配到销售人员");
+                return;
+            }
+
+            item.setDate(item.getDate()+" 09:00:00");
+            User salesUser = byNickname.get(0);
+
+            //格式化字符串 您有新的发票需要绑定合同，客户：【客户】，金额：【金额】
+            String content = String.format("您有新的发票需要绑定合同，客户:【%s】,金额:【%s】,备注：【%s】",
+                    item.getCustomerMark(),
+                    item.getPrice(),
+                    item.getMark()
+                    );
+            salesList.add(new InvoiceSales(salesUser.getId(),content));
+
+            ContractInvoiceLog itemLog = contractInvoiceLogMapper.toEntity(item);
+            itemLog.setSalesId(salesUser.getId());
+            itemLog.setPrice(new BigDecimal(item.getPrice()));
+            itemLog.setReceivedPrice(new BigDecimal(item.getPrice()));
+            itemLog.setRedPrice(new BigDecimal(item.getRedPrice()));
+            itemLog.setDate(LocalDateTime.parse(item.getDate(), DateTimeFormatter.ofPattern("yyyy/M/d HH:mm:ss")));
+            itemLog.setStatus(ContractInvoiceStatusEnums.getStatusByText(item.getStatus()));
+            itemLog.setTitle(item.getTitle());
+            itemLog.setHeadType(item.getHeadType());
+            itemLog.setBillCompany(item.getBillCompany());
+            itemLog.setMark(item.getMark());
+            itemLog.setCustomerMark(item.getCustomerMark());
+            itemLog.setTaxerNumber(item.getTaxNumber());
+            itemLog.setNumber(item.getNumber());
+            if(item.getId()!=null){
+                itemLog.setId(Long.valueOf(item.getId()));
+            }
+            itemLog.setCustomerId(0L);
+            itemLog.setContractId(0L);
+            itemLog.setAuditId(getLoginUserId());
+
+            respVO.getCreateNames().add(item.getTitle()+":"+item.getPrice()+":"+ContractInvoiceStatusEnums.getStatusByText(item.getStatus())+":"+item.getSalesName());
+            contractInvoiceLogRepository.save(itemLog);
+        });
+/*
+        for (Long salesId : salesIds) {
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    salesId,
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(), new HashMap<>()
+            ));
+        }*/
+
+        for (InvoiceSales sale : salesList) {
+            System.out.println("sale---"+sale);
+/*            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("content",sale.getContent());
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    sale.getSalesId(),
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),templateParams
+            ));*/
+        }
+
+
+        return respVO;
     }
 }

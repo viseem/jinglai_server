@@ -7,31 +7,22 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.Financ
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialReceivableStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
-import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
-import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.statistic.financial.FinancialStatisticServiceImpl;
-import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -69,7 +60,7 @@ public class FinancialStatisticController {
                 resp.getAllOrderAmount().subtract(resp.getAllContractPaymentAmount())
         );
 
-        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByPriceStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
 
         for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
             resp.setAllUnreceivedInvoiceAmount(resp.getAllUnreceivedInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));

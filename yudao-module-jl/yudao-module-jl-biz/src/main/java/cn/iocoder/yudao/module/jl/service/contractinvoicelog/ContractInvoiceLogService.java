@@ -2,6 +2,9 @@ package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
 import java.util.*;
 import javax.validation.*;
+
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
 import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -65,5 +68,7 @@ public interface ContractInvoiceLogService {
      * @return 合同发票记录列表
      */
     List<ContractInvoiceLog> getContractInvoiceLogList(ContractInvoiceLogExportReqVO exportReqVO);
+
+    ContractInvoiceLogImportRespVO importList(List<ContractInvoiceLogImportVO> imports, boolean isUpdateSupport);
 
 }

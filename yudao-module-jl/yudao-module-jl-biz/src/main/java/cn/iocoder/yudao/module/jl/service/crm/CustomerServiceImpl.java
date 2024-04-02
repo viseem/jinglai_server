@@ -567,9 +567,9 @@ public class CustomerServiceImpl implements CustomerService {
         BigDecimal invoiceAmount = new BigDecimal(0);
         List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByCustomerId(id);
         for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
-            if(Objects.equals(contractInvoiceLog.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus())){
-                invoiceAmount = invoiceAmount.add(contractInvoiceLog.getPrice());
-            }
+//            if(Objects.equals(contractInvoiceLog.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus())){
+//            }
+            invoiceAmount = invoiceAmount.add(contractInvoiceLog.getPrice());
         }
 
         //赋值返回值

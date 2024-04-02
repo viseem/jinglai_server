@@ -296,7 +296,7 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         }
 
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getUserIds());
-        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByPriceStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
 
         for (SalesGroupMember member : groupMemberList) {
             for (ProjectConstractOnly contract : contractList) {

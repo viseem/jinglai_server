@@ -15,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 
-import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 @Service
@@ -143,8 +141,8 @@ public class WorkstationServiceImpl implements WorkstationService {
 
         //全部的 合同发票 未核验的
 
-        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNotOrPriceStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus(),ContractInvoiceStatusEnums.RECEIVED_ALL.getStatus());
-        resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
+//        Integer contractInvoiceNotAuditCount = contractInvoiceLogRepository.countByStatusNotOrPriceStatusNot(ContractInvoiceStatusEnums.INVOICED.getStatus(),ContractInvoiceStatusEnums.RECEIVED_ALL.getStatus());
+//        resp.setContractInvoiceNotAuditCount(contractInvoiceNotAuditCount);
 
         //全部的 未打款采购单数量
 //        Integer procurementNotPayCount = procurementRepository.countByStatus(ProcurementStatusEnums.WAITING_FINANCE_CONFIRM.getStatus());

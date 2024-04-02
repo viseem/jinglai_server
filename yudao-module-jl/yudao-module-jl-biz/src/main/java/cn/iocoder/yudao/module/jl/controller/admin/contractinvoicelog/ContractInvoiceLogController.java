@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog;
 
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +32,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.mapper.contractinvoicelog.ContractInvoiceLogMapper;
 import cn.iocoder.yudao.module.jl.service.contractinvoicelog.ContractInvoiceLogService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 合同发票记录")
 @RestController
@@ -93,5 +97,20 @@ public class ContractInvoiceLogController {
         List<ContractInvoiceLogExcelVO> excelData = contractInvoiceLogMapper.toExcelList(list);
         ExcelUtils.write(response, "合同发票记录.xls", "数据", ContractInvoiceLogExcelVO.class, excelData);
     }
+
+    //excel导入
+    @PostMapping("/import-excel")
+    @Operation(summary = "导入回款")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    @PreAuthorize("@ss.hasPermission('system:fund-log:import')")
+    public CommonResult<ContractInvoiceLogImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
+                                                                 @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<ContractInvoiceLogImportVO> list = ExcelUtils.read(file, ContractInvoiceLogImportVO.class);
+        return success(contractInvoiceLogService.importList(list, updateSupport));
+    }
+
 
 }

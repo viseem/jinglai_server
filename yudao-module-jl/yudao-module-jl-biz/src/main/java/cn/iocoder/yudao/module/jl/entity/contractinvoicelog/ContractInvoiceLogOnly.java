@@ -85,6 +85,19 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     private BigDecimal price;
 
     /**
+     * 冲红金额
+     */
+    @Column(name = "red_price", nullable = false )
+    private BigDecimal redPrice;
+
+
+    /**
+     * 开票公司
+     */
+    @Column(name = "bill_company")
+    private String billCompany;
+
+    /**
      * 开票日期
      */
     @Column(name = "date")
@@ -101,6 +114,12 @@ public class ContractInvoiceLogOnly extends BaseEntity {
      */
     @Column(name = "mark")
     private String mark;
+
+    /**
+     * 客户信息备注
+     */
+    @Column(name = "customer_mark")
+    private String customerMark;
 
     /**
      * 发票号码

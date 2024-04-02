@@ -362,8 +362,6 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         ContractFundLogImportRespVO respVO = ContractFundLogImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new LinkedHashMap<>()).build();
 
-//        Set<Long> salesIds = new HashSet<>();
-
         List<FundSales> salesList = new ArrayList<>();
 
         importUsers.forEach(item -> {

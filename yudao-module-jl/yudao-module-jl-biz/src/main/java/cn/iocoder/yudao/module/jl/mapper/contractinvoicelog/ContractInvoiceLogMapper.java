@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.jl.mapper.contractinvoicelog;
 
 import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
 import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
+import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import org.mapstruct.*;
 
@@ -13,6 +15,9 @@ public interface ContractInvoiceLogMapper {
     ContractInvoiceLog toEntity(ContractInvoiceLogCreateReqVO dto);
 
     ContractInvoiceLog toEntity(ContractInvoiceLogUpdateReqVO dto);
+
+    ContractInvoiceLog toEntity(ContractInvoiceLogImportVO dto);
+
 
     ContractInvoiceLogRespVO toDto(ContractInvoiceLog entity);
 

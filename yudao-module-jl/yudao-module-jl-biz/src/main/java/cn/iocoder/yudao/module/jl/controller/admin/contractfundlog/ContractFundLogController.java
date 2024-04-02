@@ -100,7 +100,7 @@ public class ContractFundLogController {
 
     //excel导入
     @PostMapping("/import-excel")
-    @Operation(summary = "导入用户")
+    @Operation(summary = "导入回款")
     @Parameters({
             @Parameter(name = "file", description = "Excel 文件", required = true),
             @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
