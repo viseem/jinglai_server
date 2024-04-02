@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productcate.vo;
 
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 产品库分类 Response VO")
 @Data
@@ -16,4 +18,7 @@ public class ProductCateRespVO extends ProductCateBaseVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
+    private List<ProductCate> childList;
+
+    private ProductCate parent;
 }

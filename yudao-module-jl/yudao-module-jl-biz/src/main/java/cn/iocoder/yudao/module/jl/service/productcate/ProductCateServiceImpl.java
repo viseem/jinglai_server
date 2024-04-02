@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.productcate;
 
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
+import cn.iocoder.yudao.module.jl.repository.product.ProductOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateOnlyRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +44,12 @@ public class ProductCateServiceImpl implements ProductCateService {
     @Resource
     private ProductCateMapper productCateMapper;
 
+    @Resource
+    private ProductCateOnlyRepository productCateOnlyRepository;
+
+    @Resource
+    private ProductOnlyRepository productOnlyRepository;
+
     @Override
     public Long createProductCate(ProductCateCreateReqVO createReqVO) {
         // 插入
@@ -61,6 +70,18 @@ public class ProductCateServiceImpl implements ProductCateService {
 
     @Override
     public void deleteProductCate(Long id) {
+
+        //校验是否存在子项
+        long l = productCateOnlyRepository.countByParentId(id);
+        if(l > 0){
+            throw exception(PRODUCT_CATE_HAS_CHILDREN);
+        }
+
+        long l1 = productOnlyRepository.countByCateId(id);
+        if(l1 > 0){
+            throw exception(PRODUCT_CATE_HAS_PRODUCT);
+        }
+
         // 校验存在
         validateProductCateExists(id);
         // 删除
@@ -93,6 +114,8 @@ public class ProductCateServiceImpl implements ProductCateService {
         // 创建 Specification
         Specification<ProductCate> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("parentId"), 0));
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.product.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
 import cn.iocoder.yudao.module.jl.entity.productdevice.ProductDevice;
 import cn.iocoder.yudao.module.jl.entity.productsop.ProductSop;
 import cn.iocoder.yudao.module.jl.entity.productuser.ProductUser;
@@ -31,7 +32,7 @@ public class ProductRespVO extends ProductBaseVO {
     private LocalDateTime updateTime;
 
     private SubjectGroupOnly subjectGroup;
-    private ProductCate cate;
+    private ProductCateOnly cate;
     private User exper;
     private User infoUser;
     private User createUser;

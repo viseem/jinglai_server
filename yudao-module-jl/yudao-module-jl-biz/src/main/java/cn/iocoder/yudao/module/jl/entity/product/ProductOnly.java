@@ -42,10 +42,28 @@ public class ProductOnly extends BaseEntity {
     private String name;
 
     /**
+     * 英文名称
+     */
+    @Column(name = "name_en", nullable = false )
+    private String nameEn;
+
+    /**
+     * 简称
+     */
+    @Column(name = "name_short", nullable = false )
+    private String nameShort;
+
+    /**
+     * 规格
+     */
+    @Column(name = "spec", nullable = false )
+    private String spec;
+
+    /**
      * 分类
      */
     @Column(name = "cate_id")
-    private Long cate;
+    private Long cateId;
 
     /**
      * 状态

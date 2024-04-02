@@ -23,6 +23,15 @@ public class ProductBaseVO {
     @NotNull(message = "名称不能为空")
     private String name;
 
+    @Schema(description = "英文名称")
+    private String nameEn;
+
+    @Schema(description = "简称")
+    private String nameShort;
+
+    @Schema(description = "规格")
+    private String spec;
+
     @Schema(description = "分类")
     private Long cateId;
 

@@ -252,6 +252,9 @@ public interface ErrorCodeConstants {
     ErrorCode PRODUCT_SOP_NOT_EXISTS = new ErrorCode(1003700000, "产品sop不存在");
     ErrorCode PRODUCT_USER_NOT_EXISTS = new ErrorCode(1003800000, "产品库人员不存在");
     ErrorCode PRODUCT_CATE_NOT_EXISTS = new ErrorCode(1003900000, "产品库分类不存在");
+    ErrorCode PRODUCT_CATE_HAS_CHILDREN = new ErrorCode(1004000000, "分类下有子分类，不可删除");
+    ErrorCode PRODUCT_CATE_HAS_PRODUCT = new ErrorCode(1004000000, "分类下有产品，不可删除");
+
 
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");

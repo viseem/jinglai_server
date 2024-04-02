@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.entity.product;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
 import cn.iocoder.yudao.module.jl.entity.productdevice.ProductDevice;
 import cn.iocoder.yudao.module.jl.entity.productsop.ProductSop;
 import cn.iocoder.yudao.module.jl.entity.productuser.ProductUser;
@@ -54,6 +55,24 @@ public class Product extends BaseEntity {
      */
     @Column(name = "name", nullable = false )
     private String name;
+
+    /**
+     * 英文名称
+     */
+    @Column(name = "name_en", nullable = false )
+    private String nameEn;
+
+    /**
+     * 简称
+     */
+    @Column(name = "name_short", nullable = false )
+    private String nameShort;
+
+    /**
+     * 规格
+     */
+    @Column(name = "spec", nullable = false )
+    private String spec;
 
     /**
      * 分类
@@ -169,7 +188,7 @@ public class Product extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "cate_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProductCate cate;
+    private ProductCateOnly cate;
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
