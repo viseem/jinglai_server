@@ -19,6 +19,9 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
     @Schema(description = "in 查询 contractIds")
     private Long[] contractIds;
 
+    private Boolean noContract;
+
+
     @Schema(description = "时间范围", example = "27395")
     private String timeRange;
 

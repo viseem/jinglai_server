@@ -29,6 +29,15 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "开票凭证")
     private String fileUrl;
 
+    @Schema(description = "开票公司")
+    private String billCompany;
+
+    @Schema(description = "客户信息备注")
+    private String customerMark;
+
+    @Schema(description = "发票冲红")
+    private BigDecimal redPrice;
+
     private String fileName;
 
     @Schema(description = "附件")
@@ -59,8 +68,7 @@ public class ContractInvoiceLogBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime date;
 
-    @Schema(description = "开票类型：增值税专用发票", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "开票类型：增值税专用发票不能为空")
+    @Schema(description = "开票类型：增值税专用发票")
     private String type;
 
     @Schema(description = "备注")

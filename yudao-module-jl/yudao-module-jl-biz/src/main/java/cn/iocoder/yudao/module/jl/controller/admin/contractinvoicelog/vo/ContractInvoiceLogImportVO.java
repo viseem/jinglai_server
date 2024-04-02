@@ -18,7 +18,7 @@ public class ContractInvoiceLogImportVO {
 
 
     @ExcelProperty("开票日期")
-    private String date;
+    private String billDate;
 
     @ExcelProperty("客户")
     private String customerMark;

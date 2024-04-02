@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
@@ -16,6 +17,7 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -159,16 +161,6 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         Specification<ContractInvoiceLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            //如果不是any，则都是in查询
-/*            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
-                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
-            }
-
-            if(pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }*/
-
             if(pageReqVO.getContractIds()==null&&pageReqVO.getUserIds()==null){
                 if(pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
@@ -176,12 +168,19 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                     //如果不是any，则都是in查询
                     if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getContractId()==null){
                         Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-//                Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                     }
                 }
-            }else{
             }
+
+
+            if(pageReqVO.getNoContract() != null&&pageReqVO.getNoContract()){
+                predicates.add(cb.equal(root.get("contractId"), 0L));
+            }else{
+                // 查询contractId不等于0的
+                predicates.add(cb.notEqual(root.get("contractId"), 0L));
+            }
+
             if(pageReqVO.getContractIds()!=null){
                 predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
             }
@@ -599,20 +598,29 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
         importUsers.forEach(item -> {
 
+            if(item.getBillDate()==null&&item.getCustomerMark()==null){
+                return;
+            }
+
+            if(item.getPrice()==null){
+                respVO.getFailureNames().put(item.getTaxNumber(),"：发票金额为空");
+                return;
+            }
+
             List<User> byNickname = userRepository.findByNickname(item.getSalesName());
             if(byNickname.isEmpty()){
                 respVO.getFailureNames().put(item.getSalesName(),"：未匹配到销售人员");
                 return;
             }
 
-            item.setDate(item.getDate()+" 09:00:00");
+            item.setBillDate(item.getBillDate()+" 09:00:00");
             User salesUser = byNickname.get(0);
 
             //格式化字符串 您有新的发票需要绑定合同，客户：【客户】，金额：【金额】
-            String content = String.format("您有新的发票需要绑定合同，客户:【%s】,金额:【%s】,备注：【%s】",
+            String content = String.format("您有新的发票需要绑定合同，客户:%s,金额:%s元,备注：【%s】",
                     item.getCustomerMark(),
                     item.getPrice(),
-                    item.getMark()
+                    item.getMark()==null?"":item.getMark()
                     );
             salesList.add(new InvoiceSales(salesUser.getId(),content));
 
@@ -620,8 +628,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             itemLog.setSalesId(salesUser.getId());
             itemLog.setPrice(new BigDecimal(item.getPrice()));
             itemLog.setReceivedPrice(new BigDecimal(item.getPrice()));
-            itemLog.setRedPrice(new BigDecimal(item.getRedPrice()));
-            itemLog.setDate(LocalDateTime.parse(item.getDate(), DateTimeFormatter.ofPattern("yyyy/M/d HH:mm:ss")));
+            if(item.getRedPrice()!=null){
+                itemLog.setRedPrice(new BigDecimal(item.getRedPrice()));
+            }
+            itemLog.setDate(LocalDateTime.parse(item.getBillDate(), DateTimeFormatter.ofPattern("yyyy/M/d HH:mm:ss")));
             itemLog.setStatus(ContractInvoiceStatusEnums.getStatusByText(item.getStatus()));
             itemLog.setTitle(item.getTitle());
             itemLog.setHeadType(item.getHeadType());
@@ -640,22 +650,14 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             respVO.getCreateNames().add(item.getTitle()+":"+item.getPrice()+":"+ContractInvoiceStatusEnums.getStatusByText(item.getStatus())+":"+item.getSalesName());
             contractInvoiceLogRepository.save(itemLog);
         });
-/*
-        for (Long salesId : salesIds) {
-            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                    salesId,
-                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(), new HashMap<>()
-            ));
-        }*/
 
         for (InvoiceSales sale : salesList) {
-            System.out.println("sale---"+sale);
-/*            Map<String, Object> templateParams = new HashMap<>();
+            Map<String, Object> templateParams = new HashMap<>();
             templateParams.put("content",sale.getContent());
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     sale.getSalesId(),
-                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),templateParams
-            ));*/
+                    BpmMessageEnum.NOTIFY_WHEN_INVOICE_IMPORT.getTemplateCode(),templateParams
+            ));
         }
 
 
