@@ -42,6 +42,40 @@ public class FinancialStatisticController {
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
+
+
+    /*
+    *
+    * @RequestParam(name = "startTime", required = false) Long startTime,
+            @RequestParam(name = "endTime", required = false) Long endTime,
+            @RequestParam(name = "timeRange", required = false) String timeRange,
+            @RequestParam(name = "userIds", required = false, defaultValue = "") List<Long> userIds,
+            @RequestParam(name = "subjectGroupId", required = false) Long subjectGroupId,
+            @RequestParam(name = "userId", required = false) Long userId
+    * */
+    @GetMapping("/accounts-receivable")
+    @Operation(summary = "应收款统计")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<FinancialStatisticResp> getFinancialStatistic (
+            @Valid FinancialReceivableStatisticReqVO reqVO
+    ) {
+        // 获取请求的数据
+        FinancialStatisticResp financialStatisticResp = financialStatisticService.accountsReceivable(reqVO);
+        return success(financialStatisticResp);
+    }
+
+    @GetMapping("/accounts-receivable-month")
+    @Operation(summary = "应收款统计")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<List<FinancialStatisticResp>> getFinancialStatisticMonth (
+            @Valid FinancialReceivableStatisticReqVO reqVO
+    ) {
+        // 获取请求的数据
+        List<FinancialStatisticResp> financialStatisticResps = financialStatisticService.accountsReceivableMonth(reqVO);
+        return success(financialStatisticResps);
+    }
+
+    // 销售看板的
     @GetMapping("/accounts-receivable-all")
     @Operation(summary = "全部应收款统计")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
@@ -70,34 +104,4 @@ public class FinancialStatisticController {
     }
 
 
-    /*
-    *
-    * @RequestParam(name = "startTime", required = false) Long startTime,
-            @RequestParam(name = "endTime", required = false) Long endTime,
-            @RequestParam(name = "timeRange", required = false) String timeRange,
-            @RequestParam(name = "userIds", required = false, defaultValue = "") List<Long> userIds,
-            @RequestParam(name = "subjectGroupId", required = false) Long subjectGroupId,
-            @RequestParam(name = "userId", required = false) Long userId
-    * */
-    @GetMapping("/accounts-receivable")
-    @Operation(summary = "应收款统计")
-    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<FinancialStatisticResp> getFinancialStatistic (
-            @Valid FinancialReceivableStatisticReqVO reqVO
-            ) {
-        // 获取请求的数据
-        FinancialStatisticResp financialStatisticResp = financialStatisticService.accountsReceivable(reqVO);
-        return success(financialStatisticResp);
-    }
-
-    @GetMapping("/accounts-receivable-month")
-    @Operation(summary = "应收款统计")
-    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<List<FinancialStatisticResp>> getFinancialStatisticMonth (
-            @Valid FinancialReceivableStatisticReqVO reqVO
-    ) {
-        // 获取请求的数据
-        List<FinancialStatisticResp> financialStatisticResps = financialStatisticService.accountsReceivableMonth(reqVO);
-        return success(financialStatisticResps);
-    }
 }

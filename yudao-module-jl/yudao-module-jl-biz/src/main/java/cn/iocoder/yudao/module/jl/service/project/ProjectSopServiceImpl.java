@@ -119,8 +119,9 @@ public class ProjectSopServiceImpl implements ProjectSopService {
 /*                if(project.getSalesId()!=null){
                     userIds.add(project.getSalesId());
                 }*/
-                    if(project.getFocusIds()!=null){
-                        String[] split = project.getFocusIds().split(",");
+                    // 本来是通知项目的 改为通知这个实验的实验员
+                    if(category.getFocusIds()!=null){
+                        String[] split = category.getFocusIds().split(",");
                         for (String s : split) {
                             //判断s是否是字符串数字
                             if(s!=null&&s.matches("-?\\d+(\\.\\d+)?")){

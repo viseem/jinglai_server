@@ -62,8 +62,8 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
                 resp.setOrderAmount(resp.getOrderAmount().add(contract.getPrice()));
             }
         }
-
-        contractInvoiceLogOnlyRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
+//ContractFundStatusEnums.AUDITED.getStatus(),
+        contractInvoiceLogOnlyRepository.findPaidTimeBetweenAndSalesIdIn( reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
             resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
         });
 

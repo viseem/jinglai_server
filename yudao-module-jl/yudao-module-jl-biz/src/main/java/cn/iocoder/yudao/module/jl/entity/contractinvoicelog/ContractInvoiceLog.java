@@ -325,4 +325,12 @@ public class ContractInvoiceLog extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User sales;
+
+
+    @Transient
+    private String customerName;
+
+    @Transient
+    private String contractSn;
+
 }

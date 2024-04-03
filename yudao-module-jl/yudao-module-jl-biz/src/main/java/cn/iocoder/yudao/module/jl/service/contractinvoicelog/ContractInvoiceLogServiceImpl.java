@@ -442,9 +442,18 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+        List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findAll(spec);
+        invoiceLogList.forEach(item->{
+            if(item.getCustomer()!=null){
+                item.setCustomerName(item.getCustomer().getName());
+            }
 
+            if(item.getContract()!=null){
+                item.setContractSn(item.getContract().getSn());
+            }
+        });
         // 执行查询
-        return contractInvoiceLogRepository.findAll(spec);
+        return invoiceLogList;
     }
 
     private Sort createSort(ContractInvoiceLogPageOrder order) {

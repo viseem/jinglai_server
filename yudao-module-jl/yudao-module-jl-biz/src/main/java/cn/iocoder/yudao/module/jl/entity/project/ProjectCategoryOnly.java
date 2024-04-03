@@ -76,6 +76,12 @@ public class ProjectCategoryOnly extends BaseEntity {
     @Column(name = "lab_id")
     private Long labId;
 
+    /**
+     * 参与者ids
+     */
+    @Column(name = "focus_ids")
+    private String focusIds;
+
 
     /**
      * 名目的实验类型，动物/细胞/分子等

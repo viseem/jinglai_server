@@ -1,9 +1,15 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo;
 
+import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
+import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.time.*;
 import java.util.*;
-import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,96 +23,47 @@ import com.alibaba.excel.annotation.ExcelProperty;
  * @author 惟象科技
  */
 @Data
+@ContentStyle(horizontalAlignment = HorizontalAlignmentEnum.CENTER,verticalAlignment= VerticalAlignmentEnum.CENTER)//内容样式
 public class ContractInvoiceLogExcelVO {
 
-    @ExcelProperty("ID")
-    private Long id;
-
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
-
-    @ExcelProperty("发票申请编号")
-    private String code;
-
-    @ExcelProperty("客户id")
-    private Long customerId;
-
-    @ExcelProperty("合同id")
-    private Long contractId;
-
-    @ExcelProperty("开票金额")
-    private BigDecimal price;
 
     @ExcelProperty("开票日期")
-    private LocalDateTime date;
+    private LocalDate date;
 
-    @ExcelProperty("开票类型：增值税专用发票")
-    private String type;
+    @ExcelProperty("合同编号")
+    private String contractSn;
+
+    @ExcelProperty("客户")
+    private String customerName;
+
+    @ExcelProperty("电话")
+    private String phone;
+
+    @ExcelProperty("税号")
+    private String taxerNumber;
+
+    @ExcelProperty("销售")
+    private String salesName;
+
+    @ExcelProperty("开票金额")
+    private String price;
+
+    @ExcelProperty("发票类型")
+    private String headType;
+
+    @ExcelProperty("发票号")
+    private String number;
+
+    @ExcelProperty("发票冲红")
+    private String redPrice;
+
+    @ExcelProperty("开票公司")
+    private String billCompany;
+
+    @ExcelProperty(value = "发票状态", converter = DictConvert.class)
+    @DictFormat("CONTRACT_INVOICE_STATUS") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
+    private String status;
 
     @ExcelProperty("备注")
     private String mark;
-
-    @ExcelProperty("发票号码")
-    private String number;
-
-    @ExcelProperty("实际开票日期")
-    private LocalDateTime actualDate;
-
-    @ExcelProperty("物流单号")
-    private String shipmentNumber;
-
-    @ExcelProperty("开发方式：电子、纸质")
-    private String way;
-
-    @ExcelProperty("发票抬头id")
-    private Long receiptHeadId;
-
-    @ExcelProperty("发票抬头")
-    private String title;
-
-    @ExcelProperty("纳税人识别号")
-    private String taxerNumber;
-
-    @ExcelProperty("开户行")
-    private String bankName;
-
-    @ExcelProperty("开户账号")
-    private String bankAccount;
-
-    @ExcelProperty("开票地址")
-    private String address;
-
-    @ExcelProperty("联系电话")
-    private String phone;
-
-    @ExcelProperty("抬头类型")
-    private String headType;
-
-    @ExcelProperty("邮寄联系人")
-    private String sendContact;
-
-    @ExcelProperty("联系电话")
-    private String sendPhone;
-
-    @ExcelProperty("详细地址")
-    private String sendAddress;
-
-    @ExcelProperty("邮寄省份")
-    private String sendProvince;
-
-    @ExcelProperty("邮寄市")
-    private String sendCity;
-
-    @ExcelProperty("邮寄区")
-    private String sendArea;
-
-    @ExcelProperty("负责人")
-    private Long manager;
-
-    @ExcelProperty("实际已收")
-    private Long receivedPrice;
-
-    @ExcelProperty("状态")
-    private String status;
-
 }
