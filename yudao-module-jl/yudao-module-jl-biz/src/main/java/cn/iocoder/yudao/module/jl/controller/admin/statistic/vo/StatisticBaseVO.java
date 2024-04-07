@@ -17,9 +17,18 @@ public class StatisticBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime startTime = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0);
 
+    public LocalDateTime getStartTime() {
+        return startTime.withNano(0);
+    }
+
+
     @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endTime = LocalDateTime.now();
+
+    public LocalDateTime getEndTime() {
+        return endTime.withNano(0);
+    }
 
     @Schema(description = "人员id数组", example = "27395")
     private Long[] userIds = new Long[]{0L};

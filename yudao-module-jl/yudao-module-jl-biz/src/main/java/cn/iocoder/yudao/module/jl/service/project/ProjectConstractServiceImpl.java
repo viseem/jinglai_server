@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -318,6 +319,8 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(pageReqVO.getMonth());
                 predicates.add(cb.between(root.get("signedTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
+
+            System.out.println("pageReqVO.getSignedTime()[0]---"+pageReqVO.getSignedTime()[0].toInstant(ZoneOffset.of("+8")).toEpochMilli());
 
             if(pageReqVO.getSignedTime()!=null){
                 predicates.add(cb.between(root.get("signedTime"), pageReqVO.getSignedTime()[0],pageReqVO.getSignedTime()[1]));

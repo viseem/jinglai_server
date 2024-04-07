@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,12 +53,14 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
 
-        System.out.println(reqVO.getStartTime()+"---"+reqVO.getEndTime());
+
+        System.out.println(reqVO.getStartTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"====="+reqVO.getEndTime());
 
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(reqVO.getUserIds(), ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         for (ProjectConstractOnly contract : contractList) {
+            System.out.println("contract---"+contract);
             if(contract.getReceivedPrice() != null) {
                 resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
             }
