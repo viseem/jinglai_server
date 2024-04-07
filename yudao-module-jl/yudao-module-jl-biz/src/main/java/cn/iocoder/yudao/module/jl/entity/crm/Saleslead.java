@@ -195,6 +195,15 @@ public class Saleslead extends BaseEntity {
     @Transient
     private String customerName;
 
+    @Transient
+    private String institutionName;
+
+    @Transient
+    private String managerName;
+
+    @Transient
+    private String isQuotation;
+
     // 销售姓名
     @Transient
     private String salesName;

@@ -229,6 +229,25 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "research_id", insertable = false, updatable = false)
     private Institution research;
 
+    public String getInstitutionName(){
+        // 拼接hospital、
+        String str = "";
+        if(hospital!=null){
+            str+=hospital.getName();
+        }
+        if(university!=null){
+            str+=university.getName();
+        }
+        if(company!=null){
+            str+=company.getName();
+        }
+        if(research!=null){
+            str+=research.getName();
+        }
+
+        return str;
+    }
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)

@@ -91,7 +91,7 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
 
-        if(reqVO.getMonth()!=null){
+        if(reqVO.getTimeRange()!=null){
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
         System.out.println("----"+reqVO);

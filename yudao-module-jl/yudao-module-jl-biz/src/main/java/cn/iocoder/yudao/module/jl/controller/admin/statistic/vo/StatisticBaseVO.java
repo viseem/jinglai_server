@@ -37,7 +37,7 @@ public class StatisticBaseVO {
     private Long userId;
 
     @Schema(description = "时间范围", example = "27395")
-    private String timeRange = "month";
+    private String timeRange;
 
     @Schema(description = "月份", example = "27395")
     private Integer month = LocalDateTime.now().getMonthValue();

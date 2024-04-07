@@ -174,11 +174,13 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             }
 
 
-            if(pageReqVO.getNoContract() != null&&pageReqVO.getNoContract()){
-                predicates.add(cb.equal(root.get("contractId"), 0L));
-            }else{
-                // 查询contractId不等于0的
-                predicates.add(cb.notEqual(root.get("contractId"), 0L));
+            if(pageReqVO.getNoContract() != null){
+                if(pageReqVO.getNoContract()){
+                    predicates.add(cb.equal(root.get("contractId"), 0L));
+                }else{
+                    // 查询contractId不等于0的
+                    predicates.add(cb.greaterThan(root.get("contractId"), 0L));
+                }
             }
 
             if(pageReqVO.getContractIds()!=null){

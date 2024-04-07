@@ -494,6 +494,10 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.between(root.get("updateTime"), pageReqVO.getUpdateTime()[0], pageReqVO.getUpdateTime()[1]));
             }
 
+            if(pageReqVO.getQuotationTime() != null) {
+                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
+            }
+
             if(pageReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
             }
@@ -597,10 +601,19 @@ public class SalesleadServiceImpl implements SalesleadService {
         List<Saleslead> salesleadList = salesleadRepository.findAll(spec);
         for (Saleslead saleslead : salesleadList) {
             if(saleslead.getCustomer()!=null){
+                saleslead.setInstitutionName(saleslead.getCustomer().getInstitutionName());
                 saleslead.setCustomerName(saleslead.getCustomer().getName());
                 if(saleslead.getCustomer().getSales()!=null){
                     saleslead.setSalesName(saleslead.getCustomer().getSales().getNickname());
                 }
+            }
+
+            if(saleslead.getManager()!=null){
+                saleslead.setManagerName(saleslead.getManager().getNickname());
+            }
+
+            if(Objects.equals(saleslead.getStatus()+"",SalesLeadStatusEnums.IS_QUOTATION.getStatus())){
+                saleslead.setIsQuotation("是");
             }
 
             if(saleslead.getLastFollowup()!=null){

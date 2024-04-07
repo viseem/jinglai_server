@@ -153,6 +153,10 @@ public class FollowupServiceImpl implements FollowupService {
                 }
 
             }
+
+            if(pageReqVO.getCreateTime()!=null){
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
+            }
             if(pageReqVO.getTimeRange()!=null){
                 predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }

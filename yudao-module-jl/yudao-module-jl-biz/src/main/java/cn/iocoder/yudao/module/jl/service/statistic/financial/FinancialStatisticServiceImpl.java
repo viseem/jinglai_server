@@ -48,9 +48,12 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
 
-        if(reqVO.getMonth()!=null){
+        if(reqVO.getTimeRange()!=null){
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
         }
+
+        System.out.println(reqVO.getStartTime()+"---"+reqVO.getEndTime());
+
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(reqVO.getUserIds(), ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额

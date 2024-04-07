@@ -319,6 +319,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.between(root.get("signedTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
 
+            if(pageReqVO.getSignedTime()!=null){
+                predicates.add(cb.between(root.get("signedTime"), pageReqVO.getSignedTime()[0],pageReqVO.getSignedTime()[1]));
+            }
+
             if(pageReqVO.getTimeRange()!=null){
                 predicates.add(cb.between(root.get("signedTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
