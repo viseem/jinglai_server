@@ -298,6 +298,12 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getUserIds());
         List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
 
+        for (ProjectConstractOnly projectConstractOnly : contractList) {
+            if((projectConstractOnly.getCreator() == 163) ){
+                System.out.println("projectConstractOnly----"+projectConstractOnly.getPrice()+projectConstractOnly.getId()+projectConstractOnly.getName()+"--"+projectConstractOnly.getReceivedPrice());
+            }
+        }
+
         for (SalesGroupMember member : groupMemberList) {
             for (ProjectConstractOnly contract : contractList) {
                 if(contract.getCreator().equals(member.getUserId())) {
@@ -326,11 +332,13 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
             }
 
             for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
-                if(contractInvoiceLog.getSalesId().equals(member.getUserId())&&contractInvoiceLog.getPriceStatus().equals(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus())) {
+//                &&contractInvoiceLog.getPriceStatus().equals(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus())
+                if(contractInvoiceLog.getSalesId().equals(member.getUserId())) {
                     member.setNotPayInvoiceAmount(
                             member.getNotPayInvoiceAmount().add(contractInvoiceLog.getReceivedPrice())
                     );
                 }
+
             }
         }
 

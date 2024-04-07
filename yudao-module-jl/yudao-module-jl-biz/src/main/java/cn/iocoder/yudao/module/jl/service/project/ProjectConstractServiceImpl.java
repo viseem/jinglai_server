@@ -320,8 +320,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 predicates.add(cb.between(root.get("signedTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
 
-            System.out.println("pageReqVO.getSignedTime()[0]---"+pageReqVO.getSignedTime()[0].toInstant(ZoneOffset.of("+8")).toEpochMilli());
-
             if(pageReqVO.getSignedTime()!=null){
                 predicates.add(cb.between(root.get("signedTime"), pageReqVO.getSignedTime()[0],pageReqVO.getSignedTime()[1]));
             }
@@ -349,11 +347,15 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         break;
                     // Add more cases if needed
                     case "NOT_ALL_PAY":
-                    predicates.add(cb.or(
+                        predicates.add(cb.or(
+                                cb.notEqual(root.get("price"),root.get("receivedPrice")),
+                                cb.isNull(root.get("receivedPrice"))
+                        ));
+/*                    predicates.add(cb.or(
                             cb.lessThan(root.get("receivedPrice"), root.get("price")),
                             cb.equal(root.get("receivedPrice"), 0),
                             cb.isNull(root.get("receivedPrice"))
-                    ));
+                    ));*/
                     break;
                     default:
                         break;
