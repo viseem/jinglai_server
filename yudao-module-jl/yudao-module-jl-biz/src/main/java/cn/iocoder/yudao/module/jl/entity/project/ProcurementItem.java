@@ -40,6 +40,9 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "parent_id")
+    private Long parentId;
+
     @Column(name = "project_id")
     private Long projectId;
 
@@ -110,13 +113,13 @@ public class ProcurementItem extends BaseEntity {
      * 原价
      */
     @Column(name = "origin_price")
-    private Integer originPrice = 0;
+    private BigDecimal originPrice = BigDecimal.ZERO;
 
     /**
      * 采购价
      */
     @Column(name = "buy_price")
-    private Integer buyPrice = 0;
+    private BigDecimal buyPrice = BigDecimal.ZERO;
 
     /**
      * 运费
@@ -128,7 +131,7 @@ public class ProcurementItem extends BaseEntity {
      * 销售价
      */
     @Column(name = "sale_price")
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
     /**
      * 备注

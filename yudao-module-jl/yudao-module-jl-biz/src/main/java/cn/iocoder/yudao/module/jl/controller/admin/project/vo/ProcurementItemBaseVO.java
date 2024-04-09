@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,8 +24,10 @@ public class ProcurementItemBaseVO {
 
     private Long purchaseContractId;
 
+    private Long parentId;
+
     @Schema(description = "原价")
-    private Integer originPrice = 0;
+    private BigDecimal originPrice = BigDecimal.ZERO;
 
     @Schema(description = "运费")
     private BigDecimal freight = BigDecimal.valueOf(0);
@@ -43,7 +46,7 @@ public class ProcurementItemBaseVO {
     private LocalDateTime arrivalDate;
 
     @Schema(description = "项目id")
-    private Long projectId;
+    private Long projectId=0L;
 
     @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26560")
     @NotNull(message = "采购单id不能为空")
@@ -79,12 +82,12 @@ public class ProcurementItemBaseVO {
     @Schema(description = "供货商id")
     private Long supplierId;
 
-    @Schema(description = "原价")
-    private Integer buyPrice = 0;
+    @Schema(description = "采购价")
+    private BigDecimal buyPrice = BigDecimal.ZERO;
 
     @Schema(description = "销售价", requiredMode = Schema.RequiredMode.REQUIRED, example = "22107")
     @NotNull(message = "销售价不能为空")
-    private Integer salePrice = 0;
+    private BigDecimal salePrice = BigDecimal.ZERO;
 
     @Schema(description = "备注")
     private String mark;
@@ -108,7 +111,7 @@ public class ProcurementItemBaseVO {
     private String deliveryDate;
 
     @Schema(description = "状态:等待采购信息、等待打款、等待采购、等待签收、等待入库", example = "2")
-    private String status = "1";
+    private String status = ProcurementItemStatusEnums.APPLY_PROCUREMENT.getStatus();
 
     private Long roomId;
     private Long placeId;

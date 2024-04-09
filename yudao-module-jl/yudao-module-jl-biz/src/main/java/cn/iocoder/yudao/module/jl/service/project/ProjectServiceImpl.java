@@ -374,7 +374,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO){
         ProjectSupplyAndChargeRespVO respVO = new ProjectSupplyAndChargeRespVO();
-        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(reqVO.getQuotationId());
+        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationIdWithCreateTypeZero(reqVO.getQuotationId());
         respVO.setSupplyList(byQuotationId);
         List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(reqVO.getQuotationId());
         respVO.setChargeList(byQuotationId1);

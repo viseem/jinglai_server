@@ -107,6 +107,10 @@ public class ProjectSupplierInvoiceServiceImpl implements ProjectSupplierInvoice
         Specification<ProjectSupplierInvoice> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getSupplierId() != null) {
+                predicates.add(cb.equal(root.get("supplierId"), pageReqVO.getSupplierId()));
+            }
+
             if(pageReqVO.getPurchaseContractId() != null) {
                 predicates.add(cb.equal(root.get("purchaseContractId"), pageReqVO.getPurchaseContractId()));
             }

@@ -22,6 +22,9 @@ public interface ProjectSupplyRepository extends JpaRepository<ProjectSupply, Lo
     @Query("select p from ProjectSupply p where p.quotationId = ?1 order by p.sort ASC")
     @OrderBy(clause = "sort ASC")
     List<ProjectSupply> findByQuotationId(Long quotationId);
+
+    @Query("select p from ProjectSupply p where p.quotationId = ?1 and p.createType = 0 order by p.sort ASC")
+    List<ProjectSupply> findByQuotationIdWithCreateTypeZero(Long quotationId);
     @Transactional
     @Modifying
     @Query("update ProjectSupply p set p.deleted = ?1 where p.projectCategoryId = ?2")

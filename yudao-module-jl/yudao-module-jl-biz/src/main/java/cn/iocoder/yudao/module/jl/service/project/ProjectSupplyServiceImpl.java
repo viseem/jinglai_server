@@ -64,8 +64,8 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
-        projectSupply.setProjectCategoryId(projectCategory.getId());
+//        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
+//        projectSupply.setProjectCategoryId(projectCategory.getId());
         projectSupplyRepository.save(projectSupply);
 
         //更新报价金额
@@ -137,6 +137,10 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
                 Join<ProjectSupply, ProjectSimple> projectJoin = root.join("project", JoinType.LEFT);
                 //判断project的code不为null
                 predicates.add(cb.isNotNull(projectJoin.get("code")));
+            }
+
+            if(pageReqVO.getCreateType() != null) {
+                predicates.add(cb.equal(root.get("createType"), pageReqVO.getCreateType()));
             }
 
             if(pageReqVO.getQuotationId() != null) {

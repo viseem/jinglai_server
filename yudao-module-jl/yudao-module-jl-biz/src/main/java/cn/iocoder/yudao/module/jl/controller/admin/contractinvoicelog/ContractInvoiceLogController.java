@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellSizeWriterHandler;
 import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -95,7 +96,9 @@ public class ContractInvoiceLogController {
         List<ContractInvoiceLog> list = contractInvoiceLogService.getContractInvoiceLogList(exportReqVO);
         // 导出 Excel
         List<ContractInvoiceLogExcelVO> excelData = contractInvoiceLogMapper.toExcelList(list);
-        ExcelUtils.write(response, "合同发票记录.xls", "数据", ContractInvoiceLogExcelVO.class, excelData);
+        Map<Integer, Integer> columnWidthMap = new HashMap<>();
+//        columnWidthMap.put(2, 23);
+        ExcelUtils.write(response, "合同发票记录.xls", "数据", ContractInvoiceLogExcelVO.class, excelData,new CustomExcelCellSizeWriterHandler(columnWidthMap));
     }
 
     //excel导入

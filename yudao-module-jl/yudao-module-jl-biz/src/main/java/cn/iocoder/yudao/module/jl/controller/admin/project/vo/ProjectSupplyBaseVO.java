@@ -18,11 +18,15 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectSupplyBaseVO {
 
+    @Schema(description = "创建的类型")
+    private Integer createType=0;
+
     @Schema(description = "选中的实验名目 id")
     private Long projectCategoryId;
 
     @Schema(description = "原始的实验名目 id")
     private Long categoryId;
+
 
     @Schema(description = "物资 id")
     private Long supplyId;

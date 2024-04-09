@@ -17,6 +17,8 @@ public class ProjectSupplyPageReqVO extends PageParam {
 
     private Boolean noQuotationItem;
 
+    private Integer createType;
+
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
