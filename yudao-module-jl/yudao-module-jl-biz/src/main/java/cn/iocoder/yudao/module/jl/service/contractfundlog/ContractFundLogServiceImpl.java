@@ -382,12 +382,12 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             User salesUser = byNickname.get(0);
 
             //格式化字符串 您的客户【客户名称】已经支付【金额】给您
-            String content = String.format("您的客户【%s】到账%s【%s】元",
+            String content = String.format("您的客户【%s】到账%s【%s】元，请尽快关联到对应的合同",
                     item.getCustomerMark(),
                     item.getMark(),
                     item.getPrice());
             // 赵梓晗的客户张亮回款到账：100元
-            String superContent = String.format("%s的客户%s回款到账：%s元",
+            String superContent = String.format("%s的客户%s回款到账：%s元。",
                     salesUser.getNickname(),
                     item.getCustomerMark(),
                     item.getPrice());
