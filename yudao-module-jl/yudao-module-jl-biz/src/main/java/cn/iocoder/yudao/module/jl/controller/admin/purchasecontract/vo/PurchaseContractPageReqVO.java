@@ -24,6 +24,9 @@ public class PurchaseContractPageReqVO extends PageParam {
     @Schema(description = "名称", example = "赵六")
     private String name;
 
+    @Schema(description = "采购类型", example = "19446")
+    private Integer procurementType;
+
     @Schema(description = "供应商id", example = "19446")
     private Integer supplierId;
 

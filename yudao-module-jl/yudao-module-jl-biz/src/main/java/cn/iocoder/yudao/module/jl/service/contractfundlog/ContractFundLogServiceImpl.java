@@ -54,6 +54,7 @@ import cn.iocoder.yudao.module.jl.mapper.contractfundlog.ContractFundLogMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
@@ -354,6 +355,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     private class FundSales{
         private Long salesId;
         private String content;
+        private String superContent;
     }
 
     @Override
@@ -384,7 +386,12 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                     item.getCustomerMark(),
                     item.getMark(),
                     item.getPrice());
-            salesList.add(new FundSales(salesUser.getId(),content));
+            // 赵梓晗的客户张亮回款到账：100元
+            String superContent = String.format("%s的客户%s回款到账：%s元",
+                    salesUser.getNickname(),
+                    item.getCustomerMark(),
+                    item.getPrice());
+            salesList.add(new FundSales(salesUser.getId(),content,superContent));
 
 //            salesIds.add(salesUser.getId());
 
@@ -415,6 +422,12 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     fundSales.getSalesId(),
                     BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),templateParams
+            ));
+            Map<String, Object> superParams = new HashMap<>();
+            superParams.put("content",fundSales.getSuperContent());
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    getSuperUserId(),
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),superParams
             ));
         }
 

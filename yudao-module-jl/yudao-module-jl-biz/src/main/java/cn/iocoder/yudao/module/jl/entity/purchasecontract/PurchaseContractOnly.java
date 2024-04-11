@@ -40,6 +40,18 @@ public class PurchaseContractOnly extends BaseEntity {
     private Long id;
 
     /**
+     * 实验室id
+     */
+    @Column(name = "lab_id", nullable = false )
+    private Long labId;
+
+    /**
+     * 采购类型 项目 实验室 行政
+     */
+    @Column(name = "procurement_type", nullable = false )
+    private Integer procurementType;
+
+    /**
      * 名称
      */
     @Column(name = "name", nullable = false )

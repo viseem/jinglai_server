@@ -642,6 +642,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         if (saveReq.getProjectCategoryType() != null) {
 
             saveReq.getSupplyList().forEach(supply -> {
+                supply.setCreateType(0);
                 supply.setProjectId(saveReq.getProjectId());
                 supply.setQuotationId(saveReq.getProjectQuotationId());
             });

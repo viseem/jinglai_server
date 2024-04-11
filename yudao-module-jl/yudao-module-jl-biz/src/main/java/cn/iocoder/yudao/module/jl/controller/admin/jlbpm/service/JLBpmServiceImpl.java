@@ -22,8 +22,7 @@ import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROCUREMENT_PURCHASE_CONTRACT_AUDIT;
-import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROJECT_PROCUREMENT_AUDIT;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.BPM_PARAMS_ERROR;
 
 /**
@@ -54,7 +53,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
-        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
+        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,OFFICE_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,LAB_PROCUREMENT_AUDIT)){
             if(approveReqVO.getRefId()==null||approveReqVO.getTaskStatus()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
@@ -88,7 +87,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
-        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
+        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,OFFICE_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,LAB_PROCUREMENT_AUDIT)){
             if(reqVO.getRefId()==null||reqVO.getTaskStatus()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
@@ -113,11 +112,10 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
-        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)){
+        if(Objects.equals(processDefinitionKey,PROJECT_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,OFFICE_PROCUREMENT_AUDIT)||Objects.equals(processDefinitionKey,LAB_PROCUREMENT_AUDIT)){
             if(reqVO.getRefId()==null){
                 throw exception(BPM_PARAMS_ERROR);
             }
-            System.out.println("---==="+reqVO.getRefId()+"---"+ProcurementStatusEnums.REJECT.getStatus());
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
      }
 

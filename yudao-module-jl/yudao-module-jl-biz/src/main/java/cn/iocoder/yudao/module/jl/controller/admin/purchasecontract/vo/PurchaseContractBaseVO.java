@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.purchasecontract.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -15,6 +16,12 @@ import javax.validation.constraints.*;
  */
 @Data
 public class PurchaseContractBaseVO {
+
+    @Schema(description = "实验室id")
+    private Long labId;
+
+    @Schema(description = "采购类型")
+    private Integer procurementType= ProcurementTypeEnums.PROJECT.getStatus();
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "名称不能为空")

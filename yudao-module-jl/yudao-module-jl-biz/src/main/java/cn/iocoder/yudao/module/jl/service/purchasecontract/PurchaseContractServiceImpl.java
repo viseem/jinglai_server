@@ -80,6 +80,8 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
         PurchaseContract purchaseContract = purchaseContractMapper.toEntity(reqVO);
         purchaseContractRepository.save(purchaseContract);
 
+        // 判断采购的类型
+
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(purchaseContract.getId(),"PROCUREMENT_PURCHASE_CONTRACT",reqVO.getAttachmentList());
 
@@ -153,6 +155,10 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
+            if(pageReqVO.getProcurementType() != null) {
+                predicates.add(cb.equal(root.get("procurementType"), pageReqVO.getProcurementType()));
             }
 
             if(pageReqVO.getSupplierId() != null) {

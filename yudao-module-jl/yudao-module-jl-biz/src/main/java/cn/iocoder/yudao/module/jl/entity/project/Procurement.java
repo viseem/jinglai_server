@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -36,16 +37,25 @@ public class Procurement extends BaseEntity {
     private Long id;
 
     /**
+     * 实验室id
+     */
+    @Column(name = "lab_id", nullable = false )
+    private Long labId;
+
+    /**
+     * 采购类型 项目 实验室 行政
+     */
+    @Column(name = "procurement_type", nullable = false )
+    private Integer procurementType;
+
+
+    /**
      * 项目 id
      */
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Project project;
+
 
     /**
      * 实验名目库的名目 id
@@ -170,6 +180,11 @@ public class Procurement extends BaseEntity {
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private LaboratoryLab lab;
+
 /*    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "check_user_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -188,6 +203,11 @@ public class Procurement extends BaseEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<ProcurementPayment> payments = new ArrayList<>();*/
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Project project;
     /*
      * 级联附件
      * */

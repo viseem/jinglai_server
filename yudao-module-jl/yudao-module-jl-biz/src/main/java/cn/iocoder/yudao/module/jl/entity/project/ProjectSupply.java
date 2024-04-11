@@ -72,7 +72,7 @@ public class ProjectSupply extends BaseEntity {
      * 创建类型 报价 或者采购的时候 创建的
      */
     @Column(name = "create_type", nullable = false)
-    private Integer createType;
+    private Integer createType=0;
 
     /**
      * 物资 id

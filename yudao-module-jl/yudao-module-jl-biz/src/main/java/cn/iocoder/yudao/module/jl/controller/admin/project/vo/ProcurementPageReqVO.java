@@ -21,6 +21,12 @@ public class ProcurementPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    @Schema(description = "我的申请", example = "8583")
+    private Boolean myApply;
+
+    @Schema(description = "采购类型", example = "8583")
+    private Integer procurementType;
+
     @Schema(description = "项目 id", example = "8583")
     private Long projectId;
 

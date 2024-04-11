@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,6 +20,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
  */
 @Data
 public class ProcurementItemBaseVO {
+
+    @Schema(description = "实验室id")
+    private Long labId;
+
+    @Schema(description = "采购类型")
+    private Integer procurementType= ProcurementTypeEnums.PROJECT.getStatus();
 
     private String unit;
 
@@ -68,8 +75,9 @@ public class ProcurementItemBaseVO {
     @Schema(description = "规格")
     private String spec;
 
-    @Schema(description = "单价")
-    private String unitFee;
+    // 这个现在就是销售价 salesPrice没有用
+    @Schema(description = "销售单价")
+    private BigDecimal unitFee;
 
     @Schema(description = "单量")
     private Integer unitAmount = 0;

@@ -40,6 +40,18 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    /**
+     * 实验室id
+     */
+    @Column(name = "lab_id", nullable = false )
+    private Long labId;
+
+    /**
+     * 采购类型 项目 实验室 行政
+     */
+    @Column(name = "procurement_type", nullable = false )
+    private Integer procurementType;
+
     @Column(name = "parent_id")
     private Long parentId;
 
@@ -87,7 +99,7 @@ public class ProcurementItem extends BaseEntity {
      * 单价
      */
     @Column(name = "unit_fee")
-    private String unitFee;
+    private BigDecimal unitFee;
 
     /**
      * 单量

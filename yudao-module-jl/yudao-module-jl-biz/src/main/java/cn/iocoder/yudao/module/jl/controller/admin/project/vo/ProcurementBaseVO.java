@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,6 +19,13 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
  */
 @Data
 public class ProcurementBaseVO {
+
+    @Schema(description = "实验室id")
+    @Min(value = 1, message = "实验室id必须大于等于1")
+    private Long labId;
+
+    @Schema(description = "采购类型")
+    private Integer procurementType= ProcurementTypeEnums.PROJECT.getStatus();
 
     @Schema(description = "项目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "8583")
     @NotNull(message = "项目 id不能为空")

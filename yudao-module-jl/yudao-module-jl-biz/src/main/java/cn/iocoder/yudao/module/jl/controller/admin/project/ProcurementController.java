@@ -56,11 +56,21 @@ public class ProcurementController {
         return success(true);
     }
 
+    // 项目采购
     @PutMapping("/save")
     @Operation(summary = "全量保存项目采购单申请")
     @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
     public CommonResult<Boolean> saveProcurement(@Valid @RequestBody ProcurementSaveReqVO saveReqVO) {
         procurementService.saveProcurement(saveReqVO);
+        return success(true);
+    }
+
+    // 实验室、行政的采购
+    @PutMapping("/common-save")
+    @Operation(summary = "全量保存项目采购单申请")
+    @PreAuthorize("@ss.hasPermission('jl:procurement:update')")
+    public CommonResult<Boolean> commonSaveProcurement(@Valid @RequestBody ProcurementSaveReqVO saveReqVO) {
+        procurementService.commonSaveProcurement(saveReqVO);
         return success(true);
     }
 

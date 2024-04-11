@@ -18,7 +18,11 @@ public enum BpmTaskRuleScriptEnum {
     LEADER_X1(20L, "流程发起人的一级领导"),
     LEADER_X2(21L, "流程发起人的二级领导"),
 
+    LAB_MANAGER_ID(23L, "实验室负责人"),
+
     PROJECT_SALES_ID(22L, "项目的销售本人");
+
+
 
 
     /**

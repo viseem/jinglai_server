@@ -4,15 +4,18 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryStoreInRepository;
+import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
@@ -46,6 +49,8 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.LAB_PROCUREMENT_AUDIT;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.OFFICE_PROCUREMENT_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -123,6 +128,9 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private ProjectServiceImpl projectService;
 
+    @Resource
+    private LaboratoryLabRepository laboratoryLabRepository;
+
     @Override
     public Long createProcurement(ProcurementCreateReqVO createReqVO) {
         // 插入
@@ -187,6 +195,73 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementItem.setProcurementId(procurementId);
             procurementItem.setProjectId(saveReqVO.getProjectId());
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
+            procurementItemRepository.save(procurementItem);
+        });
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROCUREMENT_ORDER",saveReqVO.getAttachmentList());
+
+    }
+
+    @Override
+    @Transactional
+    public void commonSaveProcurement(ProcurementSaveReqVO saveReqVO) {
+
+        //审批流程的key
+        String processKey;
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+
+        if(saveReqVO.getProcurementType()==null){
+            throw exception(BPM_PARAMS_ERROR);
+        }
+
+        if(saveReqVO.getProcurementType().equals(ProcurementTypeEnums.LAB.getStatus())){
+            if(saveReqVO.getStatus()==null){
+                saveReqVO.setStatus(ProcurementStatusEnums.LAB_AUDIT.getStatus());
+            }
+            processKey = LAB_PROCUREMENT_AUDIT;
+            // 插入实验室的负责人id，实验室负责人需要来审批
+            LaboratoryLab laboratoryLab = laboratoryLabRepository.findById(saveReqVO.getLabId()).orElseThrow(() -> exception(LABORATORY_LAB_NOT_EXISTS));
+            processInstanceVariables.put("labManagerId",laboratoryLab.getUserId());
+        }else{
+            if(saveReqVO.getStatus()==null){
+                saveReqVO.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+            }
+            processKey = OFFICE_PROCUREMENT_AUDIT;
+        }
+
+        if (saveReqVO.getId() != null) {
+            // 存在 id，更新操作
+            Long id = saveReqVO.getId();
+            // 校验存在
+            validateProcurementExists(id);
+        }else{
+            saveReqVO.setCode(generateCode());
+        }
+
+
+        // 更新或者创建
+        Procurement updateObj = procurementMapper.toEntity(saveReqVO);
+        updateObj = procurementRepository.save(updateObj);
+        Long procurementId = updateObj.getId();
+
+        // 发起 BPM 流程
+        String processInstanceId = processInstanceApi.createProcessInstance(updateObj.getCreator(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(processKey)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(procurementId)));
+
+        // 更新流程实例编号
+        procurementRepository.updateProcessInstanceIdById(processInstanceId,procurementId);
+
+        // 删除原有的采购单明细？
+        procurementItemRepository.deleteByProcurementId(procurementId);
+
+        // 创建采购单明细
+        procurementItemMapper.toEntityList(saveReqVO.getItems()).forEach(procurementItem -> {
+            procurementItem.setProcurementId(procurementId);
+            procurementItem.setLabId(saveReqVO.getLabId());
+            procurementItem.setProcurementType(saveReqVO.getProcurementType());
+            procurementItem.setProjectSupplyId(0L);
             procurementItemRepository.save(procurementItem);
         });
 
@@ -285,6 +360,14 @@ public class ProcurementServiceImpl implements ProcurementService {
                 if(!procurementIds.isEmpty()) {
                     predicates.add(root.get("id").in(procurementIds));
                 }
+            }
+
+            if (pageReqVO.getMyApply() != null&&pageReqVO.getMyApply()) {
+                predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
+            }
+
+            if (pageReqVO.getProcurementType() != null) {
+                predicates.add(cb.equal(root.get("procurementType"), pageReqVO.getProcurementType()));
             }
 
             if (pageReqVO.getCreateTime() != null) {

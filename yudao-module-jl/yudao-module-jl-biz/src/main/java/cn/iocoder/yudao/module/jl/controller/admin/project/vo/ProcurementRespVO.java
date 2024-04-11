@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementPayment;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementShipment;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
@@ -35,4 +36,6 @@ public class ProcurementRespVO extends ProcurementBaseVO {
     private List<ProcurementPaymentRespVO> payments;
 
     private ProjectRespVO project;
+
+    private LaboratoryLab lab;
 }
