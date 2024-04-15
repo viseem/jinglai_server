@@ -15,6 +15,8 @@ import javax.validation.constraints.*;
 @Data
 public class AnimalFeedLogBaseVO {
 
+    private LocalDateTime operateTime = LocalDateTime.now();
+
     @Schema(description = "饲养单id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "饲养单id不能为空")
     private Long feedOrderId;

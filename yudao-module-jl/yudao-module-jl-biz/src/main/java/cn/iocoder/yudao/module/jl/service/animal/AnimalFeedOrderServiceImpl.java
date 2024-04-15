@@ -250,14 +250,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 if(logs!=null){
                     logs.forEach(log -> {
 
-                        String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        String dateStr = log.getOperateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                         Integer changeQuantity = log.getChangeCageQuantity();
                         if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
                             quantity.set(animalFeedOrder.getQuantity());
                             changeQuantity = log.getChangeQuantity();
                         }
                         // 计算createTime和startDate的天数差
-                        Long dayDiff = log.getCreateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
+                        Long dayDiff = log.getOperateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
                         totalAmount.addAndGet(quantity.get() * animalFeedOrder.getUnitFee());
 
                         if (dateStrToRowAmountMap.containsKey(dateStr)) {
@@ -267,11 +267,11 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                             dayCount[0].incrementAndGet();
                             dateStrToRowAmountMap.put(dateStr, 0);
                         }
-                        startDate[0] = log.getCreateTime();
+                        startDate[0] = log.getOperateTime();
                         quantity.set(quantity.get() + changeQuantity);
 
                         log.setDateStr(dateStr);
-                        log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                        log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
                     });
                 }
 

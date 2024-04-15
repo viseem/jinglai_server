@@ -51,6 +51,12 @@ public class AnimalFeedLog extends BaseEntity {
     private Long id;
 
     /**
+     * 操作日期
+     */
+    @Column(name = "operate_time", nullable = false )
+    private LocalDateTime operateTime;
+
+    /**
      * 饲养单id
      */
     @Column(name = "feed_order_id", nullable = false )
