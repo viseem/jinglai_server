@@ -267,7 +267,7 @@ public class AnimalFeedOrder extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    @OrderBy("createTime desc")
+    @OrderBy("operateTime desc")
     private List<AnimalFeedLog> logs = new ArrayList<>();
 
     @Transient
@@ -297,5 +297,11 @@ public class AnimalFeedOrder extends BaseEntity {
 
     @Transient
     private Integer dayCount;
+
+    @Transient
+    private Integer currentCageQuantity;
+
+    @Transient
+    private Integer currentQuantity;
 
 }

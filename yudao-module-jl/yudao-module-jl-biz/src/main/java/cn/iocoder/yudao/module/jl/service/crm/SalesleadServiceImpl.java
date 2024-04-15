@@ -485,7 +485,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotationBig()));
             }
 
-            System.out.println("createtime======="+pageReqVO.getCreateTime());
             if (pageReqVO.getCreateTime() != null) {
                 predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
             }

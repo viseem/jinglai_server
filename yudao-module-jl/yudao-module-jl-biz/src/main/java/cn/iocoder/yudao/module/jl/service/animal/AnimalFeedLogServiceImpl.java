@@ -126,6 +126,10 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
         Specification<AnimalFeedLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (pageReqVO.getCreateTime() != null) {
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
+            }
+
             if(pageReqVO.getBoxId() != null) {
                 predicates.add(cb.equal(root.get("boxId"), pageReqVO.getBoxId()));
             }
@@ -233,6 +237,8 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order(Sort.Direction.DESC, "operateTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

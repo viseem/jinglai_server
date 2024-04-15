@@ -70,14 +70,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @PostConstruct
-    public void ProcurementServiceImpl(){
+    public void ProcurementServiceImpl() {
         AnimalFeedOrder last = animalFeedOrderRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(last!=null?last.getCode():"",uniqCodeKey);
+        uniqCodeGenerator.setInitUniqUid(last != null ? last.getCode() : "", uniqCodeKey);
     }
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        long count = animalFeedOrderRepository.countByCodeStartsWith(ANIMAL_FEED_ORDER_DEFAULT_PREFIX+dateStr);
+        long count = animalFeedOrderRepository.countByCodeStartsWith(ANIMAL_FEED_ORDER_DEFAULT_PREFIX + dateStr);
         if (count == 0) {
             uniqCodeGenerator.setUniqUid(0L);
         }
@@ -119,14 +119,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
-    public void updateAnimalFeedOrderStatus(AnimalFeedOrderNoRequireBaseVO updateVO){
+    public void updateAnimalFeedOrderStatus(AnimalFeedOrderNoRequireBaseVO updateVO) {
 
         // 校验存在
         validateAnimalFeedOrderExists(updateVO.getId());
-        if(updateVO.getStage()==null){
+        if (updateVO.getStage() == null) {
             return;
         }
-        animalFeedOrderRepository.updateStageById(updateVO.getStage(),updateVO.getId());
+        animalFeedOrderRepository.updateStageById(updateVO.getStage(), updateVO.getId());
     }
 
     @Override
@@ -134,7 +134,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     public void saveAnimalFeedOrder(AnimalFeedOrderSaveReqVO saveReqVO) {
         // 校验存在
         // 更新
-        if (saveReqVO.getId()==null||saveReqVO.getId()<=0){
+        if (saveReqVO.getId() == null || saveReqVO.getId() <= 0) {
             saveReqVO.setCode(generateCode());
         }
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(saveReqVO);
@@ -142,7 +142,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
         Long id = animalFeedOrder.getId();
 
-        if(saveReqVO.getCards()!=null){
+        if (saveReqVO.getCards() != null) {
             animalFeedCardRepository.saveAll(saveReqVO.getCards().stream().map(item -> {
                 item.setFeedOrderId(id);
                 item.setProjectId(animalFeedOrder.getProjectId());
@@ -153,16 +153,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }
 
         // 发起 BPM 流程
-        if(saveReqVO.getNeedAudit()){
+        if (saveReqVO.getNeedAudit()) {
             Map<String, Object> processInstanceVariables = new HashMap<>();
             String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                     new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
             // 更新流程实例编号
-        animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId,saveObj.getId());
+            animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId, saveObj.getId());
         }
-
-
 
 
     }
@@ -174,7 +172,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 更新
         storeReqVO.setStage(AnimalFeedStageEnums.FEEDING.getStatus());
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(storeReqVO);
-        if (saveObj.getCode()==null){
+        if (saveObj.getCode() == null) {
             saveObj.setCode(generateCode());
         }
         AnimalFeedOrder animalFeedOrder = animalFeedOrderRepository.save(saveObj);
@@ -196,14 +194,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         }).collect(Collectors.toList()));
 
         //更新笼位信息
-        animalBoxRepository.saveAll(storeReqVO.getBoxes().stream().peek(item->{
+        animalBoxRepository.saveAll(storeReqVO.getBoxes().stream().peek(item -> {
             item.setFeedOrderId(storeReqVO.getId());
             item.setFeedOrderName(animalFeedOrder.getName());
             item.setFeedOrderCode(animalFeedOrder.getCode());
-            if(animalFeedOrder.getProject()!=null){
+            if (animalFeedOrder.getProject() != null) {
                 item.setProjectName(animalFeedOrder.getProject().getName());
             }
-            if(animalFeedOrder.getCustomer()!=null){
+            if (animalFeedOrder.getCustomer() != null) {
                 item.setCustomerName(animalFeedOrder.getCustomer().getName());
             }
         }).collect(Collectors.toList()));
@@ -235,50 +233,69 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     private void processLatestFeedLog(AnimalFeedOrder animalFeedOrder) {
+
+        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getQuantity());
+        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCageQuantity());
+
         List<AnimalFeedLog> logs = animalFeedOrder.getLogs();
-            final LocalDateTime[] startDate = {animalFeedOrder.getStartDate()};
-            LocalDateTime endDate = animalFeedOrder.getEndDate();
-            if(endDate==null){
-                endDate = LocalDateTime.now();
+        // 饲养单的开始日期
+        final LocalDateTime[] startDate = {animalFeedOrder.getStartDate()};
+        // 饲养单的结束日期，如果等于null，则设置为当前
+        LocalDateTime endDate = animalFeedOrder.getEndDate();
+        if (endDate == null) {
+            endDate = LocalDateTime.now();
+        }
+
+        Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
+        final AtomicInteger[] dayCount = {new AtomicInteger()};
+        AtomicInteger totalAmount = new AtomicInteger();
+        // 原子操作一个 变更数量的值，并设置初始值
+        AtomicReference<Integer> quantity = new AtomicReference<>(Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity());
+
+        if (animalFeedOrder.getUnitFee() != null && quantity.get() != null && startDate[0] != null) {
+            if (logs != null) {
+                logs.forEach(log -> {
+
+                    animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity() + log.getChangeCageQuantity());
+                    animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity() + log.getChangeQuantity());
+
+                    // 分隔出来操作时间中的日期
+                    String dateStr = log.getOperateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    // 默认获取变更数量是 变更的笼数
+                    Integer changeQuantity = log.getChangeCageQuantity();
+                    // 如果饲养规则 是按照 每只老鼠每天
+                        // 则变更数量 改为 变更的数量；原子变更数量 改为 饲养单的入库数量
+                    if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
+                        quantity.set(animalFeedOrder.getQuantity());
+                        changeQuantity = log.getChangeQuantity();
+                    }
+
+                    //增加一下总金额
+                    totalAmount.addAndGet(quantity.get() * animalFeedOrder.getUnitFee());
+
+                    // 计算operateTime和startDate的天数差
+                    Long dayDiff = log.getOperateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
+
+                    if (dateStrToRowAmountMap.containsKey(dateStr)) {
+                    } else {
+                        // 如果这天还没有计费
+                        totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee() * dayDiff));
+
+                        dayCount[0].incrementAndGet();
+                        dateStrToRowAmountMap.put(dateStr, 0);
+                    }
+                    startDate[0] = log.getOperateTime();
+                    quantity.set(quantity.get() + changeQuantity);
+
+                    log.setDateStr(dateStr);
+                    log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                });
             }
-            Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
-            final AtomicInteger[] dayCount = {new AtomicInteger()};
 
-            AtomicInteger totalAmount = new AtomicInteger();
-            AtomicReference<Integer> quantity = new AtomicReference<>(animalFeedOrder.getCageQuantity());
-            if(animalFeedOrder.getUnitFee()!=null&&quantity.get()!=null&&startDate[0]!=null){
-                if(logs!=null){
-                    logs.forEach(log -> {
+            Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() + 1;
 
-                        String dateStr = log.getOperateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                        Integer changeQuantity = log.getChangeCageQuantity();
-                        if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
-                            quantity.set(animalFeedOrder.getQuantity());
-                            changeQuantity = log.getChangeQuantity();
-                        }
-                        // 计算createTime和startDate的天数差
-                        Long dayDiff = log.getOperateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
-                        totalAmount.addAndGet(quantity.get() * animalFeedOrder.getUnitFee());
-
-                        if (dateStrToRowAmountMap.containsKey(dateStr)) {
-                        } else {
-                            totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee()*dayDiff));
-
-                            dayCount[0].incrementAndGet();
-                            dateStrToRowAmountMap.put(dateStr, 0);
-                        }
-                        startDate[0] = log.getOperateTime();
-                        quantity.set(quantity.get() + changeQuantity);
-
-                        log.setDateStr(dateStr);
-                        log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                    });
-                }
-
-                Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() +1;
-
-                totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee()*dayDiff));
-            }
+            totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee() * dayDiff));
+        }
 
 
 
@@ -313,14 +330,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             }*/
 
 
-            animalFeedOrder.setDayCount(dayCount[0].get());
-            animalFeedOrder.setAmount(totalAmount.get());
+        animalFeedOrder.setDayCount(dayCount[0].get());
+        animalFeedOrder.setAmount(Math.max(totalAmount.get(), 0));
 //            animalFeedOrder.setLatestLog(logs.get(0));
-        }
+    }
 
-    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder){
+    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
         List<AnimalFeedStoreIn> stores = animalFeedOrder.getStores();
-        if(stores!=null&&stores.size()>0){
+        if (stores != null && stores.size() > 0) {
             animalFeedOrder.setLatestStore(stores.get(0));
         }
     }
@@ -332,7 +349,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
-    public AnimalFeedOrderStatsCountRespVO getAnimalFeedOrderStatsCount(){
+    public AnimalFeedOrderStatsCountRespVO getAnimalFeedOrderStatsCount() {
         //获得等待饲养的饲养单数量
         Long waitingCount = animalFeedOrderRepository.countByStage(AnimalFeedStageEnums.APPROVAL_SUCCESS.getStatus());
         //获得饲养中的饲养单数量
