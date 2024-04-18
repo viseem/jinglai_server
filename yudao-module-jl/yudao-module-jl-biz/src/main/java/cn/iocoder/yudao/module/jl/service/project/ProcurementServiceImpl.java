@@ -172,6 +172,8 @@ public class ProcurementServiceImpl implements ProcurementService {
             saveReqVO.setCode(generateCode());
         }
 
+        saveReqVO.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+
         // 更新或者创建
         Procurement updateObj = procurementMapper.toEntity(saveReqVO);
         updateObj = procurementRepository.save(updateObj);

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "CustomerOnly")
+@Entity(name = "CustomerSimple")
 @Table(name = "jl_crm_customer")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class CustomerSimple extends BaseEntity {

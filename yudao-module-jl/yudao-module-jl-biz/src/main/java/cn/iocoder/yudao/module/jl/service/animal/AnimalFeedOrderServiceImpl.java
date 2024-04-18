@@ -252,6 +252,10 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 原子操作一个 变更数量的值，并设置初始值
         AtomicReference<Integer> quantity = new AtomicReference<>(Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity());
 
+        //初始化一下实时只数 笼数
+        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity());
+        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity());
+
         if (animalFeedOrder.getUnitFee() != null && quantity.get() != null && startDate[0] != null) {
             if (logs != null) {
                 logs.forEach(log -> {
