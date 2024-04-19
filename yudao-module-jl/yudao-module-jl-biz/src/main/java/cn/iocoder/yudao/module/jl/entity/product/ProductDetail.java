@@ -224,6 +224,12 @@ public class ProductDetail extends BaseEntity {
     @Column(name = "question")
     private String question;
 
+    /**
+     * 实施主体
+     */
+    @Column(name = "sop_mark")
+    private String sopMark;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

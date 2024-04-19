@@ -14,6 +14,7 @@ public interface ProductMapper {
     Product toEntity(ProductCreateReqVO dto);
 
     Product toEntity(ProductUpdateReqVO dto);
+    ProductDetail toEntityDetail(ProductUpdateReqVO dto);
 
     ProductRespVO toDto(Product entity);
 

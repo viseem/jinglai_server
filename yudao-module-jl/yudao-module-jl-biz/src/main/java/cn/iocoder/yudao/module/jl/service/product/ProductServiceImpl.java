@@ -67,8 +67,8 @@ public class ProductServiceImpl implements ProductService {
         // 校验存在
         validateProductExists(updateReqVO.getId());
         // 更新
-        Product updateObj = productMapper.toEntity(updateReqVO);
-        productRepository.save(updateObj);
+        ProductDetail updateObj = productMapper.toEntityDetail(updateReqVO);
+        productDetailRepository.save(updateObj);
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         if(updateReqVO.getAttachmentType()!=null){

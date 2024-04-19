@@ -102,5 +102,7 @@ public class ProductBaseVO {
     private String step;
     @Schema(description = "实施主体")
     private String question;
+    @Schema(description = "实施主体")
+    private String sopMark;
 
 }
