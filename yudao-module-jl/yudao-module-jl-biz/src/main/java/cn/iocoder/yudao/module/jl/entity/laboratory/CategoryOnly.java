@@ -98,5 +98,8 @@ public class CategoryOnly extends BaseEntity {
     @Column(name = "action_count")
     private Integer actionCount = 0;
 
+    @Column(name = "step", nullable = false)
+    private String step;
+
 
 }

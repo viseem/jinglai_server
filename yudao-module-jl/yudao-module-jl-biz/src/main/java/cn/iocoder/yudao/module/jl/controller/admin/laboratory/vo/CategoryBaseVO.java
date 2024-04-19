@@ -48,4 +48,6 @@ public class CategoryBaseVO {
     @Schema(description = "标签")
     private String tagIds;
 
+    private String step;
+
 }

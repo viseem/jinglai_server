@@ -139,6 +139,13 @@ public class Category extends BaseEntity {
     /**
      * attachment list
      */
+
+    /**
+     * 名字
+     */
+    @Column(name = "step", nullable = false)
+    private String step;
+
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)

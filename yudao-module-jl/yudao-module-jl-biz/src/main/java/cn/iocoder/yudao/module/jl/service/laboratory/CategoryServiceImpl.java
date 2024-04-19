@@ -1,9 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.laboratory;
 
 import cn.iocoder.yudao.module.jl.entity.laboratory.CategoryOnly;
+import cn.iocoder.yudao.module.jl.entity.laboratory.CategorySop;
 import cn.iocoder.yudao.module.jl.repository.laboratory.CategoryOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.laboratory.CategorySopRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -47,6 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Resource
     private CategoryMapper categoryMapper;
 
+    @Resource
+    private CategorySopRepository categorySopRepository;
+
     @Override
     public Long createCategory(CategoryCreateReqVO createReqVO) {
         // 插入
@@ -57,12 +64,30 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void updateCategory(CategoryUpdateReqVO updateReqVO) {
         // 校验存在
         validateCategoryExists(updateReqVO.getId());
         // 更新
         Category updateObj = categoryMapper.toEntity(updateReqVO);
         categoryRepository.save(updateObj);
+
+
+/*        List<CategoryOnly> all = categoryOnlyRepository.findAll();
+        all.forEach(item->{
+            StringBuilder step= new StringBuilder();
+            List<CategorySop> byCategoryId = categorySopRepository.findByCategoryId(item.getId());
+            //遍历byCategoryId拼接它的name和content，赋值给item的step
+            if(byCategoryId!=null){
+                for (CategorySop sop : byCategoryId) {
+                    step.append(sop.getName() != null ? sop.getName() + "<br/>" : "").append(sop.getContent());
+                }
+            }
+            item.setStep(step.toString());
+        });
+
+        categoryOnlyRepository.saveAll(all);*/
+
     }
 
     @Override

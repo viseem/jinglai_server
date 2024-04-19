@@ -158,4 +158,57 @@ public class ProductOnly extends BaseEntity {
      */
     @Column(name = "stock_count")
     private Integer stockCount;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "sop_name")
+    private String sopName;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "principle")
+    private String principle;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "purpose")
+    private String purpose;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "preparation")
+    private String preparation;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "caution")
+    private String caution;
+    /**
+     * 实施主体
+     */
+    @Column(name = "supply")
+    private String supply;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "device")
+    private String device;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "step")
+    private String step;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "question")
+    private String question;
 }

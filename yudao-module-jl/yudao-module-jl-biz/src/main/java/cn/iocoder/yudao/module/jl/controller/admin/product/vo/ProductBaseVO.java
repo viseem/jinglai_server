@@ -81,4 +81,23 @@ public class ProductBaseVO {
     @Schema(description = "存量", example = "21751")
     private Integer stockCount;
 
+    @Schema(description = "实施主体")
+    private String sopName;
+    @Schema(description = "实施主体")
+    private String principle;
+    @Schema(description = "实施主体")
+    private String purpose;
+    @Schema(description = "实施主体")
+    private String preparation;
+    @Schema(description = "实施主体")
+    private String caution;
+    @Schema(description = "实施主体")
+    private String supply;
+    @Schema(description = "实施主体")
+    private String device;
+    @Schema(description = "实施主体")
+    private String step;
+    @Schema(description = "实施主体")
+    private String question;
+
 }
