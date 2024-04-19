@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.product.vo.*;
 import cn.iocoder.yudao.module.jl.entity.product.Product;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
 
 /**
  * 产品库 Service 接口
@@ -40,7 +41,7 @@ public interface ProductService {
      * @param id 编号
      * @return 产品库
      */
-    Optional<Product> getProduct(Long id);
+    Optional<ProductDetail> getProduct(Long id);
 
     /**
      * 获得产品库列表

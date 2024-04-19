@@ -81,6 +81,9 @@ public class ProductBaseVO {
     @Schema(description = "存量", example = "21751")
     private Integer stockCount;
 
+    @Schema(description = "技术类型", example = "21751")
+    private Integer techType;
+
     @Schema(description = "实施主体")
     private String sopName;
     @Schema(description = "实施主体")

@@ -2,33 +2,25 @@ package cn.iocoder.yudao.module.jl.entity.product;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
-import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
 import cn.iocoder.yudao.module.jl.entity.productdevice.ProductDevice;
 import cn.iocoder.yudao.module.jl.entity.productsop.ProductSop;
 import cn.iocoder.yudao.module.jl.entity.productuser.ProductUser;
-import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.subjectgroup.SubjectGroupOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import javax.persistence.*;
 import java.math.BigDecimal;
-import java.math.BigDecimal;
-import java.math.BigDecimal;
-import java.math.BigDecimal;
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 产品库 Entity
@@ -38,12 +30,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "Product")
+@Entity(name = "ProductDetail")
 @Table(name = "jl_product")
 @SQLDelete(sql = "UPDATE jl_product SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Product extends BaseEntity {
+public class ProductDetail extends BaseEntity {
 
     /**
      * ID
@@ -179,6 +171,58 @@ public class Product extends BaseEntity {
     @Column(name = "tech_type")
     private Integer techType;
 
+    /**
+     * 实施主体
+     */
+    @Column(name = "sop_name")
+    private String sopName;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "principle")
+    private String principle;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "purpose")
+    private String purpose;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "preparation")
+    private String preparation;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "caution")
+    private String caution;
+    /**
+     * 实施主体
+     */
+    @Column(name = "supply")
+    private String supply;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "device")
+    private String device;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "step")
+    private String step;
+
+    /**
+     * 实施主体
+     */
+    @Column(name = "question")
+    private String question;
 
 
     @OneToOne(fetch = FetchType.EAGER)

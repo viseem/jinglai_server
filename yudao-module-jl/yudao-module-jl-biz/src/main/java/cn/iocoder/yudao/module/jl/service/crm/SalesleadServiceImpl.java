@@ -187,6 +187,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(updateReqVO.getId() != null) {
             // 校验存在
             Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
+            updateReqVO.setOldManagerId(saleslead.getManagerId());
             updateReqVO.setProjectId(saleslead.getProjectId());
         }
 
@@ -219,6 +220,21 @@ public class SalesleadServiceImpl implements SalesleadService {
             });
             List<SalesleadCustomerPlan> plans = salesleadCustomerPlanMapper.toEntityList(customerPlans);
             salesleadCustomerPlanRepository.saveAll(plans);
+        }
+
+        // 发送通知
+        if(Objects.equals(updateReqVO.getStatus(),SalesLeadStatusEnums.QUOTATION.getStatus())&&!Objects.equals(updateReqVO.getManagerId(),updateReqVO.getOldManagerId())){
+            Optional<User> userOptional = userRepository.findById(getLoginUserId());
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("id", updateReqVO.getId());
+            templateParams.put("salesName", userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
+            templateParams.put("customerName", "");
+            templateParams.put("mark", updateReqVO.getQuotationMark()!=null?"说明："+updateReqVO.getQuotationMark():"");
+            //发给商机的报价负责人
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    updateReqVO.getManagerId(),
+                    BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams
+            ));
         }
 
         //设置customer updateLastSalesleadIdById
@@ -409,7 +425,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             templateParams.put("customerName", customer.getName());
             templateParams.put("mark", updateReqVO.getQuotationMark()!=null?"说明："+updateReqVO.getQuotationMark():"");
 
-            //发给商机的销售
+            //发给商机的报价负责人
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     updateReqVO.getManagerId(),
                     BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams

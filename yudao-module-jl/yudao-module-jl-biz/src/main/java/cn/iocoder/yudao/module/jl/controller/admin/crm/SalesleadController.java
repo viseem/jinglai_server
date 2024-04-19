@@ -2,9 +2,15 @@ package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
 import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CommonLogExcelCellWriterHandler;
 import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellSizeWriterHandler;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,6 +30,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -56,6 +63,12 @@ public class SalesleadController {
     @Resource
     private SalesleadMapper salesleadMapper;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
 //    @PostMapping("/create")
 //    @Operation(summary = "创建销售线索")
 //    @PreAuthorize("@ss.hasPermission('jl:saleslead:create')")
@@ -86,8 +99,21 @@ public class SalesleadController {
     @PutMapping("/update-manager")
     @Operation(summary = "商机报价转给别人")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    @Transactional
     public CommonResult<Boolean> updateSalesleadManager(@Valid @RequestBody SalesleadUpdateManagerVO updateReqVO) {
         salesleadRepository.updateManagerIdAndAssignMarkById(updateReqVO.getManagerId(),updateReqVO.getAssignMark(), updateReqVO.getId());
+        Optional<User> userOptional = userRepository.findById(getLoginUserId());
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("id", updateReqVO.getId());
+        templateParams.put("salesName", userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
+        templateParams.put("customerName", "");
+        templateParams.put("mark", "指派说明："+updateReqVO.getAssignMark());
+        System.out.println("---"+templateParams);
+        //发给商机的报价负责人
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                updateReqVO.getManagerId(),
+                BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams
+        ));
         return success(true);
     }
 

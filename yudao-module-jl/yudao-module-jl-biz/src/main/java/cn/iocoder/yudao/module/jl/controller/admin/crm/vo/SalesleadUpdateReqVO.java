@@ -21,6 +21,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class SalesleadUpdateReqVO extends SalesleadBaseVO {
 
+    @Schema(description = "绑定的销售报价人员", example = "26885")
+    private Long oldManagerId;
+
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
     private Long id;
 

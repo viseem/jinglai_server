@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.product.vo.*;
 import cn.iocoder.yudao.module.jl.entity.product.Product;
+import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
 import org.mapstruct.*;
 
 
@@ -16,6 +17,7 @@ public interface ProductMapper {
 
     ProductRespVO toDto(Product entity);
 
+    ProductRespVO toDto(ProductDetail entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Product partialUpdate(ProductUpdateReqVO dto, @MappingTarget Product entity);

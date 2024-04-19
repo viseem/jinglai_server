@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.product;
 
+import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
+import cn.iocoder.yudao.module.jl.repository.product.ProductDetailRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -40,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     private ProductRepository productRepository;
+
+    @Resource
+    private ProductDetailRepository productDetailRepository;
 
     @Resource
     private ProductMapper productMapper;
@@ -84,8 +89,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> getProduct(Long id) {
-        return productRepository.findById(id);
+    public Optional<ProductDetail> getProduct(Long id) {
+        return productDetailRepository.findById(id);
     }
 
     @Override
