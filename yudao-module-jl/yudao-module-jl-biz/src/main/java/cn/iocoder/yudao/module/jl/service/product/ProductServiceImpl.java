@@ -111,6 +111,13 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getNameKey() != null) {
+               // like name or like nameEn or like nameShort
+                predicates.add(cb.or(cb.like(root.get("name"), "%" + pageReqVO.getNameKey() + "%"),
+                        cb.like(root.get("nameEn"), "%" + pageReqVO.getNameKey() + "%"),
+                        cb.like(root.get("nameShort"), "%" + pageReqVO.getNameKey() + "%")));
+            }
+
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }

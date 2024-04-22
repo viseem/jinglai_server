@@ -120,6 +120,18 @@ public class ProjectChargeitem extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 产品id
+     */
+    @Column(name = "product_id", nullable = false )
+    private Long productId;
+
+    /**
+     * 负责人id
+     */
+    @Column(name = "manager_id", nullable = false )
+    private Long managerId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

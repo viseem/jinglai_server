@@ -24,6 +24,9 @@ public class ProductPageReqVO extends PageParam {
     @Schema(description = "名称", example = "王五")
     private String name;
 
+    @Schema(description = "名称", example = "王五")
+    private String nameKey;
+
     @Schema(description = "分类")
     private Long cateId;
 

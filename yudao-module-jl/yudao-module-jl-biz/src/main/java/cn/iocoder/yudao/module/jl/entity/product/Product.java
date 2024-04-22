@@ -179,8 +179,6 @@ public class Product extends BaseEntity {
     @Column(name = "tech_type")
     private Integer techType;
 
-
-
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -206,7 +204,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "pi_group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private SubjectGroupOnly subjectGroup;
 
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProductUser> userList;
@@ -219,15 +217,14 @@ public class Product extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProductSop> sopList;
+    private List<ProductSop> sopList;*/
 
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.EAGER)
     @Where(clause = "type = 'JL_PRODUCT'")
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> attachmentList = new ArrayList<>();
+    private List<CommonAttachment> attachmentList = new ArrayList<>();*/
 }

@@ -64,4 +64,10 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "折扣")
     private Integer discount;
 
+    @Schema(description = "产品id")
+    private Long productId;
+
+    @Schema(description = "负责人id")
+    private Long managerId;
+
 }
