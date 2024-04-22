@@ -136,7 +136,7 @@ public class AnimalFeedLog extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "feed_order_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private AnimalFeedOrderSimple feedOrder;
+    private AnimalFeedOrderOnly feedOrder;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

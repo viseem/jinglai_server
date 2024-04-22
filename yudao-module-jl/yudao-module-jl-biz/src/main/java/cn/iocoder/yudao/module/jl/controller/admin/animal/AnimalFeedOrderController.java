@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.animal;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 import cn.iocoder.yudao.module.jl.utils.NeedAuditHandler;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -123,6 +124,14 @@ public class AnimalFeedOrderController {
         return success(animalFeedOrderMapper.toPage(pageResult));
     }
 
+
+    @GetMapping("/page-only")
+    @Operation(summary = "(分页)获得动物饲养申请单列表")
+    @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:query')")
+    public CommonResult<PageResult<AnimalFeedOrderRespVO>> getAnimalFeedOrderPageOnly(@Valid AnimalFeedOrderPageReqVO pageVO, @Valid AnimalFeedOrderPageOrder orderV0) {
+        PageResult<AnimalFeedOrderOnly> pageResult = animalFeedOrderService.getAnimalFeedOrderPageOnly(pageVO, orderV0);
+        return success(animalFeedOrderMapper.toPageOnly(pageResult));
+    }
     @GetMapping("/export-excel")
     @Operation(summary = "导出动物饲养申请单 Excel")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:export')")

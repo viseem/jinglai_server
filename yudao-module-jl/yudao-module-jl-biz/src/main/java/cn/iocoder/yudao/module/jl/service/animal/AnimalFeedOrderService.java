@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 
 /**
  * 动物饲养申请单 Service 接口
@@ -73,6 +74,9 @@ public interface AnimalFeedOrderService {
      * @return 动物饲养申请单分页
      */
     PageResult<AnimalFeedOrder> getAnimalFeedOrderPage(AnimalFeedOrderPageReqVO pageReqVO, AnimalFeedOrderPageOrder orderV0);
+
+    PageResult<AnimalFeedOrderOnly> getAnimalFeedOrderPageOnly(AnimalFeedOrderPageReqVO pageReqVO, AnimalFeedOrderPageOrder orderV0);
+
 
     /*
     *

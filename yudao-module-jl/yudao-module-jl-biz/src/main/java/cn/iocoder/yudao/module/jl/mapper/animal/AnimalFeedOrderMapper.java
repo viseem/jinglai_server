@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 import org.mapstruct.*;
 
 
@@ -26,4 +27,6 @@ public interface AnimalFeedOrderMapper {
     List<AnimalFeedOrderExcelVO> toExcelList(List<AnimalFeedOrder> list);
 
     PageResult<AnimalFeedOrderRespVO> toPage(PageResult<AnimalFeedOrder> page);
+    PageResult<AnimalFeedOrderRespVO> toPageOnly(PageResult<AnimalFeedOrderOnly> page);
+
 }

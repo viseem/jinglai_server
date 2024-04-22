@@ -2,9 +2,8 @@ package cn.iocoder.yudao.module.jl.service.animal;
 
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalBox;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
+import cn.iocoder.yudao.module.jl.repository.animal.*;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -29,7 +28,6 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.animal.AnimalFeedLogMapper;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
@@ -47,6 +45,9 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
 
     @Resource
     private AnimalFeedOrderRepository animalFeedOrderRepository;
+
+    @Resource
+    private AnimalFeedOrderOnlyRepository animalFeedOrderOnlyRepository;
 
     @Resource
     private AnimalFeedStoreInRepository animalFeedStoreInRepository;
@@ -102,8 +103,15 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
     @Transactional
     public void saveAnimalFeedLog(AnimalFeedLogSaveReqVO saveReqVO) {
         // 校验存在
-//        validateAnimalFeedLogExists(saveReqVO.getId());
         // 更新
+        Integer oldChangeQuantity;
+        if(saveReqVO.getId()!=null){
+            AnimalFeedLog animalFeedLog = validateAnimalFeedLogExists(saveReqVO.getId());
+            oldChangeQuantity= animalFeedLog.getChangeQuantity();
+        } else {
+            oldChangeQuantity = 0;
+        }
+
         AnimalFeedLog updateObj = animalFeedLogMapper.toEntity(saveReqVO);
         AnimalFeedLog save = animalFeedLogRepository.save(updateObj);
         Long feedOrderId = updateObj.getFeedOrderId();
@@ -119,10 +127,29 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
         if(saveReqVO.getBoxId()!=null){
             // 根据id把笼位的数量加上1
             Optional<AnimalBox> byId = animalBoxRepository.findById(saveReqVO.getBoxId());
-            byId.ifPresent(item->{
-                item.setQuantity(item.getQuantity()+saveReqVO.getChangeQuantity());
-                animalBoxRepository.save(item);
+            byId.ifPresent(box->{
+
+                if(saveReqVO.getId()==null){
+                    box.setQuantity(box.getQuantity()+saveReqVO.getChangeQuantity());
+                }else{
+                    animalFeedLogRepository.findById(saveReqVO.getId()).ifPresent(log->{
+                        box.setQuantity(box.getQuantity()+(saveReqVO.getChangeQuantity()-oldChangeQuantity));
+                    });
+                }
+
+                // 如果这个日志有饲养单id，并且饲养单id不等于目前
+                if(save.getFeedOrderId()!=null&&!Objects.equals(box.getFeedOrderId(),feedOrderId)){
+                    Optional<AnimalFeedOrderOnly> byId1 = animalFeedOrderOnlyRepository.findById(save.getFeedOrderId());
+                    byId1.ifPresent(order->{
+                        box.setFeedOrderId(save.getFeedOrderId());
+                        box.setFeedOrderCode(order.getCode());
+                        box.setFeedOrderName(order.getName());
+                    });
+                }
+                animalBoxRepository.save(box);
             });
+
+
         }
 
         //更新饲养单的location和locationCode

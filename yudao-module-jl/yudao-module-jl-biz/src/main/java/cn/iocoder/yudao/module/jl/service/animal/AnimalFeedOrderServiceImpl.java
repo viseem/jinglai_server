@@ -3,13 +3,14 @@ package cn.iocoder.yudao.module.jl.service.animal;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedCardRepository;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
+import cn.iocoder.yudao.module.jl.repository.animal.*;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import liquibase.pro.packaged.T;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -42,7 +43,6 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.animal.AnimalFeedOrderMapper;
-import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -86,6 +86,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
     @Resource
     private AnimalFeedOrderRepository animalFeedOrderRepository;
+
+    @Resource
+    private AnimalFeedOrderOnlyRepository animalFeedOrderOnlyRepository;
 
     @Resource
     private AnimalBoxRepository animalBoxRepository;
@@ -377,7 +380,51 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<AnimalFeedOrder> spec = (root, query, cb) -> {
+        Specification<AnimalFeedOrder> spec = getAnimalFeedOrderSpecification(pageReqVO);
+
+        // 执行查询
+        Page<AnimalFeedOrder> page = animalFeedOrderRepository.findAll(spec, pageable);
+
+        List<AnimalFeedOrder> animalFeedOrders = page.getContent();
+
+        animalFeedOrders.forEach(animalFeedOrder -> {
+            processLatestFeedLog(animalFeedOrder);
+            processLatestFeedStore(animalFeedOrder);
+        });
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<AnimalFeedOrderOnly> getAnimalFeedOrderPageOnly(AnimalFeedOrderPageReqVO pageReqVO, AnimalFeedOrderPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<AnimalFeedOrderOnly> spec = getAnimalFeedOrderSpecification(pageReqVO);
+
+        // 执行查询
+        Page<AnimalFeedOrderOnly> page = animalFeedOrderOnlyRepository.findAll(spec, pageable);
+
+/*
+        List<AnimalFeedOrder> animalFeedOrders = page.getContent();
+
+        animalFeedOrders.forEach(animalFeedOrder -> {
+            processLatestFeedLog(animalFeedOrder);
+            processLatestFeedStore(animalFeedOrder);
+        });
+*/
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private static <T>Specification<T> getAnimalFeedOrderSpecification(AnimalFeedOrderPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (pageReqVO.getName() != null) {
@@ -462,19 +509,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<AnimalFeedOrder> page = animalFeedOrderRepository.findAll(spec, pageable);
-
-        List<AnimalFeedOrder> animalFeedOrders = page.getContent();
-
-        animalFeedOrders.forEach(animalFeedOrder -> {
-            processLatestFeedLog(animalFeedOrder);
-            processLatestFeedStore(animalFeedOrder);
-        });
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     @Override
