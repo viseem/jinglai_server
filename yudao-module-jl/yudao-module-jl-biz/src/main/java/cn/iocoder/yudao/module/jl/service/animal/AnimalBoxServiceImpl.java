@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
+import cn.iocoder.yudao.module.jl.enums.AnimalFeedLogChangeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStatusTagEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedLogRepository;
 import cn.iocoder.yudao.module.jl.utils.StringGenerator;
 import org.springframework.stereotype.Service;
@@ -7,6 +10,8 @@ import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -96,9 +101,25 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
     }
 
     @Override
+    @Transactional
     public void clearAnimalBox(Long id){
         // 校验存在
         AnimalBox animalBox = validateAnimalBoxExists(id);
+
+        //保存一个日志
+        if(animalBox.getFeedOrderId()!=null){
+            AnimalFeedLog log = new AnimalFeedLog();
+            log.setBoxId(id);
+            log.setChangeCageQuantity(-1);
+            log.setChangeQuantity(-animalBox.getQuantity());
+            log.setType(AnimalFeedLogChangeTypeEnums.CLEAR_CAGE.getStatus());
+            log.setFeedOrderId(animalBox.getFeedOrderId());
+            log.setMark("清空笼位");
+            log.setOperateTime(LocalDateTime.now());
+            animalFeedLogRepository.save(log);
+        }
+
+
         animalBox.setFeedOrderId(null);
         animalBox.setFeedOrderName(null);
         animalBox.setFeedOrderCode(null);
@@ -107,6 +128,8 @@ public class AnimalBoxServiceImpl implements AnimalBoxService {
         animalBox.setQuantity(0);
         animalBox.setLocation(null);
         animalBoxRepository.save(animalBox);
+
+
     }
 
     private AnimalBox validateAnimalBoxExists(Long id) {

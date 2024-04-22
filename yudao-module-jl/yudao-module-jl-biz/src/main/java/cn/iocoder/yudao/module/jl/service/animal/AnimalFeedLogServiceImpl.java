@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalBox;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
+import cn.iocoder.yudao.module.jl.repository.animal.AnimalBoxRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedOrderRepository;
 import cn.iocoder.yudao.module.jl.repository.animal.AnimalFeedStoreInRepository;
 import org.springframework.stereotype.Service;
@@ -52,22 +54,48 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
     @Resource
     private AnimalFeedLogMapper animalFeedLogMapper;
 
+    @Resource
+    private AnimalBoxRepository animalBoxRepository;
+
     @Override
+    @Transactional
     public Long createAnimalFeedLog(AnimalFeedLogCreateReqVO createReqVO) {
         // 插入
         AnimalFeedLog animalFeedLog = animalFeedLogMapper.toEntity(createReqVO);
         animalFeedLogRepository.save(animalFeedLog);
+
+        // 如果有笼位id
+        if(createReqVO.getBoxId()!=null){
+            // 根据id把笼位的数量加上1
+            Optional<AnimalBox> byId = animalBoxRepository.findById(createReqVO.getBoxId());
+            byId.ifPresent(item->{
+                item.setQuantity(item.getQuantity()+createReqVO.getChangeQuantity());
+                animalBoxRepository.save(item);
+            });
+        }
+
         // 返回
         return animalFeedLog.getId();
     }
 
     @Override
+    @Transactional
     public void updateAnimalFeedLog(AnimalFeedLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateAnimalFeedLogExists(updateReqVO.getId());
         // 更新
         AnimalFeedLog updateObj = animalFeedLogMapper.toEntity(updateReqVO);
         animalFeedLogRepository.save(updateObj);
+
+        // 如果有笼位id
+        if(updateReqVO.getBoxId()!=null){
+            // 根据id把笼位的数量加上1
+            Optional<AnimalBox> byId = animalBoxRepository.findById(updateReqVO.getBoxId());
+            byId.ifPresent(item->{
+                item.setQuantity(item.getQuantity()+updateReqVO.getChangeQuantity());
+                animalBoxRepository.save(item);
+            });
+        }
     }
 
     @Override
@@ -87,20 +115,45 @@ public class AnimalFeedLogServiceImpl implements AnimalFeedLogService {
             return item;
         }).collect(Collectors.toList()));
 
+        // 如果有笼位id
+        if(saveReqVO.getBoxId()!=null){
+            // 根据id把笼位的数量加上1
+            Optional<AnimalBox> byId = animalBoxRepository.findById(saveReqVO.getBoxId());
+            byId.ifPresent(item->{
+                item.setQuantity(item.getQuantity()+saveReqVO.getChangeQuantity());
+                animalBoxRepository.save(item);
+            });
+        }
+
         //更新饲养单的location和locationCode
         animalFeedOrderRepository.updateLocationAndLocationCodeById(saveReqVO.getLocation(),saveReqVO.getLocationCode(),feedOrderId);
     }
 
     @Override
+    @Transactional
     public void deleteAnimalFeedLog(Long id) {
         // 校验存在
-        validateAnimalFeedLogExists(id);
+        AnimalFeedLog animalFeedLog = validateAnimalFeedLogExists(id);
         // 删除
         animalFeedLogRepository.deleteById(id);
+
+        // 如果有笼位id
+        if(animalFeedLog.getBoxId()!=null){
+            // 归还数量
+            Optional<AnimalBox> byId = animalBoxRepository.findById(animalFeedLog.getBoxId());
+            byId.ifPresent(item->{
+                item.setQuantity(item.getQuantity()-animalFeedLog.getChangeQuantity());
+                animalBoxRepository.save(item);
+            });
+        }
     }
 
-    private void validateAnimalFeedLogExists(Long id) {
-        animalFeedLogRepository.findById(id).orElseThrow(() -> exception(ANIMAL_FEED_LOG_NOT_EXISTS));
+    private AnimalFeedLog validateAnimalFeedLogExists(Long id) {
+        Optional<AnimalFeedLog> byId = animalFeedLogRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(ANIMAL_FEED_LOG_NOT_EXISTS);
+        }
+        return byId.get();
     }
 
     @Override
