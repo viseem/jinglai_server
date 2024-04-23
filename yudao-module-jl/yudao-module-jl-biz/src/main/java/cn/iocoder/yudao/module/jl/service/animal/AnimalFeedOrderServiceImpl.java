@@ -412,7 +412,6 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
 /*
         List<AnimalFeedOrder> animalFeedOrders = page.getContent();
-
         animalFeedOrders.forEach(animalFeedOrder -> {
             processLatestFeedLog(animalFeedOrder);
             processLatestFeedStore(animalFeedOrder);
