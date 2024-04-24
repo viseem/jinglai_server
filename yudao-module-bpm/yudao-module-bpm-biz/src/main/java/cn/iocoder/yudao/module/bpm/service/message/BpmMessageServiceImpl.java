@@ -92,14 +92,14 @@ public class BpmMessageServiceImpl implements BpmMessageService {
 /*        smsSendApi.sendSingleSmsToAdmin(BpmMessageConvert.INSTANCE.convert(reqDTO.getAssigneeUserId(),
                 BpmMessageEnum.TASK_ASSIGNED.getSmsTemplateCode(), templateParams));*/
         //发送邮件
-        mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getAssigneeUserId(),
-                BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams));
+/*        mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getAssigneeUserId(),
+                BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams));*/
 
         //发送通知
-/*        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 reqDTO.getAssigneeUserId(),
                 BpmMessageEnum.NOTIFY_WHEN_ASSIGNED.getTemplateCode(), templateParams
-        ));*/
+        ));
     }
 
     private String getProcessInstanceDetailUrl(String taskId) {
