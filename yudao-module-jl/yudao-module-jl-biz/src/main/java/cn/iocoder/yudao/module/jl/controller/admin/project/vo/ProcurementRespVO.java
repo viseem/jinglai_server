@@ -22,6 +22,8 @@ public class ProcurementRespVO extends ProcurementBaseVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "13907")
     private Long id;
 
+    private Long creator;
+
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 

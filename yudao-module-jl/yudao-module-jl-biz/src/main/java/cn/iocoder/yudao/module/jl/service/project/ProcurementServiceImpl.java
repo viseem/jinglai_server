@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
@@ -11,6 +13,7 @@ import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementShipmentMapper;
 import cn.iocoder.yudao.module.jl.repository.inventory.InventoryCheckInRepository;
@@ -19,38 +22,27 @@ import cn.iocoder.yudao.module.jl.repository.laboratory.LaboratoryLabRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.text.SimpleDateFormat;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-
+import java.text.SimpleDateFormat;
 import java.util.*;
-
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.LAB_PROCUREMENT_AUDIT;
-import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.OFFICE_PROCUREMENT_AUDIT;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
@@ -94,6 +86,8 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Resource
     private ProcurementRepository procurementRepository;
 
+    @Resource
+    private ProcurementOnlyRepository procurementOnlyRepository;
 
     @Resource
     private ProcurementMapper procurementMapper;
@@ -210,18 +204,18 @@ public class ProcurementServiceImpl implements ProcurementService {
     public void commonSaveProcurement(ProcurementSaveReqVO saveReqVO) {
 
         //审批流程的key
-        String processKey;
+        String processKey=getProcurementProcessKeyByType(saveReqVO.getProcurementType());
         Map<String, Object> processInstanceVariables = new HashMap<>();
 
         if(saveReqVO.getProcurementType()==null){
             throw exception(BPM_PARAMS_ERROR);
         }
 
+        //todo 这个需要提取一个公用的  下面重新发起的接口也需要 again
         if(saveReqVO.getProcurementType().equals(ProcurementTypeEnums.LAB.getStatus())){
             if(saveReqVO.getStatus()==null){
                 saveReqVO.setStatus(ProcurementStatusEnums.LAB_AUDIT.getStatus());
             }
-            processKey = LAB_PROCUREMENT_AUDIT;
             // 插入实验室的负责人id，实验室负责人需要来审批
             LaboratoryLab laboratoryLab = laboratoryLabRepository.findById(saveReqVO.getLabId()).orElseThrow(() -> exception(LABORATORY_LAB_NOT_EXISTS));
             processInstanceVariables.put("labManagerId",laboratoryLab.getUserId());
@@ -229,7 +223,6 @@ public class ProcurementServiceImpl implements ProcurementService {
             if(saveReqVO.getStatus()==null){
                 saveReqVO.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
             }
-            processKey = OFFICE_PROCUREMENT_AUDIT;
         }
 
         if (saveReqVO.getId() != null) {
@@ -272,22 +265,47 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     }
 
+    public static String getProcurementProcessKeyByType(Integer type) {
+        if(Objects.equals(type,ProcurementTypeEnums.LAB.getStatus())){
+            return LAB_PROCUREMENT_AUDIT;
+        }
+        if(Objects.equals(type,ProcurementTypeEnums.PROJECT.getStatus())){
+            return PROJECT_PROCUREMENT_AUDIT;
+        }
+        if(Objects.equals(type,ProcurementTypeEnums.OFFICE.getStatus())){
+            return OFFICE_PROCUREMENT_AUDIT;
+        }
+
+        throw  exception(PROCUREMENT_AUDIT_TYPE_NOT_EXIST);
+    }
+
+
     @Override
     @Transactional
     public void againProcurementProcess(Long id){
 
-
+        ProcurementOnly procurementOnly = validateProcurementExists(id);
+        procurementOnly.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
 
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();
+
+        if(procurementOnly.getProcurementType().equals(ProcurementTypeEnums.LAB.getStatus())){
+            procurementOnly.setStatus(ProcurementStatusEnums.LAB_AUDIT.getStatus());
+            // 插入实验室的负责人id，实验室负责人需要来审批
+            LaboratoryLab laboratoryLab = laboratoryLabRepository.findById(procurementOnly.getLabId()).orElseThrow(() -> exception(LABORATORY_LAB_NOT_EXISTS));
+            processInstanceVariables.put("labManagerId",laboratoryLab.getUserId());
+        }
+
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(getProcurementProcessKeyByType(procurementOnly.getProcurementType()))
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(id)));
 
         // 更新流程实例编号
         procurementRepository.updateProcessInstanceIdById(processInstanceId,id);
 
-        procurementRepository.updateStatusById(id,ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+        // 重置状态
+        procurementRepository.updateStatusById(id,procurementOnly.getStatus());
     }
 
     @Override
@@ -301,8 +319,8 @@ public class ProcurementServiceImpl implements ProcurementService {
         procurementRepository.deleteById(id);
     }
 
-    private Procurement validateProcurementExists(Long id) {
-        Optional<Procurement> byId = procurementRepository.findById(id);
+    private ProcurementOnly validateProcurementExists(Long id) {
+        Optional<ProcurementOnly> byId = procurementOnlyRepository.findById(id);
         if(byId.isEmpty()){
             throw exception(PROCUREMENT_NOT_EXISTS);
         }
@@ -599,7 +617,7 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Transactional
     public void savePayments(ProcurementUpdatePaymentsReqVO saveReqVO) {
         // 校验存在
-        Procurement procurement = validateProcurementExists(saveReqVO.getProcurementId());
+        ProcurementOnly procurement = validateProcurementExists(saveReqVO.getProcurementId());
 
         // 删除先前的付款信息
         procurementPaymentRepository.deleteByProcurementId(saveReqVO.getProcurementId());

@@ -48,11 +48,14 @@ public class ProcurementOnly extends BaseEntity {
     @Column(name = "procurement_type", nullable = false )
     private Integer procurementType;
 
+
     /**
      * 项目 id
      */
     @Column(name = "project_id", nullable = false )
     private Long projectId;
+
+
 
     /**
      * 实验名目库的名目 id
