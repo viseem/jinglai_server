@@ -200,6 +200,8 @@ public class Supplier extends BaseEntity {
     @Column(name = "cate_type")
     private String cateType;
 
+
+
     @Transient
     private String channelTypeStr;
     @Transient
