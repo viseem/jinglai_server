@@ -255,6 +255,9 @@ public interface ErrorCodeConstants {
     ErrorCode PRODUCT_CATE_HAS_CHILDREN = new ErrorCode(1004000000, "分类下有子分类，不可删除");
     ErrorCode PRODUCT_CATE_HAS_PRODUCT = new ErrorCode(1004000000, "分类下有产品，不可删除");
 
+    ErrorCode SUPPLIER_TAG_NOT_EXISTS = new ErrorCode(1004000000, "供应商标签不存在");
+
+
 
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");

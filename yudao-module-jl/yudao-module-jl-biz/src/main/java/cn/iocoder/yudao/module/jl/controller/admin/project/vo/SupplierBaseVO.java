@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -14,6 +15,9 @@ import javax.validation.constraints.*;
  */
 @Data
 public class SupplierBaseVO {
+
+    @Schema(description = "分类类型")
+    private String cateType;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "王五")
     @NotNull(message = "名称不能为空")
@@ -36,6 +40,12 @@ public class SupplierBaseVO {
 
     @Schema(description = "备注")
     private String mark;
+
+    @Schema(description = "擅长领域")
+    private String goodAt;
+
+    private List<CommonAttachment> attachmentList;
+
 
 
     /**
@@ -119,4 +129,6 @@ public class SupplierBaseVO {
     @Schema(description = "公司地址")
     private String address;
 
+    @Schema(description = "标签")
+    private String tagIds;
 }

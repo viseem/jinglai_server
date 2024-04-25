@@ -1,13 +1,19 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -182,6 +188,17 @@ public class Supplier extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+    /**
+     * 公司地址
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
+    /**
+     * 供应商分类类型
+     */
+    @Column(name = "cate_type")
+    private String cateType;
 
     @Transient
     private String channelTypeStr;
@@ -189,5 +206,15 @@ public class Supplier extends BaseEntity {
     private String billWayStr;
     @Transient
     private String paymentCycleStr;
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'SUPPLIER'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 
 }

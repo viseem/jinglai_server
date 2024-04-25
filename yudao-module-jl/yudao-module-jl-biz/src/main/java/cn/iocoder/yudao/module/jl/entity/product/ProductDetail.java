@@ -230,6 +230,18 @@ public class ProductDetail extends BaseEntity {
     @Column(name = "sop_mark")
     private String sopMark;
 
+    /**
+     * 产品资料内容
+     */
+    @Column(name = "data_content")
+    private String dataContent;
+
+    /**
+     * 交付标准内容
+     */
+    @Column(name = "result_content")
+    private String resultContent;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

@@ -174,6 +174,18 @@ public class Product extends BaseEntity {
     private Integer stockCount;
 
     /**
+     * 产品资料内容
+     */
+    @Column(name = "data_content")
+    private String dataContent;
+
+    /**
+     * 交付标准内容
+     */
+    @Column(name = "result_content")
+    private String resultContent;
+
+    /**
      * 技术类型
      */
     @Column(name = "tech_type")

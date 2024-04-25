@@ -105,4 +105,9 @@ public class ProductBaseVO {
     @Schema(description = "实施主体")
     private String sopMark;
 
+    @Schema(description = "实施主体")
+    private String dataContent;
+    @Schema(description = "实施主体")
+    private String resultContent;
+
 }

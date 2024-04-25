@@ -173,7 +173,6 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 }
             }
 
-
             if(pageReqVO.getNoContract() != null){
                 if(pageReqVO.getNoContract()){
                     predicates.add(cb.equal(root.get("contractId"), 0L));

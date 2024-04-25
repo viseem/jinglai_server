@@ -36,6 +36,9 @@ public class ContractInvoiceLogExcelVO {
     @ExcelProperty("客户")
     private String customerName;
 
+    @ExcelProperty("EXCEL客户")
+    private String customerMark;
+
     @ExcelProperty("电话")
     private String phone;
 

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
@@ -33,6 +34,7 @@ import cn.iocoder.yudao.module.jl.repository.project.SupplierRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_USERNAME_EXISTS;
 
@@ -59,21 +61,34 @@ public class SupplierServiceImpl implements SupplierService {
     @Resource
     private DictDataApiImpl dictDataApi;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createSupplier(SupplierCreateReqVO createReqVO) {
         // 插入
         Supplier supplier = supplierMapper.toEntity(createReqVO);
         supplierRepository.save(supplier);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(supplier.getId(),"SUPPLIER",createReqVO.getAttachmentList());
+
         // 返回
         return supplier.getId();
     }
 
     @Override
+    @Transactional
     public void updateSupplier(SupplierUpdateReqVO updateReqVO) {
         // 校验存在
         validateSupplierExists(updateReqVO.getId());
         // 更新
         Supplier updateObj = supplierMapper.toEntity(updateReqVO);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"SUPPLIER",updateReqVO.getAttachmentList());
+
         supplierRepository.save(updateObj);
     }
 
@@ -120,8 +135,20 @@ public class SupplierServiceImpl implements SupplierService {
         Specification<Supplier> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            if(pageReqVO.getCateType() != null) {
+                predicates.add(cb.like(root.get("cateType"), "%" + pageReqVO.getCateType() + "%"));
+            }
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
+            }
+
+            if(pageReqVO.getContactPhone() != null) {
+                predicates.add(cb.equal(root.get("contactPhone"), pageReqVO.getContactPhone()));
+            }
+
+            if(pageReqVO.getGoodAt() != null) {
+                predicates.add(cb.like(root.get("goodAt"), "%" + pageReqVO.getGoodAt() + "%"));
             }
 
             if(pageReqVO.getContactName() != null) {
@@ -129,25 +156,95 @@ public class SupplierServiceImpl implements SupplierService {
             }
 
             if(pageReqVO.getContactPhone() != null) {
-                predicates.add(cb.like(root.get("contactPhone"), "%" + pageReqVO.getContactPhone() + "%"));
+                predicates.add(cb.equal(root.get("contactPhone"), pageReqVO.getContactPhone()));
             }
 
             if(pageReqVO.getPaymentCycle() != null) {
-//                predicates.add(cb.equal(root.get("paymentCycle"), pageReqVO.getPaymentCycle()));
-                predicates.add(cb.like(root.get("paymentCycle"), "%" + pageReqVO.getPaymentCycle() + "%"));
+                predicates.add(cb.equal(root.get("paymentCycle"), pageReqVO.getPaymentCycle()));
             }
 
             if(pageReqVO.getBankAccount() != null) {
-                predicates.add(cb.like(root.get("bankAccount"), "%" + pageReqVO.getBankAccount() + "%"));
+                predicates.add(cb.equal(root.get("bankAccount"), pageReqVO.getBankAccount()));
             }
 
             if(pageReqVO.getTaxNumber() != null) {
-//                predicates.add(cb.equal(root.get("taxNumber"), pageReqVO.getTaxNumber()));
-                predicates.add(cb.like(root.get("taxNumber"), "%" + pageReqVO.getTaxNumber() + "%"));
+                predicates.add(cb.equal(root.get("taxNumber"), pageReqVO.getTaxNumber()));
             }
 
             if(pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+            }
+
+            if(pageReqVO.getBillTitle() != null) {
+                predicates.add(cb.equal(root.get("billTitle"), pageReqVO.getBillTitle()));
+            }
+
+            if(pageReqVO.getBillWay() != null) {
+                predicates.add(cb.equal(root.get("billWay"), pageReqVO.getBillWay()));
+            }
+
+            if(pageReqVO.getBillRequest() != null) {
+                predicates.add(cb.equal(root.get("billRequest"), pageReqVO.getBillRequest()));
+            }
+
+            if(pageReqVO.getContactDepartment() != null) {
+                predicates.add(cb.equal(root.get("contactDepartment"), pageReqVO.getContactDepartment()));
+            }
+
+            if(pageReqVO.getProduct() != null) {
+                predicates.add(cb.equal(root.get("product"), pageReqVO.getProduct()));
+            }
+
+            if(pageReqVO.getDiscount() != null) {
+                predicates.add(cb.equal(root.get("discount"), pageReqVO.getDiscount()));
+            }
+
+            if(pageReqVO.getContactLevel() != null) {
+                predicates.add(cb.equal(root.get("contactLevel"), pageReqVO.getContactLevel()));
+            }
+
+            if(pageReqVO.getSubBranch() != null) {
+                predicates.add(cb.equal(root.get("subBranch"), pageReqVO.getSubBranch()));
+            }
+
+            if(pageReqVO.getChannelType() != null) {
+                predicates.add(cb.equal(root.get("channelType"), pageReqVO.getChannelType()));
+            }
+
+            if(pageReqVO.getServiceCatalog() != null) {
+                predicates.add(cb.equal(root.get("serviceCatalog"), pageReqVO.getServiceCatalog()));
+            }
+
+            if(pageReqVO.getAdvantage() != null) {
+                predicates.add(cb.equal(root.get("advantage"), pageReqVO.getAdvantage()));
+            }
+
+            if(pageReqVO.getDisadvantage() != null) {
+                predicates.add(cb.equal(root.get("disadvantage"), pageReqVO.getDisadvantage()));
+            }
+
+            if(pageReqVO.getCompanyManager() != null) {
+                predicates.add(cb.equal(root.get("companyManager"), pageReqVO.getCompanyManager()));
+            }
+
+            if(pageReqVO.getBusinessManager() != null) {
+                predicates.add(cb.equal(root.get("businessManager"), pageReqVO.getBusinessManager()));
+            }
+
+            if(pageReqVO.getTechManager() != null) {
+                predicates.add(cb.equal(root.get("techManager"), pageReqVO.getTechManager()));
+            }
+
+            if(pageReqVO.getManager() != null) {
+                predicates.add(cb.equal(root.get("manager"), pageReqVO.getManager()));
+            }
+
+            if(pageReqVO.getAfterManager() != null) {
+                predicates.add(cb.equal(root.get("afterManager"), pageReqVO.getAfterManager()));
+            }
+
+            if(pageReqVO.getAddress() != null) {
+                predicates.add(cb.equal(root.get("address"), pageReqVO.getAddress()));
             }
 
 
@@ -301,6 +398,8 @@ public class SupplierServiceImpl implements SupplierService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

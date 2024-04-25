@@ -15,21 +15,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class SupplierPageReqVO extends PageParam {
 
-    private Long tagId;
-
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
-    @Schema(description = "分类类型", example = "王五")
-    private String cateType;
-
-
     @Schema(description = "名称", example = "王五")
     private String name;
-
-    @Schema(description = "擅长领域", example = "李四")
-    private String goodAt;
 
     @Schema(description = "联系人", example = "李四")
     private String contactName;
