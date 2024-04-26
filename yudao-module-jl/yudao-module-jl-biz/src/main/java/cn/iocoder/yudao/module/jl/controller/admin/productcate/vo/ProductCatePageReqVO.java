@@ -25,4 +25,6 @@ public class ProductCatePageReqVO extends PageParam {
     @Schema(description = "说明")
     private String mark;
 
+    private Long parentId = 0L;
+
 }

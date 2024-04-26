@@ -115,7 +115,9 @@ public class ProductCateServiceImpl implements ProductCateService {
         Specification<ProductCate> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("parentId"), 0));
+            if(pageReqVO.getParentId()!=null){
+                predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
+            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));

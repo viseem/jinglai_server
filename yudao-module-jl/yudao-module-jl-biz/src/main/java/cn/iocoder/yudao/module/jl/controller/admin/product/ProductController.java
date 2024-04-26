@@ -84,6 +84,14 @@ public class ProductController {
         return success(productMapper.toPage(pageResult));
     }
 
+    @GetMapping("/page-selector")
+    @Operation(summary = "(分页)获得产品库列表")
+    @PreAuthorize("@ss.hasPermission('jl:product:query')")
+    public CommonResult<PageResult<ProductRespVO>> getProductPageSelector(@Valid ProductPageReqVO pageVO, @Valid ProductPageOrder orderV0) {
+        PageResult<Product> pageResult = productService.getProductPage(pageVO, orderV0);
+        return success(productMapper.toPage(pageResult));
+    }
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出产品库 Excel")
     @PreAuthorize("@ss.hasPermission('jl:product:export')")
