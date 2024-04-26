@@ -15,6 +15,11 @@ public class BpmProcessInstanceCancelReqVO {
 
     @Schema(description = "取消原因", requiredMode = Schema.RequiredMode.REQUIRED, example = "不请假了！")
     @NotEmpty(message = "取消原因不能为空")
-    private String reason;
+    private String reason="123123666";
 
+    @Schema(description = "审批类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @NotEmpty(message = "审批类型不能为空")
+    private String processType;
+
+    private Long refId;
 }

@@ -71,8 +71,8 @@ public class BpmMessageServiceImpl implements BpmMessageService {
 /*        smsSendApi.sendSingleSmsToAdmin(BpmMessageConvert.INSTANCE.convert(reqDTO.getStartUserId(),
                 BpmMessageEnum.PROCESS_INSTANCE_REJECT.getSmsTemplateCode(), templateParams));*/
         //发送邮件
-        mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getStartUserId(),
-                BpmMessageEnum.NOTIFY_WHEN_REJECT.getTemplateCode(), templateParams));
+/*        mailSendApi.sendSingleMailToAdmin(new MailSendSingleToUserReqDTO(reqDTO.getStartUserId(),
+                BpmMessageEnum.NOTIFY_WHEN_REJECT.getTemplateCode(), templateParams));*/
 
         //发送通知
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(

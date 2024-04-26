@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service;
 
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
@@ -14,7 +15,7 @@ public interface JLBpmService {
 
    void approveTask(@Valid JLBpmTaskReqVO approveReqVO);
    void rejectTask(@Valid BpmTaskRejectReqVO reqVO);
-
+   void cancelInstance(@Valid BpmProcessInstanceCancelReqVO reqVO);
    void returnTask(@Valid BpmTaskReturnReqVO approveReqVO);
 
 }

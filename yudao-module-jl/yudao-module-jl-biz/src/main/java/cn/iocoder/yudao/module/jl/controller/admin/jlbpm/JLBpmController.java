@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.jlbpm;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.service.JLBpmServiceImpl;
@@ -41,6 +42,14 @@ public class JLBpmController {
     @PreAuthorize("@ss.hasPermission('bpm:task:update')")
     public CommonResult<Boolean> rejectTask(@Valid @RequestBody BpmTaskRejectReqVO reqVO) {
         jLBpmService.rejectTask(reqVO);
+        return success(true);
+    }
+
+    @PutMapping("/cancel-instance")
+    @Operation(summary = "取消流程")
+    @PreAuthorize("@ss.hasPermission('bpm:task:update')")
+    public CommonResult<Boolean> cancelInstance(@Valid @RequestBody BpmProcessInstanceCancelReqVO reqVO) {
+        jLBpmService.cancelInstance(reqVO);
         return success(true);
     }
 

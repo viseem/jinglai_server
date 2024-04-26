@@ -21,6 +21,7 @@ public enum ProcurementStatusEnums implements StringArrayValuable {
     LEADER_APPROVAL("2", "领导审批"),
     APPROVE("3", "已批准"),
     REJECT("4", "已拒绝"),
+    CANCEL("100", "已取消"),
     ;
 
     private final String status;
