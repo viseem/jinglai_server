@@ -139,6 +139,10 @@ public class SupplierServiceImpl implements SupplierService {
                 predicates.add(cb.like(root.get("cateType"), "%" + pageReqVO.getCateType() + "%"));
             }
 
+            if(pageReqVO.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+            }
+
             if(pageReqVO.getTagId() != null) {
                 mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
             }

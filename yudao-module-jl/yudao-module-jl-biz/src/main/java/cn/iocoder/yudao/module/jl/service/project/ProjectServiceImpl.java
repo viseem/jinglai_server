@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.SalesleadSeasVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
@@ -234,7 +235,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         //更新出库状态、流程实例id、申请人
         projectRepository.updateStageAndProcessInstanceIdAndApplyUserById(outboundApplyReqVO.getProjectId(),ProjectStageEnums.OUTING.getStatus(),processInstanceId,getLoginUserId());
-
+        projectRepository.updateOutboundApplyResultById("1",outboundApplyReqVO.getProjectId());
     }
 
     @Override

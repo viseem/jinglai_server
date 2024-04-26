@@ -12,6 +12,7 @@ import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.PurchaseContractStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.purchasecontract.PurchaseContractRepository;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
-
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -48,6 +48,9 @@ public class JLBpmServiceImpl implements JLBpmService {
 
     @Resource
     private PurchaseContractRepository purchaseContractRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
 
     @Override
     @Transactional
@@ -138,8 +141,13 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Transactional
     public void cancelInstance(BpmProcessInstanceCancelReqVO reqVO) {
 
-        if(reqVO.getProcessType().equals("PROCUREMENT")){
+        if (reqVO.getProcessType().equals("PROCUREMENT")) {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.CANCEL.getStatus());
+            procurementRepository.updateProcessInstanceIdById(null, reqVO.getRefId());
+        }
+
+        if (reqVO.getProcessType().equals("PROJECT_OUTED")) {
+            projectOnlyRepository.updateProcessInstanceIdAndOutboundApplyResultById(null, null, reqVO.getRefId());
         }
 
         processInstanceService.cancelProcessInstance(getLoginUserId(), reqVO);
