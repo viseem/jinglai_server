@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,7 +44,11 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Resource
     private InstitutionMapper institutionMapper;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createInstitution(InstitutionCreateReqVO createReqVO) {
 
         Institution byName = institutionRepository.findByName(createReqVO.getName());
@@ -52,17 +59,25 @@ public class InstitutionServiceImpl implements InstitutionService {
         // 插入
         Institution institution = institutionMapper.toEntity(createReqVO);
         institutionRepository.save(institution);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(institution.getId(),"INSTITUTION",createReqVO.getAttachmentList());
+
         // 返回
         return institution.getId();
     }
 
     @Override
+    @Transactional
     public void updateInstitution(InstitutionUpdateReqVO updateReqVO) {
         // 校验存在
         validateInstitutionExists(updateReqVO.getId());
         // 更新
         Institution updateObj = institutionMapper.toEntity(updateReqVO);
         institutionRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"INSTITUTION",updateReqVO.getAttachmentList());
     }
 
     @Override

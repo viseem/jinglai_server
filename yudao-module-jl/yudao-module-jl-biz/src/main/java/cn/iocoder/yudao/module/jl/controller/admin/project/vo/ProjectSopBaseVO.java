@@ -35,6 +35,12 @@ public class ProjectSopBaseVO {
     @Schema(description = "状态")
     private String status;
 
+    @Schema(description = "开始时间")
+    private LocalDateTime startDate;
+
+    @Schema(description = "结束时间")
+    private LocalDateTime endDate;
+
     @Schema(description = "依赖项(json数组多个)")
     private String dependIds;
 

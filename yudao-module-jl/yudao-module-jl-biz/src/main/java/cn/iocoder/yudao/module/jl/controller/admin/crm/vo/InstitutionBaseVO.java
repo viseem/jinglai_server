@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -48,5 +49,12 @@ public class InstitutionBaseVO {
 
     @Schema(description = "企业码")
     private String code;
+
+    @Schema(description = "资料内容")
+    private String dataContent;
+
+
+    private List<CommonAttachment> attachmentList;
+
 
 }

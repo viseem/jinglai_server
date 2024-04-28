@@ -1,7 +1,13 @@
 package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
+
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -94,4 +100,20 @@ public class Institution extends BaseEntity {
     @Column(name = "code", nullable = false )
     private String code;
 
+
+    /**
+     * 资料内容
+     */
+    @Column(name = "data_content", nullable = false )
+    private String dataContent;
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'INSTITUTION'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 }

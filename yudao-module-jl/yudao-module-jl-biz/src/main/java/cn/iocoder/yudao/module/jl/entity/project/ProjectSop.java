@@ -79,6 +79,18 @@ public class ProjectSop extends BaseEntity {
     @Column(name = "status")
     private String status;
 
+    /**
+     * 开始时间
+     */
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+
+    /**
+     * 结束时间
+     */
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

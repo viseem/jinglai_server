@@ -119,6 +119,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
+        // 如果是三个采购单：项目、实验室、行政
         if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
             if (reqVO.getRefId() == null) {
                 throw exception(BPM_PARAMS_ERROR);
@@ -126,7 +127,7 @@ public class JLBpmServiceImpl implements JLBpmService {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
         }
 
-
+        // 如果是购销合同
         if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
             if (reqVO.getRefId() == null) {
                 throw exception(BPM_PARAMS_ERROR);
