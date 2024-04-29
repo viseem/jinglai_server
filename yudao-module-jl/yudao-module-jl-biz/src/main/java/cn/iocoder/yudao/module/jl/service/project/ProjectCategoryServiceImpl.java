@@ -292,10 +292,10 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
             throw exception(PROJECT_CATEGORY_SON_EXISTS);
         }
 
-        List<ProjectChargeitem> byProjectCategoryId = projectChargeitemRepository.findByProjectCategoryId(id);
+/*        List<ProjectChargeitem> byProjectCategoryId = projectChargeitemRepository.findByProjectCategoryId(id);
         if(byProjectCategoryId!=null&& !byProjectCategoryId.isEmpty()){
             throw exception(PROJECT_CATEGORY_SUPPLY_EXISTS);
-        }
+        }*/
 
         //删除物资
         projectSupplyRepository.deleteByProjectCategoryId(id);

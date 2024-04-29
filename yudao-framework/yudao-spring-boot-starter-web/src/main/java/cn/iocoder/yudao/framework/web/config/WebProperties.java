@@ -23,6 +23,10 @@ public class WebProperties {
 
     @NotNull(message = "Open API 不能为空")
     private Api openApi = new Api("/open-api", "**.controller.open.**");
+
+    @NotNull(message = "shortUI  不能为空")
+    private Api shortUi = new Api("/short", "**.controller.shortUrl.**");
+
     @NotNull(message = "Admin UI 不能为空")
     private Ui adminUi;
 

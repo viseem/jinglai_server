@@ -128,6 +128,8 @@ public class YudaoWebSecurityConfigurerAdapter {
                 .antMatchers(securityProperties.getPermitAllUrls().toArray(new String[0])).permitAll()
                 // 1.4 设置 App API 无需认证
                 .antMatchers(buildAppApi("/**")).permitAll()
+                .antMatchers(buildOpenApi("/**")).permitAll()
+                .antMatchers(buildShortUi("/**")).permitAll()
                 // 1.5 验证码captcha 允许匿名访问
                 .antMatchers("/captcha/get", "/captcha/check").permitAll()
                 // 1.6 webSocket 允许匿名访问
@@ -169,7 +171,9 @@ public class YudaoWebSecurityConfigurerAdapter {
     private String buildOpenApi(String url) {
         return webProperties.getOpenApi().getPrefix() + url;
     }
-
+    private String buildShortUi(String url) {
+        return webProperties.getShortUi().getPrefix() + url;
+    }
 
     private Multimap<HttpMethod, String> getPermitAllUrlsFromAnnotations() {
         Multimap<HttpMethod, String> result = HashMultimap.create();
