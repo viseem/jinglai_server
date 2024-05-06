@@ -227,7 +227,6 @@ public interface ErrorCodeConstants {
 
 
 
-
     // 工作任务模块 1002400000
     ErrorCode WORK_TODO_NOT_EXISTS = new ErrorCode(1002400001, "工作任务 TODO不存在");
     ErrorCode WORK_TODO_TAG_NOT_EXISTS = new ErrorCode(1002400002, "工作任务 TODO 的标签不存在");
@@ -272,5 +271,8 @@ public interface ErrorCodeConstants {
 
     ErrorCode BPM_PARAMS_ERROR = new ErrorCode(1005003006, "参数错误");
     ErrorCode PROCUREMENT_AUDIT_TYPE_NOT_EXIST = new ErrorCode(1005003007, "采购审批类型不存在");
+
+
+    // ====== store =====
 
 }

@@ -122,6 +122,8 @@ public class ProcurementItemBaseVO {
     private String status = ProcurementItemStatusEnums.APPLY_PROCUREMENT.getStatus();
 
     private Long roomId;
+    private Long receiveRoomId;
+    private String receiveRoomName;
     private Long placeId;
     private Long containerId;
     private String locationName;

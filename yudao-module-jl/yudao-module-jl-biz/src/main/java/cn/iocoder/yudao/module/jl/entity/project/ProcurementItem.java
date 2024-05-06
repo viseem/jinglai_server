@@ -208,6 +208,12 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "room_id")
     private Long roomId;
 
+    @Column(name = "receive_room_id")
+    private Long receiveRoomId;
+
+    @Column(name = "receive_room_name")
+    private String receiveRoomName;
+
     @Column(name = "place_id")
     private Long placeId;
 

@@ -23,7 +23,7 @@ public class UtilStoreReqVO {
 
     @Schema(description = "口令", requiredMode = Schema.RequiredMode.REQUIRED, example = "9b2ffbc1-7425-4155-9894-9d5c08541d62")
     @NotEmpty(message = "口令不能为空")
-    private String password;
+    private String pwd;
 
     @Schema(description = "有效期", requiredMode = Schema.RequiredMode.REQUIRED, example = "9b2ffbc1-7425-4155-9894-9d5c08541d62")
     @NotNull(message = "有效期不能为空")
