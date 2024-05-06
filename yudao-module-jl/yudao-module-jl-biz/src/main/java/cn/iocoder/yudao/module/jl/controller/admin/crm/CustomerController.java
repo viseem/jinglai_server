@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +33,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 客户")
 @RestController
@@ -132,6 +136,20 @@ public class CustomerController {
         // 导出 Excel
         List<CustomerExcelVO> excelData = customerMapper.toExcelList(list);
         ExcelUtils.write(response, "客户.xls", "数据", CustomerExcelVO.class, excelData);
+    }
+
+    //excel导入
+    @PostMapping("/import-excel")
+    @Operation(summary = "导入用户")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    @PreAuthorize("@ss.hasPermission('system:user:import')")
+    public CommonResult<CustomerImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
+                                                          @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<CustomerImportVO> list = ExcelUtils.read(file, CustomerImportVO.class);
+        return success(customerService.importList(list, updateSupport));
     }
 
 }

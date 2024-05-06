@@ -12,6 +12,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CustomerMapper {
     Customer toEntity(CustomerCreateReqVO dto);
+    Customer toEntity(CustomerImportVO dto);
 
     Customer toEntity(CustomerUpdateReqVO dto);
     CustomerSimple toAppEntity(AppCustomerUpdateReqVO dto);

@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.crm;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.SupplierImportVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
@@ -96,4 +98,7 @@ public interface CustomerService {
     Boolean bindLastSaleslead(Long customerId, Long salesleadId);
 
     CustomerStatisticsRespVO getCustomerStatistics(Long id);
+
+    CustomerImportRespVO importList(List<CustomerImportVO> importUsers, boolean isUpdateSupport);
+
 }

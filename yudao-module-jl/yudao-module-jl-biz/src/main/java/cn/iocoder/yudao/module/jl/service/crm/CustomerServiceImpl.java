@@ -1,28 +1,42 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
+import cn.iocoder.yudao.module.jl.entity.crm.Institution;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.InstitutionRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.contractfundlog.ContractFundLogServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,9 +57,11 @@ import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 
 /**
  * 客户 Service 实现类
@@ -82,6 +98,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private CrmSubjectGroupRepository crmSubjectGroupRepository;
+
+    @Resource
+    private InstitutionRepository institutionRepository;
+
 
     @Resource
     private CustomerMapper customerMapper;
@@ -286,9 +306,6 @@ public class CustomerServiceImpl implements CustomerService {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
 
-            if(pageReqVO.getToCustomer() != null) {
-                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
-            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
@@ -584,6 +601,47 @@ public class CustomerServiceImpl implements CustomerService {
         customerStatisticsRespVO.setProjectDoingCount(new BigDecimal(projectDoingCount));
         customerStatisticsRespVO.setProjectOutedCount(new BigDecimal(projectOutedCount));
         return customerStatisticsRespVO;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public CustomerImportRespVO importList(List<CustomerImportVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        CustomerImportRespVO respVO = CustomerImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new ArrayList<>()).build();
+
+        importUsers.forEach(item -> {
+            if(item.getPhone()!=null){
+                item.setPhone(item.getPhone().trim());
+            }
+            CustomerSimple byPhone = customerSimpleRepository.findByPhone(item.getPhone());
+            if(byPhone==null){
+                Customer customer = customerMapper.toEntity(item);
+                List<Institution> byNameLike = institutionRepository.findByNameLike(item.getInstitutionStr());
+                if(byNameLike!=null&& !byNameLike.isEmpty()){
+                    Institution institution = byNameLike.get(0);
+                    customer.setCompanyId(institution.getId());
+                    customer.setUniversityId(institution.getId());
+                    customer.setHospitalId(institution.getId());
+                    customer.setResearchId(institution.getId());
+                    String replace = item.getInstitutionStr().replace(institution.getName(), "");
+                    customer.setHospitalDepartment(replace);
+                }
+                customer.setCreator(getLoginUserId());
+                customer.setSource("EXCEL导入");
+                customer.setToCustomer(false);
+                customerRepository.save(customer);
+                respVO.getCreateNames().add(item.getName()+":"+item.getInstitutionStr()+":"+item.getPhone());
+            }else{
+                respVO.getFailureNames().add(item.getName()+":"+item.getInstitutionStr()+":"+item.getPhone());
+            }
+
+        });
+
+        return respVO;
     }
 
     private Sort createSort(CustomerPageOrder order) {
