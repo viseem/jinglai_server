@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementDetail;
 import org.mapstruct.*;
 
 
@@ -18,6 +19,7 @@ public interface ProcurementMapper {
 
     ProcurementRespVO toDto(Procurement entity);
 
+    ProcurementRespVO toDto(ProcurementDetail entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Procurement partialUpdate(ProcurementUpdateReqVO dto, @MappingTarget Procurement entity);

@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementDetail;
 
 /**
  * 项目采购单申请 Service 接口
@@ -45,7 +46,7 @@ public interface ProcurementService {
      * @param id 编号
      * @return 项目采购单申请
      */
-    Optional<Procurement> getProcurement(Long id);
+    Optional<ProcurementDetail> getProcurement(Long id);
 
     /**
      * 重新发起采购单流程

@@ -4,16 +4,17 @@ import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import java.util.*;
-import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.*;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import org.hibernate.annotations.*;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 项目采购单申请 Entity
@@ -23,10 +24,10 @@ import org.hibernate.annotations.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "Procurement")
+@Entity(name = "ProcurementDetail")
 @Table(name = "jl_project_procurement")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Procurement extends BaseEntity {
+public class ProcurementDetail extends BaseEntity {
 
     /**
      * ID
@@ -169,11 +170,11 @@ public class Procurement extends BaseEntity {
     @Column(name = "process_instance_id")
     private String processInstanceId;
 
-/*    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)
     @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private List<ProcurementItem> items;*/
+    private List<ProcurementItem> items;
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -211,9 +212,9 @@ public class Procurement extends BaseEntity {
     /*
      * 级联附件
      * */
-/*    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'PROCUREMENT_ORDER'")
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> attachmentList = new ArrayList<>();*/
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 }

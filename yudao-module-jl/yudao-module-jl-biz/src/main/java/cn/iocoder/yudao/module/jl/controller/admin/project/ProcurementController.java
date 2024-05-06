@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementDetail;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -120,7 +121,7 @@ public class ProcurementController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:procurement:query')")
     public CommonResult<ProcurementRespVO> getProcurement(@RequestParam("id") Long id) {
-            Optional<Procurement> procurement = procurementService.getProcurement(id);
+            Optional<ProcurementDetail> procurement = procurementService.getProcurement(id);
         return success(procurement.map(procurementMapper::toDto).orElseThrow(() -> exception(PROCUREMENT_NOT_EXISTS)));
     }
 

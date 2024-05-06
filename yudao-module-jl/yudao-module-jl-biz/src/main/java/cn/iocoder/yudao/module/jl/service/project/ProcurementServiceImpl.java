@@ -87,6 +87,9 @@ public class ProcurementServiceImpl implements ProcurementService {
     private ProcurementRepository procurementRepository;
 
     @Resource
+    private ProcurementDetailRepository procurementDetailRepository;
+
+    @Resource
     private ProcurementOnlyRepository procurementOnlyRepository;
 
     @Resource
@@ -329,8 +332,8 @@ public class ProcurementServiceImpl implements ProcurementService {
     }
 
     @Override
-    public Optional<Procurement> getProcurement(Long id) {
-        return procurementRepository.findById(id);
+    public Optional<ProcurementDetail> getProcurement(Long id) {
+        return procurementDetailRepository.findById(id);
     }
 
     @Override
