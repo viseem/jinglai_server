@@ -107,6 +107,72 @@ public class Institution extends BaseEntity {
     @Column(name = "data_content", nullable = false )
     private String dataContent;
 
+    /**
+     * 法定代表人
+     */
+    @Column(name = "legal_representative", nullable = false )
+    private String legalRepresentative;
+
+    /**
+     * 注册基本
+     */
+    @Column(name = "register_capital", nullable = false )
+    private String registerCapital;
+
+    /**
+     * 成立日期
+     */
+    @Column(name = "establish_date", nullable = false )
+    private String establishDate;
+
+    /**
+     * 信用代码
+     */
+    @Column(name = "credit_code", nullable = false )
+    private String creditCode;
+
+    /**
+     * 注册地址
+     */
+    @Column(name = "register_address", nullable = false )
+    private String registerAddress;
+
+    /**
+     * 电话
+     */
+    @Column(name = "phone", nullable = false )
+    private String phone;
+
+    /**
+     * 邮箱
+     */
+    @Column(name = "email", nullable = false )
+    private String email;
+
+    /**
+     * 纳税人识别号
+     */
+    @Column(name = "bill_code", nullable = false )
+    private String billCode;
+
+    /**
+     * 网址
+     */
+    @Column(name = "website", nullable = false )
+    private String website;
+
+    /**
+     * 简介
+     */
+    @Column(name = "profile", nullable = false )
+    private String profile;
+
+    /**
+     * 经营范围
+     */
+    @Column(name = "business_scope", nullable = false )
+    private String businessScope;
+
     /*
      * 级联附件
      * */

@@ -78,6 +78,12 @@ public class Customer extends BaseEntity {
     private String mark;
 
     /**
+     * 机构备注
+     */
+    @Column(name = "institution_mark")
+    private String institutionMark;
+
+    /**
      * 微信号
      */
     @Column(name = "wechat", nullable = false )

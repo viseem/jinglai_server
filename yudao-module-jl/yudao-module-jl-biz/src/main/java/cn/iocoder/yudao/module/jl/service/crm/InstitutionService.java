@@ -66,4 +66,6 @@ public interface InstitutionService {
      */
     List<Institution> getInstitutionList(InstitutionExportReqVO exportReqVO);
 
+    InstitutionImportRespVO importList(List<InstitutionImportVO> importUsers, boolean isUpdateSupport);
+
 }

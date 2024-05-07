@@ -138,6 +138,7 @@ public class CustomerController {
         ExcelUtils.write(response, "客户.xls", "数据", CustomerExcelVO.class, excelData);
     }
 
+
     //excel导入
     @PostMapping("/import-excel")
     @Operation(summary = "导入用户")
@@ -145,7 +146,6 @@ public class CustomerController {
             @Parameter(name = "file", description = "Excel 文件", required = true),
             @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
     })
-    @PreAuthorize("@ss.hasPermission('system:user:import')")
     public CommonResult<CustomerImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
                                                           @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
         List<CustomerImportVO> list = ExcelUtils.read(file, CustomerImportVO.class);

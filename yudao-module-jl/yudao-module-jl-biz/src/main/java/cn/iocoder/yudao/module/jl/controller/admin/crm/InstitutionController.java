@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Institution;
 import cn.iocoder.yudao.module.jl.mapper.crm.InstitutionMapper;
 import cn.iocoder.yudao.module.jl.service.crm.InstitutionService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 机构/公司")
 @RestController
@@ -99,6 +101,19 @@ public class InstitutionController {
         // 导出 Excel
         List<InstitutionExcelVO> excelData = institutionMapper.toExcelList(list);
         ExcelUtils.write(response, "机构/公司.xls", "数据", InstitutionExcelVO.class, excelData);
+    }
+
+    //excel导入
+    @PostMapping("/import-excel")
+    @Operation(summary = "导入用户")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    public CommonResult<InstitutionImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
+                                                          @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<InstitutionImportVO> list = ExcelUtils.read(file, InstitutionImportVO.class);
+        return success(institutionService.importList(list, updateSupport));
     }
 
 }

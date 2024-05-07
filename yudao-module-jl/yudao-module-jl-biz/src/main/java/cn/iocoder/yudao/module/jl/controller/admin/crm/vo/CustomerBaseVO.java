@@ -45,6 +45,9 @@ public class CustomerBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "机构备注")
+    private String institutionMark;
+
     @Schema(description = "微信号")
     private String wechat;
 

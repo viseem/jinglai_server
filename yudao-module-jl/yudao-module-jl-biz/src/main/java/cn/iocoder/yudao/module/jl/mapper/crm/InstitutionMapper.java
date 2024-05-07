@@ -16,6 +16,8 @@ public interface InstitutionMapper {
 
     InstitutionRespVO toDto(Institution entity);
 
+    Institution toEntity(InstitutionImportVO dto);
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Institution partialUpdate(InstitutionUpdateReqVO dto, @MappingTarget Institution entity);

@@ -6,6 +6,7 @@ import lombok.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -52,6 +53,40 @@ public class InstitutionBaseVO {
 
     @Schema(description = "资料内容")
     private String dataContent;
+
+
+    @Schema(description = "法定代表人")
+    private String legalRepresentative;
+
+    @Schema(description = "注册资本")
+    private String registerCapital;
+
+    @Schema(description = "成立日期")
+    private String establishDate;
+
+    @Schema(description = "信用代码")
+    private String creditCode;
+
+    @Schema(description = "注册地址")
+    private String registerAddress;
+
+    @Schema(description = "电话")
+    private String phone;
+
+    @Schema(description = "邮箱")
+    private String email;
+
+    @Schema(description = "纳税人识别号")
+    private String billCode;
+
+    @Schema(description = "网址")
+    private String website;
+
+    @Schema(description = "简介")
+    private String profile;
+
+    @Schema(description = "经营范围")
+    private String businessScope;
 
 
     private List<CommonAttachment> attachmentList;
