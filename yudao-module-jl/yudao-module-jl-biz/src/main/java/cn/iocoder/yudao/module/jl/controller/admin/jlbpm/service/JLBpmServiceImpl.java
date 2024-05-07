@@ -144,11 +144,11 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         if (reqVO.getProcessType().equals("PROCUREMENT")) {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.CANCEL.getStatus());
-            procurementRepository.updateProcessInstanceIdById(null, reqVO.getRefId());
+//            procurementRepository.updateProcessInstanceIdById(null, reqVO.getRefId());
         }
 
         if (reqVO.getProcessType().equals("PROJECT_OUTED")) {
-            projectOnlyRepository.updateProcessInstanceIdAndOutboundApplyResultById(null, null, reqVO.getRefId());
+            projectOnlyRepository.updateOutboundApplyResultById( null, reqVO.getRefId());
         }
 
         processInstanceService.cancelProcessInstance(getLoginUserId(), reqVO);
