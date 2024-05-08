@@ -620,6 +620,31 @@ public class CustomerServiceImpl implements CustomerService {
             CustomerSimple byPhone = customerSimpleRepository.findByPhone(item.getPhone());
             if(byPhone==null){
                 Customer customer = customerMapper.toEntity(item);
+
+                if (item.getType() != null) {
+                    switch (item.getType()) {
+                        case "在校学生":
+                            customer.setType("1");
+                            break;
+                        case "科研院校":
+                            customer.setType("3");
+                            break;
+                        case "医院":
+                            customer.setType("4");
+                            break;
+                        case "药企":
+                            customer.setType("5");
+                            break;
+                        case "中间商":
+                            customer.setType("6");
+                            break;
+                        default:
+                            customer.setType("2");
+                    }
+                } else {
+                    customer.setType("2");
+                }
+
                 customer.setInstitutionMark(item.getInstitutionStr());
                 customer.setCreator(getLoginUserId());
                 customer.setSource("EXCEL导入");

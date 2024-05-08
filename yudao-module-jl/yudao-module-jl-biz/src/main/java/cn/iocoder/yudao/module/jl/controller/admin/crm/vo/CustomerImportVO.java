@@ -28,4 +28,7 @@ public class CustomerImportVO {
     @ExcelProperty("邮箱")
     private String email;
 
+    @ExcelProperty("类型")
+    private String type;
+
 }
