@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.purchasecontract;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -94,7 +95,10 @@ public class PurchaseContract extends BaseEntity {
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
 
-
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private LaboratoryLab lab;
     /*
      * 级联附件
      * */

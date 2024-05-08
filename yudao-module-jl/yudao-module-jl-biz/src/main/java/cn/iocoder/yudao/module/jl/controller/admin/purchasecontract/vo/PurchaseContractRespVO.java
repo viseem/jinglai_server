@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.purchasecontract.vo;
 
+import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,4 +24,5 @@ public class PurchaseContractRespVO extends PurchaseContractBaseVO {
 
     private Supplier supplier;
 
+    private LaboratoryLab lab;
 }
