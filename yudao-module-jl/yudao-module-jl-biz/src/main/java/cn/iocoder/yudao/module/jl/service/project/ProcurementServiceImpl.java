@@ -191,6 +191,7 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 创建采购单明细
         procurementItemMapper.toEntityList(saveReqVO.getItems()).forEach(procurementItem -> {
+            //  projectSupplyId前端传过来的 必填；因为这个接口就是项目端采购专用的
             procurementItem.setProcurementId(procurementId);
             procurementItem.setProjectId(saveReqVO.getProjectId());
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());

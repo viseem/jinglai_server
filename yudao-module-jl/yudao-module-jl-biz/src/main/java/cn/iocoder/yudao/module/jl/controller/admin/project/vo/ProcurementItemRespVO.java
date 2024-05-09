@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContract;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContractOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -28,4 +29,6 @@ public class ProcurementItemRespVO extends ProcurementItemBaseVO {
     private ProcurementOnly procurement;
 
     private ProjectOnly project;
+
+    private User user;
 }

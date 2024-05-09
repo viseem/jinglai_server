@@ -27,7 +27,14 @@ public class ProcurementItemBaseVO {
     @Schema(description = "采购类型")
     private Integer procurementType= ProcurementTypeEnums.PROJECT.getStatus();
 
+    @Schema(description = "来源")
+    private String source = "采购";
+
     private String unit;
+
+    private BigDecimal inedQuantity = BigDecimal.ZERO;
+    private BigDecimal outedQuantity = BigDecimal.ZERO;
+    private BigDecimal stockQuantity = BigDecimal.ZERO;
 
     private Long purchaseContractId;
 

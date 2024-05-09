@@ -256,6 +256,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode SUPPLIER_TAG_NOT_EXISTS = new ErrorCode(1004000000, "供应商标签不存在");
 
+    ErrorCode INVENTORY_STORE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "物品出入库日志不存在");
+
+
 
 
     // ========== 企业微信模块 ==========

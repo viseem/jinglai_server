@@ -1,24 +1,18 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
-import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContract;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.util.*;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import java.time.LocalDateTime;
+import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -28,10 +22,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProcurementItem")
+@Entity(name = "ProcurementItemOnly")
 @Table(name = "jl_project_procurement_item")
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class ProcurementItem extends BaseEntity {
+public class ProcurementItemOnly extends BaseEntity {
 
     /**
      * ID
@@ -112,7 +106,7 @@ public class ProcurementItem extends BaseEntity {
     private BigDecimal stockQuantity;
 
     public BigDecimal getStockQuantity() {
-        return (inedQuantity==null?BigDecimal.ZERO:inedQuantity).add(outedQuantity==null?BigDecimal.ZERO:outedQuantity);
+        return (inedQuantity==null?BigDecimal.ZERO:inedQuantity).subtract(outedQuantity==null?BigDecimal.ZERO:outedQuantity);
     }
 
     /**
@@ -265,33 +259,4 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "arrival_date")
     private LocalDateTime arrivalDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Supplier supplier;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "purchase_contract_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private PurchaseContractOnly purchaseContract;
-
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProcurementOnly procurement;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectOnly project;
-
-    /**
-     * 级联
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
-    private User user;
 }

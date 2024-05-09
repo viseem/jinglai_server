@@ -1,35 +1,37 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.inventorystorelog.InventoryStoreLog;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROCUREMENT_ITEM_NOT_EXISTS;
 
 /**
  * 项目采购单申请明细 Service 实现类
- *
  */
 @Service
 @Validated
@@ -39,7 +41,13 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
     private ProcurementItemRepository procurementItemRepository;
 
     @Resource
+    private ProcurementItemOnlyRepository procurementItemOnlyRepository;
+
+    @Resource
     private ProcurementItemMapper procurementItemMapper;
+
+    @Resource
+    private InventoryStoreLogRepository inventoryStoreLogRepository;
 
     @Override
     public Long createProcurementItem(ProcurementItemCreateReqVO createReqVO) {
@@ -94,65 +102,67 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
         Specification<ProcurementItem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getProcurementId() != null) {
+            predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
+
+            if (pageReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
             }
 
-            if(pageReqVO.getProjectSupplyId() != null) {
+            if (pageReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), pageReqVO.getProjectSupplyId()));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getFeeStandard() != null) {
+            if (pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
             }
 
-            if(pageReqVO.getUnitFee() != null) {
+            if (pageReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
             }
 
-            if(pageReqVO.getUnitAmount() != null) {
+            if (pageReqVO.getUnitAmount() != null) {
                 predicates.add(cb.equal(root.get("unitAmount"), pageReqVO.getUnitAmount()));
             }
 
-            if(pageReqVO.getQuantity() != null) {
+            if (pageReqVO.getQuantity() != null) {
                 predicates.add(cb.equal(root.get("quantity"), pageReqVO.getQuantity()));
             }
 
-            if(pageReqVO.getSupplierId() != null) {
+            if (pageReqVO.getSupplierId() != null) {
                 predicates.add(cb.equal(root.get("supplierId"), pageReqVO.getSupplierId()));
             }
 
-            if(pageReqVO.getBuyPrice() != null) {
+            if (pageReqVO.getBuyPrice() != null) {
                 predicates.add(cb.equal(root.get("buyPrice"), pageReqVO.getBuyPrice()));
             }
 
-            if(pageReqVO.getSalePrice() != null) {
+            if (pageReqVO.getSalePrice() != null) {
                 predicates.add(cb.equal(root.get("salePrice"), pageReqVO.getSalePrice()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getValidDate() != null) {
+            if (pageReqVO.getValidDate() != null) {
                 predicates.add(cb.between(root.get("validDate"), pageReqVO.getValidDate()[0], pageReqVO.getValidDate()[1]));
-            } 
-            if(pageReqVO.getBrand() != null) {
+            }
+            if (pageReqVO.getBrand() != null) {
                 predicates.add(cb.equal(root.get("brand"), pageReqVO.getBrand()));
             }
 
-            if(pageReqVO.getCatalogNumber() != null) {
+            if (pageReqVO.getCatalogNumber() != null) {
                 predicates.add(cb.equal(root.get("catalogNumber"), pageReqVO.getCatalogNumber()));
             }
 
-            if(pageReqVO.getDeliveryDate() != null) {
+            if (pageReqVO.getDeliveryDate() != null) {
                 predicates.add(cb.between(root.get("deliveryDate"), pageReqVO.getDeliveryDate()[0], pageReqVO.getDeliveryDate()[1]));
-            } 
-            if(pageReqVO.getStatus() != null) {
+            }
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
@@ -173,65 +183,65 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
         Specification<ProcurementItem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProcurementId() != null) {
+            if (exportReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), exportReqVO.getProcurementId()));
             }
 
-            if(exportReqVO.getProjectSupplyId() != null) {
+            if (exportReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), exportReqVO.getProjectSupplyId()));
             }
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getFeeStandard() != null) {
+            if (exportReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), exportReqVO.getFeeStandard()));
             }
 
-            if(exportReqVO.getUnitFee() != null) {
+            if (exportReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), exportReqVO.getUnitFee()));
             }
 
-            if(exportReqVO.getUnitAmount() != null) {
+            if (exportReqVO.getUnitAmount() != null) {
                 predicates.add(cb.equal(root.get("unitAmount"), exportReqVO.getUnitAmount()));
             }
 
-            if(exportReqVO.getQuantity() != null) {
+            if (exportReqVO.getQuantity() != null) {
                 predicates.add(cb.equal(root.get("quantity"), exportReqVO.getQuantity()));
             }
 
-            if(exportReqVO.getSupplierId() != null) {
+            if (exportReqVO.getSupplierId() != null) {
                 predicates.add(cb.equal(root.get("supplierId"), exportReqVO.getSupplierId()));
             }
 
-            if(exportReqVO.getBuyPrice() != null) {
+            if (exportReqVO.getBuyPrice() != null) {
                 predicates.add(cb.equal(root.get("buyPrice"), exportReqVO.getBuyPrice()));
             }
 
-            if(exportReqVO.getSalePrice() != null) {
+            if (exportReqVO.getSalePrice() != null) {
                 predicates.add(cb.equal(root.get("salePrice"), exportReqVO.getSalePrice()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getValidDate() != null) {
+            if (exportReqVO.getValidDate() != null) {
                 predicates.add(cb.between(root.get("validDate"), exportReqVO.getValidDate()[0], exportReqVO.getValidDate()[1]));
-            } 
-            if(exportReqVO.getBrand() != null) {
+            }
+            if (exportReqVO.getBrand() != null) {
                 predicates.add(cb.equal(root.get("brand"), exportReqVO.getBrand()));
             }
 
-            if(exportReqVO.getCatalogNumber() != null) {
+            if (exportReqVO.getCatalogNumber() != null) {
                 predicates.add(cb.equal(root.get("catalogNumber"), exportReqVO.getCatalogNumber()));
             }
 
-            if(exportReqVO.getDeliveryDate() != null) {
+            if (exportReqVO.getDeliveryDate() != null) {
                 predicates.add(cb.between(root.get("deliveryDate"), exportReqVO.getDeliveryDate()[0], exportReqVO.getDeliveryDate()[1]));
-            } 
-            if(exportReqVO.getStatus() != null) {
+            }
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
@@ -322,5 +332,24 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
         // 创建 Sort 对象
         return Sort.by(orders);
+    }
+
+    @Transactional
+    public void updateStockQuantity(Long sourceItemId) {
+        List<InventoryStoreLog> bySourceItemId = inventoryStoreLogRepository.findBySourceItemId(sourceItemId);
+        BigDecimal inedSum = BigDecimal.ZERO;
+        BigDecimal outedSum = BigDecimal.ZERO;
+
+        if (bySourceItemId != null && !bySourceItemId.isEmpty()) {
+            for (InventoryStoreLog log : bySourceItemId) {
+                if (log.getChangeNum().compareTo(BigDecimal.ZERO) > 0) {
+                    inedSum = inedSum.add(log.getChangeNum());
+                } else {
+                    outedSum = outedSum.add(log.getChangeNum());
+                }
+            }
+        }
+
+        procurementItemOnlyRepository.updateInedQuantityAndOutedQuantityById(inedSum, outedSum, sourceItemId);
     }
 }

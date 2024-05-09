@@ -25,6 +25,9 @@ public class ProcurementItemPageReqVO extends PageParam {
     @Schema(description = "项目物资 id", example = "30207")
     private Long projectSupplyId;
 
+    @Schema(description = "来源", example = "芋艿")
+    private String source = "采购";
+
     @Schema(description = "名称", example = "芋艿")
     private String name;
 
