@@ -27,4 +27,6 @@ public class ProductCatePageReqVO extends PageParam {
 
     private Long parentId = 0L;
 
+    private String tagId;
+
 }

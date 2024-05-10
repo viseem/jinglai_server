@@ -57,6 +57,12 @@ public class ProductCate extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 标签
+     */
+    @Column(name = "tag_ids")
+    private String tagIds;
+
 
     /**
      * 通过mappedBy指定父项，查询子项

@@ -29,6 +29,7 @@ import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 
 /**
  * 产品库分类 Service 实现类
@@ -114,6 +115,10 @@ public class ProductCateServiceImpl implements ProductCateService {
         // 创建 Specification
         Specification<ProductCate> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getTagId() != null) {
+                mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
+            }
 
             if(pageReqVO.getParentId()!=null){
                 predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));

@@ -21,6 +21,9 @@ public class ProductCateBaseVO {
     @Schema(description = "说明")
     private String mark;
 
+    @Schema(description = "标签")
+    private String tagIds;
+
     private Long parentId=0L;
 
 }
