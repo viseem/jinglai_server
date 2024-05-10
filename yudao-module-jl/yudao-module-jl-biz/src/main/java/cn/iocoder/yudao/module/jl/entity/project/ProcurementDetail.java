@@ -56,7 +56,11 @@ public class ProcurementDetail extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
-
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id", nullable = false )
+    private Long customerId;
 
     /**
      * 实验名目库的名目 id

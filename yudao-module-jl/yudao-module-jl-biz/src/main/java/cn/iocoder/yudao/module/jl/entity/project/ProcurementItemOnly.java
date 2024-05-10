@@ -53,6 +53,9 @@ public class ProcurementItemOnly extends BaseEntity {
     @Column(name = "project_id")
     private Long projectId;
 
+    @Column(name = "customer_id")
+    private Long customerId;
+
     @Column(name = "quotation_id")
     private Long quotationId;
 

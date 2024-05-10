@@ -62,6 +62,9 @@ public class ProcurementItemBaseVO {
     @Schema(description = "项目id")
     private Long projectId=0L;
 
+    @Schema(description = "客户id")
+    private Long customerId=0L;
+
     @Schema(description = "采购单id", requiredMode = Schema.RequiredMode.REQUIRED, example = "26560")
     @NotNull(message = "采购单id不能为空")
     private Long procurementId;

@@ -170,6 +170,7 @@ public class ProcurementServiceImpl implements ProcurementService {
         }
 
         saveReqVO.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+        saveReqVO.setCustomerId(projectSimple.getCustomerId());
 
         // 更新或者创建
         Procurement updateObj = procurementMapper.toEntity(saveReqVO);
@@ -194,6 +195,7 @@ public class ProcurementServiceImpl implements ProcurementService {
             //  projectSupplyId前端传过来的 必填；因为这个接口就是项目端采购专用的
             procurementItem.setProcurementId(procurementId);
             procurementItem.setProjectId(saveReqVO.getProjectId());
+            procurementItem.setCustomerId(projectSimple.getCustomerId());
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
             procurementItemRepository.save(procurementItem);
         });

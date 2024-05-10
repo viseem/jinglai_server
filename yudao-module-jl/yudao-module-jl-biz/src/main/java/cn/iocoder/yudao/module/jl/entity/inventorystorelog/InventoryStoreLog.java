@@ -128,6 +128,12 @@ public class InventoryStoreLog extends BaseEntity {
     private Long projectId;
 
     /**
+     * 客户id
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
+    /**
      * 购销合同id
      */
     @Column(name = "purchase_contract_id")

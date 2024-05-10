@@ -63,6 +63,9 @@ public class InventoryStoreLogBaseVO {
     @Schema(description = "项目id", example = "20536")
     private Long projectId;
 
+    @Schema(description = "客户id", example = "20536")
+    private Long customerId;
+
     @Schema(description = "购销合同id", example = "28993")
     private Long purchaseContractId;
 

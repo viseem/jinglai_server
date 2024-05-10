@@ -31,6 +31,9 @@ public class ProcurementBaseVO {
     @NotNull(message = "项目 id不能为空")
     private Long projectId;
 
+    @Schema(description = "客户 id")
+    private Long customerId;
+
     @Schema(description = "实验名目库的名目 id", example = "20444")
     private Long projectCategoryId;
 

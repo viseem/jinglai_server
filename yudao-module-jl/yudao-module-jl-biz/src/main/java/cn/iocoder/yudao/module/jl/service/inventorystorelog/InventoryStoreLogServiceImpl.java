@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProcurementItemServiceImpl;
 import liquibase.pro.packaged.R;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,9 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
     @Resource
     private ProcurementItemServiceImpl procurementItemService;
 
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
     @Override
     @Transactional
     public Long createInventoryStoreLog(InventoryStoreLogCreateReqVO createReqVO) {
@@ -74,7 +78,14 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         createReqVO.setCatalogNumber(procurementItem.getCatalogNumber());
         // 录上这些id 很重要
         createReqVO.setProjectSupplyId(procurementItem.getRoomId());
-        createReqVO.setProjectId(procurementItem.getProjectId());
+
+        if(procurementItem.getProjectId()!=null){
+            createReqVO.setProjectId(procurementItem.getProjectId());
+            projectOnlyRepository.findById(procurementItem.getProjectId()).ifPresent(projectOnly -> {
+                createReqVO.setCustomerId(projectOnly.getCustomerId());
+            });
+        }
+
         createReqVO.setProcurementId(procurementItem.getProcurementId());
         createReqVO.setPurchaseContractId(procurementItem.getPurchaseContractId());
         // 插入
