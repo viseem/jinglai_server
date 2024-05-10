@@ -72,6 +72,11 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         createReqVO.setSpec(procurementItem.getSpec());
         createReqVO.setUnit(procurementItem.getUnit());
         createReqVO.setCatalogNumber(procurementItem.getCatalogNumber());
+        // 录上这些id 很重要
+        createReqVO.setProjectSupplyId(procurementItem.getRoomId());
+        createReqVO.setProjectId(procurementItem.getProjectId());
+        createReqVO.setProcurementId(procurementItem.getProcurementId());
+        createReqVO.setPurchaseContractId(procurementItem.getPurchaseContractId());
         // 插入
         InventoryStoreLog inventoryStoreLog = inventoryStoreLogMapper.toEntity(createReqVO);
         inventoryStoreLogRepository.save(inventoryStoreLog);
@@ -315,6 +320,8 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

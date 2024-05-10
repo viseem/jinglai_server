@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventorystorelog.InventoryStoreLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
@@ -162,8 +163,19 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
             if (pageReqVO.getDeliveryDate() != null) {
                 predicates.add(cb.between(root.get("deliveryDate"), pageReqVO.getDeliveryDate()[0], pageReqVO.getDeliveryDate()[1]));
             }
+
             if (pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+
+                if(pageReqVO.getStatus().equals(ProcurementItemStatusEnums.PART_STORAGE.getStatus())){
+                    // 查询 inedQuantity>0 && inedQuantity<quantity
+                    predicates.add(cb.and(cb.greaterThan(root.get("inedQuantity"), BigDecimal.ZERO),cb.lessThan(root.get("inedQuantity"), root.get("quantity"))));
+                } else if (pageReqVO.getStatus().equals(ProcurementItemStatusEnums.ALL_STORAGE.getStatus())) {
+                    // 查询 inedQuantity>=quantity
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("inedQuantity"), root.get("quantity")));
+                }else{
+                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                }
+
             }
 
 

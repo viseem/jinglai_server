@@ -20,9 +20,9 @@ public enum ProcurementItemStatusEnums implements StringArrayValuable {
     APPROVE_PROCUREMENT("2", "已批准采购"),
     INITIATE_ORDER("3", "发起订购"),
     ORDERED("4", "已订购"),
-    SHIPPED("5", "已发货"),
-    PART_STORAGE("6", "部分入库"),
-    ALL_STORAGE("7", "全部入库"),
+//    SHIPPED("5", "已发货"),
+    PART_STORAGE("5", "部分入库"),
+    ALL_STORAGE("6", "全部入库"),
     ;
 
     private final String status;
