@@ -242,6 +242,12 @@ public class ProductDetail extends BaseEntity {
     @Column(name = "result_content")
     private String resultContent;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

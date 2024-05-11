@@ -177,6 +177,12 @@ public class ProductSelector extends BaseEntity {
     @Column(name = "tech_type")
     private Integer techType;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
 
 /*    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", insertable = false, updatable = false)

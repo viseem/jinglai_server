@@ -24,6 +24,8 @@ public class ProductCateBaseVO {
     @Schema(description = "标签")
     private String tagIds;
 
+    private Integer sort=100;
+
     private Long parentId=0L;
 
 }

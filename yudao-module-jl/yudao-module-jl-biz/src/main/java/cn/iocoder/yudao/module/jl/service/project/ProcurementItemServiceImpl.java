@@ -109,6 +109,10 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
             }
 
+            if (pageReqVO.getProcurementType() != null) {
+                predicates.add(cb.equal(root.get("procurementType"), pageReqVO.getProcurementType()));
+            }
+
             if (pageReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), pageReqVO.getProjectSupplyId()));
             }

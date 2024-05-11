@@ -63,6 +63,12 @@ public class ProductCate extends BaseEntity {
     @Column(name = "tag_ids")
     private String tagIds;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
 
     /**
      * 通过mappedBy指定父项，查询子项
@@ -70,6 +76,8 @@ public class ProductCate extends BaseEntity {
     @OneToMany(mappedBy = "parent")
     @JsonIgnore
     @NotFound(action = NotFoundAction.IGNORE)
+    // 按照sort排序
+    @OrderBy("sort ASC")
     private List<ProductCate> childList;
 
 

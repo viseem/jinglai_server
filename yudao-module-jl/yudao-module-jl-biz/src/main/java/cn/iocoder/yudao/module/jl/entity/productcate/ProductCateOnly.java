@@ -55,4 +55,10 @@ public class ProductCateOnly extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
 }

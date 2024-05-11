@@ -191,6 +191,12 @@ public class Product extends BaseEntity {
     @Column(name = "tech_type")
     private Integer techType;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "exper_id", referencedColumnName = "id", insertable = false, updatable = false)

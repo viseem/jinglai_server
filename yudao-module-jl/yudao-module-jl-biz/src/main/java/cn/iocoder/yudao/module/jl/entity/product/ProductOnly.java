@@ -177,5 +177,11 @@ public class ProductOnly extends BaseEntity {
     @Column(name = "result_content")
     private String resultContent;
 
+    /**
+     * 排序
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
 
 }
