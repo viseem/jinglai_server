@@ -35,6 +35,9 @@ public class CustomerPageReqVO extends PageParam {
     @Schema(description = "姓名", example = "张三")
     private String name;
 
+    @Schema(description = "机构信息", example = "张三")
+    private String institutionMark;
+
     @Schema(description = "客户来源")
     private String source;
 

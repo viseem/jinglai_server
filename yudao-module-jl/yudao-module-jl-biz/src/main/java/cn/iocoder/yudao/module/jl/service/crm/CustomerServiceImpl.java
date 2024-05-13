@@ -306,6 +306,9 @@ public class CustomerServiceImpl implements CustomerService {
                 predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
             }
 
+            if(pageReqVO.getInstitutionMark() != null) {
+                predicates.add(cb.like(root.get("institutionMark"), "%" + pageReqVO.getInstitutionMark() + "%"));
+            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
