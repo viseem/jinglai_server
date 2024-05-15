@@ -278,4 +278,16 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     @Column(name = "attachment_name", nullable = false )
     private String attachmentName;
 
+    /**
+     * 申请单的审批状态
+     */
+    @Column(name = "audit_status", nullable = false )
+    private String auditStatus;
+
+    /**
+     * 申请单id
+     */
+    @Column(name = "application_id", nullable = false )
+    private Long applicationId;
+
 }

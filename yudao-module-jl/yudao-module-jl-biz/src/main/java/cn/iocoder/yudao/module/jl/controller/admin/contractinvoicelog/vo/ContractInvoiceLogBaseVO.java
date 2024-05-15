@@ -144,6 +144,15 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "核验人")
     private Long auditId;
 
+    @Schema(description = "申请单的审批状态")
+    private String auditStatus;
+
+    @Schema(description = "申请单id")
+    private Long applicationId;
+
+    @Schema(description = "明细的json")
+    private String itemJsonStr;
+
     private ProjectConstractOnly contract;
 
     private CustomerSimple customer;

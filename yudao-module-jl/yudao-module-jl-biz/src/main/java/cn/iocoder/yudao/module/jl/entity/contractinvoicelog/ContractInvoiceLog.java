@@ -287,6 +287,25 @@ public class ContractInvoiceLog extends BaseEntity {
     @Column(name = "attachment_name", nullable = false )
     private String attachmentName;
 
+    /**
+     * 申请单的审批状态
+     */
+    @Column(name = "audit_status", nullable = false )
+    private String auditStatus;
+
+    /**
+     * 申请单id
+     */
+    @Column(name = "application_id", nullable = false )
+    private Long applicationId;
+
+    /**
+     * 明细json
+     */
+    @Column(name = "item_json_str", nullable = false )
+    private String itemJsonStr;
+
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

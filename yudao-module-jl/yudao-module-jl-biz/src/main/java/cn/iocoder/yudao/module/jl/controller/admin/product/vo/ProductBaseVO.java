@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.product.vo;
 
+import cn.iocoder.yudao.module.jl.entity.productuser.ProductUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -47,6 +48,8 @@ public class ProductBaseVO {
 
     @Schema(description = "实验负责人", example = "12399")
     private Long experId;
+
+    private List<ProductUser> productUserList;
 
     @Schema(description = "信息负责人", example = "2931")
     private Long infoUserId;

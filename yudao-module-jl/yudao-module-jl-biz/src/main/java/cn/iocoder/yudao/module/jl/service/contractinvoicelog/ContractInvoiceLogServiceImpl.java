@@ -182,6 +182,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 }
             }
 
+            if(pageReqVO.getApplicationId() != null) {
+                predicates.add(cb.equal(root.get("applicationId"), pageReqVO.getApplicationId()));
+            }
+
             if(pageReqVO.getContractIds()!=null){
                 predicates.add(root.get("contractId").in(Arrays.stream(pageReqVO.getContractIds()).toArray()));
             }

@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.product;
 
+import cn.iocoder.yudao.module.jl.controller.admin.productuser.vo.ProductUserUpdateReqVO;
 import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
 import cn.iocoder.yudao.module.jl.repository.product.ProductDetailRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import cn.iocoder.yudao.module.jl.service.productuser.ProductUserServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -52,11 +54,26 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
 
+    @Resource
+    private ProductUserServiceImpl productUserService;
+
     @Override
+    @Transactional
     public Long createProduct(ProductCreateReqVO createReqVO) {
         // 插入
         Product product = productMapper.toEntity(createReqVO);
         productRepository.save(product);
+        if(createReqVO.getProductUserList()!=null){
+            ProductUserUpdateReqVO productUserReq = new ProductUserUpdateReqVO();
+            productUserReq.setId(0L);
+            productUserReq.setProductId(product.getId());
+            productUserReq.setUserId(0L);
+            createReqVO.getProductUserList().forEach(item->{
+                item.setProductId(product.getId());
+            });
+            productUserReq.setList(createReqVO.getProductUserList());
+            productUserService.updateProductUser(productUserReq);
+        }
         // 返回
         return product.getId();
     }
@@ -73,6 +90,18 @@ public class ProductServiceImpl implements ProductService {
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         if(updateReqVO.getAttachmentType()!=null){
             commonAttachmentService.saveAttachmentListWithSubType(updateObj.getId(),"JL_PRODUCT",updateReqVO.getAttachmentType(),updateReqVO.getAttachmentList());
+        }
+
+        if(updateReqVO.getProductUserList()!=null){
+            updateReqVO.getProductUserList().forEach(item->{
+                item.setProductId(updateObj.getId());
+            });
+            ProductUserUpdateReqVO productUserReq = new ProductUserUpdateReqVO();
+            productUserReq.setId(0L);
+            productUserReq.setProductId(updateReqVO.getId());
+            productUserReq.setUserId(0L);
+            productUserReq.setList(updateReqVO.getProductUserList());
+            productUserService.updateProductUser(productUserReq);
         }
     }
 

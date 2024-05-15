@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.invoiceapplication;
 
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -42,10 +46,19 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     private InvoiceApplicationMapper invoiceApplicationMapper;
 
     @Override
+    @Transactional
     public Long createInvoiceApplication(InvoiceApplicationCreateReqVO createReqVO) {
         // 插入
         InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(createReqVO);
         invoiceApplicationRepository.save(invoiceApplication);
+
+        if(createReqVO.getContractInvoiceLogList()!=null){
+            //这里有很多id，从前端带过来把
+            for(ContractInvoiceLog contractInvoiceLog : createReqVO.getContractInvoiceLogList()){
+                contractInvoiceLog.setApplicationId(invoiceApplication.getId());
+            }
+        }
+
         // 返回
         return invoiceApplication.getId();
     }
