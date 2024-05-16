@@ -14,22 +14,33 @@ import javax.validation.constraints.*;
 @Data
 public class CrmReceiptHeadBaseVO {
 
-    @Schema(description = "开票类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "开票类型不能为空")
-    private String type;
+
 
     @Schema(description = "开票抬头", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "开票抬头不能为空")
     private String title;
 
-    @Schema(description = "纳税人识别号")
+    @Schema(description = "纳税人识别号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "纳税人识别号不能为空")
     private String taxerNumber;
+
+    @Schema(description = "开户账号", example = "27416", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "开户账号不能为空")
+    private String bankAccount;
+
+    @Schema(description = "寄送地址", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "寄送地址不能为空")
+    private String sendAddress;
+
+    @Schema(description = "开票要求", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "开票要求不能为空")
+    private String require;
+
+    @Schema(description = "开票类型")
+    private String type;
 
     @Schema(description = "开户行", example = "张三")
     private String bankName;
-
-    @Schema(description = "开户账号", example = "27416")
-    private String bankAccount;
 
     @Schema(description = "开票地址")
     private String address;
@@ -37,11 +48,12 @@ public class CrmReceiptHeadBaseVO {
     @Schema(description = "联系电话")
     private String phone;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "9271")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
     @Schema(description = "备注")
     private String mark;
+
+
 
 }

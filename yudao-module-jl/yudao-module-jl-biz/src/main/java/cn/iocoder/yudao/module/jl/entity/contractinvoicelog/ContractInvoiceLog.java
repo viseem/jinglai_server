@@ -306,6 +306,13 @@ public class ContractInvoiceLog extends BaseEntity {
     private String itemJsonStr;
 
 
+    /**
+     * 谁开的票
+     */
+    @Column(name = "from_title", nullable = false )
+    private String fromTitle;
+
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

@@ -86,6 +86,19 @@ public class CrmReceiptHead extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 开票要求
+     */
+    @Column(name = "require")
+    private String require;
+
+    /**
+     * 寄送地址
+     */
+    @Column(name = "send_address")
+    private String sendAddress;
+
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

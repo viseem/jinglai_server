@@ -167,4 +167,10 @@ public class InvoiceApplication extends BaseEntity {
     @Column(name = "audit_name")
     private String auditName;
 
+    /**
+     * 审批意见
+     */
+    @Column(name = "audit_mark")
+    private String auditMark;
+
 }

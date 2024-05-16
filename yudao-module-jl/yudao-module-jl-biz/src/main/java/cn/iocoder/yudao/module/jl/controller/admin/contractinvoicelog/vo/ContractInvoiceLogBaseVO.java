@@ -153,6 +153,9 @@ public class ContractInvoiceLogBaseVO {
     @Schema(description = "明细的json")
     private String itemJsonStr;
 
+    @Schema(description = "谁开的票")
+    private String fromTitle;
+
     private ProjectConstractOnly contract;
 
     private CustomerSimple customer;

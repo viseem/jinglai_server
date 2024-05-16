@@ -89,6 +89,18 @@ public class Institution extends BaseEntity {
     private String billRequest;
 
     /**
+     * 银行账号
+     */
+    @Column(name = "bank_account", nullable = false )
+    private String bankAccount;
+
+    /**
+     * 开户行
+     */
+    @Column(name = "bank_branch", nullable = false )
+    private String bankBranch;
+
+    /**
      * 科室
      */
     @Column(name = "department", nullable = false )

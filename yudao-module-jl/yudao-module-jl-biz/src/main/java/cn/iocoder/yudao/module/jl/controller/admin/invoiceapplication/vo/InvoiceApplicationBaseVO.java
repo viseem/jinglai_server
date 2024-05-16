@@ -26,8 +26,7 @@ public class InvoiceApplicationBaseVO {
     @NotNull(message = "客户不能为空")
     private String customerName;
 
-    @Schema(description = "客户抬头id", requiredMode = Schema.RequiredMode.REQUIRED, example = "29478")
-    @NotNull(message = "客户抬头id不能为空")
+    @Schema(description = "客户抬头id")
     private Long customerInvoiceHeadId;
 
     @Schema(description = "开票要求", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -42,23 +41,19 @@ public class InvoiceApplicationBaseVO {
     @NotNull(message = "税号不能为空")
     private Integer taxNumber;
 
-    @Schema(description = "单位地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "单位地址不能为空")
+    @Schema(description = "单位地址")
     private String address;
 
-    @Schema(description = "寄送地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "寄送地址不能为空")
+    @Schema(description = "寄送地址")
     private String sendAddress;
 
     @Schema(description = "电话")
     private String phone;
 
-    @Schema(description = "开户银行", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
-    @NotNull(message = "开户银行不能为空")
+    @Schema(description = "开户银行", example = "李四")
     private String bankName;
 
-    @Schema(description = "银行账号", requiredMode = Schema.RequiredMode.REQUIRED, example = "27255")
-    @NotNull(message = "银行账号不能为空")
+    @Schema(description = "银行账号")
     private String bankAccount;
 
     @Schema(description = "备注")
@@ -69,7 +64,7 @@ public class InvoiceApplicationBaseVO {
 
     @Schema(description = "发票数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "10062")
     @NotNull(message = "发票数量不能为空")
-    private Integer invoiceCount;
+    private Integer invoiceCount = 0;
 
     @Schema(description = "总金额", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "总金额不能为空")
@@ -77,22 +72,20 @@ public class InvoiceApplicationBaseVO {
 
     @Schema(description = "已开票金额", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "已开票金额不能为空")
-    private BigDecimal invoicedAmount;
+    private BigDecimal invoicedAmount = BigDecimal.ZERO;
 
     @Schema(description = "已到账金额", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "已到账金额不能为空")
-    private BigDecimal receivedAmount;
+    private BigDecimal receivedAmount = BigDecimal.ZERO;
 
     @Schema(description = "已退回金额", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "已退回金额不能为空")
-    private BigDecimal refundedAmount;
+    private BigDecimal refundedAmount = BigDecimal.ZERO;
 
-    @Schema(description = "销售id", requiredMode = Schema.RequiredMode.REQUIRED, example = "11004")
-    @NotNull(message = "销售id不能为空")
+    @Schema(description = "销售id")
     private Long salesId;
 
-    @Schema(description = "销售", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋艿")
-    @NotNull(message = "销售不能为空")
+    @Schema(description = "销售")
     private String salesName;
 
     @Schema(description = "审批人id", example = "22333")
@@ -100,5 +93,8 @@ public class InvoiceApplicationBaseVO {
 
     @Schema(description = "审批人", example = "赵六")
     private String auditName;
+
+    @Schema(description = "审批意见", example = "赵六")
+    private String auditMark;
 
 }

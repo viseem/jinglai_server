@@ -45,6 +45,12 @@ public class InstitutionBaseVO {
     @Schema(description = "发票要求")
     private String billRequest;
 
+    @Schema(description = "银行账号")
+    private String bankAccount;
+
+    @Schema(description = "开户行")
+    private String bankBranch;
+
     @Schema(description = "科室")
     private String department;
 

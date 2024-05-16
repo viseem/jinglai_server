@@ -290,4 +290,9 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     @Column(name = "application_id", nullable = false )
     private Long applicationId;
 
+    /**
+     * 谁开的票
+     */
+    @Column(name = "from_title", nullable = false )
+    private String fromTitle;
 }

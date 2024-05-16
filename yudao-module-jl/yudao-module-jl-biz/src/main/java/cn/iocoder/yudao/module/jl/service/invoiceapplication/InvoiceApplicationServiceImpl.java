@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.invoiceapplication;
 
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -29,6 +31,7 @@ import cn.iocoder.yudao.module.jl.mapper.invoiceapplication.InvoiceApplicationMa
 import cn.iocoder.yudao.module.jl.repository.invoiceapplication.InvoiceApplicationRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -45,16 +48,29 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     @Resource
     private InvoiceApplicationMapper invoiceApplicationMapper;
 
+    @Resource
+    private UserRepository userRepository;
+
     @Override
     @Transactional
     public Long createInvoiceApplication(InvoiceApplicationCreateReqVO createReqVO) {
+
+        // 获取当前登录人，即为销售
+        Optional<User> byId = userRepository.findById(getLoginUserId());
+        if(byId.isEmpty()){
+            throw exception(USER_NOT_EXISTS);
+        }
+        User sales = byId.get();
         // 插入
         InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(createReqVO);
+        invoiceApplication.setSalesId(sales.getId());
+        invoiceApplication.setSalesName(sales.getNickname());
         invoiceApplicationRepository.save(invoiceApplication);
 
         if(createReqVO.getContractInvoiceLogList()!=null){
             //这里有很多id，从前端带过来把
             for(ContractInvoiceLog contractInvoiceLog : createReqVO.getContractInvoiceLogList()){
+                contractInvoiceLog.setSalesId(sales.getId());
                 contractInvoiceLog.setApplicationId(invoiceApplication.getId());
             }
         }
