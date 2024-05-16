@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemSourceEnums;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +20,10 @@ public class ProcurementItemPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+
+    @Schema(description = "项目id", example = "26560")
+    private Long projectId;
+
     @Schema(description = "采购单id", example = "26560")
     private Long procurementId;
 
@@ -30,7 +35,7 @@ public class ProcurementItemPageReqVO extends PageParam {
     private Long projectSupplyId;
 
     @Schema(description = "来源", example = "芋艿")
-    private String source = "采购";
+    private String source = ProcurementItemSourceEnums.PROCUREMENT.getStatus();
 
     @Schema(description = "名称", example = "芋艿")
     private String name;

@@ -14,16 +14,9 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor
-public enum ProcurementItemStatusEnums implements StringArrayValuable {
+public enum ProcurementItemSourceEnums implements StringArrayValuable {
     //申请采购 已批准采购 发起订购 已订购 已发货 部分入库 全部入库
-    CANCEL("0", "取消采购"),
-    APPLY_PROCUREMENT("1", "申请采购"),
-    APPROVE_PROCUREMENT("2", "已批准采购"),
-    INITIATE_ORDER("3", "发起订购"),
-    ORDERED("4", "已订购"),
-//    SHIPPED("5", "已发货"),
-    PART_STORAGE("5", "部分入库"),
-    ALL_STORAGE("6", "全部入库"),
+    PROCUREMENT("采购", "采购"),
     ;
 
     private final String status;

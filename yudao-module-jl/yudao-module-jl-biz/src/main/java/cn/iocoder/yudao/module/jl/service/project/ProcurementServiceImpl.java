@@ -8,10 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.project.*;
-import cn.iocoder.yudao.module.jl.enums.InventoryCheckInTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.InventoryStoreInTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementPaymentMapper;
@@ -197,6 +194,7 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementItem.setProjectId(saveReqVO.getProjectId());
             procurementItem.setCustomerId(projectSimple.getCustomerId());
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
+            procurementItem.setSource(ProcurementItemSourceEnums.PROCUREMENT.getStatus());
             procurementItemRepository.save(procurementItem);
         });
 
