@@ -5,8 +5,11 @@ import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
 import cn.iocoder.yudao.module.jl.repository.product.ProductOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateDetailRepository;
 import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateOnlyRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -56,22 +59,33 @@ public class ProductCateServiceImpl implements ProductCateService {
     @Resource
     private ProductCateDetailRepository productCateDetailRepository;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createProductCate(ProductCateCreateReqVO createReqVO) {
         // 插入
         ProductCateDetail productCate = productCateMapper.toEntityDetail(createReqVO);
         productCateDetailRepository.save(productCate);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(productCate.getId(),"PRODUCT_CATE",createReqVO.getAttachmentList());
         // 返回
         return productCate.getId();
     }
 
     @Override
+    @Transactional
     public void updateProductCate(ProductCateUpdateReqVO updateReqVO) {
         // 校验存在
         validateProductCateExists(updateReqVO.getId());
         // 更新
         ProductCateDetail updateObj = productCateMapper.toEntityDetail(updateReqVO);
         productCateDetailRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"PRODUCT_CATE",updateObj.getAttachmentList());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productcate.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -31,5 +32,8 @@ public class ProductCateBaseVO {
     private Integer sort=100;
 
     private Long parentId=0L;
+
+    private List<CommonAttachment> attachmentList;
+
 
 }

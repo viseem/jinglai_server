@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productcate.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Schema(description = "管理后台 - 产品库分类 Response VO")
@@ -24,4 +26,5 @@ public class ProductCateRespVO extends ProductCateBaseVO {
     private List<ProductCate> childList;
 
     private ProductCate parent;
+
 }
