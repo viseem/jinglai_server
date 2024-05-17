@@ -152,10 +152,16 @@ public class InventoryStoreLog extends BaseEntity {
     private LocalDateTime operateTime;
 
     /**
+     * 操作者id
+     */
+    @Column(name = "operator_id")
+    private Long operatorId;
+
+    /**
      * 级联
      */
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 }

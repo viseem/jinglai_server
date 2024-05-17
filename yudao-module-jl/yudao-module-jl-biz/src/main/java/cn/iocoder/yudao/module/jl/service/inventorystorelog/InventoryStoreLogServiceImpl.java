@@ -36,6 +36,7 @@ import cn.iocoder.yudao.module.jl.mapper.inventorystorelog.InventoryStoreLogMapp
 import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -79,6 +80,10 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         // 录上这些id 很重要
         createReqVO.setProjectSupplyId(procurementItem.getRoomId());
 
+        if(createReqVO.getOperatorId()==null){
+            createReqVO.setOperatorId(getLoginUserId());
+        }
+
         if(procurementItem.getProjectId()!=null){
             createReqVO.setProjectId(procurementItem.getProjectId());
             projectOnlyRepository.findById(procurementItem.getProjectId()).ifPresent(projectOnly -> {
@@ -104,6 +109,11 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
     public void updateInventoryStoreLog(InventoryStoreLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateInventoryStoreLogExists(updateReqVO.getId());
+
+        if(updateReqVO.getOperatorId()==null){
+            updateReqVO.setOperatorId(getLoginUserId());
+        }
+
         // 更新
         InventoryStoreLog updateObj = inventoryStoreLogMapper.toEntity(updateReqVO);
         inventoryStoreLogRepository.save(updateObj);
