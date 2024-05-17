@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.productcate;
 
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateDetail;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateOnly;
 import cn.iocoder.yudao.module.jl.repository.product.ProductOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateDetailRepository;
 import cn.iocoder.yudao.module.jl.repository.productcate.ProductCateOnlyRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -51,11 +53,14 @@ public class ProductCateServiceImpl implements ProductCateService {
     @Resource
     private ProductOnlyRepository productOnlyRepository;
 
+    @Resource
+    private ProductCateDetailRepository productCateDetailRepository;
+
     @Override
     public Long createProductCate(ProductCateCreateReqVO createReqVO) {
         // 插入
-        ProductCate productCate = productCateMapper.toEntity(createReqVO);
-        productCateRepository.save(productCate);
+        ProductCateDetail productCate = productCateMapper.toEntityDetail(createReqVO);
+        productCateDetailRepository.save(productCate);
         // 返回
         return productCate.getId();
     }
@@ -65,8 +70,8 @@ public class ProductCateServiceImpl implements ProductCateService {
         // 校验存在
         validateProductCateExists(updateReqVO.getId());
         // 更新
-        ProductCate updateObj = productCateMapper.toEntity(updateReqVO);
-        productCateRepository.save(updateObj);
+        ProductCateDetail updateObj = productCateMapper.toEntityDetail(updateReqVO);
+        productCateDetailRepository.save(updateObj);
     }
 
     @Override
@@ -90,12 +95,12 @@ public class ProductCateServiceImpl implements ProductCateService {
     }
 
     private void validateProductCateExists(Long id) {
-        productCateRepository.findById(id).orElseThrow(() -> exception(PRODUCT_CATE_NOT_EXISTS));
+        productCateOnlyRepository.findById(id).orElseThrow(() -> exception(PRODUCT_CATE_NOT_EXISTS));
     }
 
     @Override
-    public Optional<ProductCate> getProductCate(Long id) {
-        return productCateRepository.findById(id);
+    public Optional<ProductCateDetail> getProductCate(Long id) {
+        return productCateDetailRepository.findById(id);
     }
 
     @Override

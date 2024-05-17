@@ -22,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "ProductCate")
+@Entity(name = "ProductCateDetail")
 @Table(name = "jl_product_cate")
 @SQLDelete(sql = "UPDATE jl_product_cate SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")

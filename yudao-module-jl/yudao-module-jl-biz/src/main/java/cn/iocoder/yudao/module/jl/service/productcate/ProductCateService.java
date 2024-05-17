@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.productcate.vo.*;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateDetail;
 
 /**
  * 产品库分类 Service 接口
@@ -40,7 +41,7 @@ public interface ProductCateService {
      * @param id 编号
      * @return 产品库分类
      */
-    Optional<ProductCate> getProductCate(Long id);
+    Optional<ProductCateDetail> getProductCate(Long id);
 
     /**
      * 获得产品库分类列表

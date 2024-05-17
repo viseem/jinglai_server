@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.productcate;
 
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateDetail;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -71,7 +72,7 @@ public class ProductCateController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:product-cate:query')")
     public CommonResult<ProductCateRespVO> getProductCate(@RequestParam("id") Long id) {
-            Optional<ProductCate> productCate = productCateService.getProductCate(id);
+            Optional<ProductCateDetail> productCate = productCateService.getProductCate(id);
         return success(productCate.map(productCateMapper::toDto).orElseThrow(() -> exception(PRODUCT_CATE_NOT_EXISTS)));
     }
 

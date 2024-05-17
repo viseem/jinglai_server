@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.productcate.vo.*;
 import cn.iocoder.yudao.module.jl.entity.productcate.ProductCate;
+import cn.iocoder.yudao.module.jl.entity.productcate.ProductCateDetail;
 import org.mapstruct.*;
 
 
@@ -13,8 +14,12 @@ public interface ProductCateMapper {
     ProductCate toEntity(ProductCateCreateReqVO dto);
 
     ProductCate toEntity(ProductCateUpdateReqVO dto);
+    ProductCateDetail toEntityDetail(ProductCateCreateReqVO dto);
+
+    ProductCateDetail toEntityDetail(ProductCateUpdateReqVO dto);
 
     ProductCateRespVO toDto(ProductCate entity);
+    ProductCateRespVO toDto(ProductCateDetail entity);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
