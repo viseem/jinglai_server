@@ -56,7 +56,7 @@ public class InvoiceApplication extends BaseEntity {
     /**
      * 开票要求
      */
-    @Column(name = "require", nullable = false )
+    @Column(name = "`require`", nullable = false )
     private String require;
 
     /**
@@ -69,7 +69,7 @@ public class InvoiceApplication extends BaseEntity {
      * 税号
      */
     @Column(name = "tax_number", nullable = false )
-    private Integer taxNumber;
+    private String taxNumber;
 
     /**
      * 单位地址

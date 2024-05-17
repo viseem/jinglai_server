@@ -2,6 +2,9 @@ package cn.iocoder.yudao.module.jl.service.invoiceapplication;
 
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -51,9 +54,16 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private ContractInvoiceLogRepository contractInvoiceLogRepository;
+
     @Override
     @Transactional
     public Long createInvoiceApplication(InvoiceApplicationCreateReqVO createReqVO) {
+
+        if(createReqVO.getContractInvoiceLogList()==null || createReqVO.getContractInvoiceLogList().isEmpty()){
+            throw exception(CONTRACT_INVOICE_LOG_LIST_EMPTY);
+        }
 
         // 获取当前登录人，即为销售
         Optional<User> byId = userRepository.findById(getLoginUserId());
@@ -65,15 +75,27 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(createReqVO);
         invoiceApplication.setSalesId(sales.getId());
         invoiceApplication.setSalesName(sales.getNickname());
+        invoiceApplication.setInvoiceCount(createReqVO.getContractInvoiceLogList().size());
         invoiceApplicationRepository.save(invoiceApplication);
 
-        if(createReqVO.getContractInvoiceLogList()!=null){
-            //这里有很多id，从前端带过来把
-            for(ContractInvoiceLog contractInvoiceLog : createReqVO.getContractInvoiceLogList()){
-                contractInvoiceLog.setSalesId(sales.getId());
-                contractInvoiceLog.setApplicationId(invoiceApplication.getId());
-            }
+        //这里有很多id，从前端带过来把
+        for(ContractInvoiceLog contractInvoiceLog : createReqVO.getContractInvoiceLogList()){
+            contractInvoiceLog.setTitle(invoiceApplication.getHead());
+            contractInvoiceLog.setTaxerNumber(invoiceApplication.getTaxNumber());
+            contractInvoiceLog.setBankAccount(invoiceApplication.getBankAccount());
+            contractInvoiceLog.setBankName(invoiceApplication.getBankName());
+            contractInvoiceLog.setSendAddress(invoiceApplication.getSendAddress());
+            contractInvoiceLog.setPhone(invoiceApplication.getPhone());
+            contractInvoiceLog.setAddress(invoiceApplication.getAddress());
+
+            contractInvoiceLog.setSalesId(sales.getId());
+            contractInvoiceLog.setApplicationId(invoiceApplication.getId());
+
+            // 设置发票的状态为审批中
+            contractInvoiceLog.setAuditStatus(ContractInvoiceAuditStatusEnums.AUDITING.getStatus());
         }
+        contractInvoiceLogRepository.saveAll(createReqVO.getContractInvoiceLogList());
+
 
         // 返回
         return invoiceApplication.getId();

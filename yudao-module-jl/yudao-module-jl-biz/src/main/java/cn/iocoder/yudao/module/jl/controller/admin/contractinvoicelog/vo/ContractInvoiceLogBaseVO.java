@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -145,7 +146,7 @@ public class ContractInvoiceLogBaseVO {
     private Long auditId;
 
     @Schema(description = "申请单的审批状态")
-    private String auditStatus;
+    private String auditStatus = ContractInvoiceAuditStatusEnums.AUDITING.getStatus();
 
     @Schema(description = "申请单id")
     private Long applicationId;

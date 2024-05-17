@@ -259,7 +259,7 @@ public interface ErrorCodeConstants {
     ErrorCode INVENTORY_STORE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "物品出入库日志不存在");
 
     ErrorCode INVOICE_APPLICATION_NOT_EXISTS = new ErrorCode(1004000000, "开票申请不存在");
-
+    ErrorCode CONTRACT_INVOICE_LOG_LIST_EMPTY = new ErrorCode(1004000000, "发票列表不能为空");
 
 
     // ========== 企业微信模块 ==========

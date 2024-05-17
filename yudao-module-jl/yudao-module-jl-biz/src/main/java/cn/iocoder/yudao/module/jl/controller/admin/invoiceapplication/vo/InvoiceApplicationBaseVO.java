@@ -39,7 +39,7 @@ public class InvoiceApplicationBaseVO {
 
     @Schema(description = "税号", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "税号不能为空")
-    private Integer taxNumber;
+    private String taxNumber;
 
     @Schema(description = "单位地址")
     private String address;

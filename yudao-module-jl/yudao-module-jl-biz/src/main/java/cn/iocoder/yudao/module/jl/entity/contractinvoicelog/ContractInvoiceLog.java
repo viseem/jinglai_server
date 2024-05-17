@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
@@ -291,7 +292,7 @@ public class ContractInvoiceLog extends BaseEntity {
      * 申请单的审批状态
      */
     @Column(name = "audit_status", nullable = false )
-    private String auditStatus;
+    private String auditStatus = ContractInvoiceAuditStatusEnums.AUDITING.getStatus();
 
     /**
      * 申请单id
