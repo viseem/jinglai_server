@@ -260,6 +260,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode INVOICE_APPLICATION_NOT_EXISTS = new ErrorCode(1004000000, "开票申请不存在");
     ErrorCode CONTRACT_INVOICE_LOG_LIST_EMPTY = new ErrorCode(1004000000, "发票列表不能为空");
+    ErrorCode STATUS_OR_AUDIT_MARK_IS_NULL = new ErrorCode(1004000000, "审批状态或审批意见不能为空");
 
 
     // ========== 企业微信模块 ==========

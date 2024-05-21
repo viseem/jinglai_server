@@ -184,6 +184,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
             if(pageReqVO.getApplicationId() != null) {
                 predicates.add(cb.equal(root.get("applicationId"), pageReqVO.getApplicationId()));
+            }else{
+                if(pageReqVO.getAuditStatus() != null) {
+                    predicates.add(cb.equal(root.get("auditStatus"), pageReqVO.getAuditStatus()));
+                }
             }
 
             if(pageReqVO.getContractIds()!=null){
@@ -205,6 +209,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             if(pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
+
+
+
 
 /*            if(pageReqVO.getPriceStatus() != null) {
                 predicates.add(cb.equal(root.get("priceStatus"), pageReqVO.getPriceStatus()));

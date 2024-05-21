@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.invoiceapplication.vo;
 
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -67,7 +68,8 @@ public class InvoiceApplicationBaseVO {
     private Integer invoiceCount = 0;
 
     @Schema(description = "总金额", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "总金额不能为空")
+    @NotNull(message = "发票金额不能为空")
+    @DecimalMin(value = "0", message = "发票金额必须大于0")
     private BigDecimal totalAmount;
 
     @Schema(description = "已开票金额", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -96,5 +98,8 @@ public class InvoiceApplicationBaseVO {
 
     @Schema(description = "审批意见", example = "赵六")
     private String auditMark;
+
+    private List<ContractInvoiceLog> contractInvoiceLogList;
+
 
 }

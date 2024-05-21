@@ -146,7 +146,7 @@ public class ContractInvoiceLogBaseVO {
     private Long auditId;
 
     @Schema(description = "申请单的审批状态")
-    private String auditStatus = ContractInvoiceAuditStatusEnums.AUDITING.getStatus();
+    private String auditStatus;
 
     @Schema(description = "申请单id")
     private Long applicationId;

@@ -64,22 +64,30 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         if(createReqVO.getContractInvoiceLogList()==null || createReqVO.getContractInvoiceLogList().isEmpty()){
             throw exception(CONTRACT_INVOICE_LOG_LIST_EMPTY);
         }
+        InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(createReqVO);
+        List<ContractInvoiceLog> contractInvoiceLogList = createReqVO.getContractInvoiceLogList();
 
+        saveInvoiceApplicationAndInvoiceList(invoiceApplication, contractInvoiceLogList);
+
+        // 返回
+        return invoiceApplication.getId();
+    }
+
+    @Transactional
+    public void saveInvoiceApplicationAndInvoiceList(InvoiceApplication invoiceApplication, List<ContractInvoiceLog> contractInvoiceLogList) {
         // 获取当前登录人，即为销售
         Optional<User> byId = userRepository.findById(getLoginUserId());
         if(byId.isEmpty()){
             throw exception(USER_NOT_EXISTS);
         }
         User sales = byId.get();
-        // 插入
-        InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(createReqVO);
         invoiceApplication.setSalesId(sales.getId());
         invoiceApplication.setSalesName(sales.getNickname());
-        invoiceApplication.setInvoiceCount(createReqVO.getContractInvoiceLogList().size());
+        invoiceApplication.setInvoiceCount(contractInvoiceLogList.size());
         invoiceApplicationRepository.save(invoiceApplication);
 
         //这里有很多id，从前端带过来把
-        for(ContractInvoiceLog contractInvoiceLog : createReqVO.getContractInvoiceLogList()){
+        for(ContractInvoiceLog contractInvoiceLog : contractInvoiceLogList){
             contractInvoiceLog.setTitle(invoiceApplication.getHead());
             contractInvoiceLog.setTaxerNumber(invoiceApplication.getTaxNumber());
             contractInvoiceLog.setBankAccount(invoiceApplication.getBankAccount());
@@ -94,20 +102,41 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             // 设置发票的状态为审批中
             contractInvoiceLog.setAuditStatus(ContractInvoiceAuditStatusEnums.AUDITING.getStatus());
         }
-        contractInvoiceLogRepository.saveAll(createReqVO.getContractInvoiceLogList());
-
-
-        // 返回
-        return invoiceApplication.getId();
+        contractInvoiceLogRepository.saveAll(contractInvoiceLogList);
     }
 
     @Override
+    @Transactional
     public void updateInvoiceApplication(InvoiceApplicationUpdateReqVO updateReqVO) {
+
         // 校验存在
         validateInvoiceApplicationExists(updateReqVO.getId());
+
+        if(updateReqVO.getContractInvoiceLogList()==null || updateReqVO.getContractInvoiceLogList().isEmpty()){
+            throw exception(CONTRACT_INVOICE_LOG_LIST_EMPTY);
+        }
+
         // 更新
-        InvoiceApplication updateObj = invoiceApplicationMapper.toEntity(updateReqVO);
-        invoiceApplicationRepository.save(updateObj);
+        InvoiceApplication invoiceApplication = invoiceApplicationMapper.toEntity(updateReqVO);
+//        invoiceApplicationRepository.save(invoiceApplication);
+        List<ContractInvoiceLog> contractInvoiceLogList = updateReqVO.getContractInvoiceLogList();
+        saveInvoiceApplicationAndInvoiceList(invoiceApplication, contractInvoiceLogList);
+    }
+
+    @Override
+    @Transactional
+    public void updateInvoiceApplicationStatus(InvoiceApplicationUpdateStatusReqVO updateReqVO) {
+        // 获取当前登录人，即为审批人
+        Optional<User> byId = userRepository.findById(getLoginUserId());
+        if(byId.isEmpty()){
+            throw exception(USER_NOT_EXISTS);
+        }
+        invoiceApplicationRepository.updateStatusAndAuditIdAndAuditNameAndAuditMarkById(updateReqVO.getStatus(), getLoginUserId(), byId.get().getNickname(), updateReqVO.getAuditMark(), updateReqVO.getId());
+
+        if(updateReqVO.getStatus().equals(ContractInvoiceAuditStatusEnums.ACCEPT.getStatus())){
+            contractInvoiceLogRepository.updateStatusByApplicationId(ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(), updateReqVO.getId());
+        }
+        contractInvoiceLogRepository.updateAuditStatusByApplicationId(updateReqVO.getStatus(), updateReqVO.getId());
     }
 
     @Override

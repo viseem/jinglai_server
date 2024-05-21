@@ -292,7 +292,7 @@ public class ContractInvoiceLog extends BaseEntity {
      * 申请单的审批状态
      */
     @Column(name = "audit_status", nullable = false )
-    private String auditStatus = ContractInvoiceAuditStatusEnums.AUDITING.getStatus();
+    private String auditStatus;
 
     /**
      * 申请单id

@@ -12,5 +12,4 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class InvoiceApplicationCreateReqVO extends InvoiceApplicationBaseVO {
 
-    private List<ContractInvoiceLog> contractInvoiceLogList;
 }

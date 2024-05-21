@@ -28,6 +28,14 @@ public interface InvoiceApplicationService {
     void updateInvoiceApplication(@Valid InvoiceApplicationUpdateReqVO updateReqVO);
 
     /**
+     * 更新开票申请状态
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateInvoiceApplicationStatus(@Valid InvoiceApplicationUpdateStatusReqVO updateReqVO);
+
+
+    /**
      * 删除开票申请
      *
      * @param id 编号

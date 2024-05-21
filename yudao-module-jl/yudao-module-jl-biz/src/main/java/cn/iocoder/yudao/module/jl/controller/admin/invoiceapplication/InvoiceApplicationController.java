@@ -57,6 +57,14 @@ public class InvoiceApplicationController {
         return success(true);
     }
 
+    @PutMapping("/update-status")
+    @Operation(summary = "更新开票申请")
+    @PreAuthorize("@ss.hasPermission('jl:invoice-application:update')")
+    public CommonResult<Boolean> updateInvoiceApplicationStatus(@Valid @RequestBody InvoiceApplicationUpdateStatusReqVO updateReqVO) {
+        invoiceApplicationService.updateInvoiceApplicationStatus(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除开票申请")
     @Parameter(name = "id", description = "编号", required = true)

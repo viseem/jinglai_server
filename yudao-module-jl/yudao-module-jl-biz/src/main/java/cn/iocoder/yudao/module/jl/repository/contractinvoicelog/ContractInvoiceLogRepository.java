@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.repository.contractinvoicelog;
 
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +12,14 @@ import java.util.List;
 *
 */
 public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvoiceLog, Long>, JpaSpecificationExecutor<ContractInvoiceLog> {
+    @Transactional
+    @Modifying
+    @Query("update ContractInvoiceLog c set c.status = ?1 where c.applicationId = ?2")
+    int updateStatusByApplicationId(String status, Long applicationId);
+    @Transactional
+    @Modifying
+    @Query("update ContractInvoiceLog c set c.auditStatus = ?1 where c.applicationId = ?2")
+    int updateAuditStatusByApplicationId(String auditStatus, Long applicationId);
     @Query("select c from ContractInvoiceLog c where c.projectId = ?1")
     List<ContractInvoiceLog> findByProjectId(Long projectId);
     @Query("select c from ContractInvoiceLog c where c.customerId = ?1")
