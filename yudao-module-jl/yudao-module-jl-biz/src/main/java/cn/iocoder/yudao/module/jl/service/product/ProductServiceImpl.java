@@ -2,7 +2,10 @@ package cn.iocoder.yudao.module.jl.service.product;
 
 import cn.iocoder.yudao.module.jl.controller.admin.productuser.vo.ProductUserUpdateReqVO;
 import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
+import cn.iocoder.yudao.module.jl.entity.productuser.ProductUserOnly;
 import cn.iocoder.yudao.module.jl.repository.product.ProductDetailRepository;
+import cn.iocoder.yudao.module.jl.repository.productuser.ProductUserOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.productuser.ProductUserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.productuser.ProductUserServiceImpl;
 import org.springframework.stereotype.Service;
@@ -56,6 +59,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     private ProductUserServiceImpl productUserService;
+
+    @Resource
+    private ProductUserOnlyRepository productUserOnlyRepository;
 
     @Override
     @Transactional
@@ -145,6 +151,18 @@ public class ProductServiceImpl implements ProductService {
                 predicates.add(cb.or(cb.like(root.get("name"), "%" + pageReqVO.getNameKey() + "%"),
                         cb.like(root.get("nameEn"), "%" + pageReqVO.getNameKey() + "%"),
                         cb.like(root.get("nameShort"), "%" + pageReqVO.getNameKey() + "%")));
+            }
+
+            if(pageReqVO.getGoodAtUserId() != null) {
+                System.out.println("-=-=-==-");
+                List<ProductUserOnly> productUsers = productUserOnlyRepository.findByUserId(pageReqVO.getGoodAtUserId());
+                List<Long> productIds = productUsers.stream().map(ProductUserOnly::getProductId).collect(Collectors.toList());
+                if(!productIds.isEmpty()){
+                    predicates.add(root.get("id").in(productIds));
+                }else{
+                    predicates.add(cb.equal(root.get("id"), 0));
+                }
+
             }
 
             if(pageReqVO.getName() != null) {
