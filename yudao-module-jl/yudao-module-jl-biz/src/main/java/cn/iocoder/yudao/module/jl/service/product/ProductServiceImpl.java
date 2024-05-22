@@ -154,7 +154,6 @@ public class ProductServiceImpl implements ProductService {
             }
 
             if(pageReqVO.getGoodAtUserId() != null) {
-                System.out.println("-=-=-==-");
                 List<ProductUserOnly> productUsers = productUserOnlyRepository.findByUserId(pageReqVO.getGoodAtUserId());
                 List<Long> productIds = productUsers.stream().map(ProductUserOnly::getProductId).collect(Collectors.toList());
                 if(!productIds.isEmpty()){
