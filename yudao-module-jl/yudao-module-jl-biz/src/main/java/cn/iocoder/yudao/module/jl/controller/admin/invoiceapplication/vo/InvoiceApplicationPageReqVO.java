@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.invoiceapplication.vo;
 
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class InvoiceApplicationPageReqVO extends PageParam {
+
+    @Schema(description = "归属：ALL MY SUB")
+    private String attribute;
 
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

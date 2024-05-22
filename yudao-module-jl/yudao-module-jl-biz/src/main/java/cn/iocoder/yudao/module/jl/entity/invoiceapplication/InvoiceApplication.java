@@ -7,6 +7,9 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
@@ -16,7 +19,6 @@ import java.math.BigDecimal;
 
 /**
  * 开票申请 Entity
- *
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,6 +27,8 @@ import java.math.BigDecimal;
 @Entity(name = "InvoiceApplication")
 @Table(name = "jl_invoice_application")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@SQLDelete(sql = "UPDATE jl_invoice_application SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class InvoiceApplication extends BaseEntity {
 
     /**

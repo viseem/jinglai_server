@@ -4,8 +4,10 @@ import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -57,6 +59,9 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
+
     @Override
     @Transactional
     public Long createInvoiceApplication(InvoiceApplicationCreateReqVO createReqVO) {
@@ -75,14 +80,19 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
 
     @Transactional
     public void saveInvoiceApplicationAndInvoiceList(InvoiceApplication invoiceApplication, List<ContractInvoiceLog> contractInvoiceLogList) {
-        // 获取当前登录人，即为销售
-        Optional<User> byId = userRepository.findById(getLoginUserId());
-        if(byId.isEmpty()){
-            throw exception(USER_NOT_EXISTS);
+        Long salesId = null;
+        if(invoiceApplication.getId()==null){
+            salesId=getLoginUserId();
+            // 获取当前登录人，即为销售
+            Optional<User> byId = userRepository.findById(getLoginUserId());
+            if(byId.isEmpty()){
+                throw exception(USER_NOT_EXISTS);
+            }
+            User sales = byId.get();
+
+            invoiceApplication.setSalesId(sales.getId());
+            invoiceApplication.setSalesName(sales.getNickname());
         }
-        User sales = byId.get();
-        invoiceApplication.setSalesId(sales.getId());
-        invoiceApplication.setSalesName(sales.getNickname());
         invoiceApplication.setInvoiceCount(contractInvoiceLogList.size());
         invoiceApplicationRepository.save(invoiceApplication);
 
@@ -95,8 +105,9 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             contractInvoiceLog.setSendAddress(invoiceApplication.getSendAddress());
             contractInvoiceLog.setPhone(invoiceApplication.getPhone());
             contractInvoiceLog.setAddress(invoiceApplication.getAddress());
-
-            contractInvoiceLog.setSalesId(sales.getId());
+            if(salesId!=null){
+                contractInvoiceLog.setSalesId(salesId);
+            }
             contractInvoiceLog.setApplicationId(invoiceApplication.getId());
 
             // 设置发票的状态为审批中
@@ -173,6 +184,12 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         // 创建 Specification
         Specification<InvoiceApplication> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            //如果不是any，则都是in查询
+            if(pageReqVO.getAttribute()!=null&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+            }
 
             if(pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
@@ -381,6 +398,8 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order( Sort.Direction.DESC, "id"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

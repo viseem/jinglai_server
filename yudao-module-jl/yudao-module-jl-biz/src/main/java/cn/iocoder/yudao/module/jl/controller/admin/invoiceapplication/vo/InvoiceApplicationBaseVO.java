@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.invoiceapplication.vo;
 
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -61,7 +62,7 @@ public class InvoiceApplicationBaseVO {
     private String mark;
 
     @Schema(description = "状态", example = "1")
-    private String status;
+    private String status = ContractInvoiceAuditStatusEnums.AUDITING.getStatus();
 
     @Schema(description = "发票数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "10062")
     @NotNull(message = "发票数量不能为空")
