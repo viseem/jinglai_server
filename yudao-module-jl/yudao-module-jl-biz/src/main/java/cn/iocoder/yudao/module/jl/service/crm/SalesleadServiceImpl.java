@@ -246,6 +246,13 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Transactional
     public Integer saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
+        // 如果managerId是-1，则说明是主动报价
+        if(updateReqVO.getManagerId()!=null&&updateReqVO.getManagerId().equals(-1L)){
+            updateReqVO.setManagerId(getLoginUserId());
+            updateReqVO.setQuotationVersionMark("主动报价");
+            updateReqVO.setQuotationMark("主动报价");
+        }
+
         if(updateReqVO.getId() != null) {
             // 校验存在
             Saleslead saleslead = validateSalesleadExists(updateReqVO.getId());
@@ -315,7 +322,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                     projectQuotation.setProjectId(updateReqVO.getProjectId());
                     projectQuotation.setCustomerId(updateReqVO.getCustomerId());
                     projectQuotation.setCode("v1");
-                    projectQuotation.setMark("默认报价");
+                    projectQuotation.setMark(updateReqVO.getQuotationVersionMark()!=null?updateReqVO.getQuotationVersionMark():"默认报价");
                     quotation=projectQuotationRepository.save(projectQuotation);
                 }else{
                     quotation = quotations.get(0);
@@ -548,7 +555,9 @@ public class SalesleadServiceImpl implements SalesleadService {
                             }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
                                 Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                                 pageReqVO.setCreators(users);
-                                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                                Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
+                                // 或者条件
+                                predicates.add(cb.or(root.get("creator").in(ids),root.get("managerId").in(ids)));
                             }
                         }
 

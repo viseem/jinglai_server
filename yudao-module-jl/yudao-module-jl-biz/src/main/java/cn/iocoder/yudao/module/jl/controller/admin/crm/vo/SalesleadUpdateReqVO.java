@@ -56,4 +56,7 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
     @Schema(description = "对方公司名称")
     private String contractCompanyName;
 
+
+    private String quotationVersionMark = "默认报价";
+
 }
