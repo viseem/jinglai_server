@@ -15,6 +15,14 @@ import java.util.Optional;
 public interface ProjectQuotationRepository extends JpaRepository<ProjectQuotation, Long>, JpaSpecificationExecutor<ProjectQuotation> {
     @Transactional
     @Modifying
+    @Query("update ProjectQuotation p set p.auditProcessId = ?1, p.auditStatus = ?2 where p.id = ?3")
+    int updateAuditProcessIdAndAuditStatusById(String auditProcessId, String auditStatus, Long id);
+    @Transactional
+    @Modifying
+    @Query("update ProjectQuotation p set p.auditStatus = ?1, p.auditMark = ?2 where p.id = ?3")
+    int updateQuotationAuditStatusAndQuotationAuditMarkById(String quotationAuditStatus, String quotationAuditMark, Long id);
+    @Transactional
+    @Modifying
     @Query("update ProjectQuotation p set p.supplyDiscount = ?1 where p.id = ?2")
     int updateSupplyDiscountById(BigDecimal supplyDiscount, Long id);
     @Transactional

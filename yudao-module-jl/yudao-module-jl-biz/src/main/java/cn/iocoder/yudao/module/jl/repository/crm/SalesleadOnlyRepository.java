@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 *
 */
 public interface SalesleadOnlyRepository extends JpaRepository<SalesleadOnly, Long>, JpaSpecificationExecutor<SalesleadOnly> {
+    @Transactional
+    @Modifying
+    @Query("update SalesleadOnly s set s.quotationAuditStatus = ?1, s.quotationAuditMark = ?2 where s.id = ?3")
+    int updateQuotationAuditStatusAndQuotationAuditMarkById(String quotationAuditStatus, String quotationAuditMark, Long id);
     @Query("select count(s) from SalesleadOnly s where s.managerId = ?1 and s.quotation > ?2")
     int countByManagerIdAndQuotationGreaterThan(Long managerId, Long quotation);
 

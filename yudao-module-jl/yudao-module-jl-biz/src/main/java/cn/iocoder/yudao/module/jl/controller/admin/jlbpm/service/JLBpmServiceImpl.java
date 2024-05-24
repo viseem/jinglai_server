@@ -7,13 +7,19 @@ import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnRe
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.PurchaseContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.purchasecontract.PurchaseContractRepository;
+import cn.iocoder.yudao.module.jl.service.crm.SalesleadServiceImpl;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.Objects;
+import java.util.Optional;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
@@ -52,6 +59,15 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
 
+    @Resource
+    private SalesleadOnlyRepository salesleadOnlyRepository;
+
+    @Resource
+    private SalesleadServiceImpl salesleadServiceImpl;
+
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
     @Override
     @Transactional
     public void approveTask(JLBpmTaskReqVO approveReqVO) {
@@ -60,6 +76,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
+        // 采购
         if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
             if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
                 throw exception(BPM_PARAMS_ERROR);
@@ -70,6 +87,7 @@ public class JLBpmServiceImpl implements JLBpmService {
             }
         }
 
+        // 购销合同
         if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
             if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
                 throw exception(BPM_PARAMS_ERROR);
@@ -80,10 +98,41 @@ public class JLBpmServiceImpl implements JLBpmService {
             }
         }
 
+        // 商机报价审核
+        if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
+            if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
+                throw exception(BPM_PARAMS_ERROR);
+            }
+            processQuotationStatus(approveReqVO.getTaskStatus(),approveReqVO.getReason(), approveReqVO.getRefId());
+
+        }
+
         BpmTaskApproveReqVO bpmTaskApproveReqVO = new BpmTaskApproveReqVO();
         bpmTaskApproveReqVO.setId(approveReqVO.getId());
         bpmTaskApproveReqVO.setReason(approveReqVO.getReason());
         taskService.approveTask(getLoginUserId(), bpmTaskApproveReqVO);
+    }
+
+    @Transactional
+    public void processQuotationStatus(String taskStatus,String reason, Long quotationId) {
+        Optional<ProjectQuotation> byId = projectQuotationRepository.findById(quotationId);
+        if(byId.isPresent()){
+            Optional<SalesleadOnly> byId1 = salesleadOnlyRepository.findById(byId.get().getSalesleadId());
+            if(byId1.isPresent()){
+                SalesleadOnly salesleadOnly = byId1.get();
+                // 如果商机是当前报价的商机，则更新商机的报价审核状态
+                if(Objects.equals(salesleadOnly.getCurrentQuotationId(), quotationId)){
+                    salesleadOnlyRepository.updateQuotationAuditStatusAndQuotationAuditMarkById(taskStatus, reason,salesleadOnly.getId());
+                }
+
+                // 如果都审核通过了，则发送商机报价消息
+                if(Objects.equals(taskStatus,QuotationAuditStatusEnums.ACCEPT.getStatus())){
+                    salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(salesleadOnly.getId());
+                }
+            }
+            projectQuotationRepository.updateQuotationAuditStatusAndQuotationAuditMarkById(taskStatus, reason, quotationId);
+
+        }
     }
 
     @Override
@@ -133,6 +182,15 @@ public class JLBpmServiceImpl implements JLBpmService {
                 throw exception(BPM_PARAMS_ERROR);
             }
             purchaseContractRepository.updateStatusById(PurchaseContractStatusEnums.REJECT.getStatus(), reqVO.getRefId());
+        }
+
+        // 商机报价审核
+        if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
+            if (reqVO.getRefId() == null) {
+                throw exception(BPM_PARAMS_ERROR);
+            }
+            processQuotationStatus(QuotationAuditStatusEnums.REJECT.getStatus(),reqVO.getReason(), reqVO.getRefId());
+
         }
 
         taskService.rejectTask(getLoginUserId(), reqVO);

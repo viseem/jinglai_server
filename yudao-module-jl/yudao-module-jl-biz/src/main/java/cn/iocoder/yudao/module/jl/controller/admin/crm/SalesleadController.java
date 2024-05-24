@@ -87,6 +87,9 @@ public class SalesleadController {
         salesleadService.updateSaleslead(updateReqVO);
         return success(true);
     }
+
+
+
     @PutMapping("/update-quotation-mark")
     @Operation(summary = "保存销售线索")
     @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
@@ -108,7 +111,6 @@ public class SalesleadController {
         templateParams.put("salesName", userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
         templateParams.put("customerName", "");
         templateParams.put("mark", "指派说明："+updateReqVO.getAssignMark());
-        System.out.println("---"+templateParams);
         //发给商机的报价负责人
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 updateReqVO.getManagerId(),

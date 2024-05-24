@@ -84,4 +84,16 @@ public class SalesleadBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime lastFollowTime;
 
+    @Schema(description = "报价审批状态")
+    private String quotationAuditStatus;
+
+    @Schema(description = "报价审批备注")
+    private String quotationAuditMark;
+
+    @Schema(description = "报价审批id")
+    private String quotationProcessId;
+
+    @Schema(description = "当前报价id")
+    private String currentQuotationId;
+
 }

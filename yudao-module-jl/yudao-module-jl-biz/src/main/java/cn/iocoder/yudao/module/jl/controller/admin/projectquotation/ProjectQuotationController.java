@@ -2,9 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 
 import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellWriterHandler;
 import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLCustomMergeStrategy;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectReimburse;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
-import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -56,6 +54,14 @@ public class ProjectQuotationController {
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:create')")
     public CommonResult<Long> createProjectQuotation(@Valid @RequestBody ProjectQuotationCreateReqVO createReqVO) {
         return success(projectQuotationService.createProjectQuotation(createReqVO));
+    }
+
+    @PutMapping("/quotation-audit")
+    @Operation(summary = "保存销售线索")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:update')")
+    public CommonResult<String> quotationAudit(@Valid @RequestBody ProjectQuotationAuditReqVO updateReqVO) {
+        String s = projectQuotationService.quotationAudit(updateReqVO);
+        return success(s);
     }
 
     @PutMapping("/update")

@@ -122,6 +122,30 @@ public class ProjectQuotation extends BaseEntity {
     @Column(name = "delivery_standard")
     private String deliveryStandard;
 
+    /**
+     * 报价审批状态
+     */
+    @Column(name = "audit_status")
+    private String auditStatus;
+
+    /**
+     * 报价审批备注
+     */
+    @Column(name = "audit_mark")
+    private String auditMark;
+
+    /**
+     * 报价审批id
+     */
+    @Column(name = "audit_process_id")
+    private String auditProcessId;
+
+    /**
+     * 商机id
+     */
+    @Column(name = "saleslead_id")
+    private Long salesleadId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

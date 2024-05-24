@@ -162,6 +162,30 @@ public class SalesleadOnly extends BaseEntity {
     @Column(name = "last_followup_id")
     private Long lastFollowUpId;
 
+    /**
+     * 报价审批状态
+     */
+    @Column(name = "quotation_audit_status")
+    private String quotationAuditStatus;
+
+    /**
+     * 报价审批备注
+     */
+    @Column(name = "quotation_audit_mark")
+    private String quotationAuditMark;
+
+    /**
+     * 报价审批id
+     */
+    @Column(name = "quotation_process_id")
+    private String quotationProcessId;
+
+    /**
+     * 当前报价id
+     */
+    @Column(name = "current_quotation_id")
+    private Long currentQuotationId;
+
 
     // 客户姓名
     @Transient

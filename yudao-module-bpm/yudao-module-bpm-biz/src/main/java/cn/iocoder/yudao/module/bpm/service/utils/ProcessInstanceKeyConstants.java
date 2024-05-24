@@ -9,6 +9,7 @@ public class ProcessInstanceKeyConstants {
 
     public static final String OFFICE_PROCUREMENT_AUDIT = "OFFICE_PROCUREMENT_AUDIT";
 
+    public static final String QUOTATION_AUDIT = "QUOTATION_AUDIT";
 
 
 }

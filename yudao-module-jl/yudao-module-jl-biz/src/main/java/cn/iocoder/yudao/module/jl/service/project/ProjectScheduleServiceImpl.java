@@ -675,7 +675,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     }
 
-    // 完成报价
+    // 完成报价 在用
     @Override
     @Transactional
     public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO) {
@@ -685,17 +685,15 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
         projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+        salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesId());
+        //完成报价 发给商机的销售
 
-        //发送通知
-        //发送站内通知
-        Map<String, Object> templateParams = new HashMap<>();
-//        templateParams.put("processInstanceName", reqDTO.getProcessInstanceName());
+        /*Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("id", updateReqVO.getSalesleadId());
-        //发给商机的销售
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 updateReqVO.getSalesId(),
                 BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
-        ));
+        ));*/
         return null;
     }
 

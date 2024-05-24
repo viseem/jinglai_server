@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -150,26 +151,44 @@ public class Saleslead extends BaseEntity {
     @Column(name = "quotation_create_time")
     private LocalDateTime quotationCreateTime;
 
-
     /**
      * 报价最近更新时间
      */
     @Column(name = "quotation_update_time")
     private LocalDateTime quotationUpdateTime;
 
+    @Column(name = "last_followup_id")
+    private Long lastFollowUpId;
+
+    /**
+     * 报价审批状态
+     */
+    @Column(name = "quotation_audit_status")
+    private String quotationAuditStatus;
+
+    /**
+     * 报价审批备注
+     */
+    @Column(name = "quotation_audit_mark")
+    private String quotationAuditMark;
+
+    /**
+     * 报价审批id
+     */
+    @Column(name = "quotation_process_id")
+    private String quotationProcessId;
+
+    /**
+     * 当前报价id
+     */
+    @Column(name = "current_quotation_id")
+    private Long currentQuotationId;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "manager_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User manager;
-
-    @OneToOne(fetch = FetchType.EAGER, optional=true)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name="quotation", referencedColumnName="id", insertable = false, updatable = false)
-    private ProjectQuote quote;
-
-    @Column(name = "last_followup_id")
-    private Long lastFollowUpId;
 
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
@@ -181,7 +200,14 @@ public class Saleslead extends BaseEntity {
     @JoinColumn(name = "project_id", referencedColumnName="id", insertable = false, updatable = false)
     private ProjectSimple project;
 
-    @OneToMany
+
+/*    @OneToOne(fetch = FetchType.EAGER, optional=true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name="quotation", referencedColumnName="id", insertable = false, updatable = false)
+    private ProjectQuote quote;*/
+
+
+/*    @OneToMany
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
     private List<SalesleadCompetitor> competitorQuotations;
@@ -189,7 +215,7 @@ public class Saleslead extends BaseEntity {
     @OneToMany
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
-    private List<SalesleadCustomerPlan> customerPlans;
+    private List<SalesleadCustomerPlan> customerPlans;*/
 
     // 客户姓名
     @Transient

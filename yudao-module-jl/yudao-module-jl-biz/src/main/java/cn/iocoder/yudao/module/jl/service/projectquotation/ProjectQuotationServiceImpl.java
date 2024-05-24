@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.projectquotation;
 
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ScheduleSaveSupplyAndChargeItemReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
@@ -7,6 +10,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
@@ -31,10 +35,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.*;
@@ -45,6 +46,8 @@ import cn.iocoder.yudao.module.jl.mapper.projectquotation.ProjectQuotationMapper
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.QUOTATION_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -83,10 +86,14 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
 
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
+
 
     @Override
     public Long createProjectQuotation(ProjectQuotationCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setAuditStatus(null);
         ProjectQuotation projectQuotation = projectQuotationMapper.toEntity(createReqVO);
         projectQuotationRepository.save(projectQuotation);
         // 返回
@@ -123,12 +130,16 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
             updateReqVO.setCode("默认");
         }
+        updateReqVO.setSalesleadId(projectSimple.getSalesleadId());
+
+
         ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
         ProjectQuotation save = projectQuotationRepository.save(updateObj);
 
         // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
         if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
             projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
+            salesleadRepository.updateCurrentQuotationIdById(save.getId(),projectSimple.getSalesleadId());
         }
 
         ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
@@ -179,48 +190,23 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeByProjectId(updateReqVO.getQuotationAmount(),LocalDateTime.now(),LocalDateTime.now(),updateReqVO.getProjectId());
     }
 
-    public void saveProjectQuotationBk(ProjectQuotationSaveReqVO updateReqVO) {
+    @Override
+    @Transactional
+    public String quotationAudit(ProjectQuotationAuditReqVO reqVO){
+        // 发起 BPM 流程
+        Map<String, Object> processInstanceVariables = new HashMap<>();
+        String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(QUOTATION_AUDIT)
+                        .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(reqVO.getId())));
 
-        ProjectSimple projectSimple = projectService.validateProjectExists(updateReqVO.getProjectId());
-        updateReqVO.setCustomerId(projectSimple.getCustomerId());
+        projectQuotationRepository.updateAuditProcessIdAndAuditStatusById(processInstanceId, QuotationAuditStatusEnums.AUDITING.getStatus(), reqVO.getId());
 
-        if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
-            updateReqVO.setCode("默认");
-        }
-        ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
-        ProjectQuotation save = projectQuotationRepository.save(updateObj);
+//        salesleadRepository.updateQuotationProcessIdAndQuotationAuditStatusById(
+//                processInstanceId, QuotationAuditStatusEnums.AUDITING.getStatus(), reqVO.getId());
 
-        // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
-        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
-            projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
-        }
-
-        ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
-        saveReqVO.setProjectId(save.getProjectId());
-        saveReqVO.setSupplyList(updateReqVO.getSupplyList());
-        saveReqVO.setChargeList(updateReqVO.getChargeList());
-        saveReqVO.setProjectCategoryType("only");
-        saveReqVO.setProjectQuotationId(save.getId());
-        if(updateReqVO.getCategoryList()!=null&& !updateReqVO.getCategoryList().isEmpty()){
-            for (ProjectCategoryQuotationVO projectCategory : updateReqVO.getCategoryList()) {
-                if(projectCategory.getIsOld()){
-                    projectCategory.setOriginId(projectCategory.getId());
-                    projectCategory.setId(null);
-                }
-                projectCategory.setQuotationId(saveReqVO.getProjectQuotationId());
-                ProjectCategory save1 = projectCategoryRepository.save(projectCategoryMapper.toEntity(projectCategory));
-                projectCategory.setId(save1.getId());
-            }
-//            projectCategoryRepository.saveAll(projectCategoryMapper.toEntityQuotation(updateReqVO.getCategoryList()));
-        }
-        saveReqVO.setCategoryList(updateReqVO.getCategoryList());
-
-        projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
-
-        //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
-        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
-
+        return processInstanceId;
     }
+
 
     @Override
     public void saveProjectQuotationBaseInfo(ProjectQuotationSaveReqVO updateReqVO){

@@ -66,4 +66,15 @@ public class ProjectQuotationBaseVO {
     @Schema(description = "交付标准")
     private String deliveryStandard;
 
+    @Schema(description = "报价审批状态")
+    private String auditStatus;
+
+    @Schema(description = "报价审批备注")
+    private String auditMark;
+
+    @Schema(description = "报价审批id")
+    private String auditProcessId;
+
+    @Schema(description = "商机id")
+    private Long salesleadId;
 }

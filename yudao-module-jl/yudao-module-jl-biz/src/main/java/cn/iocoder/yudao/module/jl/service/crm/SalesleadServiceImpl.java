@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
+import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
@@ -56,6 +58,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.QUOTATION_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -128,6 +131,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private SubjectGroupMemberServiceImpl subjectGroupMemberService;
+
+    @Resource
+    private BpmProcessInstanceApi processInstanceApi;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -242,6 +248,8 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     }
 
+
+
     @Override
     @Transactional
     public Integer saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
@@ -319,6 +327,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 ProjectQuotation quotation;
                 if (quotations==null|| quotations.isEmpty() || quotations.get(0)==null) {
                     ProjectQuotation projectQuotation = new ProjectQuotation();
+                    projectQuotation.setSalesleadId(salesleadId);
                     projectQuotation.setProjectId(updateReqVO.getProjectId());
                     projectQuotation.setCustomerId(updateReqVO.getCustomerId());
                     projectQuotation.setCode("v1");
@@ -328,7 +337,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                     quotation = quotations.get(0);
                 }
                 projectRepository.updateCurrentQuotationIdById(quotation.getId(), updateReqVO.getProjectId());
-
+                salesleadRepository.updateCurrentQuotationIdById(quotation.getId(), salesleadId);
             }
 
             //如果是转项目
@@ -424,15 +433,13 @@ public class SalesleadServiceImpl implements SalesleadService {
             salesleadCustomerPlanRepository.saveAll(plans);
         }
 
-        // 发送通知
+        // 如果是申请报价  则发送申请报价的通知
         if(updateReqVO.getIsQuotation()!=null&&updateReqVO.getIsQuotation()){
             Map<String, Object> templateParams = new HashMap<>();
             templateParams.put("id", updateReqVO.getId());
             templateParams.put("salesName", userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
             templateParams.put("customerName", customer.getName());
             templateParams.put("mark", updateReqVO.getQuotationMark()!=null?"说明："+updateReqVO.getQuotationMark():"");
-
-            //发给商机的报价负责人
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     updateReqVO.getManagerId(),
                     BpmMessageEnum.NOTIFY_WHEN_QUOTATION.getTemplateCode(), templateParams
@@ -443,6 +450,15 @@ public class SalesleadServiceImpl implements SalesleadService {
         //设置customer updateLastSalesleadIdById
         customerRepository.updateLastSalesleadIdById(updateReqVO.getCustomerId(),saleleadsObj.getId());
         return 1;
+    }
+
+    public void sendNotifyWhenQuotationedBySalesleadId(Long salesleadId){
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("id", salesleadId);
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                salesleadId,
+                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
+        ));
     }
 
     @Override
