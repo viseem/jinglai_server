@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLCustomMergeStr
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import oracle.jdbc.proxy.annotation.Post;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -55,6 +56,15 @@ public class ProjectQuotationController {
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:create')")
     public CommonResult<Long> createProjectQuotation(@Valid @RequestBody ProjectQuotationCreateReqVO createReqVO) {
         return success(projectQuotationService.createProjectQuotation(createReqVO));
+    }
+
+    @PostMapping("/change-version")
+    @Operation(summary = "切换版本")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Boolean> changeVersion(@RequestParam("id") Long id) {
+        projectQuotationService.changeVersion(id);
+        return success(true);
     }
 
     // 在用

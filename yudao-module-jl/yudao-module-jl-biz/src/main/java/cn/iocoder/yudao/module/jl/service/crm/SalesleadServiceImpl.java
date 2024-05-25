@@ -465,7 +465,6 @@ public class SalesleadServiceImpl implements SalesleadService {
         Saleslead saleslead = validateSalesleadExists(salesleadId);
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("id", salesleadId);
-
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                 saleslead.getCreator(),
                 BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams

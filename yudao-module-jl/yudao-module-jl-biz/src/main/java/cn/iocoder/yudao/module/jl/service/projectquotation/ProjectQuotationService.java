@@ -72,6 +72,8 @@ public interface ProjectQuotationService {
      */
     Optional<ProjectQuotation> getProjectQuotation(Long id);
 
+    void changeVersion(Long id);
+
     /**
      * 获得项目报价列表
      *
