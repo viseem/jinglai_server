@@ -75,37 +75,33 @@ public class JLBpmServiceImpl implements JLBpmService {
         ProcessInstance instance = taskService.getProcessInstanceByTaskId(approveReqVO.getId());
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
+        if (approveReqVO.getRefId() != null && approveReqVO.getTaskStatus() != null) {
+            // 采购
+            if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
 
-        // 采购
-        if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
-            if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
-                throw exception(BPM_PARAMS_ERROR);
+                procurementRepository.updateStatusById(approveReqVO.getRefId(), approveReqVO.getTaskStatus());
+                if (Objects.equals(approveReqVO.getTaskStatus(), ProcurementStatusEnums.APPROVE.getStatus())) {
+                    procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), approveReqVO.getRefId());
+                }
             }
-            procurementRepository.updateStatusById(approveReqVO.getRefId(), approveReqVO.getTaskStatus());
-            if (Objects.equals(approveReqVO.getTaskStatus(), ProcurementStatusEnums.APPROVE.getStatus())) {
-                procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), approveReqVO.getRefId());
+
+            // 购销合同
+            if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
+
+                purchaseContractRepository.updateStatusById(approveReqVO.getTaskStatus(), approveReqVO.getRefId());
+                if (Objects.equals(approveReqVO.getTaskStatus(), PurchaseContractStatusEnums.APPROVE.getStatus())) {
+                    procurementItemRepository.updateStatusByPurchaseContractId(ProcurementItemStatusEnums.ORDERED.getStatus(), approveReqVO.getRefId());
+                }
+            }
+
+            // 商机报价审核
+            if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
+
+                processQuotationStatus(approveReqVO.getTaskStatus(),approveReqVO.getReason(), approveReqVO.getRefId());
+
             }
         }
 
-        // 购销合同
-        if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
-            if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
-                throw exception(BPM_PARAMS_ERROR);
-            }
-            purchaseContractRepository.updateStatusById(approveReqVO.getTaskStatus(), approveReqVO.getRefId());
-            if (Objects.equals(approveReqVO.getTaskStatus(), PurchaseContractStatusEnums.APPROVE.getStatus())) {
-                procurementItemRepository.updateStatusByPurchaseContractId(ProcurementItemStatusEnums.ORDERED.getStatus(), approveReqVO.getRefId());
-            }
-        }
-
-        // 商机报价审核
-        if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
-            if (approveReqVO.getRefId() == null || approveReqVO.getTaskStatus() == null) {
-                throw exception(BPM_PARAMS_ERROR);
-            }
-            processQuotationStatus(approveReqVO.getTaskStatus(),approveReqVO.getReason(), approveReqVO.getRefId());
-
-        }
 
         BpmTaskApproveReqVO bpmTaskApproveReqVO = new BpmTaskApproveReqVO();
         bpmTaskApproveReqVO.setId(approveReqVO.getId());
@@ -168,30 +164,24 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         String processDefinitionKey = instance.getProcessDefinitionKey();
 
-        // 如果是三个采购单：项目、实验室、行政
-        if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
-            if (reqVO.getRefId() == null) {
-                throw exception(BPM_PARAMS_ERROR);
+        if (reqVO.getRefId() != null) {
+            // 如果是三个采购单：项目、实验室、行政
+            if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
+                procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
             }
-            procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
+
+            // 如果是购销合同
+            if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
+                purchaseContractRepository.updateStatusById(PurchaseContractStatusEnums.REJECT.getStatus(), reqVO.getRefId());
+            }
+
+            // 商机报价审核
+            if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
+                processQuotationStatus(QuotationAuditStatusEnums.REJECT.getStatus(),reqVO.getReason(), reqVO.getRefId());
+
+            }
         }
 
-        // 如果是购销合同
-        if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
-            if (reqVO.getRefId() == null) {
-                throw exception(BPM_PARAMS_ERROR);
-            }
-            purchaseContractRepository.updateStatusById(PurchaseContractStatusEnums.REJECT.getStatus(), reqVO.getRefId());
-        }
-
-        // 商机报价审核
-        if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
-            if (reqVO.getRefId() == null) {
-                throw exception(BPM_PARAMS_ERROR);
-            }
-            processQuotationStatus(QuotationAuditStatusEnums.REJECT.getStatus(),reqVO.getReason(), reqVO.getRefId());
-
-        }
 
         taskService.rejectTask(getLoginUserId(), reqVO);
     }

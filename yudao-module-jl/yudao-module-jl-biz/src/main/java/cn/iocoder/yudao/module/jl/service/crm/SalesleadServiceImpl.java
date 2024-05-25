@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -17,10 +18,7 @@ import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCustomerPlanMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectDocumentRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
@@ -86,6 +84,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private ProjectRepository projectRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
 
     @Resource
     private ProjectMapper projectMapper;
@@ -302,7 +303,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
         if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus()) || updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus())){
             // 1. 创建项目
-            Project project = new Project();
+            ProjectOnly project = new ProjectOnly();
             // 注意这里----
             project.setId(updateReqVO.getProjectId());
             project.setSalesleadId(salesleadId);
@@ -318,7 +319,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 //如果客户不存在，则抛出异常
                 String projectName = updateReqVO.getStatus().equals(SalesLeadStatusEnums.QUOTATION.getStatus()) ? customer.getName()+"的报价" : updateReqVO.getProjectName();
                 project.setName(projectName);
-                Project saveProject = projectRepository.save(project);
+                ProjectOnly saveProject = projectOnlyRepository.save(project);
                 saleleadsObj.setProjectId(saveProject.getId());
                 updateReqVO.setProjectId(saveProject.getId());
                 salesleadRepository.save(saleleadsObj);
@@ -342,7 +343,7 @@ public class SalesleadServiceImpl implements SalesleadService {
 
             //如果是转项目
             if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
-                project = projectRepository.findById(saleslead.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+                project = projectOnlyRepository.findById(saleslead.getProjectId()).orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
                 project.setCode(projectService.generateCode());
                 project.setName(updateReqVO.getProjectName());
                 project.setStatus(updateReqVO.getStatus());
@@ -353,7 +354,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
 //                Arrays.asList(project.getManagerId(),project.getSalesId(),project.getPreManagerId())
                 project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),null));
-                projectRepository.save(project);
+                projectOnlyRepository.save(project);
                 projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
             }
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
@@ -386,7 +387,15 @@ public class SalesleadServiceImpl implements SalesleadService {
                 templateParams.put("customerName",customer.getName());
                 templateParams.put("contractName",updateReqVO.getProjectName());
                 templateParams.put("contractPrice",updateReqVO.getPaperPrice());
-                List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
+                List<Long> userIds = new ArrayList<>();
+                userIds.add(getSuperUserId());
+                for (Long userId : userIds) {
+                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                            userId,
+                            BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
+                    ));
+                }
+/*                List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
                 for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
                     if(subjectGroupMember.getUserId().equals(getLoginUserId())){
                         continue;
@@ -395,7 +404,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                             subjectGroupMember.getUserId(),
                             BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
                     ));
-                }
+                }*/
 
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                         getSuperUserId(),
@@ -453,10 +462,12 @@ public class SalesleadServiceImpl implements SalesleadService {
     }
 
     public void sendNotifyWhenQuotationedBySalesleadId(Long salesleadId){
+        Saleslead saleslead = validateSalesleadExists(salesleadId);
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("id", salesleadId);
+
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                salesleadId,
+                saleslead.getCreator(),
                 BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
         ));
     }
