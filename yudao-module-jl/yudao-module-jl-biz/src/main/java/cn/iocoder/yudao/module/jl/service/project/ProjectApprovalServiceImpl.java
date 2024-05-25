@@ -26,12 +26,15 @@ import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +47,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -57,7 +61,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目的状态变更记录 Service 实现类
- *
  */
 @Service
 @Validated
@@ -102,48 +105,69 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         ProjectApproval save = projectApprovalRepository.save(projectApproval);
 
 
-       if(createReqVO.getNeedAudit()){
-           // 发起 BPM 流程
-           Map<String, Object> processInstanceVariables = new HashMap<>();
-           String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
-                   new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
-                           .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
+        if (createReqVO.getNeedAudit()) {
+            // 发起 BPM 流程
+            Map<String, Object> processInstanceVariables = new HashMap<>();
+            String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
+                    new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
+                            .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
 
-           // 更新流程实例编号
-           projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
-       }else{
+            // 更新流程实例编号
+            projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+        } else {
 
-           //直接更新审批的状态
-           projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(),save.getId());
+            //直接更新审批的状态
+            projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(), save.getId());
 
 
-       }
+        }
 
-       //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
-       if(!createReqVO.getNeedAudit()||Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
-           if(!createReqVO.getOriginStage().equals(createReqVO.getStage())){
-               //直接更新项目状态
-               projectRepository.updateStageById(createReqVO.getStage(),save.getProjectId());
+        //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
+        if (!createReqVO.getNeedAudit() || Objects.equals(createReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())) {
+            if (!createReqVO.getOriginStage().equals(createReqVO.getStage())) {
+                //直接更新项目状态
+                projectRepository.updateStageById(createReqVO.getStage(), save.getProjectId());
 
-               // 发送系统消息
-               projectSimpleRepository.findById(save.getProjectId()).ifPresent(project -> {
-                   //查询字典
-                   DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
-                   String originStageLabel = originStageDictData!=null?originStageDictData.getLabel():" ";
-                   DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
-                   String stageLabel = stageDictData!=null?stageDictData.getLabel():" ";
+                // 发送系统消息
+                projectSimpleRepository.findById(save.getProjectId()).ifPresent(project -> {
+                    //查询字典
+                    DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
+                    String originStageLabel = originStageDictData != null ? originStageDictData.getLabel() : " ";
+                    DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
+                    String stageLabel = stageDictData != null ? stageDictData.getLabel() : " ";
 
-                   //发送消息
-                   Map<String, Object> templateParams = new HashMap<>();
-                   Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
-                   templateParams.put("projectId",save.getProjectId());
-                   templateParams.put("userName",byId1.isPresent()?byId1.get().getNickname(): WebFrameworkUtils.getLoginUserId());
-                   templateParams.put("customerName", project.getCustomer()!=null?project.getCustomer().getName():"未知");
-                   templateParams.put("projectName", project.getName());
-                   templateParams.put("originStage", originStageLabel);
-                   templateParams.put("stage", stageLabel);
-                   templateParams.put("mark", createReqVO.getStageMark()!=null?"说明："+createReqVO.getStageMark():" ");
-                   //查询PI组成员
+                    //发送消息
+                    Map<String, Object> templateParams = new HashMap<>();
+                    Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
+                    templateParams.put("projectId", save.getProjectId());
+                    templateParams.put("userName", byId1.isPresent() ? byId1.get().getNickname() : WebFrameworkUtils.getLoginUserId());
+                    templateParams.put("customerName", project.getCustomer() != null ? project.getCustomer().getName() : "未知");
+                    templateParams.put("projectName", project.getName());
+                    templateParams.put("originStage", originStageLabel);
+                    templateParams.put("stage", stageLabel);
+                    templateParams.put("mark", createReqVO.getStageMark() != null ? "说明：" + createReqVO.getStageMark() : " ");
+                    List<Long> userIds = new ArrayList<>();
+                    userIds.add(project.getManagerId());
+                    userIds.add(project.getSalesId());
+                    // project.getFocusIds()是逗号分隔的字符串，需要转换为List<Long>，并防止异常
+                    try{
+                        List<Long> focusIds = Arrays.stream(project.getFocusIds().split(","))
+                                .map(Long::parseLong)
+                                .collect(Collectors.toList());
+
+                        userIds.addAll(focusIds);
+                    }catch (NumberFormatException e){
+                        System.err.println("Error parsing focus IDs: " + e.getMessage());
+                    }
+
+                    for (Long userId : userIds) {
+                        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                                userId,
+                                BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
+                        ));
+                    }
+
+/*                   //查询PI组成员
                    List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(project.getManagerId());
                    for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
                        if(subjectGroupMember.getUserId().equals(getLoginUserId())){
@@ -153,16 +177,15 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                                subjectGroupMember.getUserId(),
                                BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
                        ));
-                   }
-               });
-           }
+                   }*/
+                });
+            }
 
-       }
+        }
 
         // 返回
         return projectApproval.getId();
     }
-
 
 
     @Override
@@ -177,13 +200,13 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
 
             // 校验是否存在,并修改状态
             projectRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
-                if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+                if (Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())) {
                     project.setStage(ProjectStageEnums.DOING.getStatus());
-                }else{
+                } else {
                     project.setStage(projectApproval.getStage());
                 }
                 projectRepository.save(project);
-            },()->{
+            }, () -> {
                 throw exception(PROJECT_NOT_EXISTS);
             });
         }
@@ -232,30 +255,30 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         Specification<ProjectApproval> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getStage() != null) {
+            if (pageReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), pageReqVO.getStage()));
             }
 
-            if(pageReqVO.getStageMark() != null) {
+            if (pageReqVO.getStageMark() != null) {
                 predicates.add(cb.equal(root.get("stageMark"), pageReqVO.getStageMark()));
             }
 
-            if(pageReqVO.getApprovalUserId() != null) {
+            if (pageReqVO.getApprovalUserId() != null) {
                 predicates.add(cb.equal(root.get("approvalUserId"), pageReqVO.getApprovalUserId()));
             }
 
-            if(pageReqVO.getApprovalMark() != null) {
+            if (pageReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), pageReqVO.getApprovalMark()));
             }
-            if(pageReqVO.getApprovalStage() != null) {
+            if (pageReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), pageReqVO.getApprovalStage()));
             }
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getScheduleId() != null) {
+            if (pageReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), pageReqVO.getScheduleId()));
             }
 
@@ -276,31 +299,31 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         Specification<ProjectApproval> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getStage() != null) {
+            if (exportReqVO.getStage() != null) {
                 predicates.add(cb.equal(root.get("stage"), exportReqVO.getStage()));
             }
 
-            if(exportReqVO.getStageMark() != null) {
+            if (exportReqVO.getStageMark() != null) {
                 predicates.add(cb.equal(root.get("stageMark"), exportReqVO.getStageMark()));
             }
 
-            if(exportReqVO.getApprovalUserId() != null) {
+            if (exportReqVO.getApprovalUserId() != null) {
                 predicates.add(cb.equal(root.get("approvalUserId"), exportReqVO.getApprovalUserId()));
             }
 
-            if(exportReqVO.getApprovalMark() != null) {
+            if (exportReqVO.getApprovalMark() != null) {
                 predicates.add(cb.equal(root.get("approvalMark"), exportReqVO.getApprovalMark()));
             }
 
-            if(exportReqVO.getApprovalStage() != null) {
+            if (exportReqVO.getApprovalStage() != null) {
                 predicates.add(cb.equal(root.get("approvalStage"), exportReqVO.getApprovalStage()));
             }
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getScheduleId() != null) {
+            if (exportReqVO.getScheduleId() != null) {
                 predicates.add(cb.equal(root.get("scheduleId"), exportReqVO.getScheduleId()));
             }
 
