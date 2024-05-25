@@ -54,7 +54,6 @@ public interface ProjectScheduleService {
     void saveScheduleSupplyAndChargeItem(@Valid ScheduleSaveSupplyAndChargeItemReqVO saveReqVO);
     Long saveProjectScheduleCategory(@Valid ProjectScheduleCategorySaveReqVO saveReqVO);
 
-    Long updateScheduleSaleslead(@Valid ProjectScheduleSaledleadsUpdateReqVO updateReqVO);
 
     /**
      * 更新项目安排单

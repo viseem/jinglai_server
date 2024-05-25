@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.repository.crm;
 
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +17,8 @@ import java.time.LocalDateTime;
 *
 */
 public interface SalesleadOnlyRepository extends JpaRepository<SalesleadOnly, Long>, JpaSpecificationExecutor<SalesleadOnly> {
+
+
     @Transactional
     @Modifying
     @Query("update SalesleadOnly s set s.quotationAuditStatus = ?1, s.quotationAuditMark = ?2 where s.id = ?3")

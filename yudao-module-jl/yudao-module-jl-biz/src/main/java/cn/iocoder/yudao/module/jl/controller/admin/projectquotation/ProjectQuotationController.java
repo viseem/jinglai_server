@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellWriterHandler;
 import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLCustomMergeStrategy;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -54,6 +55,14 @@ public class ProjectQuotationController {
     @PreAuthorize("@ss.hasPermission('jl:project-quotation:create')")
     public CommonResult<Long> createProjectQuotation(@Valid @RequestBody ProjectQuotationCreateReqVO createReqVO) {
         return success(projectQuotationService.createProjectQuotation(createReqVO));
+    }
+
+    // 在用
+    @PostMapping("/complete")
+    @Operation(summary = "完成报价")
+    @PreAuthorize("@ss.hasPermission('jl:project-quotation:update')")
+    public CommonResult<Long> updateScheduleSaleslead(@Valid @RequestBody ProjectScheduleSaledleadsUpdateReqVO saveReqVO) {
+        return success(projectQuotationService.quotationComplete(saveReqVO));
     }
 
     @PutMapping("/quotation-audit")

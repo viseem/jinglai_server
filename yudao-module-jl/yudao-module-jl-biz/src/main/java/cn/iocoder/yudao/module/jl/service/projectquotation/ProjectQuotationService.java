@@ -4,6 +4,7 @@ import java.util.*;
 import javax.validation.*;
 
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
@@ -98,5 +99,7 @@ public interface ProjectQuotationService {
     // 报价审批
     String quotationAudit(@Valid ProjectQuotationAuditReqVO updateReqVO);
 
+    //完成报价
+    Long quotationComplete(@Valid ProjectScheduleSaledleadsUpdateReqVO updateReqVO);
 
 }

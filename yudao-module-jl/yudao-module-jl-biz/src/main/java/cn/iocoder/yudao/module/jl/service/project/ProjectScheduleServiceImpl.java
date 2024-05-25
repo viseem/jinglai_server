@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryAttachmentBaseVO;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
@@ -10,18 +9,12 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachme
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
-import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryOutsourceRepository;
-import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
-import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
-import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -99,18 +92,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     private ProjectChargeitemMapper projectChargeitemMapper;
 
     @Resource
-    private FinancePaymentRepository financePaymentRepository;
-
-    @Resource
-    private ProcurementPaymentRepository procurementPaymentRepository;
-
-    private final SalesleadRepository salesleadRepository;
-
-    @Resource
     private ProjectConstractRepository projectConstractRepository;
 
-    @Resource
-    private ProjectQuotationRepository projectQuotationRepository;
 
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
@@ -120,13 +103,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
 
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
-
-    @Resource
-    private NotifyMessageSendApi notifyMessageSendApi;
-
-    public ProjectScheduleServiceImpl(SalesleadRepository salesleadRepository) {
-        this.salesleadRepository = salesleadRepository;
-    }
 
     @Override
     public Long createProjectSchedule(ProjectScheduleCreateReqVO createReqVO) {
@@ -669,32 +645,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         projectSupplyRepository.saveAll(saveReq.getSupplyList());
         projectChargeitemRepository.saveAll(saveReq.getChargeList());
 
-
-        // 更新报价金额
-//       accountSalesleadQuotation(saveReq.getProjectId());
-
-    }
-
-    // 完成报价 在用
-    @Override
-    @Transactional
-    public Long updateScheduleSaleslead(ProjectScheduleSaledleadsUpdateReqVO updateReqVO) {
-        salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()), updateReqVO.getProjectId());
-//        accountSalesleadQuotation(updateReqVO.getProjectId(),updateReqVO.getQuotationId());
-        projectRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getProjectId());
-        projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
-        projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
-        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
-        salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesId());
-        //完成报价 发给商机的销售
-
-        /*Map<String, Object> templateParams = new HashMap<>();
-        templateParams.put("id", updateReqVO.getSalesleadId());
-        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                updateReqVO.getSalesId(),
-                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
-        ));*/
-        return null;
     }
 
 

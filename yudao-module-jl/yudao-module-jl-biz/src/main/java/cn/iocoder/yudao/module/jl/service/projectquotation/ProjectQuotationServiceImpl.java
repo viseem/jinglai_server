@@ -4,14 +4,18 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ScheduleSaveSupplyAndChargeItemReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.ProjectQuotationUpdatePlanReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectCategoryMapper;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
@@ -89,11 +93,16 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
+    @Resource
+    private SalesleadOnlyRepository salesleadOnlyRepository;
+
 
     @Override
     public Long createProjectQuotation(ProjectQuotationCreateReqVO createReqVO) {
         // 插入
+        createReqVO.setAuditMark(null);
         createReqVO.setAuditStatus(null);
+        createReqVO.setAuditProcessId(null);
         ProjectQuotation projectQuotation = projectQuotationMapper.toEntity(createReqVO);
         projectQuotationRepository.save(projectQuotation);
         // 返回
@@ -130,17 +139,24 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         if(updateReqVO.getCode()==null || updateReqVO.getCode().isEmpty()){
             updateReqVO.setCode("默认");
         }
-        updateReqVO.setSalesleadId(projectSimple.getSalesleadId());
+        updateReqVO.setSalesleadId(projectSimple.getSalesleadId()!=null?projectSimple.getSalesleadId():updateReqVO.getSalesleadId());
 
+        if(updateReqVO.getId()==null){
+            updateReqVO.setAuditMark(null);
+            updateReqVO.setAuditStatus(null);
+            updateReqVO.setAuditProcessId(null);
+            salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeById(updateReqVO.getQuotationAmount(),LocalDateTime.now(),LocalDateTime.now(),updateReqVO.getSalesleadId());
+        }
 
         ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
         ProjectQuotation save = projectQuotationRepository.save(updateObj);
 
         // 如果项目的quotationId为空或者是新的报价版本 更新一下项目的currentQuotationId 注意：不为空的时候更新 专门的更新版本的 有另一个接口
-        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
-            projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
-            salesleadRepository.updateCurrentQuotationIdById(save.getId(),projectSimple.getSalesleadId());
-        }
+/*        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
+
+        }*/
+        projectRepository.updateCurrentQuotationIdById(save.getId(),updateReqVO.getProjectId());
+        salesleadRepository.updateCurrentQuotationIdById(save.getId(),projectSimple.getSalesleadId());
 
         ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
         saveReqVO.setProjectId(save.getProjectId());
@@ -177,22 +193,42 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         saveReqVO.setCategoryList(updateReqVO.getCategoryList());
 
         projectScheduleService.saveScheduleSupplyAndChargeItem(saveReqVO);
-        //可能还需要更新一下saleslead的价格 ，他可能直接保存的当前版本
-//        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
-
-        //更新一下商机的操作时间
-//        salesleadRepository.updateLastFollowTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
-
-        // 更新一下商机的报价时间
-//        salesleadRepository.updateQuotationUpdateTimeByProjectId(LocalDateTime.now(),updateReqVO.getProjectId());
 
         // 以上三个一起更新
-        salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeByProjectId(updateReqVO.getQuotationAmount(),LocalDateTime.now(),LocalDateTime.now(),updateReqVO.getProjectId());
+
+    }
+
+    // 完成报价 在用
+    @Override
+    @Transactional
+    public Long quotationComplete(ProjectScheduleSaledleadsUpdateReqVO updateReqVO) {
+        ProjectQuotation quotation = validateProjectQuotationExists(updateReqVO.getQuotationId());
+        salesleadRepository.updateStatusByProjectId(Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()), updateReqVO.getProjectId());
+        projectRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getProjectId());
+        projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
+        projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
+        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+        salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesId());
+        // 这里涉及到切换版本 所有要更新商机的报价审批状态
+        salesleadRepository.updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(quotation.getAuditProcessId(), quotation.getAuditMark(), quotation.getAuditStatus(), updateReqVO.getSalesleadId());
+
+        //完成报价 发给商机的销售
+
+        /*Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("id", updateReqVO.getSalesleadId());
+        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                updateReqVO.getSalesId(),
+                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
+        ));*/
+        return null;
     }
 
     @Override
     @Transactional
     public String quotationAudit(ProjectQuotationAuditReqVO reqVO){
+
+        ProjectQuotation quotation = validateProjectQuotationExists(reqVO.getId());
+
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
@@ -201,8 +237,14 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
         projectQuotationRepository.updateAuditProcessIdAndAuditStatusById(processInstanceId, QuotationAuditStatusEnums.AUDITING.getStatus(), reqVO.getId());
 
-//        salesleadRepository.updateQuotationProcessIdAndQuotationAuditStatusById(
-//                processInstanceId, QuotationAuditStatusEnums.AUDITING.getStatus(), reqVO.getId());
+        Optional<SalesleadOnly> byId = salesleadOnlyRepository.findById(quotation.getSalesleadId());
+        // 如果是当前报价
+        if(byId.isPresent()&&Objects.equals(byId.get().getCurrentQuotationId(),reqVO.getId())){
+            // 这里也可以 直接by quotationId,但是之前的商机没有这个
+            salesleadRepository.updateQuotationProcessIdAndQuotationAuditStatusById(
+                    processInstanceId, QuotationAuditStatusEnums.AUDITING.getStatus(), quotation.getSalesleadId());
+        }
+
 
         return processInstanceId;
     }
@@ -260,8 +302,13 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         projectQuotationRepository.deleteById(id);
     }
 
-    private void validateProjectQuotationExists(Long id) {
-        projectQuotationRepository.findById(id).orElseThrow(() -> exception(PROJECT_QUOTATION_NOT_EXISTS));
+    public ProjectQuotation validateProjectQuotationExists(Long id) {
+        Optional<ProjectQuotation> byId = projectQuotationRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw exception(PROJECT_QUOTATION_NOT_EXISTS);
+        }
+        return byId.get();
+
     }
 
     @Override

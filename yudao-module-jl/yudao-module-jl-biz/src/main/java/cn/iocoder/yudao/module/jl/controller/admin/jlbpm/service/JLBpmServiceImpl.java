@@ -113,17 +113,21 @@ public class JLBpmServiceImpl implements JLBpmService {
     public void processQuotationStatus(String taskStatus,String reason, Long quotationId) {
         Optional<ProjectQuotation> byId = projectQuotationRepository.findById(quotationId);
         if(byId.isPresent()){
-            Optional<SalesleadOnly> byId1 = salesleadOnlyRepository.findById(byId.get().getSalesleadId());
-            if(byId1.isPresent()){
-                SalesleadOnly salesleadOnly = byId1.get();
-                // 如果商机是当前报价的商机，则更新商机的报价审核状态
-                if(Objects.equals(salesleadOnly.getCurrentQuotationId(), quotationId)){
-                    salesleadOnlyRepository.updateQuotationAuditStatusAndQuotationAuditMarkById(taskStatus, reason,salesleadOnly.getId());
-                }
+            if(byId.get().getSalesleadId()!=null){
+                Optional<SalesleadOnly> byId1 = salesleadOnlyRepository.findById(byId.get().getSalesleadId());
+                if(byId1.isPresent()){
+                    SalesleadOnly salesleadOnly = byId1.get();
+                    // 如果商机是当前报价的商机，则更新商机的报价审核状态 发送商机报价消息
+                    if(Objects.equals(salesleadOnly.getCurrentQuotationId(), quotationId)){
+                        salesleadOnlyRepository.updateQuotationAuditStatusAndQuotationAuditMarkById(taskStatus, reason,salesleadOnly.getId());
 
-                // 如果都审核通过了，则发送商机报价消息
-                if(Objects.equals(taskStatus,QuotationAuditStatusEnums.ACCEPT.getStatus())){
-                    salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(salesleadOnly.getId());
+                        // 如果都审核通过了，则发送商机报价消息
+                        if(Objects.equals(taskStatus,QuotationAuditStatusEnums.ACCEPT.getStatus())){
+                            salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(salesleadOnly.getId());
+                        }
+                    }
+
+
                 }
             }
             projectQuotationRepository.updateQuotationAuditStatusAndQuotationAuditMarkById(taskStatus, reason, quotationId);

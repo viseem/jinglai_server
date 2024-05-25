@@ -163,19 +163,19 @@ public class Saleslead extends BaseEntity {
     /**
      * 报价审批状态
      */
-    @Column(name = "quotation_audit_status")
+    @Column(name = "quotation_audit_status",nullable = true)
     private String quotationAuditStatus;
 
     /**
      * 报价审批备注
      */
-    @Column(name = "quotation_audit_mark")
+    @Column(name = "quotation_audit_mark",nullable = true)
     private String quotationAuditMark;
 
     /**
      * 报价审批id
      */
-    @Column(name = "quotation_process_id")
+    @Column(name = "quotation_process_id",nullable = true)
     private String quotationProcessId;
 
     /**

@@ -1,19 +1,33 @@
 package cn.iocoder.yudao.module.jl.repository.crm;
 
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 /**
 * SalesleadRepository
 *
 */
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
+
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.quotationProcessId = ?1, s.quotationAuditMark = ?2, s.quotationAuditStatus = ?3 " +
+            "where s.id = ?4")
+    int updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(String quotationProcessId, String quotationAuditMark, String quotationAuditStatus, Long id);
+
+//    @Transactional
+//    @Modifying
+//    @Query(value = "UPDATE jl_crm_saleslead SET quotation_process_id = :quotationProcessId, quotation_audit_mark = :quotationAuditMark, quotation_audit_status = :quotationAuditStatus WHERE id = :id", nativeQuery = true)
+//    int updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(String quotationProcessId,String quotationAuditMark,String quotationAuditStatus,Long id);
+
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.currentQuotationId = ?1 where s.id = ?2")
@@ -26,16 +40,9 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.quotation = ?1, s.lastFollowTime = ?2, s.quotationUpdateTime = ?3 " +
-            "where s.projectId = ?4")
-    int updateQuotationAndLastFollowTimeAndQuotationUpdateTimeByProjectId(BigDecimal quotation, LocalDateTime lastFollowTime, LocalDateTime quotationUpdateTime, Long projectId);
-    @Transactional
-    @Modifying
-    @Query("update Saleslead s set s.quotationUpdateTime = ?1 where s.projectId = ?2")
-    int updateQuotationUpdateTimeByProjectId(LocalDateTime quotationUpdateTime, Long projectId);
-    @Transactional
-    @Modifying
-    @Query("update Saleslead s set s.lastFollowTime = ?1 where s.projectId = ?2")
-    int updateLastFollowTimeByProjectId(LocalDateTime lastFollowTime, Long projectId);
+            "where s.id = ?4")
+    int updateQuotationAndLastFollowTimeAndQuotationUpdateTimeById(BigDecimal quotation, LocalDateTime lastFollowTime, LocalDateTime quotationUpdateTime, Long id);
+
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.lastFollowTime = ?1 where s.id = ?2")
@@ -52,10 +59,7 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Modifying
     @Query("update Saleslead s set s.creator = ?1 where s.id = ?2")
     int updateCreatorById(Long creator, Long id);
-    @Transactional
-    @Modifying
-    @Query("update Saleslead s set s.quotationMark = ?1 where s.id = ?2")
-    int updateQuotationMarkById(String quotationMark, Long id);
+
     @Transactional
     @Modifying
     @Query("update Saleslead s set s.quotationMark = ?1,s.quotationJsonFile = ?2 where s.id = ?3")
@@ -84,10 +88,6 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Query("update Saleslead s set s.quotation = ?2 where s.id = ?1")
     void updateQuotationById(Long id, Long quotationId);
 
-    @Transactional
-    @Modifying
-    @Query("update Saleslead s set s.quotation = ?2,s.status = ?3 where s.projectId = ?1")
-    void updateQuotationAndStatusByProjectId(Long projectId,Long quotation, Integer status);
 
     @Transactional
     @Modifying

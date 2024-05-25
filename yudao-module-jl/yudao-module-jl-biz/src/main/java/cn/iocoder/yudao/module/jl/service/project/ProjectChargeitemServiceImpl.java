@@ -1,36 +1,32 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
-import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CHARGEITEM_NOT_EXISTS;
 
 /**
  * 项目中的实验名目的收费项 Service 实现类
@@ -45,12 +41,6 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
 
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
-
-    @Resource
-    private ProjectCategoryRepository projectCategoryRepository;
-
-    @Resource
-    private ProjectScheduleServiceImpl projectScheduleService;
 
     @Resource
     private ProjectCategoryServiceImpl projectCategoryService;

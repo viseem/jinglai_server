@@ -150,17 +150,19 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                     userIds.add(project.getManagerId());
                     userIds.add(project.getSalesId());
                     // project.getFocusIds()是逗号分隔的字符串，需要转换为List<Long>，并防止异常
-                    try{
-                        List<Long> focusIds = Arrays.stream(project.getFocusIds().split(","))
+                    try {
+                        Arrays.stream(project.getFocusIds().split(","))
                                 .map(Long::parseLong)
-                                .collect(Collectors.toList());
+                                .forEach(userIds::add);
 
-                        userIds.addAll(focusIds);
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         System.err.println("Error parsing focus IDs: " + e.getMessage());
                     }
 
                     for (Long userId : userIds) {
+                        if (userId == null) {
+                            continue;
+                        }
                         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                                 userId,
                                 BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
