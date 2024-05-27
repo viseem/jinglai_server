@@ -20,6 +20,8 @@ public class ProcurementItemPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    @Schema(description = "库房ids", example = "26560")
+    private List<Long> roomIds;
 
     @Schema(description = "项目id", example = "26560")
     private Long projectId;
@@ -39,6 +41,9 @@ public class ProcurementItemPageReqVO extends PageParam {
 
     @Schema(description = "名称", example = "芋艿")
     private String name;
+
+    @Schema(description = "收货仓库", example = "芋艿")
+    private Long receiveRoomId;
 
     @Schema(description = "采购规则/单位")
     private String feeStandard;

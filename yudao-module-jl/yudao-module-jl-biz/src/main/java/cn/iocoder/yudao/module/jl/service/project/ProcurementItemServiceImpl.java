@@ -105,6 +105,10 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
             predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
 
+            if(pageReqVO.getRoomIds()!=null){
+                predicates.add(root.get("receiveRoomId").in(pageReqVO.getRoomIds()));
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
@@ -119,6 +123,10 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
             if (pageReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), pageReqVO.getProjectSupplyId()));
+            }
+
+            if (pageReqVO.getReceiveRoomId() != null) {
+                predicates.add(cb.equal(root.get("receiveRoomId"), pageReqVO.getReceiveRoomId()));
             }
 
             if (pageReqVO.getName() != null) {
