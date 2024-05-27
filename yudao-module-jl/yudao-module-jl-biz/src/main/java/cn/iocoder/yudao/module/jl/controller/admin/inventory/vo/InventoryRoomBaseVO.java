@@ -18,9 +18,19 @@ public class InventoryRoomBaseVO {
     private String name;
 
     @Schema(description = "负责人", example = "22222")
-    private String guardianUserId;
+    private Long guardianUserId;
 
     @Schema(description = "备注描述")
     private String mark;
+
+    @Schema(description = "收件人", example = "赵六")
+    private String receiverName;
+
+    @Schema(description = "收件人电话", example = "赵六")
+    private String receiverPhone;
+
+    @Schema(description = "收件地址", example = "赵六")
+    private String receiveAddress;
+
 
 }

@@ -36,6 +36,10 @@ public class InventoryStoreLogBaseVO {
     @Schema(description = "单位")
     private String unit;
 
+    @Schema(description = "变更类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "变更类型不能为空")
+    private String changeType;
+
     @Schema(description = "变更数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "变更数量不能为空")
     private BigDecimal changeNum;

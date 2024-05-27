@@ -79,6 +79,13 @@ public class InventoryStoreLog extends BaseEntity {
     @Column(name = "change_num", nullable = false )
     private BigDecimal changeNum = BigDecimal.ZERO;
 
+
+    /**
+     * 变更类型
+     */
+    @Column(name = "change_type")
+    private String changeType;
+
     /**
      * 备注
      */

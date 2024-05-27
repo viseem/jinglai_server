@@ -1,12 +1,16 @@
 package cn.iocoder.yudao.module.jl.entity.inventory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
@@ -41,12 +45,39 @@ public class InventoryRoom extends BaseEntity {
      * 负责人
      */
     @Column(name = "guardian_user_id")
-    private String guardianUserId;
+    private Long guardianUserId;
 
     /**
      * 备注描述
      */
     @Column(name = "mark")
     private String mark;
+
+    /**
+     * 收件人
+     */
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    /**
+     * 收件人电话
+     */
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    /**
+     * 收件地址
+     */
+    @Column(name = "receive_address")
+    private String receiveAddress;
+
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "guardian_user_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User manager;
 
 }
