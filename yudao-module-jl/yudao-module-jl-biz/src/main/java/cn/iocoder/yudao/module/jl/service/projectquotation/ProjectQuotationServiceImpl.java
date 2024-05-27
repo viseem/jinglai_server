@@ -216,9 +216,12 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
         projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
         salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
-        salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesId());
+        salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesleadId());
         // 这里涉及到切换版本 所有要更新商机的报价审批状态
         salesleadRepository.updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(quotation.getAuditProcessId(), quotation.getAuditMark(), quotation.getAuditStatus(), updateReqVO.getSalesleadId());
+
+
+        // todo 如果是切换了版本 则发送一个切换版本的通知
 
         //完成报价 发给商机的销售
 
@@ -338,6 +341,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
         // 更新项目的报价id
         projectRepository.updateCurrentQuotationIdById(id, quotation.getProjectId());
+        salesleadRepository.updateCurrentQuotationIdById(id, quotation.getSalesleadId());
 
         Optional<SalesleadOnly> byId = salesleadOnlyRepository.findById(quotation.getSalesleadId());
         if(byId.isPresent()){
