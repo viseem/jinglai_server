@@ -1,13 +1,20 @@
 package cn.iocoder.yudao.module.jl.service.inventorystorelog;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.enums.InventoryStoreLogChangeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProcurementItemServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import liquibase.pro.packaged.R;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +36,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.inventorystorelog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventorystorelog.InventoryStoreLog;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -36,12 +45,11 @@ import cn.iocoder.yudao.module.jl.mapper.inventorystorelog.InventoryStoreLogMapp
 import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 物品出入库日志 Service 实现类
- *
  */
 @Service
 @Validated
@@ -62,6 +70,12 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
 
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
     @Transactional
     public Long createInventoryStoreLog(InventoryStoreLogCreateReqVO createReqVO) {
@@ -80,15 +94,20 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         // 录上这些id 很重要
         createReqVO.setProjectSupplyId(procurementItem.getRoomId());
 
-        if(createReqVO.getOperatorId()==null){
+        if (createReqVO.getOperatorId() == null) {
             createReqVO.setOperatorId(getLoginUserId());
         }
 
-        if(procurementItem.getProjectId()!=null){
+        ProjectOnly project = null;
+
+        if (procurementItem.getProjectId() != null) {
             createReqVO.setProjectId(procurementItem.getProjectId());
-            projectOnlyRepository.findById(procurementItem.getProjectId()).ifPresent(projectOnly -> {
-                createReqVO.setCustomerId(projectOnly.getCustomerId());
-            });
+            Optional<ProjectOnly> byId1 = projectOnlyRepository.findById(procurementItem.getProjectId());
+            if (byId1.isPresent()) {
+                project = byId1.get();
+                createReqVO.setCustomerId(project.getCustomerId());
+            }
+
         }
 
         createReqVO.setProcurementId(procurementItem.getProcurementId());
@@ -100,6 +119,34 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
 
         procurementItemService.updateStockQuantity(procurementItem.getId());
 
+        //如果变更类型是签收入库，则发送通知给相关人员
+       if(Objects.equals(createReqVO.getChangeType(), InventoryStoreLogChangeTypeEnums.SIGN_IN.getStatus())){
+           List<Long> userIds = new ArrayList<>();
+           if (project != null) {
+               userIds.add(project.getManagerId());
+               projectService.focusIdsStringToArray(project.getFocusIds(), userIds);
+//            userIds.add(project.getSalesId());
+           }
+           userIds.add(getProcurementUserId());
+           Map<String, Object> templateParams = new HashMap<>();
+           String content = String.format(
+                   "%s(编号:%s) 已签收入库,数量:%s,备注:%s",
+                   procurementItem.getName(), procurementItem.getId(), createReqVO.getChangeNum(), createReqVO.getMark()
+           );
+           templateParams.put("content", content);
+           templateParams.put("id", procurementItem.getId());
+
+           for (Long userId : userIds) {
+               if (userId == null) {
+                   continue;
+               }
+               notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                       userId,
+                       BpmMessageEnum.NOTIFY_WHEN_GOODS_SIGN_IN.getTemplateCode(), templateParams
+               ));
+           }
+       }
+
         // 返回
         return inventoryStoreLog.getId();
     }
@@ -110,7 +157,7 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         // 校验存在
         validateInventoryStoreLogExists(updateReqVO.getId());
 
-        if(updateReqVO.getOperatorId()==null){
+        if (updateReqVO.getOperatorId() == null) {
             updateReqVO.setOperatorId(getLoginUserId());
         }
 
@@ -128,7 +175,7 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         InventoryStoreLog inventoryStoreLog = validateInventoryStoreLogExists(id);
         // 删除
         inventoryStoreLogRepository.deleteById(id);
-        System.out.println("-=-=-="+inventoryStoreLog.getSourceItemId());
+        System.out.println("-=-=-=" + inventoryStoreLog.getSourceItemId());
         procurementItemService.updateStockQuantity(inventoryStoreLog.getSourceItemId());
     }
 
@@ -163,86 +210,86 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         Specification<InventoryStoreLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getIsIn() != null) {
-                if(pageReqVO.getIsIn()){
+            if (pageReqVO.getIsIn() != null) {
+                if (pageReqVO.getIsIn()) {
                     // 查询changeNum大于0的
                     predicates.add(cb.greaterThan(root.get("changeNum"), BigDecimal.ZERO));
-                }else{
+                } else {
                     // 查询changeNum小于0的
                     predicates.add(cb.lessThan(root.get("changeNum"), BigDecimal.ZERO));
                 }
             }
 
 
-            if(pageReqVO.getSource() != null) {
+            if (pageReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getCatalogNumber() != null) {
+            if (pageReqVO.getCatalogNumber() != null) {
                 predicates.add(cb.equal(root.get("catalogNumber"), pageReqVO.getCatalogNumber()));
             }
 
-            if(pageReqVO.getBrand() != null) {
+            if (pageReqVO.getBrand() != null) {
                 predicates.add(cb.equal(root.get("brand"), pageReqVO.getBrand()));
             }
 
-            if(pageReqVO.getSpec() != null) {
+            if (pageReqVO.getSpec() != null) {
                 predicates.add(cb.equal(root.get("spec"), pageReqVO.getSpec()));
             }
 
-            if(pageReqVO.getUnit() != null) {
+            if (pageReqVO.getUnit() != null) {
                 predicates.add(cb.equal(root.get("unit"), pageReqVO.getUnit()));
             }
 
-            if(pageReqVO.getChangeType() != null) {
+            if (pageReqVO.getChangeType() != null) {
                 predicates.add(cb.equal(root.get("changeType"), pageReqVO.getChangeType()));
             }
 
-            if(pageReqVO.getChangeNum() != null) {
+            if (pageReqVO.getChangeNum() != null) {
                 predicates.add(cb.equal(root.get("changeNum"), pageReqVO.getChangeNum()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getRoomId() != null) {
+            if (pageReqVO.getRoomId() != null) {
                 predicates.add(cb.equal(root.get("roomId"), pageReqVO.getRoomId()));
             }
 
-            if(pageReqVO.getContainerId() != null) {
+            if (pageReqVO.getContainerId() != null) {
                 predicates.add(cb.equal(root.get("containerId"), pageReqVO.getContainerId()));
             }
 
-            if(pageReqVO.getPlaceId() != null) {
+            if (pageReqVO.getPlaceId() != null) {
                 predicates.add(cb.equal(root.get("placeId"), pageReqVO.getPlaceId()));
             }
 
-            if(pageReqVO.getLocation() != null) {
+            if (pageReqVO.getLocation() != null) {
                 predicates.add(cb.equal(root.get("location"), pageReqVO.getLocation()));
             }
 
-            if(pageReqVO.getSourceItemId() != null) {
+            if (pageReqVO.getSourceItemId() != null) {
                 predicates.add(cb.equal(root.get("sourceItemId"), pageReqVO.getSourceItemId()));
             }
 
-            if(pageReqVO.getProjectSupplyId() != null) {
+            if (pageReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), pageReqVO.getProjectSupplyId()));
             }
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getPurchaseContractId() != null) {
+            if (pageReqVO.getPurchaseContractId() != null) {
                 predicates.add(cb.equal(root.get("purchaseContractId"), pageReqVO.getPurchaseContractId()));
             }
 
-            if(pageReqVO.getProcurementId() != null) {
+            if (pageReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), pageReqVO.getProcurementId()));
             }
 
@@ -263,71 +310,71 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         Specification<InventoryStoreLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getSource() != null) {
+            if (exportReqVO.getSource() != null) {
                 predicates.add(cb.equal(root.get("source"), exportReqVO.getSource()));
             }
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getCatalogNumber() != null) {
+            if (exportReqVO.getCatalogNumber() != null) {
                 predicates.add(cb.equal(root.get("catalogNumber"), exportReqVO.getCatalogNumber()));
             }
 
-            if(exportReqVO.getBrand() != null) {
+            if (exportReqVO.getBrand() != null) {
                 predicates.add(cb.equal(root.get("brand"), exportReqVO.getBrand()));
             }
 
-            if(exportReqVO.getSpec() != null) {
+            if (exportReqVO.getSpec() != null) {
                 predicates.add(cb.equal(root.get("spec"), exportReqVO.getSpec()));
             }
 
-            if(exportReqVO.getUnit() != null) {
+            if (exportReqVO.getUnit() != null) {
                 predicates.add(cb.equal(root.get("unit"), exportReqVO.getUnit()));
             }
 
-            if(exportReqVO.getChangeNum() != null) {
+            if (exportReqVO.getChangeNum() != null) {
                 predicates.add(cb.equal(root.get("changeNum"), exportReqVO.getChangeNum()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getRoomId() != null) {
+            if (exportReqVO.getRoomId() != null) {
                 predicates.add(cb.equal(root.get("roomId"), exportReqVO.getRoomId()));
             }
 
-            if(exportReqVO.getContainerId() != null) {
+            if (exportReqVO.getContainerId() != null) {
                 predicates.add(cb.equal(root.get("containerId"), exportReqVO.getContainerId()));
             }
 
-            if(exportReqVO.getPlaceId() != null) {
+            if (exportReqVO.getPlaceId() != null) {
                 predicates.add(cb.equal(root.get("placeId"), exportReqVO.getPlaceId()));
             }
 
-            if(exportReqVO.getLocation() != null) {
+            if (exportReqVO.getLocation() != null) {
                 predicates.add(cb.equal(root.get("location"), exportReqVO.getLocation()));
             }
 
-            if(exportReqVO.getSourceItemId() != null) {
+            if (exportReqVO.getSourceItemId() != null) {
                 predicates.add(cb.equal(root.get("sourceItemId"), exportReqVO.getSourceItemId()));
             }
 
-            if(exportReqVO.getProjectSupplyId() != null) {
+            if (exportReqVO.getProjectSupplyId() != null) {
                 predicates.add(cb.equal(root.get("projectSupplyId"), exportReqVO.getProjectSupplyId()));
             }
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getPurchaseContractId() != null) {
+            if (exportReqVO.getPurchaseContractId() != null) {
                 predicates.add(cb.equal(root.get("purchaseContractId"), exportReqVO.getPurchaseContractId()));
             }
 
-            if(exportReqVO.getProcurementId() != null) {
+            if (exportReqVO.getProcurementId() != null) {
                 predicates.add(cb.equal(root.get("procurementId"), exportReqVO.getProcurementId()));
             }
 

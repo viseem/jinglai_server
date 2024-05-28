@@ -307,6 +307,18 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    public void focusIdsStringToArray(String idsStr,List<Long> ids){
+        if(idsStr!=null){
+            String[] split = idsStr.split(",");
+            for (String s : split) {
+                //判断s是否是字符串数字
+                if(s!=null&&s.matches("-?\\d+(\\.\\d+)?")){
+                    ids.add(Long.valueOf(s));
+                }
+            }
+        }
+    }
+
     @Override
     public ProjectStatsRespVO getProjectStats(ProjectPageReqVO pageReqVO){
         ProjectStatsRespVO respVO = new ProjectStatsRespVO();

@@ -92,6 +92,11 @@ public class SecurityFrameworkUtils {
         return 211L;
     }
 
+    //TODO 临死写死
+    public static Long getProcurementUserId() {
+        return 143L;
+    }
+
     /**
      * 设置当前用户
      *

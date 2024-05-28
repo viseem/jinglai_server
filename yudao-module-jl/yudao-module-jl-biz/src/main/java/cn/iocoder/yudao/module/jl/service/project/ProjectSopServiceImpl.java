@@ -120,8 +120,8 @@ public class ProjectSopServiceImpl implements ProjectSopService {
                     userIds.add(project.getSalesId());
                 }*/
                     // 本来是通知项目的 改为通知这个实验的实验员
-                    if(category.getFocusIds()!=null){
-                        String[] split = category.getFocusIds().split(",");
+                    if(project.getFocusIds()!=null){
+                        String[] split = project.getFocusIds().split(",");
                         for (String s : split) {
                             //判断s是否是字符串数字
                             if(s!=null&&s.matches("-?\\d+(\\.\\d+)?")){
