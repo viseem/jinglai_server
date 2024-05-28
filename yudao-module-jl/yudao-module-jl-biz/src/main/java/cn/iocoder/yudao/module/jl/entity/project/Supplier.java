@@ -200,6 +200,11 @@ public class Supplier extends BaseEntity {
     @Column(name = "cate_type")
     private String cateType;
 
+    /**
+     * 供应商分类类型
+     */
+    @Column(name = "good_at")
+    private String goodAt;
 
 
     @Transient

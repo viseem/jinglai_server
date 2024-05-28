@@ -106,6 +106,12 @@ public class ProjectCategoryAttachment extends BaseEntity {
     @Column(name = "project_document_id")
     private Long projectDocumentId;
 
+    /**
+     * 任务id
+     */
+    @Column(name = "task_id")
+    private Long taskId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
