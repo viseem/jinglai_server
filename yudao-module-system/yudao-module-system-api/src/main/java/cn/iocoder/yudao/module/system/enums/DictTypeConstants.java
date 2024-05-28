@@ -32,4 +32,8 @@ public interface DictTypeConstants {
     String SUPPLIER_BILL_WAY_TYPE = "SUPPLIER_BILL_WAY_TYPE"; // 供应商结算方式类型
     String SUPPLIER_PAYMENT_CYCLE = "SUPPLIER_PAYMENT_CYCLE"; // 供应商付款周期类型
 
+    // ======== 财务
+    String RECEIPT_TYPE = "RECEIPT_TYPE"; // 发票种类：全电专票 全电普票
+
+
 }

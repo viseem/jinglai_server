@@ -72,6 +72,6 @@ public interface InvoiceApplicationService {
      * @param exportReqVO 查询条件
      * @return 开票申请列表
      */
-    List<InvoiceApplication> getInvoiceApplicationList(InvoiceApplicationExportReqVO exportReqVO);
+    List<InvoiceApplicationExcelRowItemVO> getInvoiceApplicationList(InvoiceApplicationExportReqVO exportReqVO);
 
 }

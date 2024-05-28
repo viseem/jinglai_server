@@ -20,7 +20,7 @@ public interface InvoiceApplicationMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     InvoiceApplication partialUpdate(InvoiceApplicationUpdateReqVO dto, @MappingTarget InvoiceApplication entity);
 
-    List<InvoiceApplicationExcelVO> toExcelList(List<InvoiceApplication> list);
+    List<InvoiceApplicationExcelVO> toExcelList(List<InvoiceApplicationExcelRowItemVO> list);
 
     PageResult<InvoiceApplicationRespVO> toPage(PageResult<InvoiceApplication> page);
 }

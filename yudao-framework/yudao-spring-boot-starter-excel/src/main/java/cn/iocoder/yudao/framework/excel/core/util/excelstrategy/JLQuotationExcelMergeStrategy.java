@@ -8,13 +8,13 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Objects;
 
-public class JLCustomMergeStrategy extends AbstractMergeStrategy {
+public class JLQuotationExcelMergeStrategy extends AbstractMergeStrategy {
 
     private Integer rowCount=0;
     private Integer supplyCount = 0;
     private Integer chargeCount = 0;
 
-    public  JLCustomMergeStrategy(Integer supplyCount,Integer chargeCount){
+    public JLQuotationExcelMergeStrategy(Integer supplyCount, Integer chargeCount){
         this.supplyCount = supplyCount;
         this.chargeCount = chargeCount;
         this.rowCount=supplyCount+chargeCount;

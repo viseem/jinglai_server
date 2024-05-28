@@ -20,76 +20,24 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @Data
 public class InvoiceApplicationExcelVO {
 
-    @ExcelProperty("ID")
-    private Long id;
+    @ExcelProperty("名称")
+    private String name;
 
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
+    @ExcelProperty("品牌")
+    private String brand;
 
-    @ExcelProperty("客户id")
-    private Long customerId;
+    @ExcelProperty("货号")
+    private String productCode;
 
-    @ExcelProperty("客户")
-    private String customerName;
+    @ExcelProperty("规格")
+    private String spec;
 
-    @ExcelProperty("客户抬头id")
-    private Long customerInvoiceHeadId;
+    @ExcelProperty("单价(元)")
+    private String price;
 
-    @ExcelProperty("开票要求")
-    private String require;
+    @ExcelProperty("数量")
+    private String quantity;
 
-    @ExcelProperty("抬头")
-    private String head;
-
-    @ExcelProperty("税号")
-    private Integer taxNumber;
-
-    @ExcelProperty("单位地址")
-    private String address;
-
-    @ExcelProperty("寄送地址")
-    private String sendAddress;
-
-    @ExcelProperty("电话")
-    private String phone;
-
-    @ExcelProperty("开户银行")
-    private String bankName;
-
-    @ExcelProperty("银行账号")
-    private String bankAccount;
-
-    @ExcelProperty("备注")
-    private String mark;
-
-    @ExcelProperty("状态")
-    private String status;
-
-    @ExcelProperty("发票数量")
-    private Integer invoiceCount;
-
-    @ExcelProperty("总金额")
-    private BigDecimal totalAmount;
-
-    @ExcelProperty("已开票金额")
-    private BigDecimal invoicedAmount;
-
-    @ExcelProperty("已到账金额")
-    private BigDecimal receivedAmount;
-
-    @ExcelProperty("已退回金额")
-    private BigDecimal refundedAmount;
-
-    @ExcelProperty("销售id")
-    private Long salesId;
-
-    @ExcelProperty("销售")
-    private String salesName;
-
-    @ExcelProperty("审批人id")
-    private Long auditId;
-
-    @ExcelProperty("审批人")
-    private String auditName;
-
+    @ExcelProperty("金额")
+    private String amount;
 }

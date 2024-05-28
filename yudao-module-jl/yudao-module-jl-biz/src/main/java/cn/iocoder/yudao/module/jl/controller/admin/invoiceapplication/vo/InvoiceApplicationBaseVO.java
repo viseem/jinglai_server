@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.invoiceapplication.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceAuditStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -102,5 +103,5 @@ public class InvoiceApplicationBaseVO {
 
     private List<ContractInvoiceLog> contractInvoiceLogList;
 
-
+    private List<CommonAttachment> attachmentList;
 }

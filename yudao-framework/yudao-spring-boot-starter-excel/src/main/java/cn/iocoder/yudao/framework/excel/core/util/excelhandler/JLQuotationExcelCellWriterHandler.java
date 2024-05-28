@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.framework.excel.core.util.excelhandler;
 
 import com.alibaba.excel.metadata.Head;
-import com.alibaba.excel.metadata.data.CellData;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.handler.CellWriteHandler;
 import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
@@ -10,13 +9,13 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.util.List;
 
-public class CustomExcelCellWriterHandler  implements CellWriteHandler {
+public class JLQuotationExcelCellWriterHandler implements CellWriteHandler {
 
     private  Integer supplyCount=0;
     private  Integer chargeCount=0;
     private  Integer rowCount=0;
 
-    public CustomExcelCellWriterHandler(Integer supplyCount, Integer chargeCount){
+    public JLQuotationExcelCellWriterHandler(Integer supplyCount, Integer chargeCount){
         this.supplyCount=supplyCount;
         this.chargeCount=chargeCount;
         this.rowCount=supplyCount+chargeCount+3;

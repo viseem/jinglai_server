@@ -1,11 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation;
 
-import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellWriterHandler;
-import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLCustomMergeStrategy;
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.JLQuotationExcelCellWriterHandler;
+import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLQuotationExcelMergeStrategy;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
-import oracle.jdbc.proxy.annotation.Post;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -176,6 +175,6 @@ public class ProjectQuotationController {
         ProjectQuotationExportRespVO resp = projectQuotationService.getProjectQuotationList(exportReqVO);
         // 导出 Excel
         List<ProjectQuotationExcelVO> excelData = projectQuotationMapper.toExcelList2(resp.getQuotationItems());
-        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLCustomMergeStrategy(resp.getSupplyCount(),resp.getChargeCount()),new CustomExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
+        ExcelUtils.write(response, "项目报价.xls", "数据", ProjectQuotationExcelVO.class, excelData, new JLQuotationExcelMergeStrategy(resp.getSupplyCount(),resp.getChargeCount()),new JLQuotationExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
     }
 }

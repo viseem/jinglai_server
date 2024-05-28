@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ContractInvoiceLogRepository extends JpaRepository<ContractInvoiceLog, Long>, JpaSpecificationExecutor<ContractInvoiceLog> {
+    @Query("select c from ContractInvoiceLog c where c.applicationId = ?1")
+    List<ContractInvoiceLog> findByApplicationId(Long applicationId);
     @Transactional
     @Modifying
     @Query("update ContractInvoiceLog c set c.status = ?1 where c.applicationId = ?2")

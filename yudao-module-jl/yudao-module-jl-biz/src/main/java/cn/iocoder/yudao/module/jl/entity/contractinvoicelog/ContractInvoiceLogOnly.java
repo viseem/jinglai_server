@@ -295,4 +295,5 @@ public class ContractInvoiceLogOnly extends BaseEntity {
      */
     @Column(name = "from_title", nullable = false )
     private String fromTitle;
+
 }

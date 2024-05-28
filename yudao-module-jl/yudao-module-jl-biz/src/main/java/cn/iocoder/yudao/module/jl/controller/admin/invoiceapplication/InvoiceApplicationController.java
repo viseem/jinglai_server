@@ -1,5 +1,10 @@
 package cn.iocoder.yudao.module.jl.controller.admin.invoiceapplication;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.JLInvoiceApplicationExcelCellWriterHandler;
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.JLQuotationExcelCellWriterHandler;
+import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLInvoiceApplicationExcelMergeStrategy;
+import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLQuotationExcelMergeStrategy;
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationExcelVO;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -96,10 +101,9 @@ public class InvoiceApplicationController {
     @PreAuthorize("@ss.hasPermission('jl:invoice-application:export')")
     @OperateLog(type = EXPORT)
     public void exportInvoiceApplicationExcel(@Valid InvoiceApplicationExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
-        List<InvoiceApplication> list = invoiceApplicationService.getInvoiceApplicationList(exportReqVO);
+        List<InvoiceApplicationExcelRowItemVO> list = invoiceApplicationService.getInvoiceApplicationList(exportReqVO);
         // 导出 Excel
-        List<InvoiceApplicationExcelVO> excelData = invoiceApplicationMapper.toExcelList(list);
-        ExcelUtils.write(response, "开票申请.xls", "数据", InvoiceApplicationExcelVO.class, excelData);
+        ExcelUtils.writeNoHead(response, "开票申请.xls", "数据", InvoiceApplicationExcelRowItemVO.class, list, new JLInvoiceApplicationExcelMergeStrategy(),new JLInvoiceApplicationExcelCellWriterHandler());
     }
 
 }
