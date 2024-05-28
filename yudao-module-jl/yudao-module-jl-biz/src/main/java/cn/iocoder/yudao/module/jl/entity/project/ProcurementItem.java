@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContract;
 import cn.iocoder.yudao.module.jl.entity.purchasecontract.PurchaseContractOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -289,6 +291,11 @@ public class ProcurementItem extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectOnly project;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerOnly customer;
 
     /**
      * 级联

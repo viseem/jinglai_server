@@ -39,6 +39,9 @@ public class InventoryStoreLogPageReqVO extends PageParam {
     @Schema(description = "单位")
     private String unit;
 
+    @Schema(description = "变更类型")
+    private String changeType;
+
     @Schema(description = "变更数量")
     private Integer changeNum;
 

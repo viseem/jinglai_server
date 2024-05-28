@@ -198,6 +198,10 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
                 predicates.add(cb.equal(root.get("unit"), pageReqVO.getUnit()));
             }
 
+            if(pageReqVO.getChangeType() != null) {
+                predicates.add(cb.equal(root.get("changeType"), pageReqVO.getChangeType()));
+            }
+
             if(pageReqVO.getChangeNum() != null) {
                 predicates.add(cb.equal(root.get("changeNum"), pageReqVO.getChangeNum()));
             }
