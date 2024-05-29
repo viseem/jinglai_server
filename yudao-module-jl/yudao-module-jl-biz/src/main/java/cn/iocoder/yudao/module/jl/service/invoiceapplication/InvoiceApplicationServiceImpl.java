@@ -15,6 +15,8 @@ import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceL
 import cn.iocoder.yudao.module.jl.repository.invoiceapplication.InvoiceApplicationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import cn.iocoder.yudao.module.jl.service.contractinvoicelog.ContractInvoiceLogServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
@@ -72,6 +74,9 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     @Resource
     private DictDataApiImpl dictDataApi;
 
+    @Resource
+    private ProjectConstractServiceImpl projectConstractServiceImpl;
+
     @Override
     @Transactional
     public Long createInvoiceApplication(InvoiceApplicationCreateReqVO createReqVO) {
@@ -111,6 +116,8 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
 
         //这里有很多id，从前端带过来把
         for (ContractInvoiceLog contractInvoiceLog : contractInvoiceLogList) {
+
+
             contractInvoiceLog.setTitle(invoiceApplication.getHead());
             contractInvoiceLog.setTaxerNumber(invoiceApplication.getTaxNumber());
             contractInvoiceLog.setBankAccount(invoiceApplication.getBankAccount());
@@ -127,6 +134,8 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             contractInvoiceLog.setAuditStatus(invoiceApplication.getStatus());
         }
         contractInvoiceLogRepository.saveAll(contractInvoiceLogList);
+
+
     }
 
     @Override

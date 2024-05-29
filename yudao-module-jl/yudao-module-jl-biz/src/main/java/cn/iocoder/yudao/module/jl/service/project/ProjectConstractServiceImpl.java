@@ -194,8 +194,8 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 /*            if (Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.INVOICED.getStatus()) && log.getReceivedPrice() != null) {
                 priceSum=priceSum.add(log.getReceivedPrice());
             }*/
-            if(log.getReceivedPrice()!=null){
-                priceSum=priceSum.add(log.getReceivedPrice());
+            if(log.getPrice()!=null&&(Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.RECEIVED_NO.getStatus())||Objects.equals(log.getStatus(), ContractInvoiceStatusEnums.RECEIVED.getStatus()))){
+                priceSum=priceSum.add(log.getPrice());
             }
 
         }
