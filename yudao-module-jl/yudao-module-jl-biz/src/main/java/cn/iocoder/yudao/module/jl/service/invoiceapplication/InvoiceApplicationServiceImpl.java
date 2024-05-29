@@ -124,7 +124,7 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             contractInvoiceLog.setApplicationId(invoiceApplication.getId());
 
             // 设置发票的状态为审批中
-            contractInvoiceLog.setAuditStatus(ContractInvoiceAuditStatusEnums.AUDITING.getStatus());
+            contractInvoiceLog.setAuditStatus(invoiceApplication.getStatus());
         }
         contractInvoiceLogRepository.saveAll(contractInvoiceLogList);
     }

@@ -19,6 +19,9 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
 
     private Long applicationId;
 
+    @Schema(description = "id", example = "18855")
+    private Long id;
+
     @Schema(description = "in 查询 contractIds")
     private Long[] contractIds;
 

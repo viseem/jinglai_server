@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.FinancialStatist
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.financial.FinancialReceivableStatisticReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogOnlyRepository;
@@ -69,9 +70,10 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
             }
         }
 //ContractFundStatusEnums.AUDITED.getStatus(),
-        contractInvoiceLogOnlyRepository.findPaidTimeBetweenAndSalesIdIn( reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
+        contractInvoiceLogOnlyRepository.findByStatusNotAndPaidTimeBetweenAndSalesIdIn( ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(),reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
             resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
         });
+
 
         //查询contractFundLog表，获取已收金额
         contractFundLogOnlyRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), List.of(reqVO.getUserIds())).forEach(contractFundLog -> {

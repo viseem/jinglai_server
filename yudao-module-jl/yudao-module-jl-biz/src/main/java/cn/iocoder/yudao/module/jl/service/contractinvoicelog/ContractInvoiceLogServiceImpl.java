@@ -173,6 +173,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
                 }
             }
 
+            if(pageReqVO.getId() != null) {
+                predicates.add(cb.equal(root.get("id"), pageReqVO.getId()));
+            }
+
             if(pageReqVO.getNoContract() != null){
                 if(pageReqVO.getNoContract()){
                     predicates.add(cb.equal(root.get("contractId"), 0L));
@@ -474,6 +478,8 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+//        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
+
         orders.add(new Sort.Order(Sort.Direction.ASC, "status"));
         orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
 
