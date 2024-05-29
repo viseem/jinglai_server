@@ -272,11 +272,11 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 实验名目的附件
      */
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+/*    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryAttachment> attachmentList;
+    private List<ProjectCategoryAttachment> attachmentList;*/
 
 
     //审批的状态 通过 未通过

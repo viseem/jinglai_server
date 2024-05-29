@@ -109,8 +109,8 @@ public class ProjectCategoryAttachment extends BaseEntity {
     /**
      * 任务id
      */
-    @Column(name = "task_id")
-    private Long taskId;
+/*    @Column(name = "task_id")
+    private Long taskId;*/
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
