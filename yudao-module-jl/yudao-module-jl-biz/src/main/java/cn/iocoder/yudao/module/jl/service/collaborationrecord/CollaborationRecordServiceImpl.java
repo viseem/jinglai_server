@@ -2,11 +2,14 @@ package cn.iocoder.yudao.module.jl.service.collaborationrecord;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CollaborationRecordStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -39,6 +42,7 @@ import cn.iocoder.yudao.module.jl.repository.collaborationrecord.CollaborationRe
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -65,6 +69,9 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
     @Resource
     private SalesleadOnlyRepository salesleadOnlyRepository;
 
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
     @Override
     @Transactional
     public Long createCollaborationRecord(CollaborationRecordCreateReqVO createReqVO) {
@@ -75,38 +82,68 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(collaborationRecord.getId(),"COLLABORATION_RECORD",createReqVO.getAttachmentList());
 
+        // 组装消息参数
+        String msgTemplateCode = null;
+        User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
+        List<Long> sendUserIds = new ArrayList<>();
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("fromName", user.getNickname());
+        templateParams.put("id", createReqVO.getRefId());
+        templateParams.put("content",createReqVO.getContent());
+
         // 如果是商机沟通
         if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD.getStatus()) || Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.SALESLEAD_SUGGEST.getStatus())){
-            //发送通知
-            //获取当前登录人的姓名
-            User user = userRepository.findById(Objects.requireNonNull(getLoginUserId())).orElseThrow(() -> exception(USER_NOT_EXISTS));
+            msgTemplateCode = BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_REPLY.getTemplateCode();
             SalesleadOnly salesleadOnly = salesleadOnlyRepository.findById(createReqVO.getRefId()).orElseThrow(() -> exception(SALESLEAD_NOT_EXISTS));
-
-            Map<String, Object> templateParams = new HashMap<>();
-            templateParams.put("fromName", user.getNickname());
-            templateParams.put("id", createReqVO.getRefId());
-            templateParams.put("content",createReqVO.getContent());
-            List<Long> sendUserIds = new ArrayList<>();
             if(!Objects.equals(salesleadOnly.getManagerId(),user.getId())){
                 sendUserIds.add(salesleadOnly.getManagerId());
             }
             if(!Objects.equals(salesleadOnly.getCreator(),user.getId())){
                 sendUserIds.add(salesleadOnly.getCreator());
             }
+        }
 
+        // 如果是报价评论
+        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.QUOTATION_COMMENT.getStatus())){
+            msgTemplateCode = BpmMessageEnum.NOTIFY_WHEN_QUOTATION_REPLY.getTemplateCode();
+            ProjectQuotation quotation = projectQuotationRepository.findById(createReqVO.getRefId()).orElseThrow(() -> exception(PROJECT_QUOTATION_NOT_EXISTS));
+            // 如果当前登录人不是管理员，则把管理员加进去;并且如果是在审批中
+            if(!Objects.equals(getSuperUserId(),getLoginUserId())&&Objects.equals(quotation.getAuditStatus(), QuotationAuditStatusEnums.AUDITING.getStatus())){
+                sendUserIds.add(getSuperUserId());
+            }
+
+            if(quotation.getSalesleadId()!=null){
+                Optional<SalesleadOnly> byId = salesleadOnlyRepository.findById(quotation.getSalesleadId());
+                if(byId.isPresent()){
+                    SalesleadOnly salesleadOnly = byId.get();
+                    if(!Objects.equals(salesleadOnly.getManagerId(),getLoginUserId())){
+                        sendUserIds.add(salesleadOnly.getManagerId());
+                    }
+                    if(!Objects.equals(salesleadOnly.getCreator(),getLoginUserId())){
+                        sendUserIds.add(salesleadOnly.getCreator());
+                    }
+                    // 如果报价负责人不是当前登录人，且不是当前商机的负责人和创建人，则把报价负责人加进去
+                    if(!Objects.equals(quotation.getCreator(),salesleadOnly.getManagerId())&&!Objects.equals(quotation.getCreator(),getLoginUserId())){
+                        sendUserIds.add(quotation.getCreator());
+                    }
+                }
+            }
+
+        }
+        if(msgTemplateCode!=null){
+            // sendUserIds去重
+            sendUserIds = sendUserIds.stream().distinct().collect(Collectors.toList());
+            //发送通知
             for (Long sendUserId : sendUserIds) {
                 if(sendUserId==null){
                     continue;
                 }
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                         sendUserId,
-                        BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_REPLY.getTemplateCode(), templateParams
+                        msgTemplateCode, templateParams
                 ));
             }
-
-
         }
-
 
         // 返回
         return collaborationRecord.getId();

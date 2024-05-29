@@ -17,6 +17,7 @@ import java.util.List;
 public enum CollaborationRecordStatusEnums implements StringArrayValuable {
     SALESLEAD_SUGGEST("SALESLEAD-SUGGEST", "商机转化建议"),
     SALESLEAD("SALESLEAD", "商机沟通"),
+    QUOTATION_COMMENT("QUOTATION_COMMENT", "报价评论"),
     ;
 
     private final String status;

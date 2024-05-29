@@ -333,6 +333,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                     projectQuotation.setCustomerId(updateReqVO.getCustomerId());
                     projectQuotation.setCode("v1");
                     projectQuotation.setMark(updateReqVO.getQuotationVersionMark()!=null?updateReqVO.getQuotationVersionMark():"默认报价");
+                    projectQuotation.setCreator(saleslead.getManagerId());
                     quotation=projectQuotationRepository.save(projectQuotation);
                 }else{
                     quotation = quotations.get(0);
