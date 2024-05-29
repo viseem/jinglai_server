@@ -611,6 +611,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         return scheduleId;
     }
 
+    // 在用
     @Override
     @Transactional
     public void saveScheduleSupplyAndChargeItem(ScheduleSaveSupplyAndChargeItemReqVO saveReq) {
@@ -618,7 +619,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         if (saveReq.getProjectCategoryType() != null) {
 
             saveReq.getSupplyList().forEach(supply -> {
-                supply.setCreateType(0);
+//                supply.setCreateType(0);
                 supply.setProjectId(saveReq.getProjectId());
                 supply.setQuotationId(saveReq.getProjectQuotationId());
             });

@@ -63,4 +63,7 @@ public class ProjectSupplySubClass {
 
     @Schema(description = "库存总量")
     private Integer inventoryQuantity;
+
+    private Integer createType = 0;
+
 }

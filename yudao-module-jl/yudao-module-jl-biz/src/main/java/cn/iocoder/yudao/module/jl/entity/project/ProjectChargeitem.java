@@ -132,6 +132,12 @@ public class ProjectChargeitem extends BaseEntity {
     @Column(name = "manager_id", nullable = false )
     private Long managerId;
 
+    /**
+     * 创建类型
+     */
+    @Column(name = "create_type", nullable = false )
+    private Integer createType =0;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
