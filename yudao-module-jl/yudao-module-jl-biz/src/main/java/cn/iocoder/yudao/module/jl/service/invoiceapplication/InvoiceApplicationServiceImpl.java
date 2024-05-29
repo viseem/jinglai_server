@@ -324,7 +324,7 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         rowItem2.setCol1("销售：");
         rowItem2.setCol2(invoiceApplication.getSalesName());
         rowItem2.setCol3("客户姓名：");
-        rowItem2.setCol4("");
+        rowItem2.setCol4(invoiceApplication.getCustomerName());
         itemList.add(rowItem2);
 
         InvoiceApplicationExcelRowItemVO rowItem3 = new InvoiceApplicationExcelRowItemVO();
