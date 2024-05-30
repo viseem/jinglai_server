@@ -90,11 +90,11 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "project_category_id", nullable = false)
     private Long projectCategoryId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectCategoryOnly projectCategory;
+    private ProjectCategoryOnly projectCategory;*/
 
     /**
      * 安排单id
@@ -109,11 +109,11 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "approval_id", nullable = false )
     private Long approvalId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "approval_id",  insertable = false, updatable = false)
-    private Approval approval;
+    private Approval approval;*/
 
     /**
      * 检查项json string
