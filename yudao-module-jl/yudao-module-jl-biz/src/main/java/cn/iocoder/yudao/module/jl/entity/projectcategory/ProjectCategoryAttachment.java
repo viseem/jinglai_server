@@ -63,12 +63,12 @@ public class ProjectCategoryAttachment extends BaseEntity {
     @Column(name = "project_category_id", nullable = false )
     private Long projectCategoryId;
 
-    @ManyToOne
+/*    @ManyToOne
     @JoinColumn(name="project_category_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
-    private ProjectCategory category;
+    private ProjectCategory category;*/
 
     /**
      * 文件名
@@ -107,16 +107,17 @@ public class ProjectCategoryAttachment extends BaseEntity {
     private Long projectDocumentId;
 
     /**
-     * 任务id
+     * 任务Id
      */
-/*    @Column(name = "task_id")
-    private Long taskId;*/
+    @Column(name = "task_id")
+    private Long taskId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectCategoryOnly projectCategory;
+    private ProjectCategoryOnly projectCategory;*/
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

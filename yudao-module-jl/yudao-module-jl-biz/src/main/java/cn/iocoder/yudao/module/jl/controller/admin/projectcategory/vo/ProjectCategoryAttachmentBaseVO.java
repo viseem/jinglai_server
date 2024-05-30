@@ -37,4 +37,7 @@ public class ProjectCategoryAttachmentBaseVO {
 
     @Schema(description = "备注", example = "我是备注")
     private String  mark;
+
+    @Schema(description = "任务id", example = "我是备注")
+    private Long  taskId;
 }
