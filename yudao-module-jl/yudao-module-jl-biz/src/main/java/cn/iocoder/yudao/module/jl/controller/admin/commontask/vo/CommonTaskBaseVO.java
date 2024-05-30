@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
+import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -11,6 +12,7 @@ import javax.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 /**
  * 通用任务 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -29,9 +31,8 @@ public class CommonTaskBaseVO {
     @Schema(description = "备注")
     private String mark;
 
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    @NotNull(message = "状态不能为空")
-    private String status;
+    @Schema(description = "状态")
+    private Integer status = CommonTaskStatusEnums.WAIT_DO.getStatus();
 
     @Schema(description = "开始时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
@@ -44,6 +45,10 @@ public class CommonTaskBaseVO {
     @Schema(description = "负责人", requiredMode = Schema.RequiredMode.REQUIRED, example = "27670")
     @NotNull(message = "负责人不能为空")
     private Long userId;
+
+    @Schema(description = "负责人昵称", requiredMode = Schema.RequiredMode.REQUIRED, example = "27670")
+    @NotNull(message = "负责人昵称不能为空")
+    private String userNickname;
 
     @Schema(description = "关注人")
     private String focusIds;
@@ -89,12 +94,10 @@ public class CommonTaskBaseVO {
     @NotNull(message = "紧急程度不能为空")
     private String level;
 
-    @Schema(description = "指派人id", requiredMode = Schema.RequiredMode.REQUIRED, example = "10722")
-    @NotNull(message = "指派人id不能为空")
+    @Schema(description = "指派人id")
     private Long assignUserId;
 
-    @Schema(description = "指派人", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
-    @NotNull(message = "指派人不能为空")
+    @Schema(description = "指派人")
     private String assignUserName;
 
     @Schema(description = "实验室id")

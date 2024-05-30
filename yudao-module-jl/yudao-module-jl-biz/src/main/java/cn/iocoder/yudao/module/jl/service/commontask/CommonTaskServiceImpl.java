@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +27,7 @@ import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -41,19 +44,42 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private CommonTaskMapper commonTaskMapper;
 
+    @Resource
+    private UserRepository userRepository;
+
     @Override
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
+
+        processCommonTaskSaveData(createReqVO);
+
         // 插入
         CommonTask commonTask = commonTaskMapper.toEntity(createReqVO);
         commonTaskRepository.save(commonTask);
+
         // 返回
         return commonTask.getId();
+    }
+
+    private void processCommonTaskSaveData(CommonTaskBaseVO vo){
+
+        if(vo.getAssignUserId()==null&&getLoginUserId()!=null){
+            userRepository.findById(getLoginUserId()).ifPresentOrElse(user -> {
+                vo.setAssignUserId(user.getId());
+                vo.setAssignUserName(user.getNickname());
+            }, () -> {
+                throw exception(USER_NOT_EXISTS);
+            });
+        }
+
     }
 
     @Override
     public void updateCommonTask(CommonTaskUpdateReqVO updateReqVO) {
         // 校验存在
         validateCommonTaskExists(updateReqVO.getId());
+
+        processCommonTaskSaveData(updateReqVO);
+
         // 更新
         CommonTask updateObj = commonTaskMapper.toEntity(updateReqVO);
         commonTaskRepository.save(updateObj);

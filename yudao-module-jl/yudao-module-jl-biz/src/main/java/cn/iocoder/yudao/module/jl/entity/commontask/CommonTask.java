@@ -55,7 +55,7 @@ public class CommonTask extends BaseEntity {
      * 状态
      */
     @Column(name = "status", nullable = false )
-    private String status;
+    private Integer status;
 
     /**
      * 开始时间
@@ -74,6 +74,12 @@ public class CommonTask extends BaseEntity {
      */
     @Column(name = "user_id", nullable = false )
     private Long userId;
+
+    /**
+     * 负责人昵称
+     */
+    @Column(name = "user_nickname")
+    private String userNickname;
 
     /**
      * 关注人
