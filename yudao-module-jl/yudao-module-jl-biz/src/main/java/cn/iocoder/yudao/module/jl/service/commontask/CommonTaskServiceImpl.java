@@ -1,9 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -47,7 +55,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private ProjectCategoryRepository projectCategoryRepository;
+
+    @Resource
+    private ProjectChargeitemRepository chargeitemRepository;
+
     @Override
+    @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
 
         processCommonTaskSaveData(createReqVO);
@@ -60,7 +75,8 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         return commonTask.getId();
     }
 
-    private void processCommonTaskSaveData(CommonTaskBaseVO vo){
+    @Transactional
+    public void processCommonTaskSaveData(CommonTaskBaseVO vo){
 
         if(vo.getAssignUserId()==null&&getLoginUserId()!=null){
             userRepository.findById(getLoginUserId()).ifPresentOrElse(user -> {
@@ -71,9 +87,47 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             });
         }
 
+        if(vo.getChargeitemId()!=null||vo.getProjectCategoryId()!=null){
+            vo.setType(CommonTaskTypeEnums.PROJECT.getStatus());
+        }
+
+        // 如果有chargeitemId，则查询chargeItem
+        if(vo.getChargeitemId() != null) {
+            Optional<ProjectChargeitem> byId = chargeitemRepository.findById(vo.getChargeitemId());
+            if(byId.isPresent()){
+                ProjectChargeitem projectChargeitem = byId.get();
+                vo.setChargeitemName(projectChargeitem.getName());
+                vo.setQuotationId(projectChargeitem.getQuotationId());
+                vo.setProductId(projectChargeitem.getProductId());
+
+                if(projectChargeitem.getProjectCategoryId()!=null){
+                    Long projectCategoryId = projectChargeitem.getProjectCategoryId();
+                    processCategorySaveData(vo, projectCategoryId);
+                }
+            }
+        }
+
+    }
+
+    private void processCategorySaveData(CommonTaskBaseVO vo, Long projectCategoryId) {
+        Optional<ProjectCategory> byId1 = projectCategoryRepository.findById(projectCategoryId);
+        if(byId1.isPresent()){
+            ProjectCategory projectCategory = byId1.get();
+            vo.setProjectCategoryId(projectCategory.getId());
+            vo.setProjectCategoryName(projectCategory.getName());
+            vo.setProjectId(projectCategory.getProjectId());
+            vo.setCustomerId(projectCategory.getCustomerId());
+            if(projectCategory.getProject()!=null){
+                vo.setProjectName(projectCategory.getProject().getName());
+                if(projectCategory.getProject().getCustomer()!=null){
+                    vo.setCustomerName(projectCategory.getProject().getCustomer().getName());
+                }
+            }
+        }
     }
 
     @Override
+    @Transactional
     public void updateCommonTask(CommonTaskUpdateReqVO updateReqVO) {
         // 校验存在
         validateCommonTaskExists(updateReqVO.getId());

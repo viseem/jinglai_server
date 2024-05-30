@@ -88,11 +88,11 @@ public class CommonTaskBaseVO {
 
     @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "类型不能为空")
-    private String type;
+    private Integer type;
 
     @Schema(description = "紧急程度", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "紧急程度不能为空")
-    private String level;
+    private Integer level;
 
     @Schema(description = "指派人id")
     private Long assignUserId;

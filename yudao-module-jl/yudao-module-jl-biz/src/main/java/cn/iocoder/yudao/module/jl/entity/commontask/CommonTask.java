@@ -141,11 +141,6 @@ public class CommonTask extends BaseEntity {
     @Column(name = "chargeitem_name")
     private String chargeitemName;
 
-    /**
-     * 产品
-     */
-    @Column(name = "product_name")
-    private String productName;
 
     /**
      * 实验目录
@@ -157,13 +152,13 @@ public class CommonTask extends BaseEntity {
      * 类型
      */
     @Column(name = "type", nullable = false )
-    private String type;
+    private Integer type;
 
     /**
      * 紧急程度
      */
     @Column(name = "level", nullable = false )
-    private String level;
+    private Integer level;
 
     /**
      * 指派人id
