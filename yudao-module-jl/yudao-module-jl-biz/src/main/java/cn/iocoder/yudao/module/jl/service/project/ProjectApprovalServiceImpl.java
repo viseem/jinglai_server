@@ -24,6 +24,7 @@ import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
+import org.apache.ibatis.jdbc.Null;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -150,13 +151,15 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                     userIds.add(project.getManagerId());
                     userIds.add(project.getSalesId());
                     // project.getFocusIds()是逗号分隔的字符串，需要转换为List<Long>，并防止异常
+
+
                     try {
                         Arrays.stream(project.getFocusIds().split(","))
                                 .map(Long::parseLong)
                                 .forEach(userIds::add);
 
-                    } catch (NumberFormatException e) {
-                        System.err.println("Error parsing focus IDs: " + e.getMessage());
+                    } catch (Exception e) {
+                        System.out.println("Error parsing focus IDs: " + e.getMessage());
                     }
 
                     for (Long userId : userIds) {

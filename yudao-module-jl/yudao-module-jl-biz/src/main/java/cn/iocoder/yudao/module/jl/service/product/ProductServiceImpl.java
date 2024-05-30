@@ -2,12 +2,15 @@ package cn.iocoder.yudao.module.jl.service.product;
 
 import cn.iocoder.yudao.module.jl.controller.admin.productuser.vo.ProductUserUpdateReqVO;
 import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.productuser.ProductUserOnly;
 import cn.iocoder.yudao.module.jl.repository.product.ProductDetailRepository;
+import cn.iocoder.yudao.module.jl.repository.product.ProductSelectorRepository;
 import cn.iocoder.yudao.module.jl.repository.productuser.ProductUserOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.productuser.ProductUserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.productuser.ProductUserServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -47,6 +50,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     private ProductRepository productRepository;
+
+    @Resource
+    private ProductSelectorRepository productSelectorRepository;
 
     @Resource
     private ProductDetailRepository productDetailRepository;
@@ -143,7 +149,36 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<Product> spec = (root, query, cb) -> {
+        Specification<Product> spec = getProductSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Product> page = productRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProductSelector> getProductPageSelector(ProductPageReqVO pageReqVO, ProductPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProductSelector> spec = getProductSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProductSelector> page = productSelectorRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private <T>Specification<T> getProductSpecification(ProductPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getNameKey() != null) {
@@ -163,7 +198,6 @@ public class ProductServiceImpl implements ProductService {
                 }
 
             }
-
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
@@ -227,12 +261,7 @@ public class ProductServiceImpl implements ProductService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Product> page = productRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     @Override

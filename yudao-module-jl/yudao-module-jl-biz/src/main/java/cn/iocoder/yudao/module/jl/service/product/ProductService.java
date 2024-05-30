@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.product.vo.*;
 import cn.iocoder.yudao.module.jl.entity.product.Product;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 
 /**
  * 产品库 Service 接口
@@ -59,6 +60,15 @@ public interface ProductService {
      */
     PageResult<Product> getProductPage(ProductPageReqVO pageReqVO, ProductPageOrder orderV0);
 
+
+
+    /**
+     * 获得产品库分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 产品库分页
+     */
+    PageResult<ProductSelector> getProductPageSelector(ProductPageReqVO pageReqVO, ProductPageOrder orderV0);
 
     /**
      * 获得产品库列表, 用于 Excel 导出
