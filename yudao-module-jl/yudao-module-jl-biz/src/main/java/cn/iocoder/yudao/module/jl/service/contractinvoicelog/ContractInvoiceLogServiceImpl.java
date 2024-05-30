@@ -105,6 +105,7 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     public void updateContractInvoiceLog(ContractInvoiceLogUpdateReqVO updateReqVO) {
         // 校验存在
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(updateReqVO.getId());
+        Long originContractId = contractInvoiceLog.getContractId();
 
         // 如果status不为空，则记录auditId为当前登录用户
 /*        if(!Objects.equals(updateReqVO.getStatus(), ContractInvoiceStatusEnums.NOT_INVOICE.getStatus())){
@@ -116,6 +117,10 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         contractInvoiceLogRepository.save(updateObj);
 
         projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
+        // 如果变更了合同 则把原合同的金额也重新计算一遍
+        if(!Objects.equals(originContractId,contractInvoiceLog.getContractId())){
+            projectConstractService.processContractInvoicedPrice2(originContractId);
+        }
 
         commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_INVOICE_LOG",updateReqVO.getAttachmentList());
     }
