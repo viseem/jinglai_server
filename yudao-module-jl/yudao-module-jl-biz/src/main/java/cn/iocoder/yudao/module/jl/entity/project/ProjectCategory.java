@@ -293,11 +293,11 @@ public class ProjectCategory extends BaseEntity {
     /**
      * 查询实验记录列表
      */
-    @OneToMany(fetch = FetchType.LAZY)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryLog> logs;
+    private List<ProjectCategoryLog> logs;*/
 
     /*
     * 依赖项

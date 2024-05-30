@@ -43,11 +43,11 @@ public class ProjectCategoryLog extends BaseEntity {
     /**
      * JPA 级联出 project
      */
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectSimple project;
+    private ProjectSimple project;*/
 
     /**
      * 实验名目 id
@@ -122,10 +122,10 @@ public class ProjectCategoryLog extends BaseEntity {
     /*
     * 级联实验
     * */
-    @OneToOne(fetch = FetchType.EAGER)
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectCategoryOnly projectCategory;
+    private ProjectCategoryOnly projectCategory;*/
 
 }
