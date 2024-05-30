@@ -75,8 +75,8 @@ public class ProjectQuote extends BaseEntity {
     /**
      * 实验名目
      */
-    @OneToMany(mappedBy="quote")
+/*    @OneToMany(mappedBy="quote")
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonManagedReference
-    private List<ProjectCategory> categoryList;
+    private List<ProjectCategory> categoryList;*/
 }

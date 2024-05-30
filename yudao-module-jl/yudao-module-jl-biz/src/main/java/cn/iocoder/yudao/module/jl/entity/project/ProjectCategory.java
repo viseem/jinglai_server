@@ -67,13 +67,7 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
-    /**
-     * JPA 级联出 project
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectSimple project;
+
 
     /**
      * 安排单 id
@@ -228,11 +222,11 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "project_manager_id")
     private Long projectManagerId;
 
-    @ManyToOne
+/*    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JsonBackReference
     @JoinColumn(name = "quote_id", insertable = false, updatable = false)
-    private ProjectQuote quote;
+    private ProjectQuote quote;*/
 
     /**
      * JPA 级联出 user 实验负责人
@@ -308,6 +302,14 @@ public class ProjectCategory extends BaseEntity {
     @Where(clause = "level = 2")
     @NotFound(action = NotFoundAction.IGNORE)
     private List<TaskRelationOnly> relations = new ArrayList<>();*/
+
+    /**
+     * JPA 级联出 project
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectSimple project;
 
     @Transient
     private List<CommonTodo> preTodoList = new ArrayList<>();
