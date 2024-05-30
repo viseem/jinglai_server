@@ -91,9 +91,16 @@ public class ProjectSop extends BaseEntity {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    /**
+     * 任务id
+     */
+    @Column(name = "task_id")
+    private Long taskId;
+
+
+/*    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectCategoryOnly category;
+    private ProjectCategoryOnly category;*/
 }

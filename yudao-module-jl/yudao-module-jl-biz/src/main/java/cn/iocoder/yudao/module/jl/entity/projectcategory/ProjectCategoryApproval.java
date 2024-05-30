@@ -102,6 +102,12 @@ public class ProjectCategoryApproval extends BaseEntity {
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 
+    /**
+     * 任务id
+     */
+    @Column(name = "task_id", nullable = false)
+    private Long taskId;
+
     /*
      * 审批表的id
      * */

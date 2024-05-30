@@ -31,5 +31,7 @@ public class ProjectCategoryApprovalBaseVO {
     private String checkedList;
 
 
+    private Long taskId;
+
 
 }

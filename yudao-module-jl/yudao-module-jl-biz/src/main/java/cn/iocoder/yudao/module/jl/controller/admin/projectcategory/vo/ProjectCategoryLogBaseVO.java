@@ -26,6 +26,8 @@ public class ProjectCategoryLogBaseVO {
     @NotNull(message = "实验名目 id不能为空")
     private Long projectCategoryId;
 
+    private Long taskId;
+
 
     @Schema(description = "原实验名目 id")
     private Long categoryId;

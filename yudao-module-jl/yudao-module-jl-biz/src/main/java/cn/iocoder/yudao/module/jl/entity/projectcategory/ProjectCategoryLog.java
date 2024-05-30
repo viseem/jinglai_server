@@ -41,6 +41,12 @@ public class ProjectCategoryLog extends BaseEntity {
     private Long projectId;
 
     /**
+     * 项目id
+     */
+    @Column(name = "task_id", nullable = false)
+    private Long taskId;
+
+    /**
      * JPA 级联出 project
      */
 /*    @OneToOne(fetch = FetchType.EAGER)
