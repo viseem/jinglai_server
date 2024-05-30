@@ -3,10 +3,12 @@ package cn.iocoder.yudao.module.jl.service.inventorystorelog;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.project.Procurement;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreLogChangeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProcurementOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProcurementItemServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
@@ -76,6 +78,9 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
     @Resource
     private ProjectServiceImpl projectService;
 
+    @Resource
+    private ProcurementOnlyRepository procurementOnlyRepository;
+
     @Override
     @Transactional
     public Long createInventoryStoreLog(InventoryStoreLogCreateReqVO createReqVO) {
@@ -128,6 +133,15 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
 //            userIds.add(project.getSalesId());
            }
            userIds.add(getProcurementUserId());
+
+           // 通知采购发起的人
+           if(procurementItem.getProcurementId()!=null){
+               Optional<ProcurementOnly> byId1 = procurementOnlyRepository.findById(procurementItem.getProcurementId());
+               if (byId1.isPresent()) {
+                   userIds.add(byId1.get().getCreator());
+               }
+           }
+
            Map<String, Object> templateParams = new HashMap<>();
            String content = String.format(
                    "%s(编号:%s) 已签收入库,数量:%s,备注:%s",
@@ -135,6 +149,9 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
            );
            templateParams.put("content", content);
            templateParams.put("id", procurementItem.getId());
+
+           // userids去重
+          userIds = userIds.stream().distinct().collect(Collectors.toList());
 
            for (Long userId : userIds) {
                if (userId == null) {
