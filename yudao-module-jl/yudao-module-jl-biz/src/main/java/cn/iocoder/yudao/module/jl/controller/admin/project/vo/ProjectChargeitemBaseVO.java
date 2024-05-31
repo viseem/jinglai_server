@@ -18,18 +18,26 @@ public class ProjectChargeitemBaseVO {
     @Schema(description = "选中的实验名目 id")
     private Long projectCategoryId;
 
+    // 项目id用报价id查一下
+/*    @Schema(description = "项目", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
+    @NotNull(message = "项目不能为空")*/
+    private Long projectId;
+
+    @Schema(description = "报价id", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
+    @NotNull(message = "报价id不能为空")
+    private Long quotationId;
+
+
     @Schema(description = "原始的实验名目 id")
     private Long categoryId;
 
     @Schema(description = "物资 id")
     private Long chargeItemId;
 
-    private Integer finalUsageNum;
+    private Integer finalUsageNum=0;
 
     private Integer isAppend;
 
-    private Long projectId;
-    private Long quotationId;
     private Long scheduleId;
 
     private Integer sort;
@@ -38,7 +46,8 @@ public class ProjectChargeitemBaseVO {
     private String name;
 
 
-    @Schema(description = "规格")
+    @Schema(description = "规格", requiredMode = Schema.RequiredMode.REQUIRED, example = "李四")
+    @NotNull(message = "规格不能为空")
     private String spec;
 
     @Schema(description = "规则/单位")
@@ -69,5 +78,8 @@ public class ProjectChargeitemBaseVO {
 
     @Schema(description = "负责人id")
     private Long managerId;
+
+    @Schema(description = "创建类型")
+    private Integer createType;
 
 }

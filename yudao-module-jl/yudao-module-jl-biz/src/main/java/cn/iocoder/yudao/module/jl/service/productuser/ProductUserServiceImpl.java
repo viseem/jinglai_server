@@ -49,16 +49,20 @@ public class ProductUserServiceImpl implements ProductUserService {
 
     @Override
     public void updateProductUser(ProductUserUpdateReqVO updateReqVO) {
-        if(updateReqVO.getList()!=null){
+        if(updateReqVO.getId()==0L&&updateReqVO.getList()!=null&& !updateReqVO.getList().isEmpty()){
             productUserRepository.deleteByProductId(updateReqVO.getProductId());
             productUserRepository.saveAll(updateReqVO.getList());
-        }else{
-            // 校验存在
-            validateProductUserExists(updateReqVO.getId());
-            // 更新
-            ProductUser updateObj = productUserMapper.toEntity(updateReqVO);
-            productUserRepository.save(updateObj);
         }
+
+        if(updateReqVO.getId()==0L){
+            return;
+        }
+
+        // 校验存在
+        validateProductUserExists(updateReqVO.getId());
+        // 更新
+        ProductUser updateObj = productUserMapper.toEntity(updateReqVO);
+        productUserRepository.save(updateObj);
     }
 
     @Override

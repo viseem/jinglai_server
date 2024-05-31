@@ -2,11 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,17 +42,22 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     @Resource
     private ProjectChargeitemMapper projectChargeitemMapper;
 
+
     @Resource
-    private ProjectCategoryServiceImpl projectCategoryService;
+    private ProjectQuotationRepository projectQuotationRepository;
 
     @Override
+    @Transactional
     public Long createProjectChargeitem(ProjectChargeitemCreateReqVO createReqVO) {
+        processSaveData(createReqVO);
+
         // 插入
         ProjectChargeitem projectChargeitem = projectChargeitemMapper.toEntity(createReqVO);
 
         //如果projectCategoryType等于 account，则根据type和projectId查询是否存在category
-        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
-        projectChargeitem.setProjectCategoryId(projectCategory.getId());
+//        ProjectCategory projectCategory = projectCategoryService.processQuotationProjectCategory(createReqVO.getProjectCategoryType(),createReqVO.getProjectId(),createReqVO.getProjectQuotationId());
+//        projectChargeitem.setProjectCategoryId(projectCategory.getId());
+
 
         projectChargeitemRepository.save(projectChargeitem);
 
@@ -62,13 +67,19 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         return projectChargeitem.getId();
     }
 
+    @Transactional
+    public void processSaveData(ProjectChargeitemBaseVO vo) {
+        Optional<ProjectQuotation> byId = projectQuotationRepository.findById(vo.getQuotationId());
+        byId.ifPresent(projectQuotation -> vo.setProjectId(projectQuotation.getProjectId()));
+    }
+
     @Override
     @Transactional
     public void updateProjectChargeitem(ProjectChargeitemUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectChargeitemExists(updateReqVO.getId());
 
-
+        processSaveData(updateReqVO);
 
         // 更新
         ProjectChargeitem updateObj = projectChargeitemMapper.toEntity(updateReqVO);

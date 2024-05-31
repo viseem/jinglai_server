@@ -46,8 +46,7 @@ public class CommonTaskBaseVO {
     @NotNull(message = "负责人不能为空")
     private Long userId;
 
-    @Schema(description = "负责人昵称", requiredMode = Schema.RequiredMode.REQUIRED, example = "27670")
-    @NotNull(message = "负责人昵称不能为空")
+    @Schema(description = "负责人昵称")
     private String userNickname;
 
     @Schema(description = "关注人")

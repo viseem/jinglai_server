@@ -29,4 +29,6 @@ public class ProductUserBaseVO {
 
     private ProductOnly product;
     private User user;
+
+    private String nickname;
 }

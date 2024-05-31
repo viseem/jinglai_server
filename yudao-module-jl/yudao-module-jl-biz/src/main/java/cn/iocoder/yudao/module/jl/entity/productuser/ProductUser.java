@@ -70,4 +70,13 @@ public class ProductUser extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
+    @Transient
+    private String nickname;
+
+    public String getNickname() {
+        if(user==null){
+            return "";
+        }
+        return user.getNickname();
+    }
 }

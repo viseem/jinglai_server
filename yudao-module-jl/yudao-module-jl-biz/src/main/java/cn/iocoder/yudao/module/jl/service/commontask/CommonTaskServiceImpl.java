@@ -1,42 +1,37 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
+import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
 import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
-import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
-import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.COMMON_TASK_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.USER_NOT_EXISTS;
 
 /**
  * 通用任务 Service 实现类
@@ -61,6 +56,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private ProjectChargeitemRepository chargeitemRepository;
 
+    @Resource
+    private DateAttributeGenerator dateAttributeGenerator;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -77,6 +75,13 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo){
+
+        userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
+            vo.setUserNickname(user.getNickname());
+        }, () -> {
+            throw exception(USER_NOT_EXISTS);
+        });
+
 
         if(vo.getAssignUserId()==null&&getLoginUserId()!=null){
             userRepository.findById(getLoginUserId()).ifPresentOrElse(user -> {
@@ -173,6 +178,11 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 创建 Specification
         Specification<CommonTask> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getChargeitemId()==null&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
+                Long[] users = pageReqVO.getUserId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));
+            }
 
             if(pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
@@ -288,6 +298,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 创建 Specification
         Specification<CommonTask> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
 
             if(exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
