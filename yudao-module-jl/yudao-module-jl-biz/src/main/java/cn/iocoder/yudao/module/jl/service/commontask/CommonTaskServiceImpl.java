@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
@@ -190,6 +191,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Override
     public Optional<CommonTask> getCommonTask(Long id) {
         return commonTaskRepository.findById(id);
+    }
+
+    @Override
+    public CommonTaskCountStatusRespVO getCommonTaskStatusCount() {
+        CommonTaskCountStatusRespVO respVO = new CommonTaskCountStatusRespVO();
+        Integer i = commonTaskRepository.countByUserIdAndStatusNotIn(getLoginUserId(),CommonTaskStatusEnums.getDoneStatus());
+        respVO.setUndoneCount(i);
+        return respVO;
     }
 
     @Override
@@ -443,8 +452,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
-
+        orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "status"));
         orders.add(new Sort.Order("asc".equals(order.getId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
+
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

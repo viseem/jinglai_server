@@ -84,6 +84,15 @@ public class CommonTaskController {
         return success(commonTask.map(commonTaskMapper::toDto).orElseThrow(() -> exception(COMMON_TASK_NOT_EXISTS)));
     }
 
+    @GetMapping("/status-count")
+    @Operation(summary = "通过 ID 获得通用任务")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:common-task:query')")
+    public CommonResult<CommonTaskCountStatusRespVO> getCommonTaskStatusCount() {
+        CommonTaskCountStatusRespVO res = commonTaskService.getCommonTaskStatusCount();
+        return success(res);
+    }
+
     @GetMapping("/page")
     @Operation(summary = "(分页)获得通用任务列表")
     @PreAuthorize("@ss.hasPermission('jl:common-task:query')")

@@ -37,8 +37,8 @@ public enum CommonTaskStatusEnums implements StringArrayValuable {
         return new ArrayList<>();
     }
 
-//    public static String[] getDoingStages(){
-//        return new String[]{DOING.getStatus(),DATA_CHECK.getStatus(),PAUSE.getStatus(),DATA_ACCEPT.getStatus(),DATA_REJECT.getStatus()};
-//    }
+    public static Integer[] getDoneStatus(){
+        return new Integer[]{COMPLETE.status};
+    }
 
 }

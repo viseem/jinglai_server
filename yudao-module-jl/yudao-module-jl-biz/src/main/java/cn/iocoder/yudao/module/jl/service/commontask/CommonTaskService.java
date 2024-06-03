@@ -50,6 +50,14 @@ public interface CommonTaskService {
     Optional<CommonTask> getCommonTask(Long id);
 
     /**
+     * 获得通用任务
+     *
+     * @return CommonTaskCountStatusRespVO
+     */
+    CommonTaskCountStatusRespVO getCommonTaskStatusCount();
+
+
+    /**
      * 获得通用任务列表
      *
      * @param ids 编号
