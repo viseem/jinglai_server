@@ -19,10 +19,10 @@ public enum CommonTaskStatusEnums implements StringArrayValuable {
     PAUSE(20, "暂停"),
     DONE(30, "完成"),
     WAIT_DO(40, "待开展"),
-    DATA_CHECK(55, "数据审核"),
+/*    DATA_CHECK(55, "数据审核"),
     DATA_ACCEPT(50, "数据审核通过"),
     DATA_REJECT(45, "数据审核驳回"),
-    COMPLETE(60, "已出库"),
+    COMPLETE(60, "已出库"),*/
 //    APPROVAL_SUCCESS("APPROVAL_SUCCESS","审批通过"),
 //    APPROVAL_FAIL("APPROVAL_FAIL","审批不通过"),
     ;
@@ -38,7 +38,7 @@ public enum CommonTaskStatusEnums implements StringArrayValuable {
     }
 
     public static Integer[] getDoneStatus(){
-        return new Integer[]{COMPLETE.status};
+        return new Integer[]{DONE.status};
     }
 
 }
