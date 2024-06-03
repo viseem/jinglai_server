@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -96,6 +97,14 @@ public class ProjectSop extends BaseEntity {
      */
     @Column(name = "task_id")
     private Long taskId;
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User user;
 
 
 /*    @OneToOne(fetch = FetchType.EAGER)

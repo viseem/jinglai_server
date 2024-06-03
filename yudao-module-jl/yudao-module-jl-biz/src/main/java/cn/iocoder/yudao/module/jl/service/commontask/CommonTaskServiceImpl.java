@@ -1,10 +1,15 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
@@ -13,6 +18,8 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
+import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -71,6 +78,22 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 返回
         return commonTask.getId();
+    }
+
+    @Transactional
+    public void updateCommonTaskStatusById(Long id,Integer stage,Integer stageNot){
+
+/*        Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
+        if(byId.isPresent()&&!byId.get().getStage().equals(stage)){
+        }*/
+
+        if(stageNot!=null){
+            commonTaskRepository.updateStatusByIdAndStatusNot(stage, id,stageNot);
+        }else{
+            commonTaskRepository.updateStatusById(stage, id);
+        }
+
+
     }
 
     @Transactional
@@ -143,6 +166,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         CommonTask updateObj = commonTaskMapper.toEntity(updateReqVO);
         commonTaskRepository.save(updateObj);
     }
+
+    @Override
+    public void updateCommonTaskStatus(CommonTaskUpdateReqVO updateReqVO) {
+        // 校验存在
+        validateCommonTaskExists(updateReqVO.getId());
+        commonTaskRepository.updateStatusById(updateReqVO.getStatus(), updateReqVO.getId());
+    }
+
 
     @Override
     public void deleteCommonTask(Long id) {

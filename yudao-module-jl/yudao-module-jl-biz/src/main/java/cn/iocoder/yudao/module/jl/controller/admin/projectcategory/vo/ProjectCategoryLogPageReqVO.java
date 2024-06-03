@@ -22,6 +22,8 @@ public class ProjectCategoryLogPageReqVO extends PageParam {
     @Schema(description = "实验名目 id", example = "20158")
     private Long projectCategoryId;
 
+    @Schema(description = "任务id", example = "20158")
+    private Long taskId;
 
     @Schema(description = "项目id", example = "20158")
     private Long projectId;

@@ -57,6 +57,15 @@ public class CommonTaskController {
         return success(true);
     }
 
+    @PutMapping("/update-status")
+    @Operation(summary = "更新通用任务状态")
+    @PreAuthorize("@ss.hasPermission('jl:common-task:update')")
+    public CommonResult<Boolean> updateCommonTaskStatus(@Valid @RequestBody CommonTaskUpdateReqVO updateReqVO) {
+        commonTaskService.updateCommonTaskStatus(updateReqVO);
+        return success(true);
+    }
+
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除通用任务")
     @Parameter(name = "id", description = "编号", required = true)

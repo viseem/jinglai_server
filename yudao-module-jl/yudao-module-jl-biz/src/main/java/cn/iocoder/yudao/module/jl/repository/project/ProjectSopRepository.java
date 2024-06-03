@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
+    @Query("select p from ProjectSop p where p.taskId = ?1")
+    List<ProjectSop> findByTaskId(Long taskId);
     @Query("select p from ProjectSop p where p.projectCategoryId = ?1")
     List<ProjectSop> findByProjectCategoryId(Long projectCategoryId);
     @Transactional

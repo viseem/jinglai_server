@@ -15,6 +15,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectSopPageReqVO extends PageParam {
 
+    @Schema(description = "任务id", example = "21140")
+    private Long taskId;
+
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;

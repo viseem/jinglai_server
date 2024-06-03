@@ -1,14 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryLogBaseVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskServiceImpl;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import liquibase.pro.packaged.R;
@@ -73,13 +78,37 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private ProjectCategoryOnlyRepository projectCategoryOnlyRepository;
 
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
+
+    @Resource
+    private CommonTaskServiceImpl commonTaskService;
+
     @Override
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
+        processSaveData(createReqVO);
         ProjectSop projectSop = projectSopMapper.toEntity(createReqVO);
         projectSopRepository.save(projectSop);
         // 返回
         return projectSop.getId();
+    }
+
+    private void processSaveData(ProjectSopBaseVO vo) {
+
+
+        if(vo.getTaskId()!=null){
+            commonTaskRepository.findById(vo.getTaskId()).ifPresentOrElse(task -> {
+                vo.setProjectCategoryId(task.getProjectCategoryId());
+            }, () -> {
+                throw exception(COMMON_TASK_NOT_EXISTS);
+            });
+        }else{
+
+        }
+
+
+
     }
 
     @Override
@@ -87,6 +116,9 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     public void updateProjectSop(ProjectSopUpdateReqVO updateReqVO) {
         // 校验存在
         ProjectSop projectSop = validateProjectSopExists(updateReqVO.getId());
+
+        processSaveData(updateReqVO);
+
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
         projectSopRepository.save(updateObj);
@@ -145,31 +177,53 @@ public class ProjectSopServiceImpl implements ProjectSopService {
 
         }
 
-        //
         updateProjectCategoryStageById(updateReqVO.getProjectCategoryId());
+
+        updateCommonTaskStatusById(updateReqVO.getTaskId());
 
     }
 
     public void updateProjectCategoryStageById(Long projectCategoryId) {
-        List<ProjectSop> sopList = projectSopRepository.findByProjectCategoryId(projectCategoryId);
-        int doneCount = 0;
-        int totalCount = sopList.size();
-        for(ProjectSop sop : sopList) {
-            if(sop.getStatus()!=null&&sop.getStatus().equals(CommonTodoEnums.DONE.getStatus())) {
-                doneCount++;
+        if(projectCategoryId!=null){
+            List<ProjectSop> sopList = projectSopRepository.findByProjectCategoryId(projectCategoryId);
+            int doneCount = 0;
+            int totalCount = sopList.size();
+            for(ProjectSop sop : sopList) {
+                if(sop.getStatus()!=null&&sop.getStatus().equals(CommonTodoEnums.DONE.getStatus())) {
+                    doneCount++;
+                }
             }
-        }
-        if(doneCount>0){
-            if(doneCount==totalCount){
-                projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DONE.getStatus(),ProjectCategoryStatusEnums.COMPLETE.getStatus(),null);
-//                projectCategoryRepository.updateStageByIdAndStageNot(ProjectCategoryStatusEnums.DONE.getStatus(), projectCategoryId,ProjectCategoryStatusEnums.COMPLETE.getStatus());
-            }else{
-                projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DOING.getStatus(),null,null);
-//                projectCategoryRepository.updateStageById(ProjectCategoryStatusEnums.DOING.getStatus(), projectCategoryId);
+            if(doneCount>0){
+                if(doneCount==totalCount){
+                    projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DONE.getStatus(),ProjectCategoryStatusEnums.COMPLETE.getStatus(),null);
+                }else{
+                    projectCategoryService.updateProjectCategoryStageById(projectCategoryId, ProjectCategoryStatusEnums.DOING.getStatus(),null,null);
+                }
             }
         }
     }
 
+    public void updateCommonTaskStatusById(Long taskId) {
+        if(taskId!=null){
+            List<ProjectSop> sopList = projectSopRepository.findByTaskId(taskId);
+            int doneCount = 0;
+            int totalCount = sopList.size();
+            for(ProjectSop sop : sopList) {
+                if(sop.getStatus()!=null&&sop.getStatus().equals(CommonTodoEnums.DONE.getStatus())) {
+                    doneCount++;
+                }
+            }
+            if(doneCount>0){
+                if(doneCount==totalCount){
+                    // 更新不是已出库的为已完成
+                    commonTaskService.updateCommonTaskStatusById(taskId, CommonTaskStatusEnums.DONE.getStatus(),CommonTaskStatusEnums.COMPLETE.getStatus());
+                }else{
+                    // 不管是什么状态 更新为进行中
+                    commonTaskService.updateCommonTaskStatusById(taskId, CommonTaskStatusEnums.DOING.getStatus(),null);
+                }
+            }
+        }
+    }
 
     @Override
     public void saveProjectSop(List<ProjectSopBaseVO> sopList) {
@@ -230,6 +284,10 @@ public class ProjectSopServiceImpl implements ProjectSopService {
         // 创建 Specification
         Specification<ProjectSop> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if(pageReqVO.getTaskId() != null) {
+                predicates.add(cb.equal(root.get("taskId"), pageReqVO.getTaskId()));
+            }
 
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));

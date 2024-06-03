@@ -1,9 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.inventory.ProductIn;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryAttachmentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAttachmentRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -51,12 +54,16 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
     private ProjectCategoryLogMapper projectCategoryLogMapper;
 
     @Resource
-    private ProjectCategoryAttachmentMapper projectCategoryAttachmentMapper;
+    private ProjectCategoryOnlyRepository projectCategoryOnlyRepository;
+
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
 
     @Override
     public Long createProjectCategoryLog(ProjectCategoryLogCreateReqVO createReqVO) {
 
-        createReqVO.setOperatorId(getLoginUserId());
+
+        processSaveData(createReqVO);
 
         // 插入
         ProjectCategoryLog projectCategoryLog = projectCategoryLogMapper.toEntity(createReqVO);
@@ -65,6 +72,33 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
         return projectCategoryLog.getId();
     }
 
+    private void processSaveData(ProjectCategoryLogBaseVO vo) {
+        if(vo.getOperatorId()==null){
+            vo.setOperatorId(getLoginUserId());
+        }
+
+        if(vo.getTaskId()!=null){
+            commonTaskRepository.findById(vo.getTaskId()).ifPresentOrElse(task -> {
+                vo.setProjectId(task.getProjectId());
+                vo.setProjectCategoryId(task.getProjectCategoryId());
+            }, () -> {
+                throw exception(COMMON_TASK_NOT_EXISTS);
+            });
+        }else{
+            if(vo.getProjectCategoryId()!=null){
+                projectCategoryOnlyRepository.findById(vo.getProjectCategoryId()).ifPresentOrElse(projectCategory -> {
+                    vo.setProjectId(projectCategory.getProjectId());
+                }, () -> {
+                    throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+                });
+            }
+        }
+
+
+
+    }
+
+    // 新增和更新 都用的这个
     @Override
     public void saveProjectCategoryLog(ProjectCategoryLogSaveReqVO saveReqVO) {
 
@@ -73,7 +107,7 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
             validateProjectCategoryLogExists(saveReqVO.getId());
         }
 
-        saveReqVO.setOperatorId(getLoginUserId());
+        processSaveData(saveReqVO);
 
         // 更新
         ProjectCategoryLog updateObj = projectCategoryLogMapper.toEntity(saveReqVO);
@@ -98,7 +132,7 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
     @Override
     public void updateProjectCategoryLog(ProjectCategoryLogUpdateReqVO updateReqVO) {
 
-        updateReqVO.setOperatorId(getLoginUserId());
+        processSaveData(updateReqVO);
 
         // 校验存在
         validateProjectCategoryLogExists(updateReqVO.getId());
@@ -141,6 +175,11 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
         // 创建 Specification
         Specification<ProjectCategoryLog> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+
+            if(pageReqVO.getTaskId() != null) {
+                predicates.add(cb.equal(root.get("taskId"), pageReqVO.getTaskId()));
+            }
 
             if(pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
@@ -201,6 +240,8 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -14,8 +15,7 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectSopBaseVO {
 
-    @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "15560")
-    @NotNull(message = "实验名目 id不能为空")
+    @Schema(description = "实验名目 id")
     private Long projectCategoryId;
 
     private Long taskId;
@@ -45,5 +45,7 @@ public class ProjectSopBaseVO {
 
     @Schema(description = "依赖项(json数组多个)")
     private String dependIds;
+
+    private User user;
 
 }

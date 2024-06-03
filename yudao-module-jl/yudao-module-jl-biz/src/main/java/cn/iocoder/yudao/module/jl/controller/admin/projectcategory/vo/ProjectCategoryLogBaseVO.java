@@ -18,12 +18,10 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class ProjectCategoryLogBaseVO {
 
-    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
-    @NotNull(message = "项目id不能为空")
+    @Schema(description = "项目id")
     private Long projectId;
 
-    @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "20158")
-    @NotNull(message = "实验名目 id不能为空")
+    @Schema(description = "实验名目 id")
     private Long projectCategoryId;
 
     private Long taskId;

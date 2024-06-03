@@ -28,6 +28,13 @@ public interface CommonTaskService {
     void updateCommonTask(@Valid CommonTaskUpdateReqVO updateReqVO);
 
     /**
+     * 更新通用任务
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateCommonTaskStatus(@Valid CommonTaskUpdateReqVO updateReqVO);
+
+    /**
      * 删除通用任务
      *
      * @param id 编号
