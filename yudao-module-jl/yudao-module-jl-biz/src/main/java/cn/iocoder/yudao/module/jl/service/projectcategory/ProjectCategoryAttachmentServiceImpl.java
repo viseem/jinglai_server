@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryAttachmentEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectDocumentTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectFundEnums;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -71,6 +72,9 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
 
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
+
     public ProjectCategoryAttachmentServiceImpl(ProjectCategoryRepository projectCategoryRepository) {
         this.projectCategoryRepository = projectCategoryRepository;
     }
@@ -78,12 +82,26 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     @Override
     @Transactional
     public Long createProjectCategoryAttachment(ProjectCategoryAttachmentCreateReqVO createReqVO) {
+        ProjectCategorySimple projectCategorySimple=null;
+        if(createReqVO.getTaskId()==null){
+            if(createReqVO.getProjectCategoryId()==null){
+                throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+            }
+        }else{
+            commonTaskRepository.findById(createReqVO.getTaskId()).ifPresentOrElse(task -> {
+                if(task.getProjectCategoryId()!=null){
+                    createReqVO.setProjectCategoryId(task.getProjectCategoryId());
+                }
+            }, () -> {
+                throw exception(COMMON_TASK_NOT_EXISTS);
+            });
+        }
 
         Optional<ProjectCategorySimple> byId = projectCategorySimpleRepository.findById(createReqVO.getProjectCategoryId());
         if (byId.isEmpty()){
             throw exception(PROJECT_CATEGORY_NOT_EXISTS);
         }
-        ProjectCategorySimple projectCategorySimple = byId.get();
+        projectCategorySimple = byId.get();
 
         // 插入
         ProjectCategoryAttachment projectCategoryAttachment = projectCategoryAttachmentMapper.toEntity(createReqVO);
@@ -112,6 +130,8 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
                 if(!Objects.equals(project.getSalesId(),user.getId())){
                     sendUserIds.add(project.getSalesId());
                 }
+                //sendUserIds去重
+                sendUserIds = sendUserIds.stream().distinct().collect(Collectors.toList());
 
                 for (Long sendUserId : sendUserIds) {
                     System.out.println("sendUserId:"+sendUserId);
@@ -191,6 +211,10 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
             List<Predicate> predicates = new ArrayList<>();
             if(pageReqVO.getCreator() != null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getCreator()));
+            }
+
+            if(pageReqVO.getTaskId() != null) {
+                predicates.add(cb.equal(root.get("taskId"), pageReqVO.getTaskId()));
             }
 
             if(pageReqVO.getProjectId() != null) {

@@ -14,8 +14,7 @@ import javax.validation.constraints.*;
 @Data
 public class ProjectCategoryAttachmentBaseVO {
 
-    @Schema(description = "实验名目 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "4209")
-    @NotNull(message = "实验名目 id不能为空")
+    @Schema(description = "实验名目 id")
     private Long projectCategoryId;
 
     @Schema(description = "projectCategoryLogId")

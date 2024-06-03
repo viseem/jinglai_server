@@ -22,6 +22,9 @@ public class ProjectCategoryAttachmentPageReqVO extends PageParam {
     @Schema(description = "实验名目 id", example = "4209")
     private Long projectCategoryId;
 
+    @Schema(description = "任务id", example = "4209")
+    private Long taskId;
+
     @Schema(description = "项目id", example = "4209")
     private Long projectId;
 
