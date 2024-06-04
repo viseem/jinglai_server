@@ -207,7 +207,9 @@ public class AnimalFeedOrder extends BaseEntity {
     private String breedAndStrain;
 
     public String getBreedAndStrain(){
-        return breedCate!=null?breedCate: strainCate != null ? "(" + strainCate + ")" : "";
+        String breed = breedCate!=null?breedCate:"";
+        String strain = strainCate!=null ? "(" + strainCate + ")":"";
+        return breed + strain;
     }
 
     /**
