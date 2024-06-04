@@ -4,11 +4,15 @@ import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import javax.validation.constraints.*;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 购销合同 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -48,6 +52,10 @@ public class PurchaseContractBaseVO {
 
     @Schema(description = "流程实例id")
     private String processInstanceId;
+
+    @Schema(description = "审批同意时间", example = "29752")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime acceptTime;
 
     private List<CommonAttachment> attachmentList;
 

@@ -13,6 +13,7 @@ import org.hibernate.annotations.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,6 +174,12 @@ public class ProcurementDetail extends BaseEntity {
      */
     @Column(name = "process_instance_id")
     private String processInstanceId;
+
+    /**
+     * 审批同意时间
+     */
+    @Column(name = "accept_time")
+    private LocalDateTime acceptTime;
 
     @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

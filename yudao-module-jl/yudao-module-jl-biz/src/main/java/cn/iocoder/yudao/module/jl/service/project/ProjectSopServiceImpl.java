@@ -216,7 +216,7 @@ public class ProjectSopServiceImpl implements ProjectSopService {
             if(doneCount>0){
                 if(doneCount==totalCount){
                     // 更新不是已出库的为已完成
-                    commonTaskService.updateCommonTaskStatusById(taskId, CommonTaskStatusEnums.DONE.getStatus(),CommonTaskStatusEnums.COMPLETE.getStatus());
+                    commonTaskService.updateCommonTaskStatusById(taskId, CommonTaskStatusEnums.DONE.getStatus(),CommonTaskStatusEnums.DONE.getStatus());
                 }else{
                     // 不管是什么状态 更新为进行中
                     commonTaskService.updateCommonTaskStatusById(taskId, CommonTaskStatusEnums.DOING.getStatus(),null);

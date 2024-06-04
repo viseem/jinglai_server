@@ -270,6 +270,18 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "arrival_date")
     private LocalDateTime arrivalDate;
 
+    /**
+     * 采购单同意时间
+     */
+    @Column(name = "purchase_accept_time")
+    private LocalDateTime purchaseAcceptTime;
+
+    /**
+     * 购销合同同意时间
+     */
+    @Column(name = "contract_accept_time")
+    private LocalDateTime contractAcceptTime;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)

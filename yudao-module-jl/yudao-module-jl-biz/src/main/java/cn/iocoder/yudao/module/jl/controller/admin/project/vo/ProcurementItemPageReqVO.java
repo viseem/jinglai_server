@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.framework.common.util.date.DateUtils;
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemSourceEnums;
 import lombok.*;
 import java.util.*;
@@ -16,9 +17,13 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProcurementItemPageReqVO extends PageParam {
 
+    @Schema(description = "有效期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] purchaseAcceptTime;
+
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] createTime;
+    private LocalDateTime[] createTimeV;
 
     @Schema(description = "库房ids", example = "26560")
     private List<Long> roomIds;

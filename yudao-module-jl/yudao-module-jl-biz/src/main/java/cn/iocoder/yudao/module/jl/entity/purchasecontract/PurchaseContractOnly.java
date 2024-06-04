@@ -15,6 +15,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +88,10 @@ public class PurchaseContractOnly extends BaseEntity {
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
 
-
+    /**
+     * 审批同意时间
+     */
+    @Column(name = "accept_time")
+    private LocalDateTime acceptTime;
 
 }

@@ -136,7 +136,7 @@ public class AnimalFeedOrderController {
     @Operation(summary = "导出动物饲养申请单 Excel")
     @PreAuthorize("@ss.hasPermission('jl:animal-feed-order:export')")
     @OperateLog(type = EXPORT)
-    public void exportAnimalFeedOrderExcel(@Valid AnimalFeedOrderExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
+    public void exportAnimalFeedOrderExcel(@Valid AnimalFeedOrderPageReqVO exportReqVO, HttpServletResponse response) throws IOException {
         List<AnimalFeedOrder> list = animalFeedOrderService.getAnimalFeedOrderList(exportReqVO);
         // 导出 Excel
         List<AnimalFeedOrderExcelVO> excelData = animalFeedOrderMapper.toExcelList(list);

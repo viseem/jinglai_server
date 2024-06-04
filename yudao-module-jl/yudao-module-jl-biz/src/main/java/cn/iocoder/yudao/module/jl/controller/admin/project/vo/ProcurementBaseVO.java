@@ -88,6 +88,10 @@ public class ProcurementBaseVO {
     @Schema(description = "流程实例id", example = "29752")
     private String processInstanceId;
 
+    @Schema(description = "审批同意时间", example = "29752")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime acceptTime;
+
     private List<CommonAttachment> attachmentList;
 
 }

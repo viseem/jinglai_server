@@ -54,6 +54,7 @@ public class ProcurementItemExportReqVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private String[] validDate;
 
+
     @Schema(description = "品牌")
     private String brand;
 

@@ -58,12 +58,6 @@ public class AnimalFeedOrderPageOrder {
     private String licenseNumber;
 
     @Schema(allowableValues = {"desc", "asc"})
-    private String startDate;
-
-    @Schema(allowableValues = {"desc", "asc"})
-    private String endDate;
-
-    @Schema(allowableValues = {"desc", "asc"})
     private String hasDanger;
 
     @Schema(allowableValues = {"desc", "asc"})

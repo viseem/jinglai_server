@@ -9,6 +9,9 @@ import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.*;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
+import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
 import liquibase.pro.packaged.T;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -68,6 +71,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
+
+    @Resource
+    private DictDataApiImpl dictDataApi;
 
     @PostConstruct
     public void ProcurementServiceImpl() {
@@ -342,12 +348,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 //            animalFeedOrder.setLatestLog(logs.get(0));
     }
 
-    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
+/*    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
         List<AnimalFeedStoreIn> stores = animalFeedOrder.getStores();
         if (stores != null && stores.size() > 0) {
             animalFeedOrder.setLatestStore(stores.get(0));
         }
-    }
+    }*/
 
     @Override
     public List<AnimalFeedOrder> getAnimalFeedOrderList(Collection<Long> ids) {
@@ -389,7 +395,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
         animalFeedOrders.forEach(animalFeedOrder -> {
             processLatestFeedLog(animalFeedOrder);
-            processLatestFeedStore(animalFeedOrder);
+//            processLatestFeedStore(animalFeedOrder);
         });
 
         // 转换为 PageResult 并返回
@@ -410,14 +416,6 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 执行查询
         Page<AnimalFeedOrderOnly> page = animalFeedOrderOnlyRepository.findAll(spec, pageable);
 
-/*
-        List<AnimalFeedOrder> animalFeedOrders = page.getContent();
-        animalFeedOrders.forEach(animalFeedOrder -> {
-            processLatestFeedLog(animalFeedOrder);
-            processLatestFeedStore(animalFeedOrder);
-        });
-*/
-
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
@@ -432,6 +430,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
             if (pageReqVO.getCode() != null) {
                 predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
+            }
+            if(pageReqVO.getStartDate() != null) {
+                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
+            }
+            if(pageReqVO.getEndDate() != null) {
+                predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
             }
 
             if (pageReqVO.getBreed() != null) {
@@ -512,92 +516,25 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     }
 
     @Override
-    public List<AnimalFeedOrder> getAnimalFeedOrderList(AnimalFeedOrderExportReqVO exportReqVO) {
+    public List<AnimalFeedOrder> getAnimalFeedOrderList(AnimalFeedOrderPageReqVO exportReqVO) {
+
+
         // 创建 Specification
-        Specification<AnimalFeedOrder> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        Specification<AnimalFeedOrder> spec = getAnimalFeedOrderSpecification(exportReqVO);
+        List<AnimalFeedOrder> animalFeedOrders = animalFeedOrderRepository.findAll(spec);
 
-            if (exportReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
+        List<DictDataRespDTO> billRules = dictDataApi.getDictDataByType(DictTypeConstants.FEED_BILL_RULES);
+
+
+        animalFeedOrders.forEach(animalFeedOrder -> {
+            for (DictDataRespDTO rule : billRules) {
+                if (rule.getValue().equals(animalFeedOrder.getBillRules())) {
+                    animalFeedOrder.setBillRules(rule.getLabel());
+                }
             }
-
-            if (exportReqVO.getCode() != null) {
-                predicates.add(cb.equal(root.get("code"), exportReqVO.getCode()));
-            }
-
-            if (exportReqVO.getBreed() != null) {
-                predicates.add(cb.equal(root.get("breed"), exportReqVO.getBreed()));
-            }
-
-            if (exportReqVO.getAge() != null) {
-                predicates.add(cb.equal(root.get("age"), exportReqVO.getAge()));
-            }
-
-            if (exportReqVO.getQuantity() != null) {
-                predicates.add(cb.equal(root.get("quantity"), exportReqVO.getQuantity()));
-            }
-
-            if (exportReqVO.getFemaleCount() != null) {
-                predicates.add(cb.equal(root.get("femaleCount"), exportReqVO.getFemaleCount()));
-            }
-
-            if (exportReqVO.getMaleCount() != null) {
-                predicates.add(cb.equal(root.get("maleCount"), exportReqVO.getMaleCount()));
-            }
-
-            if (exportReqVO.getSupplierId() != null) {
-                predicates.add(cb.equal(root.get("supplierId"), exportReqVO.getSupplierId()));
-            }
-
-            if (exportReqVO.getSupplierName() != null) {
-                predicates.add(cb.like(root.get("supplierName"), "%" + exportReqVO.getSupplierName() + "%"));
-            }
-
-            if (exportReqVO.getCertificateNumber() != null) {
-                predicates.add(cb.like(root.get("certificateNumber"), "%" + exportReqVO.getCertificateNumber() + "%"));
-            }
-
-            if (exportReqVO.getLicenseNumber() != null) {
-                predicates.add(cb.like(root.get("licenseNumber"), "%" + exportReqVO.getLicenseNumber() + "%"));
-            }
-
-/*            if(exportReqVO.getStartDate() != null) {
-                predicates.add(cb.between(root.get("startDate"), exportReqVO.getStartDate()[0], exportReqVO.getStartDate()[1]));
-            } 
-            if(exportReqVO.getEndDate() != null) {
-                predicates.add(cb.between(root.get("endDate"), exportReqVO.getEndDate()[0], exportReqVO.getEndDate()[1]));
-            } */
-            if (exportReqVO.getHasDanger() != null) {
-                predicates.add(cb.equal(root.get("hasDanger"), exportReqVO.getHasDanger()));
-            }
-
-            if (exportReqVO.getFeedType() != null) {
-                predicates.add(cb.equal(root.get("feedType"), exportReqVO.getFeedType()));
-            }
-
-            if (exportReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
-            }
-
-            if (exportReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
-            }
-
-            if (exportReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
-            }
-
-            if (exportReqVO.getStage() != null) {
-                predicates.add(cb.equal(root.get("stage"), exportReqVO.getStage()));
-            }
-
-            if (exportReqVO.getReply() != null) {
-                predicates.add(cb.equal(root.get("reply"), exportReqVO.getReply()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+            processLatestFeedLog(animalFeedOrder);
+//            processLatestFeedStore(animalFeedOrder);
+        });
 
         // 执行查询
         return animalFeedOrderRepository.findAll(spec);
@@ -658,14 +595,6 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
         if (order.getLicenseNumber() != null) {
             orders.add(new Sort.Order(order.getLicenseNumber().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "licenseNumber"));
-        }
-
-        if (order.getStartDate() != null) {
-            orders.add(new Sort.Order(order.getStartDate().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "startDate"));
-        }
-
-        if (order.getEndDate() != null) {
-            orders.add(new Sort.Order(order.getEndDate().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "endDate"));
         }
 
         if (order.getHasDanger() != null) {

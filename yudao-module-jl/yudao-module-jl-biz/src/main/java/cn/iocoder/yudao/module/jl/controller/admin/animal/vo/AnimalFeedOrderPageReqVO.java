@@ -60,11 +60,11 @@ public class AnimalFeedOrderPageReqVO extends PageParam {
 
     @Schema(description = "开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String startDate;
+    private LocalDateTime[] startDate;
 
     @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private String endDate;
+    private LocalDateTime[] endDate;
 
     @Schema(description = "有无传染性等实验")
     private Boolean hasDanger;

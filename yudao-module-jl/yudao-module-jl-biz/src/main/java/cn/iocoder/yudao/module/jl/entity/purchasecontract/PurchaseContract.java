@@ -95,6 +95,12 @@ public class PurchaseContract extends BaseEntity {
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
 
+    /**
+     * 审批同意时间
+     */
+    @Column(name = "accept_time")
+    private LocalDateTime acceptTime;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)

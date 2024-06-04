@@ -109,6 +109,14 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
                 predicates.add(root.get("receiveRoomId").in(pageReqVO.getRoomIds()));
             }
 
+            if (pageReqVO.getCreateTimeV() != null) {
+                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTimeV()[0], pageReqVO.getCreateTimeV()[1]));
+            }
+
+            if (pageReqVO.getPurchaseAcceptTime() != null) {
+                predicates.add(cb.between(root.get("purchaseAcceptTime"), pageReqVO.getPurchaseAcceptTime()[0], pageReqVO.getPurchaseAcceptTime()[1]));
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }

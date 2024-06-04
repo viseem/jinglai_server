@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -82,6 +83,9 @@ public class JLBpmServiceImpl implements JLBpmService {
                 procurementRepository.updateStatusById(approveReqVO.getRefId(), approveReqVO.getTaskStatus());
                 if (Objects.equals(approveReqVO.getTaskStatus(), ProcurementStatusEnums.APPROVE.getStatus())) {
                     procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), approveReqVO.getRefId());
+                    // 更新采购单的同意时间
+                    procurementRepository.updateAcceptTimeById(LocalDateTime.now(), approveReqVO.getRefId());
+                    procurementItemRepository.updatePurchaseAcceptTimeByProcurementId(LocalDateTime.now(), approveReqVO.getRefId());
                 }
             }
 
@@ -91,6 +95,9 @@ public class JLBpmServiceImpl implements JLBpmService {
                 purchaseContractRepository.updateStatusById(approveReqVO.getTaskStatus(), approveReqVO.getRefId());
                 if (Objects.equals(approveReqVO.getTaskStatus(), PurchaseContractStatusEnums.APPROVE.getStatus())) {
                     procurementItemRepository.updateStatusByPurchaseContractId(ProcurementItemStatusEnums.ORDERED.getStatus(), approveReqVO.getRefId());
+                    // 更新购销合同的同意时间
+                    purchaseContractRepository.updateAcceptTimeById(LocalDateTime.now(), approveReqVO.getRefId());
+                    procurementItemRepository.updateContractAcceptTimeByPurchaseContractId(LocalDateTime.now(), approveReqVO.getRefId());
                 }
             }
 

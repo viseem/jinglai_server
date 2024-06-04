@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.jl.entity.laboratory.LaboratoryLab;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -172,6 +174,12 @@ public class Procurement extends BaseEntity {
      */
     @Column(name = "process_instance_id")
     private String processInstanceId;
+
+    /**
+     * 审批同意时间
+     */
+    @Column(name = "accept_time")
+    private LocalDateTime acceptTime;
 
 /*    @OneToMany(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

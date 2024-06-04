@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.entity.project.Project;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,6 +14,10 @@ import java.util.List;
 *
 */
 public interface ProcurementRepository extends JpaRepository<Procurement, Long>, JpaSpecificationExecutor<Procurement> {
+    @Transactional
+    @Modifying
+    @Query("update Procurement p set p.acceptTime = ?1 where p.id = ?2")
+    int updateAcceptTimeById(LocalDateTime acceptTime, Long id);
     @Query("select count(p) from Procurement p where p.code like concat(?1, '%')")
     long countByCodeStartsWith(String code);
     @Query("select p from Procurement p where p.code like concat(?1, '%')")

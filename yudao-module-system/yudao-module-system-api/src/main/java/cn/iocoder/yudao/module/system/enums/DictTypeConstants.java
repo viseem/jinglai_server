@@ -35,5 +35,9 @@ public interface DictTypeConstants {
     // ======== 财务
     String RECEIPT_TYPE = "RECEIPT_TYPE"; // 发票种类：全电专票 全电普票
 
+    // ====== 饲养
+    String FEED_BILL_RULES = "FEED_BILL_RULES"; // 发票种类：全电专票 全电普票
+
+
 
 }

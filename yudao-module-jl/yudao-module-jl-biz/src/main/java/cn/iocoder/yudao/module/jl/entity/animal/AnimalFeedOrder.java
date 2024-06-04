@@ -203,6 +203,13 @@ public class AnimalFeedOrder extends BaseEntity {
         return customer == null ? null : customer.getName();
     }
 
+    @Transient
+    private String breedAndStrain;
+
+    public String getBreedAndStrain(){
+        return breedCate!=null?breedCate: strainCate != null ? "(" + strainCate + ")" : "";
+    }
+
     /**
      * 状态
      */
@@ -255,13 +262,14 @@ public class AnimalFeedOrder extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<AnimalFeedCard> cards = new ArrayList<>();
 
-
+/*
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @OrderBy("createTime desc")
     private List<AnimalFeedStoreIn> stores = new ArrayList<>();
+*/
 
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -287,9 +295,9 @@ public class AnimalFeedOrder extends BaseEntity {
 
     @Transient
     private AnimalFeedStoreIn latestStore;
-    public AnimalFeedStoreIn getLatestStore() {
-        return stores == null||stores.isEmpty() ? null : stores.get(0);
-    }
+//    public AnimalFeedStoreIn getLatestStore() {
+//        return stores == null||stores.isEmpty() ? null : stores.get(0);
+//    }
 
 
     @Transient

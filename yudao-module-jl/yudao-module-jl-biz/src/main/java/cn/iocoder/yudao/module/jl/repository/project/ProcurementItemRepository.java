@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -12,6 +13,14 @@ import java.util.List;
 *
 */
 public interface ProcurementItemRepository extends JpaRepository<ProcurementItem, Long>, JpaSpecificationExecutor<ProcurementItem> {
+    @Transactional
+    @Modifying
+    @Query("update ProcurementItem p set p.contractAcceptTime = ?1 where p.purchaseContractId = ?2")
+    int updateContractAcceptTimeByPurchaseContractId(LocalDateTime contractAcceptTime, Long purchaseContractId);
+    @Transactional
+    @Modifying
+    @Query("update ProcurementItem p set p.purchaseAcceptTime = ?1 where p.procurementId = ?2")
+    int updatePurchaseAcceptTimeByProcurementId(LocalDateTime purchaseAcceptTime, Long procurementId);
     @Transactional
     @Modifying
     @Query("update ProcurementItem p set p.status = ?1 where p.purchaseContractId = ?2")

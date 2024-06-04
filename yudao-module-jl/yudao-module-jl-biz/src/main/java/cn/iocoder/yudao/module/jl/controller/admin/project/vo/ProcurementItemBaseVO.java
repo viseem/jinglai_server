@@ -131,6 +131,14 @@ public class ProcurementItemBaseVO {
     @Schema(description = "状态:等待采购信息、等待打款、等待采购、等待签收、等待入库", example = "2")
     private String status = ProcurementItemStatusEnums.APPLY_PROCUREMENT.getStatus();
 
+    @Schema(description = "采购同意时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime purchaseAcceptTime;
+
+    @Schema(description = "购销合同同意时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime contractAcceptTime;
+
     private Long roomId;
     private Long receiveRoomId;
     private String receiveRoomName;

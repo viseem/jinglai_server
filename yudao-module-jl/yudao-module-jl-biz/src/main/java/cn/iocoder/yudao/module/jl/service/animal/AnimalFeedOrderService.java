@@ -90,6 +90,6 @@ public interface AnimalFeedOrderService {
      * @param exportReqVO 查询条件
      * @return 动物饲养申请单列表
      */
-    List<AnimalFeedOrder> getAnimalFeedOrderList(AnimalFeedOrderExportReqVO exportReqVO);
+    List<AnimalFeedOrder> getAnimalFeedOrderList(AnimalFeedOrderPageReqVO exportReqVO);
 
 }
