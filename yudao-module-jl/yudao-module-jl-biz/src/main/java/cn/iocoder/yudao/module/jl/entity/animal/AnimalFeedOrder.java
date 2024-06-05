@@ -314,4 +314,22 @@ public class AnimalFeedOrder extends BaseEntity {
     @Transient
     private Integer currentQuantity;
 
+/*
+    @Transient
+    private String startDateStr;
+
+    public String getStartDateStr(){
+        // 把startDate转为localDate
+        return startDate == null ? null : startDate.toLocalDate().toString();
+    }
+
+    @Transient
+    private String endDateStr;
+
+    public String getEndDateStr(){
+        // 把endDate转为localDate
+        return endDate == null ? null : endDate.toLocalDate().toString();
+    }
+*/
+
 }

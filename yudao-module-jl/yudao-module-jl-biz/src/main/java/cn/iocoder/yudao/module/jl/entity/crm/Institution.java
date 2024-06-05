@@ -185,6 +185,12 @@ public class Institution extends BaseEntity {
     @Column(name = "business_scope", nullable = false )
     private String businessScope;
 
+    /**
+     * 发票寄送地址
+     */
+    @Column(name = "invoice_address", nullable = false )
+    private String invoiceAddress;
+
     /*
      * 级联附件
      * */

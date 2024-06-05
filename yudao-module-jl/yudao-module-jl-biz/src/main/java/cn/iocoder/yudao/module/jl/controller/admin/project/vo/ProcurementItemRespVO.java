@@ -34,4 +34,6 @@ public class ProcurementItemRespVO extends ProcurementItemBaseVO {
     private CustomerOnly customer;
 
     private User user;
+
+    private Long creator;
 }

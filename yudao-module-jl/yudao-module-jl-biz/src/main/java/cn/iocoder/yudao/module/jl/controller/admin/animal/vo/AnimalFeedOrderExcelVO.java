@@ -9,6 +9,7 @@ import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
@@ -48,11 +49,11 @@ public class AnimalFeedOrderExcelVO {
 
     @ExcelProperty("饲养开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @ExcelProperty("饲养结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @ExcelProperty("饲养笼数")
     private Integer cageQuantity;
@@ -69,6 +70,9 @@ public class AnimalFeedOrderExcelVO {
     @ExcelProperty("收费方式")
     @DictFormat(DictTypeConstants.FEED_BILL_RULES)
     private String billRules;
+
+    @ExcelProperty("收费单价")
+    private String unitFee;
 
     @ExcelProperty("收费总额")
     private String amount;
