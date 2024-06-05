@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 项目中的实验名目的收费项 Response VO")
 @Data
@@ -19,5 +21,7 @@ public class ProjectChargeitemRespVO extends ProjectChargeitemBaseVO {
 
 
     private ProjectCategoryOnly category;
+
+    private List<CommonTask> taskList;
 
 }

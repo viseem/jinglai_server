@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -143,4 +144,8 @@ public class ProjectChargeitem extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_category_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ProjectCategoryOnly category;
+
+    // 这里不级联 用代码自己查
+    @Transient
+    private List<CommonTask> taskList;
 }

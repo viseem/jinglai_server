@@ -2,9 +2,11 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import org.springframework.data.domain.Page;
@@ -18,10 +20,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -45,6 +44,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
 
     @Override
     @Transactional
@@ -177,8 +179,29 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         // 执行查询
         Page<ProjectChargeitem> page = projectChargeitemRepository.findAll(spec, pageable);
 
+        List<ProjectChargeitem> list = page.getContent();
+        processList(list,pageReqVO);
+
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    private void processList(List<ProjectChargeitem> list, ProjectChargeitemPageReqVO pageReqVO) {
+        // 这相当于是category界面查询的收费项，这里要回显一下他们指派的任务
+        if(pageReqVO.getProjectCategoryId()!=null){
+            List<CommonTask> taskList = commonTaskRepository.findByProjectCategoryId(pageReqVO.getProjectCategoryId());
+            for (CommonTask task : taskList) {
+                for (ProjectChargeitem item : list) {
+                    if(item.getTaskList()==null){
+                        item.setTaskList(new ArrayList<>());
+                    }
+                    if(Objects.equals(item.getId(),task.getChargeitemId())){
+                        item.getTaskList().add(task);
+                    }
+                }
+            }
+
+        }
     }
 
     @Override
