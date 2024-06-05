@@ -125,6 +125,7 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             contractInvoiceLog.setSendAddress(invoiceApplication.getSendAddress());
             contractInvoiceLog.setPhone(invoiceApplication.getPhone());
             contractInvoiceLog.setAddress(invoiceApplication.getAddress());
+            contractInvoiceLog.setSendEmail(invoiceApplication.getEmail());
             if (salesId != null) {
                 contractInvoiceLog.setSalesId(salesId);
             }

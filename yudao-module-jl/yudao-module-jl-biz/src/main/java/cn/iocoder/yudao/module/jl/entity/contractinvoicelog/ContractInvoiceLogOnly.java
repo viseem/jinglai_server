@@ -181,6 +181,7 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+
     /**
      * 联系电话
      */

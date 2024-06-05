@@ -47,6 +47,9 @@ public class InvoiceApplicationBaseVO {
     @Schema(description = "单位地址")
     private String address;
 
+    @Schema(description = "邮箱")
+    private String email;
+
     @Schema(description = "寄送地址")
     private String sendAddress;
 

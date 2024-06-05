@@ -86,6 +86,12 @@ public class InvoiceApplication extends BaseEntity {
     private String address;
 
     /**
+     * 邮箱
+     */
+    @Column(name = "email", nullable = false )
+    private String email;
+
+    /**
      * 寄送地址
      */
     @Column(name = "send_address", nullable = false )
