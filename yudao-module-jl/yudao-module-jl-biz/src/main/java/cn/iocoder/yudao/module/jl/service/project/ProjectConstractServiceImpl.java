@@ -36,6 +36,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.Predicate;
 
 import java.util.*;
@@ -161,18 +162,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         return projectConstract.getId();
     }
 
-    public void processContractReceivedPrice(Long contractId) {
-        List<ProjectFundLog> projectFundLogs = projectFundLogRepository.findAllByContractId(contractId);
-        BigDecimal priceSum = BigDecimal.ZERO;
-
-        for (ProjectFundLog log : projectFundLogs) {
-//            priceSum += log.getPrice();
-            priceSum=priceSum.add(log.getPrice());
-
-        }
-        projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
-    }
-
+    @Transactional
     public void processContractReceivedPrice2(Long contractId) {
         List<ContractFundLog> projectFundLogs = contractFundLogRepository.findAllByContractId(contractId);
         BigDecimal priceSum = BigDecimal.ZERO;
@@ -187,6 +177,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         projectConstractRepository.updateReceivedPriceById(priceSum, contractId);
     }
 
+    @Transactional
     public void processContractInvoicedPrice2(Long contractId) {
         List<ContractInvoiceLog> list = contractInvoiceLogRepository.findByContractId(contractId);
         BigDecimal priceSum = BigDecimal.ZERO;
@@ -203,6 +194,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     }
 
     @Override
+    @Transactional
     public void updateProjectConstract(ProjectConstractUpdateReqVO updateReqVO) {
         // 暂存一下salesId
         Long salesId = updateReqVO.getSalesId();
@@ -216,6 +208,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 更新
         ProjectConstract updateObj = projectConstractMapper.toEntity(updateReqVO);
         projectConstractRepository.save(updateObj);
+
+        processContractInvoicedPrice2(updateReqVO.getId());
+        processContractReceivedPrice2(updateReqVO.getId());
     }
 
     @Override

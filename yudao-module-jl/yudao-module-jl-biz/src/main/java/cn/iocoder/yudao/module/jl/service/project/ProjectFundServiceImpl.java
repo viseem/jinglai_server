@@ -118,7 +118,7 @@ public class ProjectFundServiceImpl implements ProjectFundService {
         }).collect(Collectors.toList()));
 
         //更新合同已收金额
-        projectConstractService.processContractReceivedPrice(saveReqVO.getContractId());
+        projectConstractService.processContractReceivedPrice2(saveReqVO.getContractId());
 
         // 更新
         ProjectFund updateObj = projectFundMapper.toEntity(saveReqVO);

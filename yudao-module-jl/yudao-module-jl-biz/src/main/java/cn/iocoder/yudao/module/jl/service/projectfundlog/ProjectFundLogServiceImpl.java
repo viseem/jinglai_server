@@ -68,7 +68,7 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
         processFundReceivedPrice(createReqVO.getProjectFundId());
 
         //更新合同已收金额
-        projectConstractService.processContractReceivedPrice(projectFund.getContractId());
+        projectConstractService.processContractReceivedPrice2(projectFund.getContractId());
 
         // 返回
         return projectFundLog.getId();
@@ -88,7 +88,7 @@ public class ProjectFundLogServiceImpl implements ProjectFundLogService {
         processFundReceivedPrice(updateReqVO.getProjectFundId());
 
         //更新合同已收金额
-        projectConstractService.processContractReceivedPrice(updateObj.getContractId());
+        projectConstractService.processContractReceivedPrice2(updateObj.getContractId());
     }
 
     private void processFundReceivedPrice(Long projectFundId) {
