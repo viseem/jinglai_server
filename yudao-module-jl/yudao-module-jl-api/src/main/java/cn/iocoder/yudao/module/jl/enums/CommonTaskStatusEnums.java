@@ -18,7 +18,7 @@ public enum CommonTaskStatusEnums implements StringArrayValuable {
     DOING(10, "开展中"),
     PAUSE(20, "暂停"),
     DONE(30, "完成"),
-    WAIT_DO(40, "待开展"),
+    WAIT_DO(5, "待开展"),
 /*    DATA_CHECK(55, "数据审核"),
     DATA_ACCEPT(50, "数据审核通过"),
     DATA_REJECT(45, "数据审核驳回"),
