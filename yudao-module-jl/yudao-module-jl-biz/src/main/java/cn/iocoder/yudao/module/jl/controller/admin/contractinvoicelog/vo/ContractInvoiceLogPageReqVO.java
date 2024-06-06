@@ -127,8 +127,9 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
     @Schema(description = "状态", example = "1")
     private String status;
 
+//     = ContractInvoiceAuditStatusEnums.ACCEPT.getStatus()
     @Schema(description = "审批状态", example = "1")
-    private String auditStatus = ContractInvoiceAuditStatusEnums.ACCEPT.getStatus();
+    private String auditStatus;
 
     @Schema(description = "收款状态", example = "1")
     private String priceStatus;
