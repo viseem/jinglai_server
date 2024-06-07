@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
@@ -65,6 +66,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private ProjectConstractRepository projectConstractRepository;
     @Resource
     private ProjectConstractSimpleRepository projectConstractSimpleRepository;
+
+    @Resource
+    private ProjectConstractOnlyRepository projectConstractOnlyRepository;
+
     @Resource
     private UniqCodeGenerator uniqCodeGenerator;
 
@@ -273,6 +278,19 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     public Optional<ProjectConstract> getProjectConstract(Long id) {
         Optional<ProjectConstract> byId = projectConstractRepository.findById(id);
         return byId;
+    }
+
+    @Transactional
+    public Boolean refreshContractPriceData() {
+
+        List<ProjectConstractOnly> all1 = projectConstractOnlyRepository.findAll();
+        all1.forEach(contract->{
+            processContractReceivedPrice2(contract.getId());
+            processContractInvoicedPrice2(contract.getId());
+            System.out.println("成功--"+contract.getName());
+        });
+
+        return true;
     }
 
     @Override

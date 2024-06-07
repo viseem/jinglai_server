@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,9 @@ public class ProjectConstractController {
 
     @Resource
     private ProjectConstractService projectConstractService;
+
+    @Resource
+    private ProjectConstractServiceImpl projectConstractServiceImpl;
 
     @Resource
     private ProjectConstractMapper projectConstractMapper;
@@ -94,6 +98,15 @@ public class ProjectConstractController {
     public CommonResult<ProjectConstractRespVO> getProjectConstract(@RequestParam("id") Long id) {
             Optional<ProjectConstract> projectConstract = projectConstractService.getProjectConstract(id);
         return success(projectConstract.map(projectConstractMapper::toDto).orElseThrow(() -> exception(PROJECT_CONSTRACT_NOT_EXISTS)));
+    }
+
+    @GetMapping("/refresh-price")
+    @Operation(summary = "通过 ID 获得项目合同")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:project-constract:query')")
+    public CommonResult<Boolean> refreshContractFundAndInvoice() {
+        Boolean b = projectConstractServiceImpl.refreshContractPriceData();
+        return success(b);
     }
 
     @GetMapping("/page")

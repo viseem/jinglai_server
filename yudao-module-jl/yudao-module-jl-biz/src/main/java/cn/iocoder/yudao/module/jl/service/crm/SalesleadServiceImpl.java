@@ -380,11 +380,14 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setSignedTime(updateReqVO.getSignedTime());
                 ProjectConstract save = projectConstractRepository.save(contract);
 
+                // 查询销售人员
+                Optional<User> salesOptional = userRepository.findById(project.getSalesId()==null?getLoginUserId():project.getSalesId());
+
                 // 发送消息
                 Map<String, Object> templateParams = new HashMap<>();
                 templateParams.put("salesleadId",updateReqVO.getId());
                 templateParams.put("contractId",save.getId());
-                templateParams.put("userName",userOptional.isPresent()?userOptional.get().getNickname(): getLoginUserId());
+                templateParams.put("userName",salesOptional.isPresent()?salesOptional.get().getNickname(): getLoginUserId());
                 templateParams.put("customerName",customer.getName());
                 templateParams.put("contractName",updateReqVO.getProjectName());
                 templateParams.put("contractPrice",updateReqVO.getPaperPrice());

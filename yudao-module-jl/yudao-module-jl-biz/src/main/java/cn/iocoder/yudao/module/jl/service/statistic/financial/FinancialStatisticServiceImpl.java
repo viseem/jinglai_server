@@ -55,13 +55,13 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
         }
 
 
-        System.out.println(reqVO.getStartTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"====="+reqVO.getEndTime());
+        System.out.println(reqVO.getStartTime()+"====="+reqVO.getEndTime());
 
         // 查询数据
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(reqVO.getUserIds(), ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         for (ProjectConstractOnly contract : contractList) {
-            System.out.println("contract---"+contract);
+            System.out.println("contract---"+contract+contract.getPrice());
             if(contract.getReceivedPrice() != null) {
                 resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
             }
