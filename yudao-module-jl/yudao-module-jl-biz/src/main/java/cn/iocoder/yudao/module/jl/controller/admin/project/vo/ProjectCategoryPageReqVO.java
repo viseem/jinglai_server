@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.system.controller.admin.util.vo.UtilStoreGetReqVO;
 import lombok.*;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -93,5 +94,13 @@ public class ProjectCategoryPageReqVO extends PageParam {
 
     private String approvalStage;
     private String requestStage;
+
+//    private UtilStoreGetReqVO storeGetReqVO;
+
+    @Schema(description = "id")
+    private String storeId;
+
+    @Schema(description = "口令")
+    private String storePwd;
 
 }

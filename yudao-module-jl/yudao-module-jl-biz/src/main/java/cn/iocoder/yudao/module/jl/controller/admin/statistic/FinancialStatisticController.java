@@ -97,7 +97,9 @@ public class FinancialStatisticController {
         List<ContractInvoiceLog> invoiceLogList = contractInvoiceLogRepository.findByStatusAndSalesIdIn(ContractInvoiceStatusEnums.RECEIVED_NO.getStatus(), reqVO.getUserIds());
 
         for (ContractInvoiceLog contractInvoiceLog : invoiceLogList) {
-            resp.setAllUnreceivedInvoiceAmount(resp.getAllUnreceivedInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+            if(contractInvoiceLog.getReceivedPrice()!=null){
+                resp.setAllUnreceivedInvoiceAmount(resp.getAllUnreceivedInvoiceAmount().add(contractInvoiceLog.getReceivedPrice()));
+            }
         }
 
         return success(resp);

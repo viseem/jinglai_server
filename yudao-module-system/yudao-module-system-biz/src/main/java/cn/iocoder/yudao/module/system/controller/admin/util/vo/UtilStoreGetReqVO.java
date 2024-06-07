@@ -20,4 +20,5 @@ public class UtilStoreGetReqVO {
     @Schema(description = "口令")
     private String storePwd;
 
+
 }

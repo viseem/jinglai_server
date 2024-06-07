@@ -390,6 +390,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 templateParams.put("contractPrice",updateReqVO.getPaperPrice());
                 List<Long> userIds = new ArrayList<>();
                 userIds.add(getSuperUserId());
+                // userIds去重
+                userIds = userIds.stream().distinct().collect(Collectors.toList());
                 for (Long userId : userIds) {
                     notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                             userId,
@@ -406,11 +408,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                             BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
                     ));
                 }*/
-
-                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                        getSuperUserId(),
-                        BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
-                ));
             }
 
         }
