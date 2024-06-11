@@ -155,6 +155,12 @@ public class ProjectConstract extends BaseEntity {
     private BigDecimal receivedPrice;
 
     /**
+     * 已收比例
+     */
+    @Column(name = "received_percent")
+    private BigDecimal receivedPercent;
+
+    /**
      * 已开票金额
      */
     @Column(name = "invoiced_price")

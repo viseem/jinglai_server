@@ -121,6 +121,12 @@ public class ProjectConstractOnly extends BaseEntity {
     private BigDecimal receivedPrice;
 
     /**
+     * 已收比例
+     */
+    @Column(name = "received_percent")
+    private BigDecimal receivedPercent;
+
+    /**
      * 已开票
      */
     @Column(name = "invoiced_price")
