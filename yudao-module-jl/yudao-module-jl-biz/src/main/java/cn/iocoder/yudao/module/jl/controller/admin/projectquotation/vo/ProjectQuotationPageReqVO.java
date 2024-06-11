@@ -15,9 +15,12 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectQuotationPageReqVO extends PageParam {
 
-    @Schema(description = "创建时间")
+    @Schema(description = "开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] createTime;
+    private LocalDateTime[] updateTimeV;
+
+    @Schema(description = "报价金额是否为null")
+    private Boolean quotationNotNull;
 
     @Schema(description = "版本号")
     private String code;
@@ -33,5 +36,8 @@ public class ProjectQuotationPageReqVO extends PageParam {
 
     @Schema(description = "客户id", example = "22455")
     private Long customerId;
+
+    @Schema(description = "报价人", example = "22455")
+    private Long updater;
 
 }

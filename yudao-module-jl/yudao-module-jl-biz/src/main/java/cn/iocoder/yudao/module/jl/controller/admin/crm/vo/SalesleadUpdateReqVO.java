@@ -44,6 +44,13 @@ public class SalesleadUpdateReqVO extends SalesleadBaseVO {
     private String contractStampFileUrl;
     @Schema(description = "合同文件名称")
     private String contractStampFileName;
+
+    @Schema(description = "合同业务类型")
+    private String contractBusinessType;
+
+    @Schema(description = "合同类型")
+    private String contractContractType;
+
     @Schema(description = "合同金额")
     private BigDecimal contractPrice;
     @Schema(description = "合同纸面金额")

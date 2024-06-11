@@ -378,6 +378,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setSn(updateReqVO.getContractSn());
                 contract.setCompanyName(updateReqVO.getContractCompanyName());
                 contract.setSignedTime(updateReqVO.getSignedTime());
+                contract.setType(updateReqVO.getContractBusinessType());
+                contract.setContractType(updateReqVO.getContractContractType());
                 ProjectConstract save = projectConstractRepository.save(contract);
 
                 // 查询销售人员
