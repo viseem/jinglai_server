@@ -15,6 +15,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -97,6 +98,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private ProjectConstractSimpleRepository projectConstractSimpleRepository;
+
     @Override
     @Transactional
     public Long createProjectApproval(ProjectApprovalCreateReqVO createReqVO) {
@@ -126,6 +130,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
         if (!createReqVO.getNeedAudit() || Objects.equals(createReqVO.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())) {
             if (!createReqVO.getOriginStage().equals(createReqVO.getStage())) {
+                //更新一下合同上面的项目进度
+                projectConstractSimpleRepository.updateProjectStageByProjectId(createReqVO.getStage(), save.getProjectId());
+
                 //直接更新项目状态
                 projectRepository.updateStageById(createReqVO.getStage(), save.getProjectId());
 
