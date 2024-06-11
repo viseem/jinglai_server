@@ -153,8 +153,10 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             updateReqVO.setAuditMark(null);
             updateReqVO.setAuditStatus(null);
             updateReqVO.setAuditProcessId(null);
-            salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeById(updateReqVO.getQuotationAmount(), LocalDateTime.now(), LocalDateTime.now(), updateReqVO.getSalesleadId());
+//            salesleadRepository.updateQuotationAndLastFollowTimeAndQuotationUpdateTimeById(updateReqVO.getQuotationAmount(), LocalDateTime.now(), LocalDateTime.now(), updateReqVO.getSalesleadId());
         }
+
+        salesleadRepository.updateQuotationUpdateTimeById(LocalDateTime.now(), updateReqVO.getSalesleadId());
 
         ProjectQuotation updateObj = projectQuotationMapper.toEntity(updateReqVO);
         ProjectQuotation save = projectQuotationRepository.save(updateObj);
