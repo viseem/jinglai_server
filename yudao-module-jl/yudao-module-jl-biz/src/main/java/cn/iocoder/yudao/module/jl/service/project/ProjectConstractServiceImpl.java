@@ -328,11 +328,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }
 
             if(pageReqVO.getProjectTagId() != null) {
-                mysqlFindInSet(pageReqVO.getProjectTagId(),"tagIds", root, cb, predicates);
+                mysqlFindInSet(pageReqVO.getProjectTagId(),"projectTagIds", root, cb, predicates);
             }
 
             if(pageReqVO.getProjectStage() != null) {
-                predicates.add(cb.equal(root.get("stage"), pageReqVO.getProjectStage()));
+                predicates.add(cb.equal(root.get("projectStage"), pageReqVO.getProjectStage()));
             }
 
             if(pageReqVO.getMonth()!=null){
