@@ -251,7 +251,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         final LocalDateTime[] startDate = {animalFeedOrder.getStartDate()};
         // 饲养单的结束日期，如果等于null，则设置为当前
         LocalDateTime endDate = animalFeedOrder.getEndDate();
-        if (endDate == null) {
+        if (endDate == null || endDate.isAfter(LocalDateTime.now())){
             endDate = LocalDateTime.now();
         }
 
