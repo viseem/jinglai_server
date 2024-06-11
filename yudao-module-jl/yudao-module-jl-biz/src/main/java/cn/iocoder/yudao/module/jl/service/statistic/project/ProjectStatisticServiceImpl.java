@@ -14,12 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +81,7 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
 
         //实例化idsList
         List<Long> idList = projectList.stream()
-                .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.PRE.getStatus()))
+                .filter(project -> Objects.equals(project.getStage(), ProjectStageEnums.CONTRACT_SIGNED.getStatus()))
                 .map(ProjectOnly::getId)  // 假设项目类中有一个getId方法来获取项目ID
                 .collect(Collectors.toList());
         resp.setWaitCount(idList.size());

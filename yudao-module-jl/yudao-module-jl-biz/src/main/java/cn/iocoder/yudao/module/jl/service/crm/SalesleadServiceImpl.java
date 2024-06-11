@@ -309,7 +309,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setSalesleadId(salesleadId);
             project.setCustomerId(updateReqVO.getCustomerId());
             project.setName(updateReqVO.getProjectName());
-            project.setStage("1");
+            project.setStage(ProjectStageEnums.CONTRACT_SIGNED.getStatus());
             project.setStatus(updateReqVO.getStatus());
             project.setType(updateReqVO.getType());
             project.setSalesId(getLoginUserId()); // 线索的销售人员 id
@@ -380,6 +380,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setSignedTime(updateReqVO.getSignedTime());
                 contract.setType(updateReqVO.getContractBusinessType());
                 contract.setContractType(updateReqVO.getContractContractType());
+                contract.setProjectStage(ProjectStageEnums.CONTRACT_SIGNED.getStatus());
                 ProjectConstract save = projectConstractRepository.save(contract);
 
                 // 查询销售人员

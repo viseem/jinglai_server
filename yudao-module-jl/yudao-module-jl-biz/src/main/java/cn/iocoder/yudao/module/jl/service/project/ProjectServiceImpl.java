@@ -2,10 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
-import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
-import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.SalesleadSeasVO;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
-import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -333,8 +330,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         if(pageReqVO.getSalesId()!=null){
             //项目预开展个数
-            respVO.setPreCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.PRE.getStatus(),getLoginUserId()));
-            map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+            respVO.setPreCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.CONTRACT_SIGNED.getStatus(),getLoginUserId()));
+            map.put(ProjectStageEnums.CONTRACT_SIGNED.getStatus(),respVO.getPreCount());
             //项目开展个数
             respVO.setDoingCount(projectRepository.countByStageAndSalesId(ProjectStageEnums.DOING.getStatus(),getLoginUserId()));
             map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
@@ -351,8 +348,8 @@ public class ProjectServiceImpl implements ProjectService {
 
             if(pageReqVO.getAttribute()== null){
                 //项目预开展个数
-                respVO.setPreCount(projectRepository.countByStage(ProjectStageEnums.PRE.getStatus()));
-                map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+                respVO.setPreCount(projectRepository.countByStage(ProjectStageEnums.CONTRACT_SIGNED.getStatus()));
+                map.put(ProjectStageEnums.CONTRACT_SIGNED.getStatus(),respVO.getPreCount());
                 //项目开展个数
                 respVO.setDoingCount(projectRepository.countByStage(ProjectStageEnums.DOING.getStatus()));
                 map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
@@ -367,8 +364,8 @@ public class ProjectServiceImpl implements ProjectService {
                 map.put(ProjectStageEnums.PAUSE.getStatus(),respVO.getPauseCount());
             } else if (pageReqVO.getAttribute().equals(DataAttributeTypeEnums.MY.getStatus())){
                 //项目预开展个数
-                respVO.setPreCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.PRE.getStatus(),getLoginUserId()));
-                map.put(ProjectStageEnums.PRE.getStatus(),respVO.getPreCount());
+                respVO.setPreCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.CONTRACT_SIGNED.getStatus(),getLoginUserId()));
+                map.put(ProjectStageEnums.CONTRACT_SIGNED.getStatus(),respVO.getPreCount());
                 //项目开展个数
                 respVO.setDoingCount(projectRepository.countByStageAndManagerId(ProjectStageEnums.DOING.getStatus(),getLoginUserId()));
                 map.put(ProjectStageEnums.DOING.getStatus(),respVO.getDoingCount());
