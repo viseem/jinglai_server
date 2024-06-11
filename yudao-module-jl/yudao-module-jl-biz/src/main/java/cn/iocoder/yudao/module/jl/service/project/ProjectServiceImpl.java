@@ -86,6 +86,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
 
+    @Resource
+    private ProjectConstractSimpleRepository projectConstractSimpleRepository;
+
     @PostConstruct
     public void ProjectServiceImpl(){
         Project last = projectRepository.findFirstByOrderByIdDesc();
@@ -131,6 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectCategoryRepository projectCategoryRepository;
     private final ProjectSupplyRepository projectSupplyRepository;
     private final ProjectChargeitemRepository projectChargeitemRepository;
+
 
 
     @Override
@@ -264,7 +268,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void updateProjectTag(ProjectUpdateTagReqVO updateTagReqVO){
+        projectConstractSimpleRepository.updateProjectTagIdsByProjectId(updateTagReqVO.getTagIds(),updateTagReqVO.getProjectId());
         projectRepository.updateTagIdsById(updateTagReqVO.getTagIds(),updateTagReqVO.getProjectId());
     }
 
