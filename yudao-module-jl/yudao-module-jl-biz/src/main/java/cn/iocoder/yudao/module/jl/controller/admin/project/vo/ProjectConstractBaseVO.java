@@ -25,6 +25,12 @@ public class ProjectConstractBaseVO {
     @Schema(description = "客户id")
     private Long customerId;
 
+    @Schema(description = "项目进度", example = "赵六")
+    private String projectStage;
+
+    @Schema(description = "项目标签", example = "赵六")
+    private String projectTagIds;
+
     @Schema(description = "合同名字", example = "赵六")
     private String name;
 
@@ -54,7 +60,7 @@ public class ProjectConstractBaseVO {
     private String contractType;
 
     @Schema(description = "合同金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
-    private BigDecimal price;
+    private BigDecimal price = BigDecimal.ZERO;
 
     @Schema(description = "纸面金额", example = "30614", requiredMode = Schema.RequiredMode.REQUIRED)
     private BigDecimal paperPrice;
@@ -79,4 +85,9 @@ public class ProjectConstractBaseVO {
     @Schema(description = "签订日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime signedTime;
+
+    //合同的已收金额合计
+    private BigDecimal receivedPrice = BigDecimal.ZERO;
+
+    private BigDecimal invoicedPrice = BigDecimal.ZERO;
 }

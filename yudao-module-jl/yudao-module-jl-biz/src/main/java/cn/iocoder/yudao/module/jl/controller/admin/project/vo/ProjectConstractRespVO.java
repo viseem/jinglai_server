@@ -30,13 +30,12 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
 
     private User sales;
 
-    //合同的已收金额合计
-    private BigDecimal receivedPrice;
+
+
 
     //已收金额比例
     private BigDecimal receivedPercent;
 
-    private BigDecimal invoicedPrice;
 
     private List<ProjectFundLog> fundLogs;
 

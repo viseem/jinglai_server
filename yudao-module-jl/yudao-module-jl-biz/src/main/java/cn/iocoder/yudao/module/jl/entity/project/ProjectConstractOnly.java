@@ -106,7 +106,7 @@ public class ProjectConstractOnly extends BaseEntity {
      * 合同金额
      */
     @Column(name = "price")
-    private BigDecimal price;
+    private BigDecimal price= BigDecimal.ZERO;
 
     /**
      * 纸面金额
@@ -118,7 +118,7 @@ public class ProjectConstractOnly extends BaseEntity {
      * 已收金额
      */
     @Column(name = "received_price")
-    private BigDecimal receivedPrice;
+    private BigDecimal receivedPrice= BigDecimal.ZERO;
 
     /**
      * 已收比例
@@ -130,7 +130,7 @@ public class ProjectConstractOnly extends BaseEntity {
      * 已开票
      */
     @Column(name = "invoiced_price")
-    private BigDecimal invoicedPrice;
+    private BigDecimal invoicedPrice= BigDecimal.ZERO;
     /**
      * 结算金额
      */
@@ -166,4 +166,16 @@ public class ProjectConstractOnly extends BaseEntity {
      */
     @Column(name = "signed_time")
     private LocalDateTime signedTime;
+
+    /**
+     * 项目进度
+     */
+    @Column(name = "project_stage")
+    private String projectStage;
+
+    /**
+     * 项目标签
+     */
+    @Column(name = "project_tag_ids")
+    private String projectTagIds;
 }

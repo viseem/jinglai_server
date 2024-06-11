@@ -134,7 +134,7 @@ public class ProjectConstract extends BaseEntity {
      * 合同应收金额
      */
     @Column(name = "price")
-    private BigDecimal price;
+    private BigDecimal price  = BigDecimal.ZERO;
 
     /**
      * 合同账面金额
@@ -152,7 +152,7 @@ public class ProjectConstract extends BaseEntity {
      * 已收金额
      */
     @Column(name = "received_price")
-    private BigDecimal receivedPrice;
+    private BigDecimal receivedPrice= BigDecimal.ZERO;
 
     /**
      * 已收比例
@@ -164,7 +164,7 @@ public class ProjectConstract extends BaseEntity {
      * 已开票金额
      */
     @Column(name = "invoiced_price")
-    private BigDecimal invoicedPrice;
+    private BigDecimal invoicedPrice= BigDecimal.ZERO;
 
     /**
      * 签订销售人员
@@ -202,6 +202,18 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "signed_time")
     private LocalDateTime signedTime;
+
+    /**
+     * 项目进度
+     */
+    @Column(name = "project_stage")
+    private String projectStage;
+
+    /**
+     * 项目标签
+     */
+    @Column(name = "project_tag_ids")
+    private String projectTagIds;
 
     /**
      * 查询审批列表
