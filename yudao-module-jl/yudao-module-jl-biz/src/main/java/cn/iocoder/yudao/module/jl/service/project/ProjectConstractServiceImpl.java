@@ -4,7 +4,6 @@ import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.*;
-import cn.iocoder.yudao.module.jl.entity.projectfundlog.ProjectFundLog;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
@@ -27,7 +26,6 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -37,7 +35,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.Transient;
 import javax.persistence.criteria.Predicate;
 
 import java.util.*;
@@ -50,6 +47,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
@@ -327,6 +325,14 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 }
             }else{
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+            if(pageReqVO.getProjectTagId() != null) {
+                mysqlFindInSet(pageReqVO.getProjectTagId(),"tagIds", root, cb, predicates);
+            }
+
+            if(pageReqVO.getProjectStage() != null) {
+                predicates.add(cb.equal(root.get("stage"), pageReqVO.getProjectStage()));
             }
 
             if(pageReqVO.getMonth()!=null){
