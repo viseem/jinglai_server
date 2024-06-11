@@ -62,12 +62,12 @@ public class JLOpenQuotationController {
 
     @PostMapping("/category-page")
     @Operation(summary = "通过 ID 获得项目报价")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
     public CommonResult<PageResult<ProjectCategory>> geProjectCategoryPage(@RequestBody @Valid ProjectCategoryPageReqVO pageVO) {
-        UtilStoreGetReqVO storeGetReqVO = new UtilStoreGetReqVO();
-        storeGetReqVO.setStoreId(pageVO.getStoreId());
-        storeGetReqVO.setStorePwd(pageVO.getStorePwd());
-        utilService.validStoreWithException(storeGetReqVO);
+//        UtilStoreGetReqVO storeGetReqVO = new UtilStoreGetReqVO();
+//        storeGetReqVO.setStoreId(pageVO.getStoreId());
+//        storeGetReqVO.setStorePwd(pageVO.getStorePwd());
+//        utilService.validStoreWithException(storeGetReqVO);
+        System.out.println("-=-=-"+pageVO.getQuotationId());
         PageResult<ProjectCategory> projectCategoryPage = projectCategoryService.getProjectCategoryPage(pageVO, new ProjectCategoryPageOrder());
         return success(projectCategoryPage);
     }
