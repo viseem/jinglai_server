@@ -57,6 +57,14 @@ public class ProjectController {
         return success(projectService.createProject(createReqVO));
     }
 
+    @PostMapping("/bind")
+    @Operation(summary = "创建项目管理")
+    @PreAuthorize("@ss.hasPermission('jl:project:create')")
+    public CommonResult<Boolean> bindProject(@Valid @RequestBody ProjectBindReqVO createReqVO) {
+        projectService.bindProject(createReqVO);
+        return success(true);
+    }
+
     //发起出库申请 其实就是改个状态，还是单独写个接口吧
     @PutMapping("/outbound-apply")
     @Operation(summary = "项目出库申请")

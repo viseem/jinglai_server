@@ -24,6 +24,9 @@ public interface ProjectService {
      */
     Long createProject(@Valid ProjectCreateReqVO createReqVO);
 
+    void bindProject(@Valid ProjectBindReqVO reqVO);
+
+
     /**
      * 更新项目管理
      *

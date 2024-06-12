@@ -132,8 +132,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectSupplyRepository projectSupplyRepository;
     private final ProjectChargeitemRepository projectChargeitemRepository;
 
-    @Resource
-    private ProjectConstractServiceImpl projectConstractService;
+
 
 
     @Override
@@ -146,8 +145,11 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         if(createReqVO.getContractId()!=null){
-            ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
-            createReqVO.setCustomerId(projectConstract.getCustomerId());
+            projectConstractSimpleRepository.findById(createReqVO.getContractId()).ifPresentOrElse(contract->{
+                createReqVO.setCustomerId(contract.getCustomerId());
+            },()->{
+                throw exception(PROJECT_CONSTRACT_NOT_EXISTS);
+            });
         }
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
@@ -181,6 +183,15 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 返回
         return id;
+    }
+
+    @Override
+    public void bindProject(ProjectBindReqVO reqVO){
+
+        if(reqVO.getContractId()!=null&&reqVO.getProjectId()!=null){
+            projectConstractSimpleRepository.updateProjectIdById(reqVO.getProjectId(),reqVO.getContractId());
+        }
+
     }
 
     public void updateProjectFocusIdsById(Long projectId,List<Long> ids,String oldFocusIds){
