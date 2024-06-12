@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.framework.common.pojo.CommonSortParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -11,7 +12,7 @@ import javax.validation.constraints.*;
  * 项目合同 Order 设置，用于分页使用
  */
 @Data
-public class ProjectConstractPageOrder {
+public class ProjectConstractPageOrder extends CommonSortParam {
 
     @Schema(allowableValues = {"desc", "asc"})
     private String id;
