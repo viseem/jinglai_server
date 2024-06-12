@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.collaborationrecord;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.user.User;
@@ -10,6 +11,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -77,6 +79,9 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
 
+    @Resource
+    private ProjectConstractOnlyRepository  projectConstractOnlyRepository;
+
     @Override
     @Transactional
     public Long createCollaborationRecord(CollaborationRecordCreateReqVO createReqVO) {
@@ -121,6 +126,21 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
                 }
                 if(!Objects.equals(projectOnly.getSalesId(),user.getId())){
                     sendUserIds.add(projectOnly.getSalesId());
+                }
+            }else{
+                throw exception(PROJECT_NOT_EXISTS);
+            }
+        }
+
+        // 如何是合同沟通
+        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.CONTRACT.getStatus())){
+            msgTemplateCode = BpmMessageEnum.NOTIFY_WHEN_CONTRACT_REPLY.getTemplateCode();
+            Optional<ProjectConstractOnly> byId = projectConstractOnlyRepository.findById(createReqVO.getRefId());
+            if(byId.isPresent()){
+                ProjectConstractOnly projectConstractOnly = byId.get();
+                templateParams.put("name",projectConstractOnly.getName());
+                if(!Objects.equals(projectConstractOnly.getSalesId(),user.getId())){
+                    sendUserIds.add(projectConstractOnly.getSalesId());
                 }
             }else{
                 throw exception(PROJECT_NOT_EXISTS);

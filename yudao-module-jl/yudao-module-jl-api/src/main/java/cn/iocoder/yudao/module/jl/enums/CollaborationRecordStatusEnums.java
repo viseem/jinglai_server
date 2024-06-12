@@ -18,6 +18,7 @@ public enum CollaborationRecordStatusEnums implements StringArrayValuable {
     SALESLEAD_SUGGEST("SALESLEAD-SUGGEST", "商机转化建议"),
     SALESLEAD("SALESLEAD", "商机沟通"),
     PROJECT("PROJECT", "项目沟通"),
+    CONTRACT("CONTRACT", "合同沟通"),
     QUOTATION_COMMENT("QUOTATION_COMMENT", "报价评论"),
     ;
 
