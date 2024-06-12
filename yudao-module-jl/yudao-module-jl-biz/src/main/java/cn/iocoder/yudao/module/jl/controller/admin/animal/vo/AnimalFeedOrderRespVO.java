@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -39,4 +40,6 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
 
     private Integer currentCageQuantity;
     private Integer currentQuantity;
+
+    private User sales;
 }

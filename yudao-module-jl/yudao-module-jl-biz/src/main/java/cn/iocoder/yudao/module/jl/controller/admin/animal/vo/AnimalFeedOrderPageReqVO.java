@@ -58,13 +58,19 @@ public class AnimalFeedOrderPageReqVO extends PageParam {
     @Schema(description = "许可证号")
     private String licenseNumber;
 
+
+
+    @Schema(description = "饲养周期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] betweenDate;
+
     @Schema(description = "开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] startDate;
+    private LocalDateTime startDate;
 
     @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] endDate;
+    private LocalDateTime endDate;
 
     @Schema(description = "有无传染性等实验")
     private Boolean hasDanger;
@@ -80,6 +86,9 @@ public class AnimalFeedOrderPageReqVO extends PageParam {
 
     @Schema(description = "客户id", example = "16137")
     private Long customerId;
+
+    @Schema(description = "销售id", example = "16137")
+    private Long salesId;
 
     @Schema(description = "状态")
     private String stage;

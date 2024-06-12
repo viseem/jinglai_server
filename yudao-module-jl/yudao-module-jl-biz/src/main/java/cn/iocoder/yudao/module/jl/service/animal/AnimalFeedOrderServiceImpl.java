@@ -5,9 +5,11 @@ import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.*;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
@@ -108,6 +110,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     @Resource
     private AnimalFeedOrderMapper animalFeedOrderMapper;
 
+    @Resource
+    private CustomerSimpleRepository customerSimpleRepository;
+
     @Override
     public Long createAnimalFeedOrder(AnimalFeedOrderCreateReqVO createReqVO) {
         // 插入
@@ -177,8 +182,16 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     @Override
     @Transactional
     public void storeAnimalFeedOrder(AnimalFeedOrderStoreReqVO storeReqVO) {
+
+        // 查询一下客户，把客户的销售id设置到storeReqVO上
+        customerSimpleRepository.findById(storeReqVO.getCustomerId()).ifPresentOrElse(customer->{
+            storeReqVO.setSalesId(customer.getSalesId());
+        },()->{
+            throw exception(CUSTOMER_NOT_EXISTS);
+        });
+
+
         // 校验存在
-        // 更新
         storeReqVO.setStage(AnimalFeedStageEnums.FEEDING.getStatus());
         AnimalFeedOrder saveObj = animalFeedOrderMapper.toEntity(storeReqVO);
         if (saveObj.getCode() == null) {
@@ -431,11 +444,20 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             if (pageReqVO.getCode() != null) {
                 predicates.add(cb.like(root.get("code"), "%" + pageReqVO.getCode() + "%"));
             }
+/*            if(pageReqVO.getBetweenDate() != null) {
+                predicates.add(cb.between(root.get("startDate"), pageReqVO.getBetweenDate()[0], pageReqVO.getBetweenDate()[1]));
+                predicates.add(cb.between(root.get("endDate"), pageReqVO.getBetweenDate()[0], pageReqVO.getBetweenDate()[1]));
+            }*/
             if(pageReqVO.getStartDate() != null) {
-                predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"),pageReqVO.getStartDate()));
             }
+
             if(pageReqVO.getEndDate() != null) {
-                predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
+                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"),pageReqVO.getEndDate()));
+            }
+
+            if (pageReqVO.getSalesId() != null) {
+                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
             }
 
             if (pageReqVO.getBreed() != null) {

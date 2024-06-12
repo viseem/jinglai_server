@@ -98,6 +98,7 @@ public class AnimalFeedOrderBaseVO {
     private Long projectId;
 
     @Schema(description = "客户id", example = "16137")
+    @NotNull(message = "客户不能为空")
     private Long customerId;
 
     @Schema(description = "销售id", example = "16137")
