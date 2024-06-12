@@ -13,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepos
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.springframework.stereotype.Service;
@@ -84,6 +85,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Resource
     private ProjectDocumentServiceImpl projectDocumentService;
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
 /*    @PostConstruct
     public void ProjectConstractServiceImpl() {
@@ -326,6 +330,12 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }else{
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
             }
+
+            if(pageReqVO.getSubjectGroupId()!=null){
+                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getSubjectGroupId());
+                predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
+            }
+
 
             if(pageReqVO.getProjectTagId() != null) {
                 mysqlFindInSet(pageReqVO.getProjectTagId(),"projectTagIds", root, cb, predicates);

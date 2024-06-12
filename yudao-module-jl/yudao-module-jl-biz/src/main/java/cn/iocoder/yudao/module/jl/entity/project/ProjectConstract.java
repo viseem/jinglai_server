@@ -157,7 +157,7 @@ public class ProjectConstract extends BaseEntity {
     /**
      * 已收比例
      */
-    @Column(name = "received_percent")
+    @Column(name = "received_percent",insertable = false,updatable = false)
     private BigDecimal receivedPercent;
 
     /**
