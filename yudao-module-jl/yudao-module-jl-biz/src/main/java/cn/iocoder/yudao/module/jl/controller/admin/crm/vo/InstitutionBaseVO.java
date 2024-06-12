@@ -45,6 +45,9 @@ public class InstitutionBaseVO {
     @Schema(description = "发票寄送地址")
     private String invoiceAddress;
 
+    @Schema(description = "发票的电话")
+    private String invoicePhone;
+
     @Schema(description = "发票要求")
     private String billRequest;
 

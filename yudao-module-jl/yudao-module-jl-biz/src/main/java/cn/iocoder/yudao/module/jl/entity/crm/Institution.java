@@ -191,6 +191,12 @@ public class Institution extends BaseEntity {
     @Column(name = "invoice_address", nullable = false )
     private String invoiceAddress;
 
+    /**
+     * 发票的电话
+     */
+    @Column(name = "invoice_phone", nullable = false )
+    private String invoicePhone;
+
     /*
      * 级联附件
      * */
