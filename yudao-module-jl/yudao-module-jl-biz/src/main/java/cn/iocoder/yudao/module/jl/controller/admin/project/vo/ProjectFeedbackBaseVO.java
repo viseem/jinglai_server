@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.enums.IsOrNotEnums;
 import cn.iocoder.yudao.module.jl.enums.IsResolvedEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
@@ -69,4 +70,8 @@ public class ProjectFeedbackBaseVO {
     private LocalDateTime deadline;
 
     private String level;
+
+    @Schema(description = "附件", example = "2")
+    private List<CommonAttachment> attachmentList;
+
 }

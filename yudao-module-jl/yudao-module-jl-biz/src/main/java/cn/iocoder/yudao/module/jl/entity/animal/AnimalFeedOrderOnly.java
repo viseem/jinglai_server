@@ -221,6 +221,12 @@ public class AnimalFeedOrderOnly extends BaseEntity {
     @Column(name = "location_code")
     private String locationCode;
 
+    /**
+     * 销售人员
+     */
+    @Column(name = "sales_id")
+    private Long salesId;
+
 
     /**
      * 查询鼠牌

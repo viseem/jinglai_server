@@ -156,6 +156,12 @@ public class AnimalFeedOrderSimple extends BaseEntity {
     private String processInstanceId;
 
     /**
+     * 销售人员
+     */
+    @Column(name = "sales_id")
+    private Long salesId;
+
+    /**
      * 项目id
      */
     @Column(name = "project_id")

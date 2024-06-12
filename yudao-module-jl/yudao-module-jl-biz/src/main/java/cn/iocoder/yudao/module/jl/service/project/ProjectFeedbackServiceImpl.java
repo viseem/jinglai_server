@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectFeedbackEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfeedback.ProjectFeedbackFocusRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.mail.dto.MailSendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -69,6 +70,10 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
     private ProjectFeedbackMapper projectFeedbackMapper;
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
     @Transactional
     public Long createProjectFeedback(ProjectFeedbackCreateReqVO createReqVO) {
@@ -104,6 +109,9 @@ public class ProjectFeedbackServiceImpl implements ProjectFeedbackService {
 
             return new ProjectFeedbackFocus().setProjectFeedbackId(projectFeedback.getId()).setUserId(focus);
         }).collect(Collectors.toList()));*/
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(projectFeedback.getId(),"PROJECT_FEEDBACK",createReqVO.getAttachmentList());
 
         // 返回
         return projectFeedback.getId();

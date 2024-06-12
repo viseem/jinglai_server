@@ -100,6 +100,9 @@ public class AnimalFeedOrderBaseVO {
     @Schema(description = "客户id", example = "16137")
     private Long customerId;
 
+    @Schema(description = "销售id", example = "16137")
+    private Long salesId;
+
     @Schema(description = "状态")
     private String stage;
 
