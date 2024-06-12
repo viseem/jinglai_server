@@ -44,7 +44,6 @@ public class ProjectFeedbackBaseVO {
     private Long customerId;
 
     @Schema(description = "字典：内部反馈/客户反馈", example = "2")
-    @NotNull(message = "反馈分类不能为空")
     private String type;
 
     @Schema(description = "状态", example = "1")
