@@ -132,14 +132,22 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectSupplyRepository projectSupplyRepository;
     private final ProjectChargeitemRepository projectChargeitemRepository;
 
+    @Resource
+    private ProjectConstractServiceImpl projectConstractService;
 
 
     @Override
+    @Transactional
     public Long createProject(ProjectCreateReqVO createReqVO) {
         // 插入
         //如果状态，注意这里的状态是销售线索的状态，不是项目的状态
         if(!Objects.equals(SalesLeadStatusEnums.QUOTATION.getStatus(),createReqVO.getStatus())){
             createReqVO.setCode(generateCode());
+        }
+
+        if(createReqVO.getContractId()!=null){
+            ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(createReqVO.getContractId());
+            createReqVO.setCustomerId(projectConstract.getCustomerId());
         }
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
@@ -165,22 +173,14 @@ public class ProjectServiceImpl implements ProjectService {
             quotation = quotations.get(0);
         }
         projectRepository.updateCurrentQuotationIdById(quotation.getId(), projectId);
+        Long id = project.getId();
 
-        // 创建默认的安排单
-//        ProjectScheduleSaveReqVO saveScheduleReqVO = new ProjectScheduleSaveReqVO();
-//        saveScheduleReqVO.setProjectId(projectId);
-//        saveScheduleReqVO.setName(project.getName() + "的默认安排单");
-//        ProjectSchedule projectSchedule = projectScheduleMapper.toEntity(saveScheduleReqVO);
-//        projectScheduleRepository.save(projectSchedule);
-
-        // 设置项目当前安排单
-//        setProjectCurrentSchedule(projectId, projectSchedule.getId());
-
-
-
+        if(createReqVO.getContractId()!=null){
+            projectConstractSimpleRepository.updateProjectIdById(id,createReqVO.getContractId());
+        }
 
         // 返回
-        return project.getId();
+        return id;
     }
 
     public void updateProjectFocusIdsById(Long projectId,List<Long> ids,String oldFocusIds){
