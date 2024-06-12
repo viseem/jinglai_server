@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.collaborationrecord;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CollaborationRecordStatusEnums;
@@ -9,6 +10,7 @@ import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
@@ -72,6 +74,9 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
 
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
     @Override
     @Transactional
     public Long createCollaborationRecord(CollaborationRecordCreateReqVO createReqVO) {
@@ -100,6 +105,25 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
             }
             if(!Objects.equals(salesleadOnly.getCreator(),user.getId())){
                 sendUserIds.add(salesleadOnly.getCreator());
+            }
+        }
+
+        // 如果是项目详情沟通
+        if(Objects.equals(createReqVO.getType(), CollaborationRecordStatusEnums.PROJECT.getStatus())){
+
+            msgTemplateCode = BpmMessageEnum.NOTIFY_WHEN_PROJECT_REPLY.getTemplateCode();
+            Optional<ProjectOnly> byId = projectOnlyRepository.findById(createReqVO.getRefId());
+            if(byId.isPresent()){
+                ProjectOnly projectOnly = byId.get();
+                templateParams.put("name",projectOnly.getName());
+                if(!Objects.equals(projectOnly.getManagerId(),user.getId())){
+                    sendUserIds.add(projectOnly.getManagerId());
+                }
+                if(!Objects.equals(projectOnly.getSalesId(),user.getId())){
+                    sendUserIds.add(projectOnly.getSalesId());
+                }
+            }else{
+                throw exception(PROJECT_NOT_EXISTS);
             }
         }
 
@@ -135,7 +159,7 @@ public class CollaborationRecordServiceImpl implements CollaborationRecordServic
             sendUserIds = sendUserIds.stream().distinct().collect(Collectors.toList());
             //发送通知
             for (Long sendUserId : sendUserIds) {
-                if(sendUserId==null){
+                if(sendUserId==null || sendUserId.equals(getLoginUserId())){
                     continue;
                 }
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
