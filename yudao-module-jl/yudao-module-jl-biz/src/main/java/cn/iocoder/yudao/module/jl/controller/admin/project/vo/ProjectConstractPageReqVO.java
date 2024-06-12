@@ -87,4 +87,8 @@ public class ProjectConstractPageReqVO extends PageParam {
     private String keyword;
 
     private Integer isOuted;
+
+    // 高级查询
+    private Integer signedTimeDayEnd;
+    private Integer receivedPercentEnd;
 }

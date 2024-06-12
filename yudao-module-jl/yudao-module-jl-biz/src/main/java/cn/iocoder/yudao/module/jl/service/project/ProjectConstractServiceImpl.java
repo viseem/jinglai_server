@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -316,7 +317,24 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstract> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            //高级查询
 
+            if(pageReqVO.getSignedTimeDayEnd()!=null){
+                // 查询签订日期 到现在 在getSignedTimeDayEnd天内的数据，需要换算天数
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime minus = now.minusDays(pageReqVO.getSignedTimeDayEnd());
+                predicates.add(cb.lessThanOrEqualTo(root.get("signedTime"), minus));
+            }
+
+            if(pageReqVO.getReceivedPercentEnd()!=null){
+                predicates.add(cb.or(
+                        cb.isNull(root.get("receivedPercent")),
+                        cb.lessThanOrEqualTo(root.get("receivedPercent"), pageReqVO.getReceivedPercentEnd()/100)
+                ));
+            }
+
+
+            //高级查询
 
             if(pageReqVO.getCreatorIds()==null){
                 if (pageReqVO.getCustomerId() != null) {
@@ -500,7 +518,17 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         // 创建 Specification
         Specification<ProjectConstractOnly> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            //高级查询
 
+            if(pageReqVO.getSignedTimeDayEnd()!=null){
+                // 查询签订日期 到现在 在180天内的数据，需要换算天数
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime minus = now.minusDays(pageReqVO.getSignedTimeDayEnd());
+                predicates.add(cb.between(root.get("signedTime"), minus, now));
+            }
+
+
+            //高级查询
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
