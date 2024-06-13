@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.projectquotation;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -146,6 +147,14 @@ public class ProjectQuotation extends BaseEntity {
      */
     @Column(name = "saleslead_id")
     private Long salesleadId;
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "saleslead_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private SalesleadOnly saleslead;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

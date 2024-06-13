@@ -336,7 +336,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
             //高级查询
 
-            if(pageReqVO.getCreatorIds()==null){
+            if(pageReqVO.getCreatorIds()==null && pageReqVO.getSubjectGroupId()==null){
                 if (pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 } else {
@@ -346,7 +346,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                     }
                 }
-            }else{
+            }
+
+            if(pageReqVO.getCreatorIds()!=null){
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
             }
 

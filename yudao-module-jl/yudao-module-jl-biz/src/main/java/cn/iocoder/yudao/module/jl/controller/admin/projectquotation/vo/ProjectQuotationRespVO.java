@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -24,4 +25,6 @@ public class ProjectQuotationRespVO extends ProjectQuotationBaseVO {
     private User user;
 
     private CustomerOnly customer;
+
+    private SalesleadOnly saleslead;
 }

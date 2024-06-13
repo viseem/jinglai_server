@@ -466,7 +466,9 @@ public class ProjectServiceImpl implements ProjectService {
             //这个是穿件来的创建者id，默认是null
             if(pageReqVO.getManagerIds()==null){
                 if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                    if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
+
+
+ /*                   if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
                         if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
                             if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
                                 mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
@@ -486,7 +488,24 @@ public class ProjectServiceImpl implements ProjectService {
                             predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
                         }
 
+                    }*/
+                    if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
+                        if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
+                            mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
+                        }else{
+                            if(pageReqVO.getManagerId() != null) {
+                                predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
+                            }else{
+                                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                                pageReqVO.setCreators(users);
+                                predicates.add(cb.or(
+                                        root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()),
+                                        root.get("managerId").in(Arrays.stream(pageReqVO.getCreators()).toArray())
+                                ));
+                            }
+                        }
                     }
+
                 }
             }else{
                 predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
