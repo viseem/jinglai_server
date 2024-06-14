@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +86,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Resource
     private ProjectConstractSimpleRepository projectConstractSimpleRepository;
+
+    @Resource
+    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
     @PostConstruct
     public void ProjectServiceImpl(){
@@ -467,28 +471,6 @@ public class ProjectServiceImpl implements ProjectService {
             if(pageReqVO.getManagerIds()==null){
                 if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
 
-
- /*                   if(pageReqVO.getIsSale()!=null&&!pageReqVO.getIsSale()){
-                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
-                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
-                                mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
-                            }else{
-                                if(pageReqVO.getManagerId() != null) {
-                                    predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
-                                }else{
-                                    predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagers()).toArray()));
-                                }
-                            }
-                        }
-                    }else{
-
-                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                        pageReqVO.setCreators(users);
-                        if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                            predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-                        }
-
-                    }*/
                     if(pageReqVO.getAttribute()!=null&&!Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.ANY.getStatus())){
                         if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.FOCUS.getStatus())) {
                             mysqlFindInSet(getLoginUserId(),"focusIds", root, cb, predicates);
@@ -496,12 +478,14 @@ public class ProjectServiceImpl implements ProjectService {
                             if(pageReqVO.getManagerId() != null) {
                                 predicates.add(cb.equal(root.get("managerId"), pageReqVO.getManagerId()));
                             }else{
-                                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                                pageReqVO.setCreators(users);
-                                predicates.add(cb.or(
-                                        root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()),
-                                        root.get("managerId").in(Arrays.stream(pageReqVO.getCreators()).toArray())
-                                ));
+                                if(pageReqVO.getPiGroupId()==null){
+                                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                                    pageReqVO.setCreators(users);
+                                    predicates.add(cb.or(
+                                            root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()),
+                                            root.get("managerId").in(Arrays.stream(pageReqVO.getCreators()).toArray())
+                                    ));
+                                }
                             }
                         }
                     }
@@ -509,8 +493,24 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }else{
                 predicates.add(root.get("managerId").in(Arrays.stream(pageReqVO.getManagerIds()).toArray()));
-
             }
+
+            if(pageReqVO.getPiGroupId()!=null){
+                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
+                predicates.add(cb.or(
+                        root.get("salesId").in(Arrays.asList(membersUserIdsByGroupId)),
+                        root.get("managerId").in(Arrays.asList(membersUserIdsByGroupId))
+                ));
+            }
+
+            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
+//                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
+                predicates.add(cb.or(
+                        root.get("salesId").in(Collections.singletonList(getLoginUserId())),
+                        root.get("managerId").in(Collections.singletonList(getLoginUserId()))
+                ));
+            }
+
 
             if(pageReqVO.getSalesIds()!=null){
                 predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getSalesIds()).toArray()));
@@ -552,7 +552,7 @@ public class ProjectServiceImpl implements ProjectService {
                 mysqlFindInSet(pageReqVO.getTagId(),"tagIds", root, cb, predicates);
             }
 
-            // 课题组
+            // 课题组这个是crmSubjectGroup 不要 跟subjectGroup（pi组）混淆
             if(pageReqVO.getSubjectGroupId() != null) {
                 predicates.add(cb.equal(root.get("subjectGroupId"), pageReqVO.getSubjectGroupId()));
             }

@@ -3,8 +3,10 @@ package cn.iocoder.yudao.module.jl.service.subjectgroupmember;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.subjectgroupmember.vo.*;
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMemberOnly;
 import cn.iocoder.yudao.module.jl.mapper.subjectgroupmember.SubjectGroupMemberMapper;
 import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
+import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepositoryOnly;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +39,14 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
     @Resource
     private SubjectGroupMemberRepository subjectGroupMemberRepository;
 
+
     @Resource
     private SubjectGroupMemberMapper subjectGroupMemberMapper;
+    private final SubjectGroupMemberRepositoryOnly subjectGroupMemberRepositoryOnly;
+
+    public SubjectGroupMemberServiceImpl(SubjectGroupMemberRepositoryOnly subjectGroupMemberRepositoryOnly) {
+        this.subjectGroupMemberRepositoryOnly = subjectGroupMemberRepositoryOnly;
+    }
 
     @Override
     public Long createSubjectGroupMember(SubjectGroupMemberCreateReqVO createReqVO) {
@@ -65,8 +73,8 @@ public class SubjectGroupMemberServiceImpl implements SubjectGroupMemberService 
 
     public Long[] findMembersUserIdsByGroupId(@Valid Long groupId) {
         //把返回的List中的id取出来
-        Long[] array = subjectGroupMemberRepository.findByGroupId(groupId).stream()
-                .map(SubjectGroupMember::getUserId)
+        Long[] array = subjectGroupMemberRepositoryOnly.findByGroupId(groupId).stream()
+                .map(SubjectGroupMemberOnly::getUserId)
                 .toArray(Long[]::new);
         return array.length>0?array:new Long[]{0L};
     }

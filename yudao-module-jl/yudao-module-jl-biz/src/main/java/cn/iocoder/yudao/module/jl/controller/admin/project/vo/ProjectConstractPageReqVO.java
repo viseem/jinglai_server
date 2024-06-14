@@ -15,7 +15,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ProjectConstractPageReqVO extends PageParam {
 
-    private Long subjectGroupId;
+    private Long piGroupId;
 
 
     private Long projectTagId;

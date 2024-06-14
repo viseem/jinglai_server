@@ -28,7 +28,6 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -333,18 +332,16 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         cb.lessThanOrEqualTo(root.get("receivedPercent"), pageReqVO.getReceivedPercentEnd()/100)
                 ));
             }
-            //高级查询  end
-            List<Long> salesIds = new ArrayList<>();
+
 
             if(pageReqVO.getCreatorIds()==null){
                 if (pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 } else {
 
-                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getSubjectGroupId()==null) {
+                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getPiGroupId()==null) {
                         Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
-//                        salesIds.addAll(Arrays.asList(users));
                     }
                 }
             }
@@ -355,18 +352,13 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             }
 
             if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
-                salesIds.add(getLoginUserId());
-                predicates.add(root.get("salesId").in(salesIds));
+                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
             }
 
-            if(pageReqVO.getSubjectGroupId()!=null){
-                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getSubjectGroupId());
-//                salesIds.addAll(Arrays.asList(membersUserIdsByGroupId));
+            if(pageReqVO.getPiGroupId()!=null){
+                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
                 predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
             }
-/*            if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
-                predicates.add(root.get("salesId").in(salesIds));
-            }*/
 
 
             if(pageReqVO.getProjectTagId() != null) {
