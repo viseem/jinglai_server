@@ -17,6 +17,7 @@ import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberS
 import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -306,8 +307,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public PageResult<ProjectConstract> getProjectConstractPage(ProjectConstractPageReqVO pageReqVO, ProjectConstractPageOrder orderV0) {
 
-
-
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
@@ -315,70 +314,83 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectConstract> spec = (root, query, cb) -> {
+        Specification<ProjectConstract> spec = getSpecification(pageReqVO);
+
+
+        // 执行查询
+        Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
+
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private <T>Specification<T> getSpecification(ProjectConstractPageReqVO pageReqVO) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             //高级查询
 
-            if(pageReqVO.getSignedTimeDayEnd()!=null){
+            if (pageReqVO.getSignedTimeDayEnd() != null) {
                 // 查询签订日期 到现在 在getSignedTimeDayEnd天内的数据，需要换算天数
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime minus = now.minusDays(pageReqVO.getSignedTimeDayEnd());
                 predicates.add(cb.lessThanOrEqualTo(root.get("signedTime"), minus));
             }
 
-            if(pageReqVO.getReceivedPercentEnd()!=null){
+            if (pageReqVO.getReceivedPercentEnd() != null) {
                 predicates.add(cb.or(
                         cb.isNull(root.get("receivedPercent")),
-                        cb.lessThanOrEqualTo(root.get("receivedPercent"), pageReqVO.getReceivedPercentEnd()/100)
+                        cb.lessThanOrEqualTo(root.get("receivedPercent"), pageReqVO.getReceivedPercentEnd() / 100)
                 ));
             }
 
 
-            if(pageReqVO.getCreatorIds()==null){
+            if (pageReqVO.getCreatorIds() == null) {
                 if (pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 } else {
 
-                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getPiGroupId()==null) {
-                        Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus()) && pageReqVO.getPiGroupId() == null) {
+                        Long[] users = pageReqVO.getSalesId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                     }
                 }
             }
 
-            if(pageReqVO.getCreatorIds()!=null){
+            if (pageReqVO.getCreatorIds() != null) {
                 // 都是用salesId查询，但是前端这里之前传的是getCreatorIds，先不改，创建者其实没有意义
                 predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
             }
 
-            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
+            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
                 predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
             }
 
-            if(pageReqVO.getPiGroupId()!=null){
+            if (pageReqVO.getPiGroupId() != null) {
                 Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
                 predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
             }
 
 
-            if(pageReqVO.getProjectTagId() != null) {
-                mysqlFindInSet(pageReqVO.getProjectTagId(),"projectTagIds", root, cb, predicates);
+            if (pageReqVO.getProjectTagId() != null) {
+                mysqlFindInSet(pageReqVO.getProjectTagId(), "projectTagIds", root, cb, predicates);
             }
 
-            if(pageReqVO.getProjectStage() != null) {
+            if (pageReqVO.getProjectStage() != null) {
                 predicates.add(cb.equal(root.get("projectStage"), pageReqVO.getProjectStage()));
             }
 
-            if(pageReqVO.getMonth()!=null){
+            if (pageReqVO.getMonth() != null) {
                 LocalDateTime[] startAndEndTimeByMonth = StatisticUtils.getStartAndEndTimeByMonth(pageReqVO.getMonth());
                 predicates.add(cb.between(root.get("signedTime"), startAndEndTimeByMonth[0], startAndEndTimeByMonth[1]));
             }
 
-            if(pageReqVO.getSignedTime()!=null){
-                predicates.add(cb.between(root.get("signedTime"), pageReqVO.getSignedTime()[0],pageReqVO.getSignedTime()[1]));
+            if (pageReqVO.getSignedTime() != null) {
+                predicates.add(cb.between(root.get("signedTime"), pageReqVO.getSignedTime()[0], pageReqVO.getSignedTime()[1]));
             }
 
-            if(pageReqVO.getTimeRange()!=null){
+            if (pageReqVO.getTimeRange() != null) {
                 predicates.add(cb.between(root.get("signedTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
             }
 
@@ -402,15 +414,10 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                     // Add more cases if needed
                     case "NOT_ALL_PAY":
                         predicates.add(cb.or(
-                                cb.notEqual(root.get("price"),root.get("receivedPrice")),
+                                cb.notEqual(root.get("price"), root.get("receivedPrice")),
                                 cb.isNull(root.get("receivedPrice"))
                         ));
-/*                    predicates.add(cb.or(
-                            cb.lessThan(root.get("receivedPrice"), root.get("price")),
-                            cb.equal(root.get("receivedPrice"), 0),
-                            cb.isNull(root.get("receivedPrice"))
-                    ));*/
-                    break;
+                        break;
                     default:
                         break;
                 }
@@ -494,20 +501,6 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-
-        // 执行查询
-        Page<ProjectConstract> page = projectConstractRepository.findAll(spec, pageable);
-
-/*        page.getContent().forEach(contract -> {
-            if (contract.getApprovalList().size() > 0) {
-                contract.setLatestApproval(contract.getApprovalList().get(0));
-            }
-        });*/
-
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
     @Override
@@ -521,92 +514,11 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectConstractOnly> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            //高级查询
-
-            if(pageReqVO.getSignedTimeDayEnd()!=null){
-                // 查询签订日期 到现在 在180天内的数据，需要换算天数
-                LocalDateTime now = LocalDateTime.now();
-                LocalDateTime minus = now.minusDays(pageReqVO.getSignedTimeDayEnd());
-                predicates.add(cb.between(root.get("signedTime"), minus, now));
-            }
-
-
-            //高级查询
-            if (pageReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
-            }
-
-            if (pageReqVO.getKeyword() != null) {
-                Predicate namePredicate = cb.like(root.get("name"), "%" + pageReqVO.getKeyword() + "%");
-                Predicate snPredicate = cb.like(root.get("sn"), "%" + pageReqVO.getKeyword() + "%");
-
-                // Combine the predicates with 'or' (or 'and', depending on your needs)
-                predicates.add(cb.or(namePredicate, snPredicate));
-            }
-
-            if (pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
-            }
-
-            if (pageReqVO.getFileUrl() != null) {
-                predicates.add(cb.equal(root.get("fileUrl"), pageReqVO.getFileUrl()));
-            }
-
-            if (pageReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-            }
-
-
-            if (pageReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
-            }
-
-            if (pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
-
-            if (pageReqVO.getPrice() != null) {
-                predicates.add(cb.equal(root.get("price"), pageReqVO.getPrice()));
-            }
-
-            if (pageReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), pageReqVO.getSalesId()));
-            }
-
-            if (pageReqVO.getSn() != null) {
-                predicates.add(cb.like(root.get("sn"), "%" + pageReqVO.getSn() + "%"));
-            }
-
-            if (pageReqVO.getFileName() != null) {
-                predicates.add(cb.like(root.get("fileName"), "%" + pageReqVO.getFileName() + "%"));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<ProjectConstractOnly> spec = getSpecification(pageReqVO);
 
 
         // 执行查询
         Page<ProjectConstractOnly> page = projectConstractSimpleRepository.findAll(spec, pageable);
-
-//        List<ProjectConstractOnly> contracts = page.getContent();
-
-        //计算已收金额
-
-/*        if (contracts.size() > 0) {
-            contracts.forEach(item -> {
-                Integer receivedPrice = 0;
-                if (item.getFundLogs().size() > 0) {
-                    receivedPrice = item.getFundLogs().stream()
-                            .mapToInt(ProjectFundLog::getPrice)
-                            .sum();
-                }
-
-                item.setReceivedPrice(receivedPrice);
-            });
-        }*/
-
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());
@@ -615,48 +527,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     public List<ProjectConstract> getProjectConstractList(ProjectConstractExportReqVO exportReqVO) {
         // 创建 Specification
-        Specification<ProjectConstract> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (exportReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
-            }
-
-            if (exportReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
-            }
-
-            if (exportReqVO.getFileUrl() != null) {
-                predicates.add(cb.equal(root.get("fileUrl"), exportReqVO.getFileUrl()));
-            }
-
-            if (exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
-            }
-
-            if (exportReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
-            }
-
-            if (exportReqVO.getPrice() != null) {
-                predicates.add(cb.equal(root.get("price"), exportReqVO.getPrice()));
-            }
-
-            if (exportReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), exportReqVO.getSalesId()));
-            }
-
-            if (exportReqVO.getSn() != null) {
-                predicates.add(cb.equal(root.get("sn"), exportReqVO.getSn()));
-            }
-
-            if (exportReqVO.getFileName() != null) {
-                predicates.add(cb.like(root.get("fileName"), "%" + exportReqVO.getFileName() + "%"));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<ProjectConstract> spec = getSpecification(exportReqVO);
 
         // 执行查询
         return projectConstractRepository.findAll(spec);
