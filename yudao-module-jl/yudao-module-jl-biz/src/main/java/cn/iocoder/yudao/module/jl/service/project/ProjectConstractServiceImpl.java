@@ -49,6 +49,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
@@ -332,30 +333,40 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                         cb.lessThanOrEqualTo(root.get("receivedPercent"), pageReqVO.getReceivedPercentEnd()/100)
                 ));
             }
+            //高级查询  end
+            List<Long> salesIds = new ArrayList<>();
 
-
-            //高级查询
-
-            if(pageReqVO.getCreatorIds()==null && pageReqVO.getSubjectGroupId()==null){
+            if(pageReqVO.getCreatorIds()==null){
                 if (pageReqVO.getCustomerId() != null) {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 } else {
 
-                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&pageReqVO.getSubjectGroupId()==null) {
                         Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                         predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+//                        salesIds.addAll(Arrays.asList(users));
                     }
                 }
             }
 
             if(pageReqVO.getCreatorIds()!=null){
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                // 都是用salesId查询，但是前端这里之前传的是getCreatorIds，先不改，创建者其实没有意义
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
+                salesIds.add(getLoginUserId());
+                predicates.add(root.get("salesId").in(salesIds));
             }
 
             if(pageReqVO.getSubjectGroupId()!=null){
                 Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getSubjectGroupId());
+//                salesIds.addAll(Arrays.asList(membersUserIdsByGroupId));
                 predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
             }
+/*            if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                predicates.add(root.get("salesId").in(salesIds));
+            }*/
 
 
             if(pageReqVO.getProjectTagId() != null) {

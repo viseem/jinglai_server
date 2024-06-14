@@ -180,7 +180,7 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         if(!groupMemberList.isEmpty()){
 //            List<ContractFundLog> contractFundLogList = contractFundLogRepository.findByStatusAndPaidTimeBetweenAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime(), List.of(reqVO.getUserIds()));
 
-            List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findByCreatorInAndSignedTimeBetweenAndStatus(reqVO.getUserIds(), reqVO.getStartTime(), reqVO.getEndTime(), ProjectContractStatusEnums.SIGNED.getStatus());
+            List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.findBySalesIdAndSignedTimeBetweenAndStatus(reqVO.getUserIds(), reqVO.getStartTime(), reqVO.getEndTime(), ProjectContractStatusEnums.SIGNED.getStatus());
 /*            for (SalesGroupMember member : resp.getSalesGroupMemberList()) {
                 for (ContractFundLog contractFundLog : contractFundLogList) {
                     if(contractFundLog.getReceivedPrice() != null&&contractFundLog.getSalesId().equals(member.getUserId())) {

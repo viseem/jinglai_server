@@ -61,7 +61,6 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository.getContractFinancialStatistic(reqVO.getUserIds(), ProjectContractStatusEnums.SIGNED.getStatus(), reqVO.getStartTime(), reqVO.getEndTime());
         // 遍历 contract list, 求和应收金额，已收金额，已开票金额
         for (ProjectConstractOnly contract : contractList) {
-            System.out.println("contract---"+contract+contract.getPrice());
             if(contract.getReceivedPrice() != null) {
                 resp.setContractPaymentAmount(resp.getContractPaymentAmount().add(contract.getReceivedPrice()));
             }
