@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.collaborationrecord.CollaborationRecord;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectQuote;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
@@ -213,6 +214,14 @@ public class SalesleadDetail extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
     private List<SalesleadCustomerPlan> customerPlans;
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "contract_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectConstractOnly contract;
 
     /*
      * 级联协作记录
