@@ -258,18 +258,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
-        ProjectSimple project = validateProjectExists(updateReqVO.getId());
-/*        if(project.getCode()==null|| project.getCode().equals("")){
-            updateReqVO.setCode(generateCode());
-        }*/
-
-        //删除旧的人员
-//        projectPersonRepository.deleteByProjectId(updateReqVO.getId());
-        //处理persons，添加新的人员
-//        projectPersonRepository.saveAll(updateReqVO.getPersons());
-
-        //如果项目负责人和销售负责人不存在于关注人中，则添加进去
-//        Arrays.asList(updateReqVO.getManagerId(),updateReqVO.getSalesId(),updateReqVO.getPreManagerId(),getLoginUserId(),updateReqVO.getAfterManagerId(),updateReqVO.getExperId())
+        validateProjectExists(updateReqVO.getId());
         updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),null));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
