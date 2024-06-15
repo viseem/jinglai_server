@@ -382,6 +382,8 @@ public class SalesleadServiceImpl implements SalesleadService {
                 contract.setContractType(updateReqVO.getContractContractType());
                 contract.setProjectStage(ProjectStageEnums.CONTRACT_SIGNED.getStatus());
                 ProjectConstract save = projectConstractRepository.save(contract);
+                // 更新商机的合同id
+                salesleadRepository.updateContractIdById(save.getId(), salesleadId);
 
                 // 查询销售人员
                 Optional<User> salesOptional = userRepository.findById(project.getSalesId()==null?getLoginUserId():project.getSalesId());

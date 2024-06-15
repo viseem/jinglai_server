@@ -51,6 +51,13 @@ public class SalesleadDetail extends BaseEntity {
     @Column(name = "source", nullable = false )
     private String source;
 
+
+    /**
+     * 合同 id
+     */
+    @Column(name = "contract_id", nullable = false)
+    private Long contractId;
+
     /**
      * 关键需求
      */

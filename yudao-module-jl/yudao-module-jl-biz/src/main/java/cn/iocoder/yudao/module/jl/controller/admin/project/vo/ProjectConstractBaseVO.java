@@ -22,6 +22,9 @@ public class ProjectConstractBaseVO {
     @Schema(description = "项目 id")
     private Long projectId;
 
+    @Schema(description = "项目售中id")
+    private Long projectManagerId;
+
     @Schema(description = "客户id")
     private Long customerId;
 

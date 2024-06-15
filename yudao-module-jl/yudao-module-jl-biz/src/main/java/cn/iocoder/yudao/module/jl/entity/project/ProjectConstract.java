@@ -48,6 +48,12 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
+    /**
+     * 项目售中人员id
+     */
+    @Column(name = "project_manager_id", nullable = false)
+    private Long projectManagerId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)

@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, JpaSpecificationExecutor<Saleslead> {
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.contractId = ?1 where s.id = ?2")
+    int updateContractIdById(Long contractId, Long id);
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.quotationUpdateTime = ?1 where s.id = ?2")
     int updateQuotationUpdateTimeById(LocalDateTime quotationUpdateTime, Long id);
 

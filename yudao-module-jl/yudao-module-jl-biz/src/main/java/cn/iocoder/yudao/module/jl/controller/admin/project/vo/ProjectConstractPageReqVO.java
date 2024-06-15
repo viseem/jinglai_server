@@ -77,6 +77,9 @@ public class ProjectConstractPageReqVO extends PageParam {
     @Schema(description = "签订销售人员", example = "32406")
     private Long salesId;
 
+    @Schema(description = "签订销售人员", example = "32406")
+    private Long projectManagerId;
+
     @Schema(description = "合同编号")
     private String sn;
 

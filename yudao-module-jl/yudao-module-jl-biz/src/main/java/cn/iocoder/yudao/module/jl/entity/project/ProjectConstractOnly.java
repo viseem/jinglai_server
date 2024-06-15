@@ -44,6 +44,7 @@ public class ProjectConstractOnly extends BaseEntity {
     @Column(name = "project_id", nullable = false )
     private Long projectId;
 
+
     /**
      * 合同名字
      */
@@ -178,4 +179,10 @@ public class ProjectConstractOnly extends BaseEntity {
      */
     @Column(name = "project_tag_ids")
     private String projectTagIds;
+
+    /**
+     * 项目售中人员id
+     */
+    @Column(name = "project_manager_id", nullable = false)
+    private Long projectManagerId;
 }
