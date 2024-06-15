@@ -266,6 +266,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         //同时更新一下projectCategory的projectManagerId
         projectCategoryRepository.updateProjectManagerIdByProjectId(updateReqVO.getManagerId(),updateReqVO.getId());
+        // 更新一下合同的售中人员
+        projectConstractSimpleRepository.updateProjectManagerIdByProjectId(updateReqVO.getManagerId(),updateReqVO.getId());
     }
 
     @Override
