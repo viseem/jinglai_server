@@ -48,4 +48,6 @@ public class ProjectChargeitemPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String mark;
 
+    private Boolean withTaskList;
+
 }

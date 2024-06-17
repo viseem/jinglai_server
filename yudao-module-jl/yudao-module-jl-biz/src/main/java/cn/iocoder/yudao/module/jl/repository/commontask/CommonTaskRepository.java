@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface CommonTaskRepository extends JpaRepository<CommonTask, Long>, JpaSpecificationExecutor<CommonTask> {
+    @Query("select c from CommonTask c where c.quotationId = ?1")
+    List<CommonTask> findByQuotationId(Long quotationId);
     @Query("select c from CommonTask c where c.projectCategoryId = ?1")
     List<CommonTask> findByProjectCategoryId(Long projectCategoryId);
     @Query("select count(c) from CommonTask c where c.userId = ?1 and c.status not in ?2")

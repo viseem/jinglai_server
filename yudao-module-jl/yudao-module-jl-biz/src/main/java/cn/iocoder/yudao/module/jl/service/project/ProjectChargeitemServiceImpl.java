@@ -187,9 +187,18 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     }
 
     private void processList(List<ProjectChargeitem> list, ProjectChargeitemPageReqVO pageReqVO) {
+        System.out.println("-=-=-"+pageReqVO.getWithTaskList());
+        List<CommonTask> taskList = null;
         // 这相当于是category界面查询的收费项，这里要回显一下他们指派的任务
         if(pageReqVO.getProjectCategoryId()!=null){
-            List<CommonTask> taskList = commonTaskRepository.findByProjectCategoryId(pageReqVO.getProjectCategoryId());
+            taskList = commonTaskRepository.findByProjectCategoryId(pageReqVO.getProjectCategoryId());
+        }
+
+        if(Objects.equals(pageReqVO.getWithTaskList(),true)){
+            taskList = commonTaskRepository.findByQuotationId(pageReqVO.getQuotationId());
+        }
+
+        if(taskList!=null&& !taskList.isEmpty()){
             for (CommonTask task : taskList) {
                 for (ProjectChargeitem item : list) {
                     if(item.getTaskList()==null){
@@ -200,7 +209,6 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
                     }
                 }
             }
-
         }
     }
 
