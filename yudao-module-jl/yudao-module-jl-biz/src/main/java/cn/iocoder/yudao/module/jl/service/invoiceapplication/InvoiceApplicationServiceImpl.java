@@ -338,21 +338,23 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         itemList.add(rowItem2);
 
         InvoiceApplicationExcelRowItemVO rowItem3 = new InvoiceApplicationExcelRowItemVO();
-        String content = String.format(
+/*        String content = String.format(
                 "单位抬头：%s\n" +
                 "税号：%s\n" +
                 "单位地址：%s\n" +
                 "电话：%s\n" +
+                "邮箱：%s\n" +
                 "开户银行：%s\n" +
                 "银行账户：%s\n",
                 Objects.requireNonNullElse(invoiceApplication.getHead(), ""),
                 Objects.requireNonNullElse(invoiceApplication.getTaxNumber(), ""),
                 Objects.requireNonNullElse(invoiceApplication.getAddress(), ""),
                 Objects.requireNonNullElse(invoiceApplication.getPhone(), ""),
+                Objects.requireNonNullElse(invoiceApplication.getEmail(), ""),
                 Objects.requireNonNullElse(invoiceApplication.getBankName(), ""),
                 Objects.requireNonNullElse(invoiceApplication.getBankAccount(), "")
-                );
-        rowItem3.setCol1(content);
+        );*/
+        rowItem3.setCol1(processInvoiceInfoContent(invoiceApplication));
         rowItem3.setCol4("寄送地址/备注：\n"+Objects.requireNonNullElse(invoiceApplication.getSendAddress(), "")+"\n"+Objects.requireNonNullElse(invoiceApplication.getMark(), ""));
         itemList.add(rowItem3);
 
@@ -399,6 +401,34 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         }
 
         return itemList;
+    }
+
+    private String processInvoiceInfoContent(InvoiceApplication invoiceApplication){
+        List<String> parts = new ArrayList<>();
+
+        if (!Objects.requireNonNullElse(invoiceApplication.getHead(), "").isEmpty()) {
+            parts.add(String.format("单位抬头：%s", invoiceApplication.getHead()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getTaxNumber(), "").isEmpty()) {
+            parts.add(String.format("税号：%s", invoiceApplication.getTaxNumber()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getAddress(), "").isEmpty()) {
+            parts.add(String.format("单位地址：%s", invoiceApplication.getAddress()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getPhone(), "").isEmpty()) {
+            parts.add(String.format("电话：%s", invoiceApplication.getPhone()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getEmail(), "").isEmpty()) {
+            parts.add(String.format("邮箱：%s", invoiceApplication.getEmail()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getBankName(), "").isEmpty()) {
+            parts.add(String.format("开户银行：%s", invoiceApplication.getBankName()));
+        }
+        if (!Objects.requireNonNullElse(invoiceApplication.getBankAccount(), "").isEmpty()) {
+            parts.add(String.format("银行账户：%s", invoiceApplication.getBankAccount()));
+        }
+
+        return String.join("\n", parts);
     }
 
     private void addHeadRow(List<InvoiceApplicationExcelRowItemVO> itemList) {
