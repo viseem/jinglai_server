@@ -222,57 +222,6 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "project_manager_id")
     private Long projectManagerId;
 
-/*    @ManyToOne
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JsonBackReference
-    @JoinColumn(name = "quote_id", insertable = false, updatable = false)
-    private ProjectQuote quote;*/
-
-    /**
-     * JPA 级联出 user 实验负责人
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User operator;
-
-    /**
-     * 实验物资
-     */
-/*    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    private List<ProjectSupply> supplyList;*/
-
-    /**
-     * 实验收费项
-     */
- /*   @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.JOIN)
-    @JsonManagedReference
-    private List<ProjectChargeitem> chargeList;*/
-
-    /**
-     * 实验SOP
-     */
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectSop> sopList = new ArrayList<>();
-
-    /**
-     * 实验名目的附件
-     */
-/*    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    @JsonManagedReference
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryAttachment> attachmentList;*/
-
-
     //审批的状态 通过 未通过
     @Column(name = "approval_stage")
     private String approvalStage;
@@ -283,25 +232,27 @@ public class ProjectCategory extends BaseEntity {
     @Transient
     private ProjectCategoryApproval latestApproval;
 
-    //实验记录
     /**
-     * 查询实验记录列表
+     * JPA 级联出 user 实验负责人
      */
-/*    @OneToMany(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "operator_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User operator;
+
+
+    /**
+     * 实验SOP
+     */
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectCategoryLog> logs;*/
+    private List<ProjectSop> sopList = new ArrayList<>();
 
-    /*
-    * 依赖项
-    * */
-/*    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "task_id", insertable = false, updatable = false)
-    @Where(clause = "level = 2")
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<TaskRelationOnly> relations = new ArrayList<>();*/
+
+
+
 
     /**
      * JPA 级联出 project

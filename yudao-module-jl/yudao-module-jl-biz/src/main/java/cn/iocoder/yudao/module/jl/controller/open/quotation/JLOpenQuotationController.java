@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectSupplyAndCh
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectSupplyAndChargeRespVO;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationRespVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.mapper.projectquotation.ProjectQuotationMapper;
 import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryService;
@@ -62,13 +63,12 @@ public class JLOpenQuotationController {
 
     @PostMapping("/category-page")
     @Operation(summary = "通过 ID 获得项目报价")
-    public CommonResult<PageResult<ProjectCategory>> geProjectCategoryPage(@RequestBody @Valid ProjectCategoryPageReqVO pageVO) {
+    public CommonResult<PageResult<ProjectCategoryOnly>> geProjectCategoryPage(@RequestBody @Valid ProjectCategoryPageReqVO pageVO) {
 //        UtilStoreGetReqVO storeGetReqVO = new UtilStoreGetReqVO();
 //        storeGetReqVO.setStoreId(pageVO.getStoreId());
 //        storeGetReqVO.setStorePwd(pageVO.getStorePwd());
 //        utilService.validStoreWithException(storeGetReqVO);
-        System.out.println("-=-=-"+pageVO.getQuotationId());
-        PageResult<ProjectCategory> projectCategoryPage = projectCategoryService.getProjectCategoryPage(pageVO, new ProjectCategoryPageOrder());
+        PageResult<ProjectCategoryOnly> projectCategoryPage = projectCategoryService.getProjectCategoryPageOnly(pageVO, new ProjectCategoryPageOrder());
         return success(projectCategoryPage);
     }
 

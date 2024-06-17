@@ -17,6 +17,7 @@ import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -53,16 +54,31 @@ public class ProjectCategoryOnly extends BaseEntity {
     private Long quoteId;
 
     /**
-     * 安排单 id
+     * 项目 id
      */
     @Column(name = "project_id")
     private Long projectId;
+
+
+    /**
+     * 客户 id
+     */
+    @Column(name = "customer_id")
+    private Long customerId;
+
+
 
     /**
      * 安排单 id
      */
     @Column(name = "schedule_id")
     private Long scheduleId;
+
+    /**
+     * 报价 id
+     */
+    @Column(name = "quotation_id")
+    private Long quotationId;
 
     /**
      * 类型，报价/安排单
@@ -75,6 +91,12 @@ public class ProjectCategoryOnly extends BaseEntity {
      */
     @Column(name = "lab_id")
     private Long labId;
+
+    /**
+     * 所属实验室ids
+     */
+    @Column(name = "lab_ids")
+    private String labIds;
 
     /**
      * 参与者ids
@@ -95,24 +117,35 @@ public class ProjectCategoryOnly extends BaseEntity {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-
     /**
-     * 实验人员
+     * 实验负责人
      */
     @Column(name = "operator_id")
     private Long operatorId;
 
-    /*
-     * 折扣
-     * */
-    @Column(name = "discount", nullable = false )
-    private Integer discount;
+    /**
+     * 实验人员
+     */
+    @Column(name = "operator_ids")
+    private String operatorIds;
 
     /**
      * 客户需求
      */
     @Column(name = "demand")
     private String demand;
+
+    /**
+     * 开始日期
+     */
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+
+    /**
+     * 截止日期
+     */
+    @Column(name = "deadline")
+    private LocalDateTime deadline;
 
     /**
      * 干扰项
@@ -133,10 +166,36 @@ public class ProjectCategoryOnly extends BaseEntity {
     private String name;
 
     /**
+     * 从方案中选中的内容
+     */
+    @Column(name = "content", nullable = false)
+    private String content;
+
+    /**
      * 备注
      */
     @Column(name = "mark")
     private String mark;
+
+    /**
+     * 当前实验的状态，未开展、开展中、数据审核、已完成
+     */
+    @Column(name = "stage")
+    private String stage;
+
+
+    /**
+     * 原始数据
+     */
+    @Column(name = "raw_data")
+    private String rawData;
+
+
+    /**
+     * 是否有反馈
+     */
+    @Column(name = "has_feedback", nullable = false)
+    private Byte hasFeedback;
 
     /**
      * 周期
@@ -150,11 +209,24 @@ public class ProjectCategoryOnly extends BaseEntity {
     @Column(name = "sort")
     private Integer sort;
 
+    /*
+     * 折扣
+     * */
+    @Column(name = "discount", nullable = false )
+    private Integer discount;
+
     /**
-     * 当前实验的状态，未开展、开展中、数据审核、已完成
+     * 项目的负责人id
      */
-    @Column(name = "stage")
-    private String stage;
+    @Column(name = "project_manager_id")
+    private Long projectManagerId;
+
+    //审批的状态 通过 未通过
+    @Column(name = "approval_stage")
+    private String approvalStage;
+    //申请变更的状态
+    @Column(name = "request_stage")
+    private String requestStage;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

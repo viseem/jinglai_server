@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -132,6 +133,14 @@ public class ProjectCategoryController {
     @PreAuthorize("@ss.hasPermission('jl:project-category:query')")
     public CommonResult<PageResult<ProjectCategorySimple>> getProjectCategoryPageSimple(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
         PageResult<ProjectCategorySimple> pageResult = projectCategoryService.getProjectCategoryPageSimple(pageVO, orderV0);
+        return success(pageResult);
+    }
+
+    @GetMapping("/page-only")
+    @Operation(summary = "(分页)获得项目的实验名目列表")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:query')")
+    public CommonResult<PageResult<ProjectCategoryOnly>> getProjectCategoryPageOnly(@Valid ProjectCategoryPageReqVO pageVO, @Valid ProjectCategoryPageOrder orderV0) {
+        PageResult<ProjectCategoryOnly> pageResult = projectCategoryService.getProjectCategoryPageOnly(pageVO, orderV0);
         return success(pageResult);
     }
 

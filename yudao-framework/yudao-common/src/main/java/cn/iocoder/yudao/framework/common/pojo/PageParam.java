@@ -17,7 +17,7 @@ public class PageParam implements Serializable {
 
     @Schema(description = "页码，从 1 开始", requiredMode = Schema.RequiredMode.REQUIRED,example = "1")
     @NotNull(message = "页码不能为空")
-    @Min(value = 1, message = "页码最小值为 1")
+    @Min(value = -1, message = "页码最小值为 1")
     private Integer pageNo = PAGE_NO;
 
     @Schema(description = "每页条数，最大值为 300", requiredMode = Schema.RequiredMode.REQUIRED, example = "10")

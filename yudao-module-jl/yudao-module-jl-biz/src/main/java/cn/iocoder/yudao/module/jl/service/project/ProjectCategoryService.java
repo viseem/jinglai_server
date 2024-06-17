@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import org.hibernate.annotations.SQLDelete;
 
@@ -92,6 +93,14 @@ public interface ProjectCategoryService {
      * @return 项目的实验名目分页
      */
     PageResult<ProjectCategorySimple> getProjectCategoryPageSimple(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0);
+
+    /**
+     * 获得项目的实验名目分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目的实验名目分页
+     */
+    PageResult<ProjectCategoryOnly> getProjectCategoryPageOnly(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0);
 
     /**
      * 获得项目的实验名目列表, 用于 Excel 导出

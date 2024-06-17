@@ -1,15 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
-import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -73,6 +70,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
     @Resource
     private ProjectCategorySimpleRepository projectCategorySimpleRepository;
+
 
     @Resource
     private ProjectCategoryMapper projectCategoryMapper;
@@ -508,7 +506,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategory> spec = getProjectCategorySimpleSpecification(pageReqVO);
+        Specification<ProjectCategory> spec = getSpecification(pageReqVO);
 
         // 执行查询
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
@@ -540,7 +538,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProjectCategory> spec = getProjectCategorySimpleSpecification(pageReqVO);
+        Specification<ProjectCategory> spec = getSpecification(pageReqVO);
 
         // 执行查询
         Page<ProjectCategory> page = projectCategoryRepository.findAll(spec, pageable);
@@ -560,7 +558,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
 
         // 创建 Pageable 对象
         // 创建 Specification
-        Specification<ProjectCategorySimple> spec = getProjectCategorySimpleSpecification(pageReqVO);
+        Specification<ProjectCategorySimple> spec = getSpecification(pageReqVO);
 
         // 执行查询
         if(pageReqVO.getPageNo()==-1){
@@ -576,8 +574,31 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         }
     }
 
+    @Override
+    public PageResult<ProjectCategoryOnly> getProjectCategoryPageOnly(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        // 创建 Specification
+        Specification<ProjectCategoryOnly> spec = getSpecification(pageReqVO);
+
+        // 执行查询
+        if(pageReqVO.getPageNo()==-1){
+            List<ProjectCategoryOnly> all = projectCategoryOnlyRepository.findAll(spec,sort);
+/*            if(!all.isEmpty()){
+                all.forEach(this::processProjectCategorySimpleItem);
+            }*/
+            return new PageResult<>(all, (long)all.size());
+        }else{
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProjectCategoryOnly> page = projectCategoryOnlyRepository.findAll(spec, pageable);
+            return new PageResult<>(page.getContent(), page.getTotalElements());
+        }
+    }
+
     @NotNull
-    private <T>Specification<T> getProjectCategorySimpleSpecification(ProjectCategoryPageReqVO pageReqVO) {
+    private <T>Specification<T> getSpecification(ProjectCategoryPageReqVO pageReqVO) {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
