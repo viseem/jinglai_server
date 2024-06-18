@@ -108,6 +108,8 @@ public class ProjectBaseVO {
 
     private String doApplyResult;
 
+    private String doAuditMark;
+
     private Long doUserId;
 
 

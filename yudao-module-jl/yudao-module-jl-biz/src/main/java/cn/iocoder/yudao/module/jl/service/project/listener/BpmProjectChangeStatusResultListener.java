@@ -28,13 +28,13 @@ public class BpmProjectChangeStatusResultListener extends BpmProcessInstanceResu
 
     @Override
     protected void onEvent(BpmProcessInstanceResultEvent event) {
-        long id = Long.parseLong(event.getBusinessKey());
+/*        long id = Long.parseLong(event.getBusinessKey());
         String result = event.getResult().toString();
         //获取
         ProjectApprovalUpdateReqVO projectApprovalUpdateReqVO = new ProjectApprovalUpdateReqVO();
         projectApprovalUpdateReqVO.setId(id);
         projectApprovalUpdateReqVO.setApprovalStage(result);
-        projectApprovalService.updateProjectApproval(projectApprovalUpdateReqVO);
+        projectApprovalService.updateProjectApproval(projectApprovalUpdateReqVO);*/
     }
 
 }

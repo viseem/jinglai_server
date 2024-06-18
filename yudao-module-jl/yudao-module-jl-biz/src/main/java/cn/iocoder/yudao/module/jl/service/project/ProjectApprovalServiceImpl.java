@@ -1,30 +1,21 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
-import cn.iocoder.yudao.module.jl.entity.approval.Approval;
-import cn.iocoder.yudao.module.jl.entity.approval.ApprovalProgress;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
-import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
-import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
-import org.apache.ibatis.jdbc.Null;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,10 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import java.util.*;
 
@@ -129,7 +117,8 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         //如果要变更的状态是开展前审批，注意这里，要变更的就是开展前审批，发起了这个申请，项目要直接变更成这个状态的
         // 这时候需要更新一下项目的 开展前审批的相关字段
         if(Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
-            projectOnlyRepository.updateDoInstanceIdAndDoUserIdById(save.getProcessInstanceId(),getLoginUserId(),createReqVO.getProjectId());
+//            projectOnlyRepository.updateDoInstanceIdAndDoUserIdById(save.getProcessInstanceId(),getLoginUserId(),createReqVO.getProjectId());
+            projectOnlyRepository.updateDoInstanceIdAndDoUserIdAndDoApplyResultAndAuditMarkById(save.getProcessInstanceId(),getLoginUserId(), BpmTaskStatustEnum.RUNNING.getStatus().toString(),null,createReqVO.getProjectId());
         }
 
         //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
@@ -217,8 +206,42 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             });
         }
 
-        // 更新
-//        ProjectApproval updateObj = projectApprovalMapper.toEntity(projectApproval);
+        projectApprovalRepository.save(projectApproval);
+    }
+
+    @Transactional
+    public void updateProjectApprovalByResultAndId(String result,String mark,Long refId) {
+        // 校验存在
+        ProjectApproval projectApproval = validateProjectApprovalExists(refId);
+        projectApproval.setApprovalStage(result);
+
+
+        // 批准该条申请 ： 1. 如果是开展前审批，则变更为开展中
+
+        // 校验是否存在,并修改状态
+        projectOnlyRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project -> {
+
+            // 如果同意
+            if (Objects.equals(result, BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
+                // 如果是开展前审批
+                if (Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())) {
+                    project.setStage(ProjectStageEnums.DOING.getStatus());
+                } else {
+                    project.setStage(projectApproval.getStage());
+                }
+            }
+            //如果是开展前审批
+            if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+                project.setDoApplyResult(result);
+                project.setDoAuditMark(mark);
+            }
+
+            projectOnlyRepository.save(project);
+        }, () -> {
+            throw exception(PROJECT_NOT_EXISTS);
+        });
+
+
         projectApprovalRepository.save(projectApproval);
     }
 

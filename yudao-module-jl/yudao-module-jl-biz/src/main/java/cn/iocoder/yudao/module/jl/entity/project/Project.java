@@ -80,6 +80,9 @@ public class Project extends BaseEntity{
     @Column(name = "do_apply_result", nullable = false )
     private String doApplyResult;
 
+    @Column(name = "do_audit_mark", nullable = false )
+    private String doAuditMark;
+
     @Column(name = "do_user_id", nullable = false )
     private Long doUserId;
 

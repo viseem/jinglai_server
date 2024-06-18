@@ -201,6 +201,9 @@ public class ProjectOnly extends BaseEntity{
     @Column(name = "do_user_id", nullable = false )
     private Long doUserId;
 
+    @Column(name = "do_audit_mark", nullable = false )
+    private String doAuditMark;
+
 
     @Transient
     private Integer completePercent;

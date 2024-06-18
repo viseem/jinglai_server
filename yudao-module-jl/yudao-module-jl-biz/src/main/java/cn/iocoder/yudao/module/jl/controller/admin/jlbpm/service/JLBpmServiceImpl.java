@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessI
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskApproveReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
+import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
@@ -20,6 +21,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.purchasecontract.PurchaseContractRepository;
 import cn.iocoder.yudao.module.jl.service.crm.SalesleadServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectApprovalServiceImpl;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -69,6 +71,9 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
 
+    @Resource
+    private ProjectApprovalServiceImpl projectApprovalServiceImpl;
+
     @Override
     @Transactional
     public void approveTask(JLBpmTaskReqVO approveReqVO) {
@@ -106,6 +111,12 @@ public class JLBpmServiceImpl implements JLBpmService {
 
                 processQuotationStatus(approveReqVO.getTaskStatus(),approveReqVO.getReason(), approveReqVO.getRefId());
 
+            }
+
+            // 如果是项目状态变更
+            if(Objects.equals(processDefinitionKey,PROJECT_STATUS_CHANGE)){
+                System.out.println("-=-=-=-");
+                projectApprovalServiceImpl.updateProjectApprovalByResultAndId(BpmTaskStatustEnum.APPROVE.getStatus().toString(),approveReqVO.getReason(),approveReqVO.getRefId());
             }
         }
 
@@ -190,6 +201,11 @@ public class JLBpmServiceImpl implements JLBpmService {
             if(Objects.equals(processDefinitionKey,QUOTATION_AUDIT)){
                 processQuotationStatus(QuotationAuditStatusEnums.REJECT.getStatus(),reqVO.getReason(), reqVO.getRefId());
 
+            }
+
+            // 如果是项目状态变更
+            if(Objects.equals(processDefinitionKey,PROJECT_STATUS_CHANGE)){
+                projectApprovalServiceImpl.updateProjectApprovalByResultAndId(BpmTaskStatustEnum.REJECT.getStatus().toString(),reqVO.getReason(),reqVO.getRefId());
             }
         }
 
