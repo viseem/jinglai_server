@@ -1,15 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
-import cn.iocoder.yudao.module.bpm.enums.DictTypeConstants;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
-import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -19,7 +15,7 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
-import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +39,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.USER_NOT_EXIST
 
 /**
  * 通用任务 Service 实现类
- *
  */
 @Service
 @Validated
@@ -67,6 +62,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private DateAttributeGenerator dateAttributeGenerator;
 
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -82,15 +80,15 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     }
 
     @Transactional
-    public void updateCommonTaskStatusById(Long id,Integer stage,Integer stageNot){
+    public void updateCommonTaskStatusById(Long id, Integer stage, Integer stageNot) {
 
 /*        Optional<ProjectCategory> byId = projectCategoryRepository.findById(id);
         if(byId.isPresent()&&!byId.get().getStage().equals(stage)){
         }*/
 
-        if(stageNot!=null){
-            commonTaskRepository.updateStatusByIdAndStatusNot(stage, id,stageNot);
-        }else{
+        if (stageNot != null) {
+            commonTaskRepository.updateStatusByIdAndStatusNot(stage, id, stageNot);
+        } else {
             commonTaskRepository.updateStatusById(stage, id);
         }
 
@@ -98,7 +96,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     }
 
     @Transactional
-    public void processCommonTaskSaveData(CommonTaskBaseVO vo){
+    public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
         userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
             vo.setUserNickname(user.getNickname());
@@ -107,7 +105,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         });
 
 
-        if(vo.getAssignUserId()==null&&getLoginUserId()!=null){
+        if (vo.getAssignUserId() == null && getLoginUserId() != null) {
             userRepository.findById(getLoginUserId()).ifPresentOrElse(user -> {
                 vo.setAssignUserId(user.getId());
                 vo.setAssignUserName(user.getNickname());
@@ -116,20 +114,20 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             });
         }
 
-        if(vo.getChargeitemId()!=null||vo.getProjectCategoryId()!=null){
+        if (vo.getChargeitemId() != null || vo.getProjectCategoryId() != null) {
             vo.setType(CommonTaskTypeEnums.PROJECT.getStatus());
         }
 
         // 如果有chargeitemId，则查询chargeItem
-        if(vo.getChargeitemId() != null) {
+        if (vo.getChargeitemId() != null) {
             Optional<ProjectChargeitem> byId = chargeitemRepository.findById(vo.getChargeitemId());
-            if(byId.isPresent()){
+            if (byId.isPresent()) {
                 ProjectChargeitem projectChargeitem = byId.get();
                 vo.setChargeitemName(projectChargeitem.getName());
                 vo.setQuotationId(projectChargeitem.getQuotationId());
                 vo.setProductId(projectChargeitem.getProductId());
 
-                if(projectChargeitem.getProjectCategoryId()!=null){
+                if (projectChargeitem.getProjectCategoryId() != null) {
                     Long projectCategoryId = projectChargeitem.getProjectCategoryId();
                     processCategorySaveData(vo, projectCategoryId);
                 }
@@ -140,15 +138,15 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     private void processCategorySaveData(CommonTaskBaseVO vo, Long projectCategoryId) {
         Optional<ProjectCategory> byId1 = projectCategoryRepository.findById(projectCategoryId);
-        if(byId1.isPresent()){
+        if (byId1.isPresent()) {
             ProjectCategory projectCategory = byId1.get();
             vo.setProjectCategoryId(projectCategory.getId());
             vo.setProjectCategoryName(projectCategory.getName());
             vo.setProjectId(projectCategory.getProjectId());
             vo.setCustomerId(projectCategory.getCustomerId());
-            if(projectCategory.getProject()!=null){
+            if (projectCategory.getProject() != null) {
                 vo.setProjectName(projectCategory.getProject().getName());
-                if(projectCategory.getProject().getCustomer()!=null){
+                if (projectCategory.getProject().getCustomer() != null) {
                     vo.setCustomerName(projectCategory.getProject().getCustomer().getName());
                 }
             }
@@ -175,6 +173,33 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         commonTaskRepository.updateStatusById(updateReqVO.getStatus(), updateReqVO.getId());
     }
 
+    @Override
+    @Transactional
+    public void sendCommonTask(CommonTaskSendReqVO reqVO) {
+        if (reqVO.getQuotationId() != null) {
+            List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(reqVO.getQuotationId());
+            byQuotationId.forEach(task -> {
+                // 只有等于待下发状态的才下发
+                if(Objects.equals(task.getStatus(),CommonTaskStatusEnums.WAIT_SEND.getStatus())){
+                    //改状态为待接收
+                    task.setStatus(CommonTaskStatusEnums.WAIT_RECEIVE.getStatus());
+                    Map<String, Object> templateParams = new HashMap<>();
+                    templateParams.put("content", processSendTaskContent(task));
+                    templateParams.put("id",task.getId());
+                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                            task.getUserId(),
+                            BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_SEND.getTemplateCode(), templateParams
+                    ));
+                }
+            });
+
+        }
+    }
+
+    private String processSendTaskContent(CommonTask task) {
+        return "您有一个任务待接收,任务名称：" + task.getName()+",请及时处理";
+    }
+
 
     @Override
     public void deleteCommonTask(Long id) {
@@ -196,7 +221,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Override
     public CommonTaskCountStatusRespVO getCommonTaskStatusCount() {
         CommonTaskCountStatusRespVO respVO = new CommonTaskCountStatusRespVO();
-        Integer i = commonTaskRepository.countByUserIdAndStatusNotIn(getLoginUserId(),CommonTaskStatusEnums.getDoneStatus());
+        Integer i = commonTaskRepository.countByUserIdAndStatusNotIn(getLoginUserId(), CommonTaskStatusEnums.getDoneStatus());
         respVO.setUndoneCount(i);
         return respVO;
     }
@@ -219,106 +244,111 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         Specification<CommonTask> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getChargeitemId()==null&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
-                Long[] users = pageReqVO.getUserId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+            //查询 除了未下发的
+            if(Objects.equals(pageReqVO.getHasWaitSend(),false)){
+                predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
+            }
+
+            if (pageReqVO.getChargeitemId() == null && !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+                Long[] users = pageReqVO.getUserId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getContent() != null) {
+            if (pageReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), pageReqVO.getContent()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
-            if(pageReqVO.getStartDate() != null) {
+            if (pageReqVO.getStartDate() != null) {
                 predicates.add(cb.between(root.get("startDate"), pageReqVO.getStartDate()[0], pageReqVO.getStartDate()[1]));
-            } 
-            if(pageReqVO.getEndDate() != null) {
+            }
+            if (pageReqVO.getEndDate() != null) {
                 predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
-            } 
-            if(pageReqVO.getUserId() != null) {
+            }
+            if (pageReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
             }
 
-            if(pageReqVO.getFocusIds() != null) {
+            if (pageReqVO.getFocusIds() != null) {
                 predicates.add(cb.equal(root.get("focusIds"), pageReqVO.getFocusIds()));
             }
 
-            if(pageReqVO.getProjectId() != null) {
+            if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
 
-            if(pageReqVO.getCustomerId() != null) {
+            if (pageReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
             }
 
-            if(pageReqVO.getChargeitemId() != null) {
+            if (pageReqVO.getChargeitemId() != null) {
                 predicates.add(cb.equal(root.get("chargeitemId"), pageReqVO.getChargeitemId()));
             }
 
-            if(pageReqVO.getProductId() != null) {
+            if (pageReqVO.getProductId() != null) {
                 predicates.add(cb.equal(root.get("productId"), pageReqVO.getProductId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getQuotationId() != null) {
+            if (pageReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
             }
 
-            if(pageReqVO.getProjectName() != null) {
+            if (pageReqVO.getProjectName() != null) {
                 predicates.add(cb.like(root.get("projectName"), "%" + pageReqVO.getProjectName() + "%"));
             }
 
-            if(pageReqVO.getCustomerName() != null) {
+            if (pageReqVO.getCustomerName() != null) {
                 predicates.add(cb.like(root.get("customerName"), "%" + pageReqVO.getCustomerName() + "%"));
             }
 
-            if(pageReqVO.getChargeitemName() != null) {
+            if (pageReqVO.getChargeitemName() != null) {
                 predicates.add(cb.like(root.get("chargeitemName"), "%" + pageReqVO.getChargeitemName() + "%"));
             }
 
-            if(pageReqVO.getProductName() != null) {
+            if (pageReqVO.getProductName() != null) {
                 predicates.add(cb.like(root.get("productName"), "%" + pageReqVO.getProductName() + "%"));
             }
 
-            if(pageReqVO.getProjectCategoryName() != null) {
+            if (pageReqVO.getProjectCategoryName() != null) {
                 predicates.add(cb.like(root.get("projectCategoryName"), "%" + pageReqVO.getProjectCategoryName() + "%"));
             }
 
-            if(pageReqVO.getType() != null) {
+            if (pageReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
             }
 
-            if(pageReqVO.getLevel() != null) {
+            if (pageReqVO.getLevel() != null) {
                 predicates.add(cb.equal(root.get("level"), pageReqVO.getLevel()));
             }
 
-            if(pageReqVO.getAssignUserId() != null) {
+            if (pageReqVO.getAssignUserId() != null) {
                 predicates.add(cb.equal(root.get("assignUserId"), pageReqVO.getAssignUserId()));
             }
 
-            if(pageReqVO.getAssignUserName() != null) {
+            if (pageReqVO.getAssignUserName() != null) {
                 predicates.add(cb.like(root.get("assignUserName"), "%" + pageReqVO.getAssignUserName() + "%"));
             }
 
-            if(pageReqVO.getLabIds() != null) {
+            if (pageReqVO.getLabIds() != null) {
                 predicates.add(cb.equal(root.get("labIds"), pageReqVO.getLabIds()));
             }
 
-            if(pageReqVO.getSort() != null) {
+            if (pageReqVO.getSort() != null) {
                 predicates.add(cb.equal(root.get("sort"), pageReqVO.getSort()));
             }
 
@@ -340,101 +370,101 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             List<Predicate> predicates = new ArrayList<>();
 
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getContent() != null) {
+            if (exportReqVO.getContent() != null) {
                 predicates.add(cb.equal(root.get("content"), exportReqVO.getContent()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
-            if(exportReqVO.getStartDate() != null) {
+            if (exportReqVO.getStartDate() != null) {
                 predicates.add(cb.between(root.get("startDate"), exportReqVO.getStartDate()[0], exportReqVO.getStartDate()[1]));
-            } 
-            if(exportReqVO.getEndDate() != null) {
+            }
+            if (exportReqVO.getEndDate() != null) {
                 predicates.add(cb.between(root.get("endDate"), exportReqVO.getEndDate()[0], exportReqVO.getEndDate()[1]));
-            } 
-            if(exportReqVO.getUserId() != null) {
+            }
+            if (exportReqVO.getUserId() != null) {
                 predicates.add(cb.equal(root.get("userId"), exportReqVO.getUserId()));
             }
 
-            if(exportReqVO.getFocusIds() != null) {
+            if (exportReqVO.getFocusIds() != null) {
                 predicates.add(cb.equal(root.get("focusIds"), exportReqVO.getFocusIds()));
             }
 
-            if(exportReqVO.getProjectId() != null) {
+            if (exportReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), exportReqVO.getProjectId()));
             }
 
-            if(exportReqVO.getCustomerId() != null) {
+            if (exportReqVO.getCustomerId() != null) {
                 predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
             }
 
-            if(exportReqVO.getChargeitemId() != null) {
+            if (exportReqVO.getChargeitemId() != null) {
                 predicates.add(cb.equal(root.get("chargeitemId"), exportReqVO.getChargeitemId()));
             }
 
-            if(exportReqVO.getProductId() != null) {
+            if (exportReqVO.getProductId() != null) {
                 predicates.add(cb.equal(root.get("productId"), exportReqVO.getProductId()));
             }
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getQuotationId() != null) {
+            if (exportReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), exportReqVO.getQuotationId()));
             }
 
-            if(exportReqVO.getProjectName() != null) {
+            if (exportReqVO.getProjectName() != null) {
                 predicates.add(cb.like(root.get("projectName"), "%" + exportReqVO.getProjectName() + "%"));
             }
 
-            if(exportReqVO.getCustomerName() != null) {
+            if (exportReqVO.getCustomerName() != null) {
                 predicates.add(cb.like(root.get("customerName"), "%" + exportReqVO.getCustomerName() + "%"));
             }
 
-            if(exportReqVO.getChargeitemName() != null) {
+            if (exportReqVO.getChargeitemName() != null) {
                 predicates.add(cb.like(root.get("chargeitemName"), "%" + exportReqVO.getChargeitemName() + "%"));
             }
 
-            if(exportReqVO.getProductName() != null) {
+            if (exportReqVO.getProductName() != null) {
                 predicates.add(cb.like(root.get("productName"), "%" + exportReqVO.getProductName() + "%"));
             }
 
-            if(exportReqVO.getProjectCategoryName() != null) {
+            if (exportReqVO.getProjectCategoryName() != null) {
                 predicates.add(cb.like(root.get("projectCategoryName"), "%" + exportReqVO.getProjectCategoryName() + "%"));
             }
 
-            if(exportReqVO.getType() != null) {
+            if (exportReqVO.getType() != null) {
                 predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
             }
 
-            if(exportReqVO.getLevel() != null) {
+            if (exportReqVO.getLevel() != null) {
                 predicates.add(cb.equal(root.get("level"), exportReqVO.getLevel()));
             }
 
-            if(exportReqVO.getAssignUserId() != null) {
+            if (exportReqVO.getAssignUserId() != null) {
                 predicates.add(cb.equal(root.get("assignUserId"), exportReqVO.getAssignUserId()));
             }
 
-            if(exportReqVO.getAssignUserName() != null) {
+            if (exportReqVO.getAssignUserName() != null) {
                 predicates.add(cb.like(root.get("assignUserName"), "%" + exportReqVO.getAssignUserName() + "%"));
             }
 
-            if(exportReqVO.getLabIds() != null) {
+            if (exportReqVO.getLabIds() != null) {
                 predicates.add(cb.equal(root.get("labIds"), exportReqVO.getLabIds()));
             }
 
-            if(exportReqVO.getSort() != null) {
+            if (exportReqVO.getSort() != null) {
                 predicates.add(cb.equal(root.get("sort"), exportReqVO.getSort()));
             }
 

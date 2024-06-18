@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -47,6 +46,14 @@ public class CommonTaskController {
     @PreAuthorize("@ss.hasPermission('jl:common-task:create')")
     public CommonResult<Long> createCommonTask(@Valid @RequestBody CommonTaskCreateReqVO createReqVO) {
         return success(commonTaskService.createCommonTask(createReqVO));
+    }
+
+    @PostMapping("/send")
+    @Operation(summary = "下发通用任务")
+    @PreAuthorize("@ss.hasPermission('jl:common-task:update')")
+    public CommonResult<Boolean> assignCommonTask(@Valid @RequestBody CommonTaskSendReqVO reqVO) {
+        commonTaskService.sendCommonTask(reqVO);
+        return success(true);
     }
 
     @PutMapping("/update")

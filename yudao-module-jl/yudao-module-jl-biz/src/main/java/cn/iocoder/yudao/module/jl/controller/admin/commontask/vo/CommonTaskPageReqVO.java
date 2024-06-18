@@ -16,6 +16,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class CommonTaskPageReqVO extends PageParam {
 
+    private Boolean hasWaitSend = false;
+
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.MY.getStatus();
 
