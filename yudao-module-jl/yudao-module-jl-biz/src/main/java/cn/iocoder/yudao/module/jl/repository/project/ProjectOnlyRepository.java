@@ -15,6 +15,10 @@ import java.util.List;
 public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>, JpaSpecificationExecutor<ProjectOnly> {
     @Transactional
     @Modifying
+    @Query("update ProjectOnly p set p.doInstanceId = ?1, p.doUserId = ?2 where p.id = ?3")
+    int updateDoInstanceIdAndDoUserIdById(String doInstanceId, Long doUserId, Long id);
+    @Transactional
+    @Modifying
     @Query("update ProjectOnly p set p.processInstanceId = ?1, p.outboundApplyResult = ?2 where p.id = ?3")
     int updateProcessInstanceIdAndOutboundApplyResultById(String processInstanceId, String outboundApplyResult, Long id);
 

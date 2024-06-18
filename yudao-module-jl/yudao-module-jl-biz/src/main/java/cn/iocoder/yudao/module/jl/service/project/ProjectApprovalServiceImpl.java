@@ -15,9 +15,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalProgressRepository;
 import cn.iocoder.yudao.module.jl.repository.approval.ApprovalRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.approval.ApprovalServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
@@ -55,7 +53,6 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectApprovalMapper;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectApprovalRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -90,6 +87,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
     private ProjectSimpleRepository projectSimpleRepository;
 
     @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
+    @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
 
     @Resource
@@ -116,7 +116,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                     new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));
-
+            save.setProcessInstanceId(processInstanceId);
             // 更新流程实例编号
             projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
         } else {
@@ -124,7 +124,12 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             //直接更新审批的状态
             projectApprovalRepository.updateApprovalStageById(BpmProcessInstanceResultEnum.APPROVE.getResult().toString(), save.getId());
 
+        }
 
+        //如果要变更的状态是开展前审批，注意这里，要变更的就是开展前审批，发起了这个申请，项目要直接变更成这个状态的
+        // 这时候需要更新一下项目的 开展前审批的相关字段
+        if(Objects.equals(createReqVO.getStage(),ProjectStageEnums.DOING_PREVIEW.getStatus())){
+            projectOnlyRepository.updateDoInstanceIdAndDoUserIdById(save.getProcessInstanceId(),getLoginUserId(),createReqVO.getProjectId());
         }
 
         //如果不需要审批或项目状态等于开展前审批，直接更新项目状态
@@ -137,66 +142,55 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                 projectRepository.updateStageById(createReqVO.getStage(), save.getProjectId());
 
                 // 发送系统消息
-                projectSimpleRepository.findById(save.getProjectId()).ifPresent(project -> {
-                    //查询字典
-                    DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
-                    String originStageLabel = originStageDictData != null ? originStageDictData.getLabel() : " ";
-                    DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
-                    String stageLabel = stageDictData != null ? stageDictData.getLabel() : " ";
-
-                    //发送消息
-                    Map<String, Object> templateParams = new HashMap<>();
-                    Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
-                    templateParams.put("projectId", save.getProjectId());
-                    templateParams.put("userName", byId1.isPresent() ? byId1.get().getNickname() : WebFrameworkUtils.getLoginUserId());
-                    templateParams.put("customerName", project.getCustomer() != null ? project.getCustomer().getName() : "未知");
-                    templateParams.put("projectName", project.getName());
-                    templateParams.put("originStage", originStageLabel);
-                    templateParams.put("stage", stageLabel);
-                    templateParams.put("mark", createReqVO.getStageMark() != null ? "说明：" + createReqVO.getStageMark() : " ");
-                    List<Long> userIds = new ArrayList<>();
-                    userIds.add(project.getManagerId());
-                    userIds.add(project.getSalesId());
-                    // project.getFocusIds()是逗号分隔的字符串，需要转换为List<Long>，并防止异常
-
-
-                    try {
-                        Arrays.stream(project.getFocusIds().split(","))
-                                .map(Long::parseLong)
-                                .forEach(userIds::add);
-
-                    } catch (Exception e) {
-                        System.out.println("Error parsing focus IDs: " + e.getMessage());
-                    }
-
-                    for (Long userId : userIds) {
-                        if (userId == null) {
-                            continue;
-                        }
-                        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                                userId,
-                                BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
-                        ));
-                    }
-
-/*                   //查询PI组成员
-                   List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(project.getManagerId());
-                   for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
-                       if(subjectGroupMember.getUserId().equals(getLoginUserId())){
-                           continue;
-                       }
-                       notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                               subjectGroupMember.getUserId(),
-                               BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
-                       ));
-                   }*/
-                });
+                sendChangeStageMsg(createReqVO, save.getProjectId());
             }
-
         }
 
         // 返回
         return projectApproval.getId();
+    }
+
+    private void sendChangeStageMsg(ProjectApprovalCreateReqVO createReqVO, Long projectId) {
+        projectSimpleRepository.findById(projectId).ifPresent(project -> {
+            //查询字典
+            DictDataRespDTO originStageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getOriginStage());
+            String originStageLabel = originStageDictData != null ? originStageDictData.getLabel() : " ";
+            DictDataRespDTO stageDictData = dictDataApi.getDictData(DictTypeConstants.PROJECT_STAGE, createReqVO.getStage());
+            String stageLabel = stageDictData != null ? stageDictData.getLabel() : " ";
+
+            //发送消息
+            Map<String, Object> templateParams = new HashMap<>();
+            Optional<User> byId1 = userRepository.findById(WebFrameworkUtils.getLoginUserId());
+            templateParams.put("projectId", projectId);
+            templateParams.put("userName", byId1.isPresent() ? byId1.get().getNickname() : WebFrameworkUtils.getLoginUserId());
+            templateParams.put("customerName", project.getCustomer() != null ? project.getCustomer().getName() : "未知");
+            templateParams.put("projectName", project.getName());
+            templateParams.put("originStage", originStageLabel);
+            templateParams.put("stage", stageLabel);
+            templateParams.put("mark", createReqVO.getStageMark() != null ? "说明：" + createReqVO.getStageMark() : " ");
+            List<Long> userIds = new ArrayList<>();
+            userIds.add(project.getManagerId());
+            userIds.add(project.getSalesId());
+            try {
+                Arrays.stream(project.getFocusIds().split(","))
+                        .map(Long::parseLong)
+                        .forEach(userIds::add);
+
+            } catch (Exception e) {
+                System.out.println("Error parsing focus IDs: " + e.getMessage());
+            }
+            // userIds去重
+            userIds = userIds.stream().distinct().collect(Collectors.toList());
+            for (Long userId : userIds) {
+                if (userId == null) {
+                    continue;
+                }
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        userId,
+                        BpmMessageEnum.NOTIFY_WHEN_PROJECT_STAGE_CHANGE.getTemplateCode(), templateParams
+                ));
+            }
+        });
     }
 
 

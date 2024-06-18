@@ -100,4 +100,15 @@ public class ProjectBaseVO {
     @Schema(description = "销售 id", example = "8556")
     private Long customerId;
 
+
+    /*
+     * 开展前审批，冗余字段
+     * */
+    private String doInstanceId;
+
+    private String doApplyResult;
+
+    private Long doUserId;
+
+
 }

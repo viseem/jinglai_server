@@ -170,6 +170,18 @@ public class ProjectSimple extends BaseEntity {
     @Column(name = "current_schedule_id")
     private Long currentScheduleId;
 
+    /*
+     * 开展前审批，冗余字段
+     * */
+    @Column(name = "do_instance_id", nullable = false )
+    private String doInstanceId;
+
+    @Column(name = "do_apply_result", nullable = false )
+    private String doApplyResult;
+
+    @Column(name = "do_user_id", nullable = false )
+    private Long doUserId;
+
 /*    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
