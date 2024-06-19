@@ -165,4 +165,7 @@ public class ContractInvoiceLogBaseVO {
 
     private User user;
     private List<CommonAttachment> attachmentList;
+
+    private List<CommonAttachment> financeAttachmentList;
+
 }

@@ -342,6 +342,16 @@ public class ContractInvoiceLog extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<CommonAttachment> attachmentList = new ArrayList<>();
 
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'CONTRACT_INVOICE_LOG_FINANCE'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> financeAttachementList = new ArrayList<>();
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

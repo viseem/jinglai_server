@@ -96,6 +96,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(contractInvoiceLog.getId(),"CONTRACT_INVOICE_LOG",createReqVO.getAttachmentList());
 
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(contractInvoiceLog.getId(),"CONTRACT_INVOICE_LOG_FINANCE",createReqVO.getFinanceAttachmentList());
+
         // 返回
         return contractInvoiceLog.getId();
     }
@@ -123,6 +126,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
         }
 
         commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_INVOICE_LOG",updateReqVO.getAttachmentList());
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(contractInvoiceLog.getId(),"CONTRACT_INVOICE_LOG_FINANCE",updateReqVO.getFinanceAttachmentList());
     }
 
     @Override
