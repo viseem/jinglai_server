@@ -86,6 +86,11 @@ public class ProductServiceImpl implements ProductService {
             productUserReq.setList(createReqVO.getProductUserList());
             productUserService.updateProductUser(productUserReq);
         }
+
+        if(createReqVO.getAttachmentList()!=null){
+            commonAttachmentService.saveAttachmentListWithSubType(product.getId(),"JL_PRODUCT",createReqVO.getAttachmentType(),createReqVO.getAttachmentList());
+        }
+
         // 返回
         return product.getId();
     }
@@ -100,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
         productDetailRepository.save(updateObj);
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
-        if(updateReqVO.getAttachmentType()!=null){
+        if(updateReqVO.getAttachmentList()!=null){
             commonAttachmentService.saveAttachmentListWithSubType(updateObj.getId(),"JL_PRODUCT",updateReqVO.getAttachmentType(),updateReqVO.getAttachmentList());
         }
 

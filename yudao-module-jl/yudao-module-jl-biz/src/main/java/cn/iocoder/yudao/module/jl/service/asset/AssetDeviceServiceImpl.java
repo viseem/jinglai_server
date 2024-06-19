@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.asset;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -122,8 +123,7 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
 
         // 创建 Specification
         Specification<AssetDevice> spec = (root, query, cb) -> {
@@ -186,11 +186,20 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        // 执行查询
-        Page<AssetDevice> page = assetDeviceRepository.findAll(spec, pageable);
+        if(pageReqVO.getPageNo()==-1){
+            List<AssetDevice> all = assetDeviceRepository.findAll(spec, sort);
+            return new PageResult<>(all, (long)all.size());
+        }else{
+            // 创建 Pageable 对象
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            // 执行查询
+            Page<AssetDevice> page = assetDeviceRepository.findAll(spec, pageable);
 
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+            // 转换为 PageResult 并返回
+            return new PageResult<>(page.getContent(), page.getTotalElements());
+        }
+
+
     }
 
     @Override

@@ -60,7 +60,9 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
         for(CommonAttachment attachment : list){
             attachment.setRefId(refId);
             attachment.setType(type);
-            attachment.setSubType(subType);
+            if(subType!=null){
+                attachment.setSubType(subType);
+            }
         }
         commonAttachmentRepository.saveAll(list);
     }
