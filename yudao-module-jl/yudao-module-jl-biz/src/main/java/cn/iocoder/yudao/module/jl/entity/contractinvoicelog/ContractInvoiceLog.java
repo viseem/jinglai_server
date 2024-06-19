@@ -350,7 +350,7 @@ public class ContractInvoiceLog extends BaseEntity {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> financeAttachementList = new ArrayList<>();
+    private List<CommonAttachment> financeAttachmentList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
