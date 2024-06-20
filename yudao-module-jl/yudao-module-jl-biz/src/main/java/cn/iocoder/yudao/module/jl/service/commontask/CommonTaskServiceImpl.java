@@ -249,6 +249,10 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
             }
 
+            if (pageReqVO.getParentId() != null) {
+                predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
+            }
+
             if (pageReqVO.getChargeitemId() == null && !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
                 Long[] users = pageReqVO.getUserId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));

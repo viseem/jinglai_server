@@ -28,7 +28,7 @@ public class CommonTaskBaseVO {
     private String mark;
 
     @Schema(description = "状态")
-    private Integer status = CommonTaskStatusEnums.WAIT_SEND.getStatus();
+    private Integer status = CommonTaskStatusEnums.WAIT_RECEIVE.getStatus();
 
     @Schema(description = "开始时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
@@ -102,6 +102,6 @@ public class CommonTaskBaseVO {
     private Integer sort;
 
     @Schema(description = "父级id")
-    private Integer parentId;
+    private Long parentId=0L;
 
 }
