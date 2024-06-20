@@ -36,11 +36,6 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "sales_id", insertable = false, updatable = false)
-    private User sales;
 
     /**
      * 项目 id
@@ -53,16 +48,6 @@ public class ProjectConstract extends BaseEntity {
      */
     @Column(name = "project_manager_id", nullable = false)
     private Long projectManagerId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private ProjectSimple project;
-
-/*    @ManyToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User sales;*/
 
     /**
      * 合同名字
@@ -85,11 +70,6 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CustomerSimple customer;
 
     /**
      * 合同文件 URL
@@ -221,37 +201,32 @@ public class ProjectConstract extends BaseEntity {
     @Column(name = "project_tag_ids")
     private String projectTagIds;
 
-    /**
-     * 查询审批列表
-     */
-/*    @OneToMany(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @OrderBy("createTime DESC")
-    private List<ContractApproval> approvalList = new ArrayList<>();*/
 
     @Transient
     private ContractApproval latestApproval;
 
 
-    /**
-     * 查询回款计划列表
-     */
-/*    @OneToMany(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFund> funds;*/
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CustomerSimple customer;
 
-
-    /**
-     * 查询回款日志列表
-     */
-/*    @OneToMany(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProjectFundLog> fundLogs;*/
+    @JoinColumn(name = "sales_id", insertable = false, updatable = false)
+    private User sales;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_manager_id", insertable = false, updatable = false)
+    private User manager;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ProjectSimple project;
 
 }

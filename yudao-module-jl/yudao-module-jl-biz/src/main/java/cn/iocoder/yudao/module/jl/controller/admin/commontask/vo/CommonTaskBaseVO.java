@@ -101,4 +101,7 @@ public class CommonTaskBaseVO {
     @Schema(description = "排序")
     private Integer sort;
 
+    @Schema(description = "父级id")
+    private Integer parentId;
+
 }

@@ -29,8 +29,7 @@ public class ProjectConstractRespVO extends ProjectConstractBaseVO {
 
 
     private User sales;
-
-
+    private User manager;
 
 
     //已收金额比例

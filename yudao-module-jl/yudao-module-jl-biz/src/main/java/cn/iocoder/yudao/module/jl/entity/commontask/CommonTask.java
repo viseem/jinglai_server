@@ -184,4 +184,10 @@ public class CommonTask extends BaseEntity {
     @Column(name = "sort")
     private Integer sort;
 
+    /**
+     * 父级id
+     */
+    @Column(name = "parent_id")
+    private Integer parentId;
+
 }
