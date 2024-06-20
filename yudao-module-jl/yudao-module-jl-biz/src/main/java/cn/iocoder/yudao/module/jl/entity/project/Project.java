@@ -70,6 +70,8 @@ public class Project extends BaseEntity{
     @Column(name = "outbound_user_id", nullable = false )
     private Long outboundUserId;
 
+    @Column(name = "outbound_audit_mark", nullable = false )
+    private String outboundAuditMark;
 
     /*
     * 开展前审批，冗余字段

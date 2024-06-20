@@ -35,7 +35,7 @@ public class ProjectBaseVO {
 
     private String processInstanceId;
     private String outboundApplyResult;
-
+    private String outboundAuditMark;
     private Long outboundUserId;
 
     @Schema(description = "销售线索 id", example = "15320")

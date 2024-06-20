@@ -171,6 +171,19 @@ public class ProjectSimple extends BaseEntity {
     private Long currentScheduleId;
 
     /*
+     * 项目出库申请结果
+     * */
+
+    @Column(name = "outbound_apply_result", nullable = false )
+    private String outboundApplyResult;
+
+    @Column(name = "outbound_user_id", nullable = false )
+    private Long outboundUserId;
+
+    @Column(name = "outbound_audit_mark", nullable = false )
+    private String outboundAuditMark;
+
+    /*
      * 开展前审批，冗余字段
      * */
     @Column(name = "do_instance_id", nullable = false )

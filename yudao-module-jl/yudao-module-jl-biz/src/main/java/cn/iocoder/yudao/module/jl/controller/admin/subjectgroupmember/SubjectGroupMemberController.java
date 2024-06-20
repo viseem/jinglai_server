@@ -77,7 +77,7 @@ public class SubjectGroupMemberController {
 
     @GetMapping("/page")
     @Operation(summary = "(分页)获得专题小组成员列表")
-    @PreAuthorize("@ss.hasPermission('jl:subject-group-member:query')")
+//    @PreAuthorize("@ss.hasPermission('jl:subject-group-member:query')")
     public CommonResult<PageResult<SubjectGroupMemberRespVO>> getSubjectGroupMemberPage(@Valid SubjectGroupMemberPageReqVO pageVO, @Valid SubjectGroupMemberPageOrder orderV0) {
         PageResult<SubjectGroupMember> pageResult = subjectGroupMemberService.getSubjectGroupMemberPage(pageVO, orderV0);
         return success(subjectGroupMemberMapper.toPage(pageResult));

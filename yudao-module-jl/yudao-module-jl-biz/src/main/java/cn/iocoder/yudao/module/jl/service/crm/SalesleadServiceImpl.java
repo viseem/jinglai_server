@@ -285,6 +285,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
         Saleslead saleslead = salesleadRepository.save(saleleadsObj);
+        Long salesleadSalesId = saleslead.getCreator();
         Long salesleadId = saleleadsObj.getId();
 
         salesleadCompetitorRepository.deleteBySalesleadId(salesleadId);
@@ -312,7 +313,7 @@ public class SalesleadServiceImpl implements SalesleadService {
             project.setStage(ProjectStageEnums.CONTRACT_SIGNED.getStatus());
             project.setStatus(updateReqVO.getStatus());
             project.setType(updateReqVO.getType());
-            project.setSalesId(getLoginUserId()); // 线索的销售人员 id
+            project.setSalesId(salesleadSalesId); // 线索的销售人员 id
             project.setManagerId(updateReqVO.getProjectManagerId()==null?updateReqVO.getManagerId():updateReqVO.getProjectManagerId());
 
             if(updateReqVO.getProjectId()==null){
@@ -368,7 +369,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 ProjectConstract contract = new ProjectConstract();
                 contract.setProjectId(saleleadsObj.getProjectId());
                 contract.setCustomerId(saleleadsObj.getCustomerId());
-                contract.setSalesId(project.getSalesId()==null?getLoginUserId():project.getSalesId()); // 线索的销售人员 id
+                contract.setSalesId(salesleadSalesId); // 线索的销售人员 id
                 contract.setName(updateReqVO.getProjectName());
                 contract.setStampFileName(updateReqVO.getContractStampFileName());
                 contract.setStampFileUrl(updateReqVO.getContractStampFileUrl());
@@ -386,7 +387,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 salesleadRepository.updateContractIdById(save.getId(), salesleadId);
 
                 // 查询销售人员
-                Optional<User> salesOptional = userRepository.findById(project.getSalesId()==null?getLoginUserId():project.getSalesId());
+                Optional<User> salesOptional = userRepository.findById(salesleadSalesId);
 
                 // 发送消息
                 Map<String, Object> templateParams = new HashMap<>();
