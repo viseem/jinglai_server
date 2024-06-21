@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -104,4 +106,5 @@ public class CommonTaskBaseVO {
     @Schema(description = "父级id")
     private Long parentId=0L;
 
+    private List<ProductSelector> productList;
 }

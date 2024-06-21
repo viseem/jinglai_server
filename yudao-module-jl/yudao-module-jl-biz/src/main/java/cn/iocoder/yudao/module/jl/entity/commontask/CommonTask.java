@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.commontask;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -189,5 +190,8 @@ public class CommonTask extends BaseEntity {
      */
     @Column(name = "parent_id")
     private Integer parentId;
+
+    @Transient
+    private List<TaskProduct> productList;
 
 }

@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -13,6 +14,7 @@ import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -65,6 +67,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
 
+    @Resource
+    private TaskProductRepository taskProductRepository;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -75,8 +80,25 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         CommonTask commonTask = commonTaskMapper.toEntity(createReqVO);
         commonTaskRepository.save(commonTask);
 
+        // 插入到task product对应表中
+        saveTaskProduct(createReqVO, commonTask.getId());
+
         // 返回
         return commonTask.getId();
+    }
+
+    private void saveTaskProduct(CommonTaskBaseVO createReqVO, Long taskId) {
+        if(createReqVO.getProductList()!=null){
+            List<TaskProduct> taskProductList = new ArrayList<>();
+            createReqVO.getProductList().forEach(item->{
+                System.out.println("====="+item.getName());
+                TaskProduct taskProduct = new TaskProduct();
+                taskProduct.setTaskId(taskId);
+                taskProduct.setProductId(item.getId());
+                taskProductList.add(taskProduct);
+            });
+            taskProductRepository.saveAll(taskProductList);
+        }
     }
 
     @Transactional
@@ -164,6 +186,8 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 更新
         CommonTask updateObj = commonTaskMapper.toEntity(updateReqVO);
         commonTaskRepository.save(updateObj);
+
+        saveTaskProduct(updateReqVO, updateObj.getId());
     }
 
     @Override
@@ -215,9 +239,13 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Override
     public Optional<CommonTask> getCommonTask(Long id) {
-        return commonTaskRepository.findById(id);
+        Optional<CommonTask> byId = commonTaskRepository.findById(id);
+        byId.ifPresent(task -> {
+            List<TaskProduct> byTaskId = taskProductRepository.findByTaskId(task.getId());
+            task.setProductList(byTaskId);
+        });
+        return byId;
     }
-
     @Override
     public CommonTaskCountStatusRespVO getCommonTaskStatusCount() {
         CommonTaskCountStatusRespVO respVO = new CommonTaskCountStatusRespVO();

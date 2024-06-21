@@ -263,6 +263,8 @@ public interface ErrorCodeConstants {
     ErrorCode STATUS_OR_AUDIT_MARK_IS_NULL = new ErrorCode(1004000000, "审批状态或审批意见不能为空");
     ErrorCode COMMON_TASK_NOT_EXISTS = new ErrorCode(1004000000, "通用任务不存在");
 
+    ErrorCode TASK_PRODUCT_NOT_EXISTS = new ErrorCode(1004000000, "任务产品中间不存在");
+
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");
 
