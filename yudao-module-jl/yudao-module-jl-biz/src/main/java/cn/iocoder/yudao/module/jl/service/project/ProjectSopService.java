@@ -28,6 +28,13 @@ public interface ProjectSopService {
     void updateProjectSop(@Valid ProjectSopUpdateReqVO updateReqVO);
 
     /**
+     * 更新项目中的实验名目的操作SOP
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateProjectSopSort(@Valid ProjectSopUpdateSortReqVO updateReqVO);
+
+    /**
      * 批量   更新项目中的实验名目的操作SOP
      *
      * @param sopList 更新信息

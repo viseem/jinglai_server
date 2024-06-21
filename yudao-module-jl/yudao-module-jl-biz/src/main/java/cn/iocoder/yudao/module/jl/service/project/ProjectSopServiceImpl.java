@@ -112,6 +112,20 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     }
 
     @Override
+    public void updateProjectSopSort(ProjectSopUpdateSortReqVO reqVO) {
+
+        if(reqVO.getList()!=null){
+            for (int i = 0; i < reqVO.getList().size(); i++) {
+                reqVO.getList().get(i).setStep(i+1);
+//                System.out.println(reqVO.getList().get(i).getId()+"---"+(i+1));
+//                projectSopRepository.updateStepById(i+1,reqVO.getList().get(i).getId());
+            }
+            projectSopRepository.saveAll(reqVO.getList());
+        }
+
+    }
+
+    @Override
     @Transactional
     public void updateProjectSop(ProjectSopUpdateReqVO updateReqVO) {
         // 校验存在

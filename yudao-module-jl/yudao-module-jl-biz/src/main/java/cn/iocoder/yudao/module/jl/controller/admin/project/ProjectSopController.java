@@ -74,6 +74,14 @@ public class ProjectSopController {
         return success(true);
     }
 
+    @PutMapping("/update-sort")
+    @Operation(summary = "更新项目中的实验名目的操作SOP")
+    @PreAuthorize("@ss.hasPermission('jl:project-sop:update')")
+    public CommonResult<Boolean> updateProjectSopSort(@Valid @RequestBody ProjectSopUpdateSortReqVO reqVO) {
+        projectSopService.updateProjectSopSort(reqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目中的实验名目的操作SOP")
     @Parameter(name = "id", description = "编号", required = true)
