@@ -362,13 +362,14 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 }
             }
 
+            // 这个是PI组看板传过来的，查的就是销售的
             if (pageReqVO.getCreatorIds() != null) {
                 // 都是用salesId查询，但是前端这里之前传的是getCreatorIds，先不改，创建者其实没有意义
-//                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
-                predicates.add(cb.or(
-                        root.get("salesId").in(Arrays.asList(pageReqVO.getCreatorIds())),
-                        root.get("projectManagerId").in(Arrays.asList(pageReqVO.getCreatorIds()))
-                ));
+                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+//                predicates.add(cb.or(
+//                        root.get("salesId").in(Arrays.asList(pageReqVO.getCreatorIds())),
+//                        root.get("projectManagerId").in(Arrays.asList(pageReqVO.getCreatorIds()))
+//                ));
             }
 
             if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
