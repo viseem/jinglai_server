@@ -586,7 +586,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                         if(pageReqVO.getAttribute()!=null){
                             if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
                                 predicates.add(root.get("creator").isNull());
-                            }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())){
+                            }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())&& pageReqVO.getPiGroupId() == null){
                                 Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                                 pageReqVO.setCreators(users);
                                 Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
@@ -600,6 +600,23 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
             }else{
                 predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+            }
+
+            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
+//                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
+                predicates.add(cb.or(
+                        root.get("creator").in(Collections.singletonList(getLoginUserId())),
+                        root.get("managerId").in(Collections.singletonList(getLoginUserId()))
+                ));
+            }
+
+            if (pageReqVO.getPiGroupId() != null) {
+                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
+//                predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
+                predicates.add(cb.or(
+                        root.get("creator").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
+                        root.get("managerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
+                ));
             }
 
             if(pageReqVO.getTimeRange()!=null){

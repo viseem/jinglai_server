@@ -14,6 +14,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SalesleadPageReqVO extends PageParam {
+    private Long piGroupId;
+
 
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.ALL.getStatus();
