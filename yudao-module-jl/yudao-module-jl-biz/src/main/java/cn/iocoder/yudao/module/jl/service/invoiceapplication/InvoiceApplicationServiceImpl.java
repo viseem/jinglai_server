@@ -98,11 +98,12 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
 
     @Transactional
     public void saveInvoiceApplicationAndInvoiceList(InvoiceApplication invoiceApplication, List<ContractInvoiceLog> contractInvoiceLogList) {
-        Long salesId = null;
-        if (invoiceApplication.getId() == null) {
+        Long salesId = invoiceApplication.getCreator();
+        if (salesId == null) {
             salesId = getLoginUserId();
+            invoiceApplication.setCreator(salesId);
             // 获取当前登录人，即为销售
-            Optional<User> byId = userRepository.findById(getLoginUserId());
+            Optional<User> byId = userRepository.findById(salesId);
             if (byId.isEmpty()) {
                 throw exception(USER_NOT_EXISTS);
             }
@@ -126,9 +127,10 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             contractInvoiceLog.setPhone(invoiceApplication.getPhone());
             contractInvoiceLog.setAddress(invoiceApplication.getAddress());
             contractInvoiceLog.setSendEmail(invoiceApplication.getEmail());
-            if (salesId != null) {
-                contractInvoiceLog.setSalesId(salesId);
-            }
+            contractInvoiceLog.setSalesId(salesId);
+/*                if (salesId != null) {
+                    contractInvoiceLog.setSalesId(salesId);
+                }*/
             contractInvoiceLog.setApplicationId(invoiceApplication.getId());
 
             // 设置发票的状态为审批中
