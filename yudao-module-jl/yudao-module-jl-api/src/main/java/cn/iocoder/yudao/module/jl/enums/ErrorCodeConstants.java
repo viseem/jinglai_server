@@ -265,6 +265,9 @@ public interface ErrorCodeConstants {
 
     ErrorCode TASK_PRODUCT_NOT_EXISTS = new ErrorCode(1004000000, "任务产品中间不存在");
 
+    ErrorCode TASK_ARRANGE_RELATION_NOT_EXISTS = new ErrorCode(1004000000, "任务安排关系不存在");
+
+
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");
 
