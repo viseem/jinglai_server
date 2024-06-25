@@ -530,7 +530,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     public PageResult<ProjectCategory> getProjectCategoryPageCate(ProjectCategoryPageReqVO pageReqVO, ProjectCategoryPageOrder orderV0){
         // 创建 Sort 对象
         if(pageReqVO.getQuotationId()!=null){
-            orderV0.setCreateTime("asc");
+//            orderV0.setCreateTime("asc");
         }
         Sort sort = createSort(orderV0);
 
