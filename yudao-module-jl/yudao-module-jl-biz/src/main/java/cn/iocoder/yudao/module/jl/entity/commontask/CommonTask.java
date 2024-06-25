@@ -156,6 +156,12 @@ public class CommonTask extends BaseEntity {
     private Integer type;
 
     /**
+     * 创建类型
+     */
+    @Column(name = "create_type", nullable = false )
+    private Integer createType;
+
+    /**
      * 紧急程度
      */
     @Column(name = "level", nullable = false )

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -83,9 +84,13 @@ public class CommonTaskBaseVO {
     @Schema(description = "实验目录", example = "王五")
     private String projectCategoryName;
 
-    @Schema(description = "类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "类型不能为空")
+    @Schema(description = "类型")
     private Integer type;
+
+    @Schema(description = "创建类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "创建类型不能为空")
+    // 默认管理任务
+    private Integer createType = CommonTaskCreateTypeEnums.MANAGE.getStatus();
 
     @Schema(description = "紧急程度", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "紧急程度不能为空")
