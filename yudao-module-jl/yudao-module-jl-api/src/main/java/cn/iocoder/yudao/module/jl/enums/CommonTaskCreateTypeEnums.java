@@ -15,8 +15,8 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum CommonTaskCreateTypeEnums implements StringArrayValuable {
-    MANAGE(10, "管理任务"),
-    CATE(20, "分类任务"),
+    CATE(10, "分类任务"),
+    MANAGE(20, "管理任务"),
     PRODUCT(30, "实验任务"),
 //    APPROVAL_SUCCESS("APPROVAL_SUCCESS","审批通过"),
 //    APPROVAL_FAIL("APPROVAL_FAIL","审批不通过"),

@@ -18,6 +18,9 @@ public class CommonTaskPageReqVO extends PageParam {
 
     private Boolean hasWaitSend = false;
 
+    @Schema(description = "创建类型")
+    private Integer createType;
+
     @Schema(description = "父级id")
     private Long parentId;
 

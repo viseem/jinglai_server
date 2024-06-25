@@ -277,6 +277,10 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
             }
 
+            if (pageReqVO.getCreateType() != null) {
+                predicates.add(cb.equal(root.get("createType"), pageReqVO.getCreateType()));
+            }
+
             if (pageReqVO.getParentId() != null) {
                 predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
             }
