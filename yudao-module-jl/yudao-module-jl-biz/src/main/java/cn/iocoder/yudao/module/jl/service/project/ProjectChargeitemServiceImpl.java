@@ -5,10 +5,12 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectChargeitemMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
+import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +49,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
 
     @Resource
     private CommonTaskRepository commonTaskRepository;
+
+    @Resource
+    private TaskArrangeRelationRepository taskArrangeRelationRepository;
 
     @Override
     @Transactional
@@ -101,7 +106,7 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         //更新报价金额
     }
 
-    private ProjectChargeitem validateProjectChargeitemExists(Long id) {
+    public ProjectChargeitem validateProjectChargeitemExists(Long id) {
         Optional<ProjectChargeitem> byId = projectChargeitemRepository.findById(id);
         if(byId.isEmpty()){
             throw exception(PROJECT_CHARGEITEM_NOT_EXISTS);
@@ -187,7 +192,6 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     }
 
     private void processList(List<ProjectChargeitem> list, ProjectChargeitemPageReqVO pageReqVO) {
-        System.out.println("-=-=-"+pageReqVO.getWithTaskList());
         List<CommonTask> taskList = null;
         // 这相当于是category界面查询的收费项，这里要回显一下他们指派的任务
         if(pageReqVO.getProjectCategoryId()!=null){
@@ -195,7 +199,12 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         }
 
         if(Objects.equals(pageReqVO.getWithTaskList(),true)){
-            taskList = commonTaskRepository.findByQuotationId(pageReqVO.getQuotationId());
+            List<TaskArrangeRelation> byQuotationId = taskArrangeRelationRepository.findByQuotationId(pageReqVO.getQuotationId());
+            if(byQuotationId!=null){
+                taskList = byQuotationId.stream()
+                        .map(TaskArrangeRelation::getTask)
+                        .collect(Collectors.toList());
+            }
         }
 
         if(taskList!=null&& !taskList.isEmpty()){

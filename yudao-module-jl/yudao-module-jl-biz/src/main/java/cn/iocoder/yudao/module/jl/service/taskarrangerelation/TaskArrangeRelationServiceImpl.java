@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.taskarrangerelation;
 
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -41,6 +45,9 @@ public class TaskArrangeRelationServiceImpl implements TaskArrangeRelationServic
     @Resource
     private TaskArrangeRelationMapper taskArrangeRelationMapper;
 
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
+
     @Override
     public Long createTaskArrangeRelation(TaskArrangeRelationCreateReqVO createReqVO) {
         // 插入
@@ -60,15 +67,20 @@ public class TaskArrangeRelationServiceImpl implements TaskArrangeRelationServic
     }
 
     @Override
+    @Transactional
     public void deleteTaskArrangeRelation(Long id) {
         // 校验存在
-        validateTaskArrangeRelationExists(id);
+        TaskArrangeRelation relation = validateTaskArrangeRelationExists(id);
         // 删除
         taskArrangeRelationRepository.deleteById(id);
+        // 删除任务
+        if(relation.getTaskId()!=null){
+            commonTaskRepository.deleteById(relation.getTaskId());
+        }
     }
 
-    private void validateTaskArrangeRelationExists(Long id) {
-        taskArrangeRelationRepository.findById(id).orElseThrow(() -> exception(TASK_ARRANGE_RELATION_NOT_EXISTS));
+    private TaskArrangeRelation validateTaskArrangeRelationExists(Long id) {
+        return taskArrangeRelationRepository.findById(id).orElseThrow(() -> exception(TASK_ARRANGE_RELATION_NOT_EXISTS));
     }
 
     @Override

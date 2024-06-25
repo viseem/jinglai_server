@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
@@ -14,8 +15,11 @@ import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.laboratory.ChargeItemServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectChargeitemServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
@@ -70,6 +74,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private TaskProductRepository taskProductRepository;
 
+    @Resource
+    private TaskArrangeRelationRepository taskArrangeRelationRepository;
+
+    @Resource
+    private ProjectChargeitemServiceImpl chargeItemService;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -80,25 +90,27 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         CommonTask commonTask = commonTaskMapper.toEntity(createReqVO);
         commonTaskRepository.save(commonTask);
 
-        // 插入到task product对应表中
-        saveTaskProduct(createReqVO, commonTask.getId());
+        // 插入到 任务安排关系表中
+        saveTaskArrangeRelation(createReqVO, commonTask.getId());
 
         // 返回
         return commonTask.getId();
     }
 
-    private void saveTaskProduct(CommonTaskBaseVO createReqVO, Long taskId) {
-        if(createReqVO.getProductList()!=null){
-            List<TaskProduct> taskProductList = new ArrayList<>();
-            createReqVO.getProductList().forEach(item->{
-                System.out.println("====="+item.getName());
-                TaskProduct taskProduct = new TaskProduct();
-                taskProduct.setTaskId(taskId);
-                taskProduct.setProductId(item.getId());
-                taskProductList.add(taskProduct);
-            });
-            taskProductRepository.saveAll(taskProductList);
+    private void saveTaskArrangeRelation(CommonTaskBaseVO reqVO, Long taskId) {
+
+        // 如果包含收费项id，说明这是收费项的指派，需要保存一下指派的关系
+        if(reqVO.getChargeitemId()!=null){
+            ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
+            TaskArrangeRelation relation = new TaskArrangeRelation();
+            relation.setTaskId(taskId);
+            relation.setChargeItemId(reqVO.getChargeitemId());
+            relation.setProductId(reqVO.getProductId());
+            relation.setProjectId(chargeItem.getProjectId());
+            relation.setQuotationId(chargeItem.getQuotationId());
+            taskArrangeRelationRepository.save(relation);
         }
+
     }
 
     @Transactional
@@ -187,7 +199,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         CommonTask updateObj = commonTaskMapper.toEntity(updateReqVO);
         commonTaskRepository.save(updateObj);
 
-        saveTaskProduct(updateReqVO, updateObj.getId());
+//        saveTaskArrangeRelation(updateReqVO, updateObj.getId());
     }
 
     @Override

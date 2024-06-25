@@ -25,4 +25,10 @@ public class TaskArrangeRelationBaseVO {
     @Schema(description = "产品id", example = "25050")
     private Long productId;
 
+    @Schema(description = "项目id", example = "25050")
+    private Long projectId;
+
+    @Schema(description = "报价id", example = "25050")
+    private Long quotationId;
+
 }
