@@ -112,8 +112,15 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             invoiceApplication.setSalesName(sales.getNickname());
         }
         invoiceApplication.setInvoiceCount(contractInvoiceLogList.size());
-        InvoiceApplication save = invoiceApplicationRepository.save(invoiceApplication);
-        salesId = save.getCreator();
+        invoiceApplicationRepository.save(invoiceApplication);
+        if(invoiceApplication.getId()!=null){
+            Optional<InvoiceApplication> byId = invoiceApplicationRepository.findById(invoiceApplication.getId());
+            if(byId.isPresent()){
+                salesId = invoiceApplication.getSalesId();
+            }else{
+                throw exception(INVOICE_APPLICATION_NOT_EXISTS);
+            }
+        }
 
         //这里有很多id，从前端带过来把
         for (ContractInvoiceLog contractInvoiceLog : contractInvoiceLogList) {
