@@ -98,9 +98,8 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
 
     @Transactional
     public void saveInvoiceApplicationAndInvoiceList(InvoiceApplication invoiceApplication, List<ContractInvoiceLog> contractInvoiceLogList) {
-        Long salesId = invoiceApplication.getCreator();
-        if (salesId == null) {
-            salesId = getLoginUserId();
+        Long salesId = getLoginUserId();
+        if (invoiceApplication.getId()==null) {
             invoiceApplication.setCreator(salesId);
             // 获取当前登录人，即为销售
             Optional<User> byId = userRepository.findById(salesId);
@@ -109,11 +108,12 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
             }
             User sales = byId.get();
 
-            invoiceApplication.setSalesId(sales.getId());
+            invoiceApplication.setSalesId(salesId);
             invoiceApplication.setSalesName(sales.getNickname());
         }
         invoiceApplication.setInvoiceCount(contractInvoiceLogList.size());
-        invoiceApplicationRepository.save(invoiceApplication);
+        InvoiceApplication save = invoiceApplicationRepository.save(invoiceApplication);
+        salesId = save.getCreator();
 
         //这里有很多id，从前端带过来把
         for (ContractInvoiceLog contractInvoiceLog : contractInvoiceLogList) {

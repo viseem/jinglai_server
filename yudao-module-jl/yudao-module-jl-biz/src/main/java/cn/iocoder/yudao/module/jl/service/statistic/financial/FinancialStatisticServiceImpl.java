@@ -70,7 +70,9 @@ public class FinancialStatisticServiceImpl implements FinancialStatisticService 
         }
 //ContractFundStatusEnums.AUDITED.getStatus(),
         contractInvoiceLogOnlyRepository.findByStatusNotAndPaidTimeBetweenAndSalesIdIn( ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(),reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds()).forEach(contractInvoiceLog -> {
-            resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getPrice()));
+            if(contractInvoiceLog.getPrice()!=null){
+                resp.setInvoiceAmount(resp.getInvoiceAmount().add(contractInvoiceLog.getPrice()));
+            }
         });
 
 
