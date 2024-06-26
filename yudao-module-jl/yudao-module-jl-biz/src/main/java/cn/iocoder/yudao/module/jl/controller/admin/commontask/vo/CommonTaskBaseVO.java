@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -112,4 +113,7 @@ public class CommonTaskBaseVO {
     private Long parentId=0L;
 
     private List<ProductSelector> productList;
+
+    // 创建的时候用
+    private List<ProjectChargeitem> chargeList;
 }

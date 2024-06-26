@@ -6,8 +6,10 @@ import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -15,6 +17,7 @@ import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -40,8 +43,7 @@ import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.COMMON_TASK_NOT_EXISTS;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.USER_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 通用任务 Service 实现类
@@ -80,6 +82,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private ProjectChargeitemServiceImpl chargeItemService;
 
+    @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -99,8 +104,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     private void saveTaskArrangeRelation(CommonTaskBaseVO reqVO, Long taskId) {
 
-        // 如果包含收费项id，说明这是收费项的指派，需要保存一下指派的关系
-        if(reqVO.getChargeitemId()!=null){
+        // 如果是收费项指派的任务，这个叫做实验(产品)任务
+        if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.PRODUCT.getStatus())){
+
+            if(reqVO.getChargeitemId()==null){
+                throw exception(CHARGE_ITEM_NOT_EXISTS);
+            }
             ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
             TaskArrangeRelation relation = new TaskArrangeRelation();
             relation.setTaskId(taskId);
@@ -109,6 +118,23 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             relation.setProjectId(chargeItem.getProjectId());
             relation.setQuotationId(chargeItem.getQuotationId());
             taskArrangeRelationRepository.save(relation);
+        }
+
+        // 如果是管理任务
+        if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())){
+            if(reqVO.getChargeList()!=null&& !reqVO.getChargeList().isEmpty()){
+                List<TaskArrangeRelation> relationList = new ArrayList<>();
+                for (ProjectChargeitem charge : reqVO.getChargeList()) {
+                    TaskArrangeRelation relation = new TaskArrangeRelation();
+                    relation.setTaskId(taskId);
+                    relation.setChargeItemId(charge.getId());
+                    relation.setProductId(charge.getProductId());
+                    relation.setProjectId(charge.getProjectId());
+                    relation.setQuotationId(charge.getQuotationId());
+                    relationList.add(relation);
+                }
+                taskArrangeRelationRepository.saveAll(relationList);
+            }
         }
 
     }
@@ -148,12 +174,22 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             });
         }
 
-        if (vo.getChargeitemId() != null || vo.getProjectCategoryId() != null) {
-            vo.setType(CommonTaskTypeEnums.PROJECT.getStatus());
+        // 如果报价id不为空，则设置一下项目id,这里没有从前端传过来
+        if(vo.getQuotationId()!=null){
+            projectQuotationRepository.findById(vo.getQuotationId()).ifPresentOrElse(quotation->{
+                vo.setProjectId(quotation.getProjectId());
+            },()->{
+                throw exception(PROJECT_QUOTATION_NOT_EXISTS);
+            });
         }
 
+/*        if (vo.getChargeitemId() != null || vo.getProjectCategoryId() != null) {
+            vo.setType(CommonTaskTypeEnums.PROJECT.getStatus());
+        }*/
+
         // 如果有chargeitemId，则查询chargeItem
-        if (vo.getChargeitemId() != null) {
+/*        if (vo.getChargeitemId() != null) {
+
             Optional<ProjectChargeitem> byId = chargeitemRepository.findById(vo.getChargeitemId());
             if (byId.isPresent()) {
                 ProjectChargeitem projectChargeitem = byId.get();
@@ -166,7 +202,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                     processCategorySaveData(vo, projectCategoryId);
                 }
             }
-        }
+        }*/
 
     }
 
