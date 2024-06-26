@@ -103,37 +103,58 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     }
 
     private void saveTaskArrangeRelation(CommonTaskBaseVO reqVO, Long taskId) {
+        ProjectChargeitem chargeItem = null;
+
+        if(reqVO.getChargeitemId()!=null){
+            chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
+            reqVO.setQuotationId( chargeItem.getProjectId());
+            reqVO.setProjectId(chargeItem.getQuotationId());
+        }
+
 
         // 如果是收费项指派的任务，这个叫做实验(产品)任务
         if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.PRODUCT.getStatus())){
-
-            if(reqVO.getChargeitemId()==null){
-                throw exception(CHARGE_ITEM_NOT_EXISTS);
-            }
-            ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
             TaskArrangeRelation relation = new TaskArrangeRelation();
             relation.setTaskId(taskId);
             relation.setChargeItemId(reqVO.getChargeitemId());
             relation.setProductId(reqVO.getProductId());
-            relation.setProjectId(chargeItem.getProjectId());
-            relation.setQuotationId(chargeItem.getQuotationId());
+            relation.setProjectId( reqVO.getProjectId());
+            relation.setQuotationId( reqVO.getQuotationId());
             taskArrangeRelationRepository.save(relation);
         }
+
+        System.out.println("---==---=="+reqVO.getQuotationId());
 
         // 如果是管理任务
         if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())){
             if(reqVO.getChargeList()!=null&& !reqVO.getChargeList().isEmpty()){
-                List<TaskArrangeRelation> relationList = new ArrayList<>();
+
+//                List<TaskArrangeRelation> relationList = new ArrayList<>();
+                // 不用存到relation里面
                 for (ProjectChargeitem charge : reqVO.getChargeList()) {
-                    TaskArrangeRelation relation = new TaskArrangeRelation();
+                    if(charge.getTaskList()!=null&&!charge.getTaskList().isEmpty()){
+                        charge.getTaskList().forEach(task-> {
+                            task.setParentId(taskId);
+                            task.setProjectId(reqVO.getProjectId());
+                            task.setQuotationId(reqVO.getQuotationId());
+                            System.out.println("-=-=-"+task.getQuotationId());
+                        });
+                        commonTaskRepository.saveAll(charge.getTaskList());
+                    }
+
+/*                    TaskArrangeRelation relation = new TaskArrangeRelation();
                     relation.setTaskId(taskId);
+                    if(charge.getTaskList()!=null&&!charge.getTaskList().isEmpty()){
+                        charge.getTaskList().stream().peek(task-> task.setParentId(taskId));
+                        relation.setSonTaskId(charge.getTaskList().get(0).getId());
+                    }
                     relation.setChargeItemId(charge.getId());
                     relation.setProductId(charge.getProductId());
                     relation.setProjectId(charge.getProjectId());
                     relation.setQuotationId(charge.getQuotationId());
-                    relationList.add(relation);
+                    relationList.add(relation);*/
                 }
-                taskArrangeRelationRepository.saveAll(relationList);
+//                taskArrangeRelationRepository.saveAll(relationList);
             }
         }
 
@@ -158,6 +179,17 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
+        ProjectChargeitem chargeItem = null;
+        Long projectId = null;
+        Long quotationId = null;
+        if(vo.getChargeitemId()!=null){
+            chargeItem = chargeItemService.validateProjectChargeitemExists(vo.getChargeitemId());
+            projectId = chargeItem.getProjectId();
+            quotationId = chargeItem.getQuotationId();
+            vo.setQuotationId(quotationId);
+            vo.setProjectId(projectId);
+        }
+
         userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
             vo.setUserNickname(user.getNickname());
         }, () -> {
@@ -174,14 +206,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             });
         }
 
-        // 如果报价id不为空，则设置一下项目id,这里没有从前端传过来
-        if(vo.getQuotationId()!=null){
-            projectQuotationRepository.findById(vo.getQuotationId()).ifPresentOrElse(quotation->{
-                vo.setProjectId(quotation.getProjectId());
-            },()->{
-                throw exception(PROJECT_QUOTATION_NOT_EXISTS);
-            });
-        }
 
 /*        if (vo.getChargeitemId() != null || vo.getProjectCategoryId() != null) {
             vo.setType(CommonTaskTypeEnums.PROJECT.getStatus());

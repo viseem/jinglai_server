@@ -42,15 +42,6 @@ public class TaskArrangeRelation extends BaseEntity {
     private Long taskId;
 
     /**
-     * 级联
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "task_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private CommonTask task;
-
-
-    /**
      * 收费项id
      */
     @Column(name = "charge_item_id", nullable = false )
@@ -75,4 +66,12 @@ public class TaskArrangeRelation extends BaseEntity {
     @Column(name = "quotation_id")
     private Long quotationId;
 
+
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "task_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CommonTask task;
 }

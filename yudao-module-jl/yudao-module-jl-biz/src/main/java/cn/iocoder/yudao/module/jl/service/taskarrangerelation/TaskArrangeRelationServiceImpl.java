@@ -75,7 +75,7 @@ public class TaskArrangeRelationServiceImpl implements TaskArrangeRelationServic
         taskArrangeRelationRepository.deleteById(id);
         // 删除任务
         if(relation.getTaskId()!=null){
-            commonTaskRepository.deleteById(relation.getTaskId());
+                commonTaskRepository.deleteById(relation.getTaskId());
         }
     }
 

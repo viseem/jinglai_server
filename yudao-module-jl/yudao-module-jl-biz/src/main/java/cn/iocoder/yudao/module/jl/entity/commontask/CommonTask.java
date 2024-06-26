@@ -195,7 +195,7 @@ public class CommonTask extends BaseEntity {
      * 父级id
      */
     @Column(name = "parent_id")
-    private Integer parentId;
+    private Long parentId;
 
     @Transient
     private List<TaskProduct> productList;

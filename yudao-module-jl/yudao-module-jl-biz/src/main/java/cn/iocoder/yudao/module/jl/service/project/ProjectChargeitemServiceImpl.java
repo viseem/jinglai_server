@@ -209,6 +209,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
 
         if(taskList!=null&& !taskList.isEmpty()){
             for (CommonTask task : taskList) {
+                if(task == null){
+                    continue;
+                }
                 for (ProjectChargeitem item : list) {
                     if(item.getTaskList()==null){
                         item.setTaskList(new ArrayList<>());
