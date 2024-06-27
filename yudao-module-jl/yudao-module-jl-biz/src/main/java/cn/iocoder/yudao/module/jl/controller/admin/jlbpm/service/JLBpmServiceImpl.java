@@ -4,10 +4,12 @@ import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessI
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskApproveReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRejectReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskReturnReqVO;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
@@ -21,6 +23,8 @@ import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRe
 import cn.iocoder.yudao.module.jl.repository.purchasecontract.PurchaseContractRepository;
 import cn.iocoder.yudao.module.jl.service.crm.SalesleadServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectApprovalServiceImpl;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -28,8 +32,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
@@ -77,6 +80,9 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Resource
     private CommonTaskRepository commonTaskRepository;
 
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
     @Override
     @Transactional
     public void approveTask(JLBpmTaskReqVO approveReqVO) {
@@ -118,22 +124,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
             // 如果是项目状态变更
             if(Objects.equals(processDefinitionKey,PROJECT_STATUS_CHANGE)){
-                ProjectApproval projectApproval = projectApprovalServiceImpl.validateProjectApprovalExists(approveReqVO.getRefId());
-                // 如果是开展前审批
-                if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
-                    //直接改一下项目状态
-                    projectOnlyRepository.updateStageById(ProjectStageEnums.DOING.getStatus(),projectApproval.getProjectId());
-                    //改一下实验任务的状态，把 未下发的改为 开展中
-                    projectOnlyRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project->{
-                        if(project.getCurrentQuotationId()!=null){
-                            commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(),project.getCurrentQuotationId(),CommonTaskStatusEnums.WAIT_SEND.getStatus());
-                        }
-                    },()->{
-                        throw exception(PROJECT_NOT_EXISTS);
-                    });
-                }
-                System.out.println("-=-=-=-");
-                projectApprovalServiceImpl.updateProjectApprovalByResultAndId(BpmTaskStatustEnum.APPROVE.getStatus().toString(),approveReqVO.getReason(),approveReqVO.getRefId());
+                processProjectStatusChangeBpm(approveReqVO);
             }
         }
 
@@ -142,6 +133,59 @@ public class JLBpmServiceImpl implements JLBpmService {
         bpmTaskApproveReqVO.setId(approveReqVO.getId());
         bpmTaskApproveReqVO.setReason(approveReqVO.getReason());
         taskService.approveTask(getLoginUserId(), bpmTaskApproveReqVO);
+    }
+    @Transactional
+    public void processProjectStatusChangeBpm(JLBpmTaskReqVO approveReqVO) {
+        ProjectApproval projectApproval = projectApprovalServiceImpl.validateProjectApprovalExists(approveReqVO.getRefId());
+        // 如果是开展前审批
+        if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+            //直接改一下项目状态
+            projectOnlyRepository.updateStageById(ProjectStageEnums.DOING.getStatus(),projectApproval.getProjectId());
+            //改一下实验任务的状态，把 未下发的改为 开展中
+            projectOnlyRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project->{
+                if(project.getCurrentQuotationId()!=null){
+                    commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(),project.getCurrentQuotationId(),CommonTaskStatusEnums.WAIT_SEND.getStatus());
+
+                    // 发送通知：1、只发给任务状态是未下发的 2、排除当前登录人
+                    HashSet<Long> userIds = new HashSet<>();
+
+                    //查询任务
+                    List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(project.getCurrentQuotationId());
+                    if(byQuotationId!=null){
+                        for (CommonTask commonTask : byQuotationId) {
+                            userIds.add(commonTask.getUserId());
+                        }
+                    }
+
+                    Map<String, Object> templateParams = new HashMap<>();
+                    String content = String.format(
+                            "收到来自项目(%s)的待办任务，点击查看",
+                            project.getName()
+                    );
+                    templateParams.put("projectName", project.getName());
+                    templateParams.put("content", content);
+                    templateParams.put("id", project.getId());
+                    for (Long userId : userIds) {
+                        if (userId == null||userId.equals(getLoginUserId())) {
+                            continue;
+                        }
+                        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                                userId,
+                                BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
+                        ));
+                    }
+                }
+
+
+
+            },()->{
+                throw exception(PROJECT_NOT_EXISTS);
+            });
+
+
+
+        }
+        projectApprovalServiceImpl.updateProjectApprovalByResultAndId(BpmTaskStatustEnum.APPROVE.getStatus().toString(), approveReqVO.getReason(), approveReqVO.getRefId());
     }
 
     @Transactional
