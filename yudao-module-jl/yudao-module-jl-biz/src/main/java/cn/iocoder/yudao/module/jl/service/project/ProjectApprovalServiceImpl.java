@@ -253,7 +253,7 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         projectApprovalRepository.deleteById(id);
     }
 
-    private ProjectApproval validateProjectApprovalExists(Long id) {
+    public ProjectApproval validateProjectApprovalExists(Long id) {
         Optional<ProjectApproval> byId = projectApprovalRepository.findById(id);
         if (byId.isEmpty()) {
             throw exception(PROJECT_APPROVAL_NOT_EXISTS);

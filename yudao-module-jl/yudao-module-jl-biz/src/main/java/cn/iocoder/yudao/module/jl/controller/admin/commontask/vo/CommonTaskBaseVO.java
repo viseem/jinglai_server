@@ -32,7 +32,7 @@ public class CommonTaskBaseVO {
     private String mark;
 
     @Schema(description = "状态")
-    private Integer status = CommonTaskStatusEnums.WAIT_RECEIVE.getStatus();
+    private Integer status = CommonTaskStatusEnums.WAIT_SEND.getStatus();
 
     @Schema(description = "开始时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

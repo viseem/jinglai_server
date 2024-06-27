@@ -23,6 +23,7 @@ import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.laboratory.ChargeItemServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectChargeitemServiceImpl;
+import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
@@ -85,6 +86,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
 
+    @Resource
+    private ProjectQuotationServiceImpl projectQuotationService;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -103,12 +107,11 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     }
 
     private void saveTaskArrangeRelation(CommonTaskBaseVO reqVO, Long taskId) {
-        ProjectChargeitem chargeItem = null;
 
         if(reqVO.getChargeitemId()!=null){
-            chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
-            reqVO.setQuotationId( chargeItem.getProjectId());
-            reqVO.setProjectId(chargeItem.getQuotationId());
+            ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
+            reqVO.setQuotationId( chargeItem.getQuotationId());
+            reqVO.setProjectId(chargeItem.getProjectId());
         }
 
 
@@ -137,7 +140,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                             task.setParentId(taskId);
                             task.setProjectId(reqVO.getProjectId());
                             task.setQuotationId(reqVO.getQuotationId());
-                            System.out.println("-=-=-"+task.getQuotationId());
                         });
                         commonTaskRepository.saveAll(charge.getTaskList());
                     }
@@ -179,15 +181,15 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
-        ProjectChargeitem chargeItem = null;
-        Long projectId = null;
-        Long quotationId = null;
         if(vo.getChargeitemId()!=null){
-            chargeItem = chargeItemService.validateProjectChargeitemExists(vo.getChargeitemId());
-            projectId = chargeItem.getProjectId();
-            quotationId = chargeItem.getQuotationId();
-            vo.setQuotationId(quotationId);
-            vo.setProjectId(projectId);
+            ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(vo.getChargeitemId());
+            vo.setQuotationId(chargeItem.getQuotationId());
+            vo.setProjectId(chargeItem.getProjectId());
+        }else{
+            if(vo.getQuotationId()!=null){
+                ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(vo.getQuotationId());
+                vo.setProjectId(quotation.getProjectId());
+            }
         }
 
         userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
@@ -344,6 +346,11 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         Specification<CommonTask> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 如果传递了 chargeItemId 或者quotationId,要默认查询包含未下发的任务
+            if(pageReqVO.getChargeitemId()!=null || pageReqVO.getQuotationId()!=null){
+                pageReqVO.setHasWaitSend(true);
+            }
+
             //查询 除了未下发的
             if(Objects.equals(pageReqVO.getHasWaitSend(),false)){
                 predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
@@ -357,7 +364,8 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 predicates.add(cb.equal(root.get("parentId"), pageReqVO.getParentId()));
             }
 
-            if (pageReqVO.getChargeitemId() == null && !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+            // 这里的逻辑是：如果没有收费项id、没有报价id，则默认查询自己的任务
+            if ((pageReqVO.getChargeitemId() == null && pageReqVO.getQuotationId()==null)&& !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
                 Long[] users = pageReqVO.getUserId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));
             }

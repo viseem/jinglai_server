@@ -9,11 +9,10 @@ import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.jlbpm.vo.JLBpmTaskReqVO;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectApproval;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
-import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProcurementStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.PurchaseContractStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.QuotationAuditStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementRepository;
@@ -36,6 +35,7 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.BPM_PARAMS_ERROR;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EXISTS;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -73,6 +73,9 @@ public class JLBpmServiceImpl implements JLBpmService {
 
     @Resource
     private ProjectApprovalServiceImpl projectApprovalServiceImpl;
+
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
 
     @Override
     @Transactional
@@ -115,6 +118,20 @@ public class JLBpmServiceImpl implements JLBpmService {
 
             // 如果是项目状态变更
             if(Objects.equals(processDefinitionKey,PROJECT_STATUS_CHANGE)){
+                ProjectApproval projectApproval = projectApprovalServiceImpl.validateProjectApprovalExists(approveReqVO.getRefId());
+                // 如果是开展前审批
+                if(Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())){
+                    //直接改一下项目状态
+                    projectOnlyRepository.updateStageById(ProjectStageEnums.DOING.getStatus(),projectApproval.getProjectId());
+                    //改一下实验任务的状态，把 未下发的改为 开展中
+                    projectOnlyRepository.findById(projectApproval.getProjectId()).ifPresentOrElse(project->{
+                        if(project.getCurrentQuotationId()!=null){
+                            commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(),project.getCurrentQuotationId(),CommonTaskStatusEnums.WAIT_SEND.getStatus());
+                        }
+                    },()->{
+                        throw exception(PROJECT_NOT_EXISTS);
+                    });
+                }
                 System.out.println("-=-=-=-");
                 projectApprovalServiceImpl.updateProjectApprovalByResultAndId(BpmTaskStatustEnum.APPROVE.getStatus().toString(),approveReqVO.getReason(),approveReqVO.getRefId());
             }
