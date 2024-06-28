@@ -61,4 +61,6 @@ public class ProjectCategoryPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String endDateSort;
 
+    private Long quotationId;
+
 }
