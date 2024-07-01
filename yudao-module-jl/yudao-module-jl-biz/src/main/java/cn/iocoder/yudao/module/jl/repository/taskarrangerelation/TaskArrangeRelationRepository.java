@@ -10,6 +10,8 @@ import java.util.List;
 *
 */
 public interface TaskArrangeRelationRepository extends JpaRepository<TaskArrangeRelation, Long>, JpaSpecificationExecutor<TaskArrangeRelation> {
+    @Query("select t from TaskArrangeRelation t where t.taskId = ?1")
+    TaskArrangeRelation findByTaskId(Long taskId);
     @Query("select t from TaskArrangeRelation t where t.quotationId = ?1")
     List<TaskArrangeRelation> findByQuotationId(Long quotationId);
 

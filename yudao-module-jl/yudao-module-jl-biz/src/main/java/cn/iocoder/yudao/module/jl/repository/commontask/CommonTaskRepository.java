@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface CommonTaskRepository extends JpaRepository<CommonTask, Long>, JpaSpecificationExecutor<CommonTask> {
+    @Query("select c from CommonTask c where c.parentId = ?1")
+    List<CommonTask> findByParentId(Long parentId);
     @Transactional
     @Modifying
     @Query("update CommonTask c set c.experIds = ?1 where c.id = ?2")

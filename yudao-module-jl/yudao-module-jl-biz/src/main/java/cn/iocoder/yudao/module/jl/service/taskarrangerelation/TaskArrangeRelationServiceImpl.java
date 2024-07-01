@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.service.taskarrangerelation;
 
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -75,7 +76,10 @@ public class TaskArrangeRelationServiceImpl implements TaskArrangeRelationServic
         taskArrangeRelationRepository.deleteById(id);
         // 删除任务
         if(relation.getTaskId()!=null){
+            Optional<CommonTask> byId = commonTaskRepository.findById(relation.getTaskId());
+            if(byId.isPresent()){
                 commonTaskRepository.deleteById(relation.getTaskId());
+            }
         }
     }
 
