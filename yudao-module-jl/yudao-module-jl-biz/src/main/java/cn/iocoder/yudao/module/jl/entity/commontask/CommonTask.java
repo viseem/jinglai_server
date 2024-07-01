@@ -90,6 +90,12 @@ public class CommonTask extends BaseEntity {
     private String focusIds;
 
     /**
+     * 实验员
+     */
+    @Column(name = "exper_ids")
+    private String experIds;
+
+    /**
      * 项目id
      */
     @Column(name = "project_id")

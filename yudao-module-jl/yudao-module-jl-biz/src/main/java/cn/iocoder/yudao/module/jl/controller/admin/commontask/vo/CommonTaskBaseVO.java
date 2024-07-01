@@ -52,6 +52,9 @@ public class CommonTaskBaseVO {
     @Schema(description = "关注人")
     private String focusIds;
 
+    @Schema(description = "实验员")
+    private String experIds;
+
     @Schema(description = "项目id", example = "23366")
     private Long projectId;
 
