@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
@@ -17,6 +18,7 @@ import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
@@ -88,6 +90,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Resource
     private ProjectQuotationServiceImpl projectQuotationService;
+
+    @Resource
+    private ProjectSopRepository projectSopRepository;
 
     @Override
     @Transactional
@@ -351,6 +356,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 pageReqVO.setHasWaitSend(true);
             }
 
+
             //查询 除了未下发的
             if(Objects.equals(pageReqVO.getHasWaitSend(),false)){
                 predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
@@ -475,8 +481,42 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 执行查询
         Page<CommonTask> page = commonTaskRepository.findAll(spec, pageable);
 
+        List<CommonTask> content = page.getContent();
+        if(pageReqVO.getHasSopList()){
+/*            List<Long> taskIds = new ArrayList<>();
+            for (CommonTask commonTask : content) {
+                taskIds.add(commonTask.getId());
+            }
+            List<ProjectSop> byTaskIdIn = projectSopRepository.findByTaskIdIn(taskIds);
+            if(byTaskIdIn!=null){
+                for (CommonTask commonTask : content) {
+                    List<ProjectSop> sopList = new ArrayList<>();
+                    for (ProjectSop projectSop : byTaskIdIn) {
+                        if(Objects.equals(commonTask.getId(),projectSop.getTaskId())){
+                            sopList.add(projectSop);
+                        }
+                    }
+                    commonTask.setSopList(sopList);
+                }
+            }*/
+            List<Long> taskIds = content.stream()
+                    .map(CommonTask::getId)
+                    .collect(Collectors.toList());
+
+            List<ProjectSop> byTaskIdIn = projectSopRepository.findByTaskIdIn(taskIds);
+
+            if (byTaskIdIn != null) {
+                Map<Long, List<ProjectSop>> sopMap = byTaskIdIn.stream()
+                        .collect(Collectors.groupingBy(ProjectSop::getTaskId));
+
+                content.forEach(commonTask ->
+                        commonTask.setSopList(sopMap.getOrDefault(commonTask.getId(), new ArrayList<>()))
+                );
+            }
+        }
+
         // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return new PageResult<>(content, page.getTotalElements());
     }
 
     @Override

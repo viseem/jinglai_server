@@ -18,6 +18,8 @@ public class CommonTaskPageReqVO extends PageParam {
 
     private Boolean hasWaitSend = false;
 
+    private Boolean hasSopList = false;
+
     @Schema(description = "创建类型")
     private Integer createType;
 

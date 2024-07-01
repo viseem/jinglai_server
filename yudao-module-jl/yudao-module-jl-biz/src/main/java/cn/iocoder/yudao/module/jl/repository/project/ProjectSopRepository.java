@@ -12,6 +12,8 @@ import java.util.List;
 *
 */
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
+    @Query("select p from ProjectSop p where p.taskId in ?1")
+    List<ProjectSop> findByTaskIdIn(Collection<Long> taskIds);
     @Transactional
     @Modifying
     @Query("update ProjectSop p set p.step = ?1 where p.id = ?2")

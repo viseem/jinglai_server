@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.commontask;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import lombok.*;
 import java.util.*;
@@ -200,4 +201,6 @@ public class CommonTask extends BaseEntity {
     @Transient
     private List<TaskProduct> productList;
 
+    @Transient
+    private List<ProjectSop> sopList;
 }
