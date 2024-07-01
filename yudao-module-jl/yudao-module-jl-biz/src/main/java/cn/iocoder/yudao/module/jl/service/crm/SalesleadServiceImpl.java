@@ -1,16 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
-import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
-import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
-import cn.iocoder.yudao.module.jl.entity.project.Project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
-import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
@@ -56,7 +52,6 @@ import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
-import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.QUOTATION_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -356,7 +351,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                     project.setType(updateReqVO.getType());
                 }
 //                Arrays.asList(project.getManagerId(),project.getSalesId(),project.getPreManagerId())
-                project.setFocusIds(projectService.processProjectFocusIds(project.getFocusIds(),null));
+                project.setFocusIds(projectService.processFocusIds(project.getFocusIds(),null));
                 projectOnlyRepository.save(project);
                 projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
             }

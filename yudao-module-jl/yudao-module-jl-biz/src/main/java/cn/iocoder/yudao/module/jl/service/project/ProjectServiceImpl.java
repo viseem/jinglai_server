@@ -158,7 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         //如果项目负责人和销售负责人不存在于关注人中，则添加进去
 //        createReqVO.getManagerId(),createReqVO.getSalesId(),createReqVO.getPreManagerId(),getLoginUserId(),createReqVO.getAfterManagerId(),createReqVO.getExperId())
-        createReqVO.setFocusIds(processProjectFocusIds(createReqVO.getFocusIds(),null));
+        createReqVO.setFocusIds(processFocusIds(createReqVO.getFocusIds(),null));
 
         Project project = projectMapper.toEntity(createReqVO);
         Project saveProject = projectRepository.save(project);
@@ -206,11 +206,11 @@ public class ProjectServiceImpl implements ProjectService {
                 oldFocusIds = byId.get().getFocusIds();
             }
         }
-        projectRepository.updateFocusIdsById(processProjectFocusIds(oldFocusIds,ids),projectId);
+        projectRepository.updateFocusIdsById(processFocusIds(oldFocusIds,ids),projectId);
 
     }
 
-    public String processProjectFocusIds(String _focusIds,List<Long> ids) {
+    public String processFocusIds(String _focusIds, List<Long> ids) {
         List<Long> focusIds = new ArrayList<>();
         if(_focusIds!=null&& !_focusIds.isEmpty()) {
             focusIds = Arrays.stream(_focusIds.split(","))
@@ -225,13 +225,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
         }
-        /*if (!focusIds.contains(managerId)) {
-            focusIds.add(managerId);
-        }
-        if (!focusIds.contains(salesId)) {
-            focusIds.add(salesId);
-        }*/
-
         return focusIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
@@ -259,7 +252,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateProject(ProjectUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectExists(updateReqVO.getId());
-        updateReqVO.setFocusIds(processProjectFocusIds(updateReqVO.getFocusIds(),null));
+        updateReqVO.setFocusIds(processFocusIds(updateReqVO.getFocusIds(),null));
         // 更新
         Project updateObj = projectMapper.toEntity(updateReqVO);
         projectRepository.save(updateObj);

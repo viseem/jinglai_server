@@ -46,6 +46,9 @@ public class ProjectSopBaseVO {
     @Schema(description = "依赖项(json数组多个)")
     private String dependIds;
 
+    @Schema(description = "关注人ids")
+    private String focusIds;
+
     private User user;
 
 }

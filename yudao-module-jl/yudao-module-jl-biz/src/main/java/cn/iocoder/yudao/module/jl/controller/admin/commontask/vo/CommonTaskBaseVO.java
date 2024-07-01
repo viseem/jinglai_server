@@ -97,8 +97,7 @@ public class CommonTaskBaseVO {
     // 默认管理任务
     private Integer createType = CommonTaskCreateTypeEnums.MANAGE.getStatus();
 
-    @Schema(description = "紧急程度", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "紧急程度不能为空")
+    @Schema(description = "紧急程度")
     private Integer level;
 
     @Schema(description = "指派人id")

@@ -1,11 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
-import cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo.ProjectCategoryLogBaseVO;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
@@ -16,7 +13,6 @@ import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskServiceImpl;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
-import liquibase.pro.packaged.R;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -84,12 +80,19 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private CommonTaskServiceImpl commonTaskService;
 
+    @Resource
+    private ProjectServiceImpl projectService;
+
     @Override
+    @Transactional
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
         processSaveData(createReqVO);
         ProjectSop projectSop = projectSopMapper.toEntity(createReqVO);
+        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),createReqVO.getFocusIdList())));
         projectSopRepository.save(projectSop);
+
+
         // 返回
         return projectSop.getId();
     }
@@ -135,9 +138,11 @@ public class ProjectSopServiceImpl implements ProjectSopService {
 
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
+        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),updateReqVO.getFocusIdList())));
         projectSopRepository.save(updateObj);
 
 
+        // TODO 这里还是之前的category的通知
         if(Objects.equals(updateReqVO.getStatus(),CommonTodoEnums.DONE.getStatus())&&projectSop.getProjectCategoryId()!=null){
             Optional<ProjectCategoryOnly> projectCategoryOnlyOptional = projectCategoryOnlyRepository.findById(updateReqVO.getProjectCategoryId());
             if(projectCategoryOnlyOptional.isPresent()){

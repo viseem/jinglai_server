@@ -11,4 +11,5 @@ import javax.validation.constraints.*;
 @ToString(callSuper = true)
 public class ProjectSopCreateReqVO extends ProjectSopBaseVO {
 
+    private List<Long> focusIdList;
 }

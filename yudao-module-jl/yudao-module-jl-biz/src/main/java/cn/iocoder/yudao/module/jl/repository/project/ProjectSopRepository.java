@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface ProjectSopRepository extends JpaRepository<ProjectSop, Long>, JpaSpecificationExecutor<ProjectSop> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectSop p set p.focusIds = ?1 where p.id = ?2")
+    int updateFocusIdsById(String focusIds, Long id);
     @Query("select p from ProjectSop p where p.taskId in ?1")
     List<ProjectSop> findByTaskIdIn(Collection<Long> taskIds);
     @Transactional

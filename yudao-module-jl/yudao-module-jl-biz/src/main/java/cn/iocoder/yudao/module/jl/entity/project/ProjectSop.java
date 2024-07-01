@@ -99,6 +99,12 @@ public class ProjectSop extends BaseEntity {
     private Long taskId;
 
     /**
+     * 关注人id
+     */
+    @Column(name = "focus_ids")
+    private String focusIds;
+
+    /**
      * 级联
      */
     @OneToOne(fetch = FetchType.EAGER)
