@@ -141,27 +141,25 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 // 不用存到relation里面
                 for (ProjectChargeitem charge : reqVO.getChargeList()) {
                     if(charge.getTaskList()!=null&&!charge.getTaskList().isEmpty()){
+                        // 把实验员的id在管理任务中记录一下
+                        List<Long> experIds = new ArrayList<>();
                         charge.getTaskList().forEach(task-> {
+                            // 如果不等于 当前管理任务的负责人，则
+                            if(!Objects.equals(task.getUserId(),reqVO.getUserId())){
+                                experIds.add(task.getUserId());
+                            }
                             task.setParentId(taskId);
                             task.setProjectId(reqVO.getProjectId());
                             task.setQuotationId(reqVO.getQuotationId());
                         });
                         commonTaskRepository.saveAll(charge.getTaskList());
+                        if(!experIds.isEmpty()){
+                            commonTaskRepository.updateExperIdsById(experIds.stream()
+                                    .map(String::valueOf)
+                                    .collect(Collectors.joining(",")),taskId);
+                        }
                     }
-
-/*                    TaskArrangeRelation relation = new TaskArrangeRelation();
-                    relation.setTaskId(taskId);
-                    if(charge.getTaskList()!=null&&!charge.getTaskList().isEmpty()){
-                        charge.getTaskList().stream().peek(task-> task.setParentId(taskId));
-                        relation.setSonTaskId(charge.getTaskList().get(0).getId());
-                    }
-                    relation.setChargeItemId(charge.getId());
-                    relation.setProductId(charge.getProductId());
-                    relation.setProjectId(charge.getProjectId());
-                    relation.setQuotationId(charge.getQuotationId());
-                    relationList.add(relation);*/
                 }
-//                taskArrangeRelationRepository.saveAll(relationList);
             }
         }
 
@@ -352,7 +350,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             List<Predicate> predicates = new ArrayList<>();
 
             // 如果传递了 chargeItemId 或者quotationId,要默认查询包含未下发的任务
-            if(pageReqVO.getChargeitemId()!=null || pageReqVO.getQuotationId()!=null){
+            if(pageReqVO.getChargeitemId()!=null || pageReqVO.getQuotationId()!=null || pageReqVO.getParentId()!=null){
                 pageReqVO.setHasWaitSend(true);
             }
 
