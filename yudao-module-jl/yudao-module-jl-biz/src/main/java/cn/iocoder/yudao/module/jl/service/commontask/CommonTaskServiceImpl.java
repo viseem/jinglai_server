@@ -635,6 +635,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        if(order.getQuotationId()!=null){
+//            orderV0.setCreateTime("asc");
+            orders.add(new Sort.Order( Sort.Direction.ASC , "sort"));
+        }
+
         orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "status"));
         orders.add(new Sort.Order("asc".equals(order.getId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
 

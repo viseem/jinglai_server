@@ -63,8 +63,7 @@ public class CommonTaskPageOrder {
     @Schema(allowableValues = {"desc", "asc"})
     private String projectCategoryId;
 
-    @Schema(allowableValues = {"desc", "asc"})
-    private String quotationId;
+    private Long quotationId;
 
     @Schema(allowableValues = {"desc", "asc"})
     private String projectName;
