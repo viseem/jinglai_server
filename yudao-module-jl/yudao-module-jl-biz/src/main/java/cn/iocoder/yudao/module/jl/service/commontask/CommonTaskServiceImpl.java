@@ -116,7 +116,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     private void saveParentTaskExperIds(CommonTaskBaseVO createReqVO, Long taskId) {
         //如果父级id不为空
-        if(createReqVO.getParentId()!=null){
+        if(createReqVO.getParentId()!=null&&createReqVO.getParentId()>0){
             CommonTask commonTask = createReqVO.getParentTask();
             // 如果父级是管理任务，则新增的是产品任务，需要更新一下管理任务的experIds字段
             if(Objects.equals(commonTask.getCreateType(),CommonTaskCreateTypeEnums.MANAGE.getStatus())){
@@ -206,18 +206,18 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
-        if(vo.getChargeitemId()!=null){
+        if(vo.getChargeitemId()!=null&&vo.getChargeitemId()>0){
             ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(vo.getChargeitemId());
             vo.setQuotationId(chargeItem.getQuotationId());
             vo.setProjectId(chargeItem.getProjectId());
         }else{
-            if(vo.getQuotationId()!=null){
+            if(vo.getQuotationId()!=null&&vo.getQuotationId()>0){
                 ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(vo.getQuotationId());
                 vo.setProjectId(quotation.getProjectId());
             }
         }
 
-        if(vo.getParentId()!=null){
+        if(vo.getParentId()!=null&&vo.getParentId()>0){
             CommonTask commonTask = validateCommonTaskExists(vo.getParentId());
             vo.setQuotationId(commonTask.getQuotationId());
             vo.setProjectId(commonTask.getProjectId());
@@ -314,7 +314,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Transactional
     public void deleteCommonTask(Long id) {
         // 校验存在
-        validateCommonTaskExists(id);
+        CommonTask commonTask = validateCommonTaskExists(id);
         // 删除
         commonTaskRepository.deleteById(id);
 
@@ -322,6 +322,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         TaskArrangeRelation byTaskId = taskArrangeRelationRepository.findByTaskId(id);
         if(byTaskId!=null){
             taskArrangeRelationRepository.deleteById(byTaskId.getId());
+        }
+
+        // 删除子任务
+        List<CommonTask> byParentId = commonTaskRepository.findByParentId(id);
+        if(byParentId!=null&&!byParentId.isEmpty()){
+            commonTaskRepository.deleteAllByIdInBatch(byParentId.stream().map(CommonTask::getId).collect(Collectors.toList()));
         }
     }
 
@@ -642,7 +648,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         }
 
         orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "status"));
-        orders.add(new Sort.Order("asc".equals(order.getId()) ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
+        if(order.getQuotationId()!=null){
+            orders.add(new Sort.Order(Sort.Direction.ASC, "id"));
+        }else{
+            orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
+        }
+
 
 
         if (order.getId() != null) {
