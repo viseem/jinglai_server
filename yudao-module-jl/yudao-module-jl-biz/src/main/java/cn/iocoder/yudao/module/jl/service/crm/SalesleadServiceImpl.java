@@ -21,6 +21,7 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -50,8 +51,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
@@ -130,6 +130,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private UserServiceImpl userService;
 
     @Override
     public Long createSaleslead(SalesleadCreateReqVO createReqVO) {
@@ -383,8 +386,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                 // 更新商机的合同id
                 salesleadRepository.updateContractIdById(save.getId(), salesleadId);
 
-
-
                 // 发送消息
                 Map<String, Object> templateParams = new HashMap<>();
                 templateParams.put("salesleadId",updateReqVO.getId());
@@ -394,25 +395,34 @@ public class SalesleadServiceImpl implements SalesleadService {
                 templateParams.put("contractName",updateReqVO.getProjectName());
                 templateParams.put("contractPrice",updateReqVO.getPaperPrice());
                 List<Long> userIds = new ArrayList<>();
+                // 总经理
                 userIds.add(getSuperUserId());
+                // 销售总监
+                userIds.addAll(List.of(getSalesManagerIds()));
+                List<User> financeUsers = userRepository.findFinanceUsers();
+                // 商务组长
+                List<Long> bizManagerIdByUserId = userService.findBizManagerIdByUserId(salesleadSalesId);
+                userIds.addAll(bizManagerIdByUserId);
+                System.out.println("bizManagerIdByUserId-----"+bizManagerIdByUserId);
+                // 通知所有财务人员
+                if(financeUsers!=null){
+                    List<Long> collect = financeUsers.stream().map(User::getId).collect(Collectors.toList());
+                    userIds.addAll(collect);
+                }
+                // 通知项目人员
+                userIds.add(project.getManagerId());
                 // userIds去重
                 userIds = userIds.stream().distinct().collect(Collectors.toList());
                 for (Long userId : userIds) {
+                    if(userId==null){
+                        continue;
+                    }
+                    System.out.println("userid---"+userId);
                     notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                             userId,
                             BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
                     ));
                 }
-/*                List<SubjectGroupMember> membersByMemberId = subjectGroupMemberService.findMembersByMemberId(getLoginUserId());
-                for (SubjectGroupMember subjectGroupMember : membersByMemberId) {
-                    if(subjectGroupMember.getUserId().equals(getLoginUserId())){
-                        continue;
-                    }
-                    notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                            subjectGroupMember.getUserId(),
-                            BpmMessageEnum.NOTIFY_WHEN_SALESLEAD_SIGNED.getTemplateCode(), templateParams
-                    ));
-                }*/
             }
 
         }

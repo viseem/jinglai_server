@@ -15,6 +15,12 @@ import java.util.List;
 *
 */
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    @Query("select u from User u where u.deptId = ?1")
+    List<User> findByDeptId(Long deptId);
+
+    @Query("select u from User u where u.deptId = 119")
+    List<User> findFinanceUsers();
+
     @Query("select u from User u where u.nickname = ?1")
     List<User> findByNickname(String nickname);
 

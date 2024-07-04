@@ -92,6 +92,10 @@ public class SecurityFrameworkUtils {
         return 211L;
     }
 
+    public static Long[] getSalesManagerIds() {
+        return new Long[]{130L, 131L};
+    }
+
     //TODO 临死写死
     public static Long getProcurementUserId() {
         return 143L;

@@ -1,5 +1,9 @@
 package cn.iocoder.yudao.module.jl.service.user;
 
+import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
+import cn.iocoder.yudao.module.jl.repository.subjectgroup.SubjectGroupRepository;
+import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +44,12 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private SubjectGroupMemberRepository subjectGroupMemberRepository;
+
+    @Resource
+    private SubjectGroupRepository subjectGroupRepository;
 
     @Override
     public Long createUser(UserCreateReqVO createReqVO) {
@@ -253,5 +263,26 @@ public class UserServiceImpl implements UserService {
 
         // 创建 Sort 对象
         return Sort.by(orders);
+    }
+
+    public List<Long> findBizManagerIdByUserId(Long userId) {
+        List<Long> ids = new ArrayList<>();
+        Optional<User> byId = userRepository.findById(userId);
+        if(byId.isPresent()){
+            List<SubjectGroupMember> byUserId = subjectGroupMemberRepository.findByUserId(userId);
+            if(byUserId!=null&&byUserId.size()>0){
+                SubjectGroupMember member = byUserId.get(0);
+                List<SubjectGroupMember> byGroupId = subjectGroupMemberRepository.findByGroupId(member.getGroupId());
+                if(byGroupId!=null&&byGroupId.size()>0){
+                    for (SubjectGroupMember subjectGroupMember : byGroupId) {
+                        if(Objects.equals(subjectGroupMember.getPost(), SubjectGroupMemberRoleEnums.BUSINESS_LEADER.getStatus())){
+                            ids.add(subjectGroupMember.getUserId());
+                        }
+                    }
+                }
+            }
+
+        }
+        return ids;
     }
 }
