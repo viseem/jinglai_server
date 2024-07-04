@@ -4,8 +4,6 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
-import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedStoreIn;
-import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.*;
@@ -14,8 +12,6 @@ import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
-import liquibase.pro.packaged.T;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -249,24 +244,29 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
         if (byId.isPresent()) {
             AnimalFeedOrder animalFeedOrder = byId.get();
-            processLatestFeedLog(animalFeedOrder);
+            animalFeedOrder.setAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getStartDate(),animalFeedOrder.getEndDate()));
         }
         return byId;
     }
 
-    private void processLatestFeedLog(AnimalFeedOrder animalFeedOrder) {
+    private Integer processFeedOrderAmount(AnimalFeedOrder animalFeedOrder, LocalDateTime _startDate, LocalDateTime _endDate,int... needSetCurrentEnd) {
 
         animalFeedOrder.setCurrentQuantity(animalFeedOrder.getQuantity());
         animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCageQuantity());
 
         List<AnimalFeedLog> logs = animalFeedOrder.getLogs();
         // 饲养单的开始日期
-        final LocalDateTime[] startDate = {animalFeedOrder.getStartDate()};
+        final LocalDateTime[] startDate = {_startDate};
         // 饲养单的结束日期，如果等于null，则设置为当前
-        LocalDateTime endDate = animalFeedOrder.getEndDate();
+        LocalDateTime endDate = _endDate;
+
         if (endDate == null || endDate.isAfter(LocalDateTime.now())){
             endDate = LocalDateTime.now();
+            if(needSetCurrentEnd.length>0){
+            animalFeedOrder.setCurrentEndDate(endDate);
+            }
         }
+
 
         Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
         final AtomicInteger[] dayCount = {new AtomicInteger()};
@@ -275,8 +275,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         AtomicReference<Integer> quantity = new AtomicReference<>(Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity());
 
         //初始化一下实时只数 笼数
-        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity());
-        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity());
+//        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity());
+//        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity());
 
         if (animalFeedOrder.getUnitFee() != null && quantity.get() != null && startDate[0] != null) {
             if (logs != null) {
@@ -322,43 +322,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
             totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee() * dayDiff));
         }
-
-
-
-           /* List<LocalDate> dateRange = startDate.toLocalDate().datesUntil(endDate.toLocalDate().plusDays(1)).collect(Collectors.toList());
-
-            for (LocalDate localDate : dateRange) {
-
-                logs.forEach(log -> {
-                    String dateStr = log.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    Integer changeCount = log.getChangeCageQuantity();
-                    if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
-                        changeCount = log.getChangeQuantity();
-                    }
-                    Integer price = 0;
-                    if (animalFeedOrder.getUnitFee() != null && animalFeedOrder.getUnitFee() > 0) {
-                        price = animalFeedOrder.getUnitFee();
-                    }
-                    int rowAmount = changeCount * price;
-
-                    if (dateStrToRowAmountMap.containsKey(dateStr)) {
-                        rowAmount = dateStrToRowAmountMap.get(dateStr);
-                    } else {
-                        totalAmount.addAndGet(rowAmount);
-                        dayCount.incrementAndGet();
-                        dateStrToRowAmountMap.put(dateStr, rowAmount);
-                    }
-
-                    log.setDateStr(dateStr);
-                    log.setTimeStr(log.getCreateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                    log.setRowAmount(rowAmount);
-                });
-            }*/
-
-
-        animalFeedOrder.setDayCount(dayCount[0].get());
-        animalFeedOrder.setAmount(Math.max(totalAmount.get(), 0));
-//            animalFeedOrder.setLatestLog(logs.get(0));
+//        animalFeedOrder.setDayCount(dayCount[0].get());
+//        animalFeedOrder.setAmount(Math.max(totalAmount.get(), 0));
+        return Math.max(totalAmount.get(), 0);
     }
 
 /*    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
@@ -405,10 +371,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         Page<AnimalFeedOrder> page = animalFeedOrderRepository.findAll(spec, pageable);
 
         List<AnimalFeedOrder> animalFeedOrders = page.getContent();
-
         animalFeedOrders.forEach(animalFeedOrder -> {
-            processLatestFeedLog(animalFeedOrder);
-//            processLatestFeedStore(animalFeedOrder);
+            animalFeedOrder.setCurrentStartDate(getMaxDateTime(pageReqVO.getStartDate(),animalFeedOrder.getStartDate()));
+            animalFeedOrder.setCurrentEndDate(getMinDateTime(pageReqVO.getEndDate(),animalFeedOrder.getEndDate()));
+            animalFeedOrder.setCurrentAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getCurrentStartDate(),animalFeedOrder.getCurrentEndDate(),1));
+            animalFeedOrder.setAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getStartDate(),animalFeedOrder.getEndDate()));
+
         });
 
         // 转换为 PageResult 并返回
@@ -552,6 +520,26 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         return spec;
     }
 
+    public static LocalDateTime getMinDateTime(LocalDateTime dt1, LocalDateTime dt2) {
+        if (dt1 == null) {
+            return dt2;
+        } else if (dt2 == null) {
+            return dt1;
+        } else {
+            return dt1.isBefore(dt2) ? dt1 : dt2;
+        }
+    }
+
+    public static LocalDateTime getMaxDateTime(LocalDateTime dt1, LocalDateTime dt2) {
+        if (dt1 == null) {
+            return dt2;
+        } else if (dt2 == null) {
+            return dt1;
+        } else {
+            return dt1.isAfter(dt2) ? dt1 : dt2;
+        }
+    }
+
     @Override
     public List<AnimalFeedOrder> getAnimalFeedOrderList(AnimalFeedOrderPageReqVO exportReqVO) {
 
@@ -562,15 +550,18 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
         List<DictDataRespDTO> billRules = dictDataApi.getDictDataByType(DictTypeConstants.FEED_BILL_RULES);
 
-
         animalFeedOrders.forEach(animalFeedOrder -> {
             for (DictDataRespDTO rule : billRules) {
                 if (rule.getValue().equals(animalFeedOrder.getBillRules())) {
                     animalFeedOrder.setBillRules(rule.getLabel());
                 }
             }
-            processLatestFeedLog(animalFeedOrder);
-//            processLatestFeedStore(animalFeedOrder);
+            System.out.println("export----"+exportReqVO.getEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            animalFeedOrder.setCurrentStartDate(getMaxDateTime(exportReqVO.getStartDate(),animalFeedOrder.getStartDate()));
+            animalFeedOrder.setCurrentEndDate(getMinDateTime(exportReqVO.getEndDate(),animalFeedOrder.getEndDate()));
+            animalFeedOrder.setCurrentAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getCurrentStartDate(),animalFeedOrder.getCurrentEndDate(),1));
+            animalFeedOrder.setAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getStartDate(),animalFeedOrder.getEndDate()));
+
         });
 
         // 执行查询

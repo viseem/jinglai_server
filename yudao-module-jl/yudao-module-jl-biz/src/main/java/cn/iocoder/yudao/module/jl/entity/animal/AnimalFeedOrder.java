@@ -320,6 +320,16 @@ public class AnimalFeedOrder extends BaseEntity {
     @Transient
     private Integer currentQuantity;
 
+    // 根据筛选的开始日期，结束日期计算的
+    @Transient
+    private Integer currentAmount;
+
+    @Transient
+    private LocalDateTime currentStartDate;
+
+    @Transient
+    private LocalDateTime currentEndDate;
+
     /**
      * 级联
      */

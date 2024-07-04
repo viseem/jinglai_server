@@ -47,13 +47,21 @@ public class AnimalFeedOrderExcelVO {
     @ExcelProperty("饲养方式")
     private String feedType;
 
-    @ExcelProperty("饲养开始日期")
+    @ExcelProperty("预计开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate startDate;
 
-    @ExcelProperty("饲养结束日期")
+    @ExcelProperty("预计结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate endDate;
+
+    @ExcelProperty("当前开始日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate currentStartDate;
+
+    @ExcelProperty("当前结束日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate currentEndDate;
 
     @ExcelProperty("饲养笼数")
     private Integer cageQuantity;
@@ -74,7 +82,10 @@ public class AnimalFeedOrderExcelVO {
     @ExcelProperty("收费单价")
     private String unitFee;
 
-    @ExcelProperty("收费总额")
+    @ExcelProperty("实时收费总额")
+    private String currentAmount;
+
+    @ExcelProperty("预计收费总额")
     private String amount;
 
     @ExcelProperty("备注")

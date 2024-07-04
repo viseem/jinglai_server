@@ -42,4 +42,8 @@ public class AnimalFeedOrderRespVO extends AnimalFeedOrderBaseVO {
     private Integer currentQuantity;
 
     private User sales;
+
+    private LocalDateTime currentStartDate;
+    private LocalDateTime currentEndDate;
+    private Integer currentAmount;
 }
