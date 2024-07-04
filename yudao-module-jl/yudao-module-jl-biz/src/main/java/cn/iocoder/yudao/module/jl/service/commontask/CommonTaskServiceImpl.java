@@ -12,7 +12,6 @@ import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.CommonTaskTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
@@ -23,7 +22,6 @@ import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRe
 import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import cn.iocoder.yudao.module.jl.service.laboratory.ChargeItemServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectChargeitemServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -102,7 +100,11 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 插入
         CommonTask commonTask = commonTaskMapper.toEntity(createReqVO);
-        commonTaskRepository.save(commonTask);
+        if(createReqVO.getManageTaskId()==null || createReqVO.getManageTaskId()==0){
+            commonTaskRepository.save(commonTask);
+        }else{
+            commonTask.setId(createReqVO.getManageTaskId());
+        }
 
         // 插入到 任务安排关系表中
         saveTaskArrangeRelation(createReqVO, commonTask.getId());
@@ -224,11 +226,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             vo.setParentTask(commonTask);
         }
 
-        userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
-            vo.setUserNickname(user.getNickname());
-        }, () -> {
-            throw exception(USER_NOT_EXISTS);
-        });
+        if(vo.getUserId()!=null){
+            userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
+                vo.setUserNickname(user.getNickname());
+            }, () -> {
+                throw exception(USER_NOT_EXISTS);
+            });
+        }
+
 
 
         if (vo.getAssignUserId() == null && getLoginUserId() != null) {

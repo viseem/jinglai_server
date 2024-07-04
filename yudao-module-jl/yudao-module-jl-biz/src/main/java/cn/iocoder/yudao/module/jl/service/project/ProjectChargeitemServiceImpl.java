@@ -31,7 +31,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CHARGE
 
 /**
  * 项目中的实验名目的收费项 Service 实现类
- *
  */
 @Service
 @Validated
@@ -108,7 +107,7 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
 
     public ProjectChargeitem validateProjectChargeitemExists(Long id) {
         Optional<ProjectChargeitem> byId = projectChargeitemRepository.findById(id);
-        if(byId.isEmpty()){
+        if (byId.isEmpty()) {
             throw exception(PROJECT_CHARGEITEM_NOT_EXISTS);
         }
         return byId.get();
@@ -131,49 +130,48 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         Sort sort = createSort(orderV0);
 
         // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
         Specification<ProjectChargeitem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getQuotationId() != null) {
+            if (pageReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
             }
 
-            if(pageReqVO.getProjectCategoryId() != null) {
+            if (pageReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), pageReqVO.getProjectCategoryId()));
             }
 
-            if(pageReqVO.getCategoryId() != null) {
+            if (pageReqVO.getCategoryId() != null) {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
             }
 
-            if(pageReqVO.getChargeItemId() != null) {
+            if (pageReqVO.getChargeItemId() != null) {
                 predicates.add(cb.equal(root.get("chargeItemId"), pageReqVO.getChargeItemId()));
             }
 
-            if(pageReqVO.getName() != null) {
+            if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
-            if(pageReqVO.getFeeStandard() != null) {
+            if (pageReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), pageReqVO.getFeeStandard()));
             }
 
-            if(pageReqVO.getUnitFee() != null) {
+            if (pageReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), pageReqVO.getUnitFee()));
             }
 
-            if(pageReqVO.getUnitAmount() != null) {
+            if (pageReqVO.getUnitAmount() != null) {
                 predicates.add(cb.equal(root.get("unitAmount"), pageReqVO.getUnitAmount()));
             }
 
-            if(pageReqVO.getQuantity() != null) {
+            if (pageReqVO.getQuantity() != null) {
                 predicates.add(cb.equal(root.get("quantity"), pageReqVO.getQuantity()));
             }
 
-            if(pageReqVO.getMark() != null) {
+            if (pageReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
@@ -182,41 +180,50 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         };
 
         // 执行查询
-        Page<ProjectChargeitem> page = projectChargeitemRepository.findAll(spec, pageable);
+        List<ProjectChargeitem> list;
+        long total = 0;
+        if (pageReqVO.getPageNo() == -1) {
+            list = projectChargeitemRepository.findAll(spec);
+        } else {
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProjectChargeitem> all = projectChargeitemRepository.findAll(spec, pageable);
+            list = all.getContent();
+            total = all.getTotalElements();
+        }
+        // list去重
 
-        List<ProjectChargeitem> list = page.getContent();
-        processList(list,pageReqVO);
+        processList(list, pageReqVO);
 
         // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return new PageResult<>(list, total);
     }
 
     private void processList(List<ProjectChargeitem> list, ProjectChargeitemPageReqVO pageReqVO) {
         List<CommonTask> taskList = null;
         // 这相当于是category界面查询的收费项，这里要回显一下他们指派的任务
-        if(pageReqVO.getProjectCategoryId()!=null){
+        if (pageReqVO.getProjectCategoryId() != null) {
             taskList = commonTaskRepository.findByProjectCategoryId(pageReqVO.getProjectCategoryId());
         }
 
-        if(Objects.equals(pageReqVO.getWithTaskList(),true)){
+        if (Objects.equals(pageReqVO.getWithTaskList(), true)) {
             List<TaskArrangeRelation> byQuotationId = taskArrangeRelationRepository.findByQuotationId(pageReqVO.getQuotationId());
-            if(byQuotationId!=null){
+            if (byQuotationId != null) {
                 taskList = byQuotationId.stream()
                         .map(TaskArrangeRelation::getTask)
                         .collect(Collectors.toList());
             }
         }
 
-        if(taskList!=null&& !taskList.isEmpty()){
+        if (taskList != null && !taskList.isEmpty()) {
             for (CommonTask task : taskList) {
-                if(task == null){
+                if (task == null) {
                     continue;
                 }
                 for (ProjectChargeitem item : list) {
-                    if(item.getTaskList()==null){
+                    if (item.getTaskList() == null) {
                         item.setTaskList(new ArrayList<>());
                     }
-                    if(Objects.equals(item.getId(),task.getChargeitemId())){
+                    if (Objects.equals(item.getId(), task.getChargeitemId())) {
                         item.getTaskList().add(task);
                     }
                 }
@@ -230,39 +237,39 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         Specification<ProjectChargeitem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getProjectCategoryId() != null) {
+            if (exportReqVO.getProjectCategoryId() != null) {
                 predicates.add(cb.equal(root.get("projectCategoryId"), exportReqVO.getProjectCategoryId()));
             }
 
-            if(exportReqVO.getCategoryId() != null) {
+            if (exportReqVO.getCategoryId() != null) {
                 predicates.add(cb.equal(root.get("categoryId"), exportReqVO.getCategoryId()));
             }
 
-            if(exportReqVO.getChargeItemId() != null) {
+            if (exportReqVO.getChargeItemId() != null) {
                 predicates.add(cb.equal(root.get("chargeItemId"), exportReqVO.getChargeItemId()));
             }
 
-            if(exportReqVO.getName() != null) {
+            if (exportReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
             }
 
-            if(exportReqVO.getFeeStandard() != null) {
+            if (exportReqVO.getFeeStandard() != null) {
                 predicates.add(cb.equal(root.get("feeStandard"), exportReqVO.getFeeStandard()));
             }
 
-            if(exportReqVO.getUnitFee() != null) {
+            if (exportReqVO.getUnitFee() != null) {
                 predicates.add(cb.equal(root.get("unitFee"), exportReqVO.getUnitFee()));
             }
 
-            if(exportReqVO.getUnitAmount() != null) {
+            if (exportReqVO.getUnitAmount() != null) {
                 predicates.add(cb.equal(root.get("unitAmount"), exportReqVO.getUnitAmount()));
             }
 
-            if(exportReqVO.getQuantity() != null) {
+            if (exportReqVO.getQuantity() != null) {
                 predicates.add(cb.equal(root.get("quantity"), exportReqVO.getQuantity()));
             }
 
-            if(exportReqVO.getMark() != null) {
+            if (exportReqVO.getMark() != null) {
                 predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
             }
 

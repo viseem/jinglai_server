@@ -22,8 +22,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class CommonTaskBaseVO {
 
-    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋艿")
-    @NotNull(message = "名称不能为空")
+    @Schema(description = "名称")
     private String name;
 
     @Schema(description = "内容")
@@ -43,8 +42,7 @@ public class CommonTaskBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endDate;
 
-    @Schema(description = "负责人", requiredMode = Schema.RequiredMode.REQUIRED, example = "27670")
-    @NotNull(message = "负责人不能为空")
+    @Schema(description = "负责人")
     private Long userId;
 
     @Schema(description = "负责人昵称")
@@ -92,8 +90,7 @@ public class CommonTaskBaseVO {
     @Schema(description = "类型")
     private Integer type;
 
-    @Schema(description = "创建类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "创建类型不能为空")
+    @Schema(description = "创建类型")
     // 默认管理任务
     private Integer createType = CommonTaskCreateTypeEnums.MANAGE.getStatus();
 
