@@ -1,14 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.user;
 
 import cn.iocoder.yudao.module.jl.entity.subjectgroupmember.SubjectGroupMember;
+import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberPostEnums;
 import cn.iocoder.yudao.module.jl.enums.SubjectGroupMemberRoleEnums;
 import cn.iocoder.yudao.module.jl.repository.subjectgroup.SubjectGroupRepository;
 import cn.iocoder.yudao.module.jl.repository.subjectgroupmember.SubjectGroupMemberRepository;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+
 import org.springframework.validation.annotation.Validated;
+
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +26,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.jl.controller.admin.user.vo.*;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -33,7 +39,6 @@ import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 用户信息 Service 实现类
- *
  */
 @Service
 @Validated
@@ -77,8 +82,8 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void validateUserExists(Long id) {
-        userRepository.findById(id).orElseThrow(() -> exception(USER_NOT_EXISTS));
+    public User validateUserExists(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> exception(USER_NOT_EXISTS));
     }
 
     @Override
@@ -104,43 +109,43 @@ public class UserServiceImpl implements UserService {
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(pageReqVO.getUsername() != null) {
+            if (pageReqVO.getUsername() != null) {
                 predicates.add(cb.like(root.get("username"), "%" + pageReqVO.getUsername() + "%"));
             }
 
-            if(pageReqVO.getNickname() != null) {
+            if (pageReqVO.getNickname() != null) {
                 predicates.add(cb.like(root.get("nickname"), "%" + pageReqVO.getNickname() + "%"));
             }
 
-            if(pageReqVO.getRemark() != null) {
+            if (pageReqVO.getRemark() != null) {
                 predicates.add(cb.equal(root.get("remark"), pageReqVO.getRemark()));
             }
 
-            if(pageReqVO.getDeptId() != null) {
+            if (pageReqVO.getDeptId() != null) {
                 predicates.add(cb.equal(root.get("deptId"), pageReqVO.getDeptId()));
             }
 
-            if(pageReqVO.getPostIds() != null) {
+            if (pageReqVO.getPostIds() != null) {
                 predicates.add(cb.equal(root.get("postIds"), pageReqVO.getPostIds()));
             }
 
-            if(pageReqVO.getEmail() != null) {
+            if (pageReqVO.getEmail() != null) {
                 predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
             }
 
-            if(pageReqVO.getMobile() != null) {
+            if (pageReqVO.getMobile() != null) {
                 predicates.add(cb.equal(root.get("mobile"), pageReqVO.getMobile()));
             }
 
-            if(pageReqVO.getSex() != null) {
+            if (pageReqVO.getSex() != null) {
                 predicates.add(cb.equal(root.get("sex"), pageReqVO.getSex()));
             }
 
-            if(pageReqVO.getAvatar() != null) {
+            if (pageReqVO.getAvatar() != null) {
                 predicates.add(cb.equal(root.get("avatar"), pageReqVO.getAvatar()));
             }
 
-            if(pageReqVO.getStatus() != null) {
+            if (pageReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
             }
 
@@ -161,43 +166,43 @@ public class UserServiceImpl implements UserService {
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(exportReqVO.getUsername() != null) {
+            if (exportReqVO.getUsername() != null) {
                 predicates.add(cb.like(root.get("username"), "%" + exportReqVO.getUsername() + "%"));
             }
 
-            if(exportReqVO.getNickname() != null) {
+            if (exportReqVO.getNickname() != null) {
                 predicates.add(cb.like(root.get("nickname"), "%" + exportReqVO.getNickname() + "%"));
             }
 
-            if(exportReqVO.getRemark() != null) {
+            if (exportReqVO.getRemark() != null) {
                 predicates.add(cb.equal(root.get("remark"), exportReqVO.getRemark()));
             }
 
-            if(exportReqVO.getDeptId() != null) {
+            if (exportReqVO.getDeptId() != null) {
                 predicates.add(cb.equal(root.get("deptId"), exportReqVO.getDeptId()));
             }
 
-            if(exportReqVO.getPostIds() != null) {
+            if (exportReqVO.getPostIds() != null) {
                 predicates.add(cb.equal(root.get("postIds"), exportReqVO.getPostIds()));
             }
 
-            if(exportReqVO.getEmail() != null) {
+            if (exportReqVO.getEmail() != null) {
                 predicates.add(cb.equal(root.get("email"), exportReqVO.getEmail()));
             }
 
-            if(exportReqVO.getMobile() != null) {
+            if (exportReqVO.getMobile() != null) {
                 predicates.add(cb.equal(root.get("mobile"), exportReqVO.getMobile()));
             }
 
-            if(exportReqVO.getSex() != null) {
+            if (exportReqVO.getSex() != null) {
                 predicates.add(cb.equal(root.get("sex"), exportReqVO.getSex()));
             }
 
-            if(exportReqVO.getAvatar() != null) {
+            if (exportReqVO.getAvatar() != null) {
                 predicates.add(cb.equal(root.get("avatar"), exportReqVO.getAvatar()));
             }
 
-            if(exportReqVO.getStatus() != null) {
+            if (exportReqVO.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
             }
 
@@ -267,21 +272,21 @@ public class UserServiceImpl implements UserService {
 
     public List<Long> findBizManagerIdByUserId(Long userId) {
         List<Long> ids = new ArrayList<>();
-        Optional<User> byId = userRepository.findById(userId);
-        if(byId.isPresent()){
-            List<SubjectGroupMember> byUserId = subjectGroupMemberRepository.findByUserId(userId);
-            if(byUserId!=null&&byUserId.size()>0){
-                SubjectGroupMember member = byUserId.get(0);
-                List<SubjectGroupMember> byGroupId = subjectGroupMemberRepository.findByGroupId(member.getGroupId());
-                if(byGroupId!=null&&byGroupId.size()>0){
-                    for (SubjectGroupMember subjectGroupMember : byGroupId) {
-                        if(Objects.equals(subjectGroupMember.getPost(), SubjectGroupMemberRoleEnums.BUSINESS_LEADER.getStatus())){
-                            ids.add(subjectGroupMember.getUserId());
-                        }
+        List<SubjectGroupMember> byUserId = subjectGroupMemberRepository.findByUserId(userId);
+        System.out.println(byUserId.size()+"-=-=-=-=");
+        if (byUserId != null && byUserId.size() > 0) {
+            SubjectGroupMember member = byUserId.get(0);
+            System.out.println("memeber---"+member.getNickname()+member.getGroupId());
+            List<SubjectGroupMember> byGroupId = subjectGroupMemberRepository.findByGroupId(member.getGroupId());
+            System.out.println("byGroupId---"+byGroupId.size());
+            if (byGroupId != null && byGroupId.size() > 0) {
+                for (SubjectGroupMember subjectGroupMember : byGroupId) {
+                    System.out.println("post---"+subjectGroupMember.getPost());
+                    if (Objects.equals(subjectGroupMember.getPost(), SubjectGroupMemberPostEnums.BUSINESS_LEADER.getStatus())) {
+                        ids.add(subjectGroupMember.getUserId());
                     }
                 }
             }
-
         }
         return ids;
     }

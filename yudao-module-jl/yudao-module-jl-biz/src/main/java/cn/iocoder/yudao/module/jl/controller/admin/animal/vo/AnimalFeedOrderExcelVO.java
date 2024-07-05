@@ -77,7 +77,7 @@ public class AnimalFeedOrderExcelVO {
 
     @ExcelProperty("收费方式")
     @DictFormat(DictTypeConstants.FEED_BILL_RULES)
-    private String billRules;
+    private String billRulesLabel;
 
     @ExcelProperty("收费单价")
     private String unitFee;

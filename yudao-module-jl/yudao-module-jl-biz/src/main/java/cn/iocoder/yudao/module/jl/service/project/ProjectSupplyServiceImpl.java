@@ -125,8 +125,7 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
 
         // 创建 Specification
         Specification<ProjectSupply> spec = (root, query, cb) -> {
@@ -203,19 +202,26 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+        List<ProjectSupply> projectSupplies=null;
+        long total = 0;
+        if(pageReqVO.getPageNo()==-1){
+            projectSupplies = projectSupplyRepository.findAll(spec,sort);
+        }else{
+            // 创建 Pageable 对象
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProjectSupply> page = projectSupplyRepository.findAll(spec, pageable);
+             projectSupplies = page.getContent();
+            total=page.getTotalElements();
+        }
 
         // 执行查询
-        Page<ProjectSupply> page = projectSupplyRepository.findAll(spec, pageable);
-        List<ProjectSupply> projectSupplies = page.getContent();
-        // 计算物资数量
-        // 已入库的
-        if (projectSupplies.size() > 0) {
+        if (projectSupplies!=null&&projectSupplies.size() > 0) {
             projectSupplies.forEach(this::processSupplyItem);
         }
 
 
         // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return new PageResult<>(projectSupplies, total);
     }
 
     private void processSupplyItem(ProjectSupply item) {

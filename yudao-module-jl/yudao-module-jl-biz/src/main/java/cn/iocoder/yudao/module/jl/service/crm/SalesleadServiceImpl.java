@@ -252,6 +252,7 @@ public class SalesleadServiceImpl implements SalesleadService {
     @Override
     @Transactional
     public Integer saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
+
         Saleslead saleslead = null;
         // 如果managerId是-1，则说明是主动报价
         if(updateReqVO.getManagerId()!=null&&updateReqVO.getManagerId().equals(-1L)){

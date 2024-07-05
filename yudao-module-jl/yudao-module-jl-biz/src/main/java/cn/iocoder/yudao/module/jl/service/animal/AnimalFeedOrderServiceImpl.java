@@ -417,16 +417,20 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 predicates.add(cb.between(root.get("endDate"), pageReqVO.getBetweenDate()[0], pageReqVO.getBetweenDate()[1]));
             }*/
 
-            if(pageReqVO.getStartDate() != null&&pageReqVO.getEndDate()==null){
+            if(pageReqVO.getStartDate() != null){
                 //
 //                predicates.add(cb.or(cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getStartDate()),cb.isNull(root.get("endDate"))));
-                predicates.add(cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getStartDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getStartDate())));
+                predicates.add(cb.or(cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getStartDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getStartDate())),
+                        cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getEndDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getEndDate()))
+                        ));
+/*                predicates.add(cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getStartDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getStartDate())));
+
+                if(pageReqVO.getEndDate()!=null){
+                    predicates.add(cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getEndDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getEndDate())));
+                }*/
             }
 
-            if(pageReqVO.getStartDate() == null&&pageReqVO.getEndDate()!=null){
-                //
-                predicates.add(cb.and(cb.lessThanOrEqualTo(root.get("startDate"),pageReqVO.getEndDate()),cb.greaterThanOrEqualTo(root.get("endDate"),pageReqVO.getEndDate())));
-            }
+
 /*            if(pageReqVO.getStartDate() != null&&pageReqVO.getEndDate()!=null){
                 predicates.add(cb.or(cb.between(root.get("endDate"), pageReqVO.getStartDate(), pageReqVO.getEndDate()),cb.between(root.get("startDate"), pageReqVO.getStartDate(), pageReqVO.getEndDate())));
             }*/
@@ -553,10 +557,10 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         animalFeedOrders.forEach(animalFeedOrder -> {
             for (DictDataRespDTO rule : billRules) {
                 if (rule.getValue().equals(animalFeedOrder.getBillRules())) {
-                    animalFeedOrder.setBillRules(rule.getLabel());
+                    animalFeedOrder.setBillRulesLabel(rule.getLabel());
                 }
             }
-            System.out.println("export----"+exportReqVO.getEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
             animalFeedOrder.setCurrentStartDate(getMaxDateTime(exportReqVO.getStartDate(),animalFeedOrder.getStartDate()));
             animalFeedOrder.setCurrentEndDate(getMinDateTime(exportReqVO.getEndDate(),animalFeedOrder.getEndDate()));
             animalFeedOrder.setCurrentAmount(processFeedOrderAmount(animalFeedOrder,animalFeedOrder.getCurrentStartDate(),animalFeedOrder.getCurrentEndDate(),1));

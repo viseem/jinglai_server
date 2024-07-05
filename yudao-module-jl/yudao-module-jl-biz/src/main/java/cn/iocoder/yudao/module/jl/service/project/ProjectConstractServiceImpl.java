@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
@@ -12,11 +14,15 @@ import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyReposit
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectRepository;
 import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.CommonPageSortUtils;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +35,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -49,7 +56,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.*;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
@@ -76,28 +83,22 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @Resource
-    private ProjectFundLogRepository projectFundLogRepository;
-
-    @Resource
     private ContractFundLogRepository contractFundLogRepository;
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
-    @Resource
-    private ProjectRepository projectRepository;
-
-    @Resource
-    private ProjectDocumentServiceImpl projectDocumentService;
 
     @Resource
     private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
-/*    @PostConstruct
-    public void ProjectConstractServiceImpl() {
-        ProjectConstract firstByOrderByIdDesc = projectConstractRepository.findFirstByOrderByIdDesc();
-        uniqCodeGenerator.setInitUniqUid(firstByOrderByIdDesc != null ? firstByOrderByIdDesc.getId() : 0L,uniqCodeKey,uniqCodePrefixKey, PROJECT_CONTRACT_CODE_DEFAULT_PREFIX);
-    }*/
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private UserServiceImpl userService;
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
@@ -116,13 +117,16 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
     @Override
     @Transactional
     public Long createProjectConstract(ProjectConstractCreateReqVO createReqVO) {
-        //暂存一下salesId
+      //暂存一下salesId
         Long salesId = createReqVO.getSalesId();
+        ProjectSimple projectSimple=null;
+        CustomerSimple customerSimple= null;
         // 如果有项目id，则校验项目是否存在
         if(createReqVO.getProjectId()!=null&& createReqVO.getProjectId()>0){
-            ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+            projectSimple= projectService.validateProjectExists(createReqVO.getProjectId());
             createReqVO.setCustomerId(projectSimple.getCustomerId());
             createReqVO.setSalesId(projectSimple.getSalesId());
+            customerSimple=projectSimple.getCustomer();
         }else{
             createReqVO.setProjectId(null);
         }
@@ -132,18 +136,15 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             if (customerOnlyOptional.isEmpty()) {
                 throw exception(CUSTOMER_NOT_EXISTS);
             }
-            createReqVO.setSalesId(customerOnlyOptional.get().getSalesId());
+            customerSimple= customerOnlyOptional.get();
+            createReqVO.setSalesId(customerSimple.getSalesId());
         }
-
 
 
         ProjectConstract bySn = projectConstractRepository.findBySn(createReqVO.getSn());
         if (bySn != null) {
             return 0L;
         }
-
-        // 插入
-//        createReqVO.setSn(generateCode());
 
         //如果传递了销售id，则重新设置一下传递的销售id
         if(salesId!=null){
@@ -155,19 +156,53 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             projectConstract.setRealPrice(projectConstract.getPrice() == null ? BigDecimal.valueOf(0) : projectConstract.getPrice());
         }
         projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
-//        projectConstract.setStatus(ProjectContractStatusEnums.SIGNED.getStatus());
-//        projectConstract.setStampFileUrl(createReqVO.getFileUrl());
-//        projectConstract.setStampFileName(createReqVO.getFileName());
         projectConstract.setCustomerId(createReqVO.getCustomerId());
         projectConstract.setSalesId(createReqVO.getSalesId());
-        ProjectConstract projectContractSave = projectConstractRepository.save(projectConstract);
+        projectConstractRepository.save(projectConstract);
 
-        //projectDocument存一份
-//        Long projectDocumentId = projectDocumentService.createProjectDocumentWithoutReq(byId.get().getId(), createReqVO.getFileName(), createReqVO.getFileUrl(), ProjectDocumentTypeEnums.CONTRACT.getStatus());
+        // 查询销售
+        User user = userService.validateUserExists(createReqVO.getSalesId());
 
-        //更新document id
-//        projectConstractRepository.updateProjectDocumentIdById(projectDocumentId, projectContractSave.getId());
+        // 发送通知
+        List<Long> userIds = new ArrayList<>();
+        Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("id",projectConstract.getId());
+        String format = createReqVO.getSignedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String content = String.format("%s与客户(%s)新增签订合同(%s),金额：%s,日期：%s",user.getNickname(),customerSimple!=null?customerSimple.getName():createReqVO.getCustomerId(),createReqVO.getName(),createReqVO.getPrice(),format);
+        templateParams.put("content",content);
+        System.out.println("content---"+content);
+        // 总经理
+        userIds.add(getSuperUserId());
+        // 销售总监
+        userIds.addAll(List.of(getSalesManagerIds()));
+        List<User> financeUsers = userRepository.findFinanceUsers();
+        // 商务组长
+        if(createReqVO.getSalesId()!=null){
+            List<Long> bizManagerIdByUserId = userService.findBizManagerIdByUserId(createReqVO.getSalesId());
+            userIds.addAll(bizManagerIdByUserId);
+        }
 
+        // 通知所有财务人员
+        if(financeUsers!=null){
+            List<Long> collect = financeUsers.stream().map(User::getId).collect(Collectors.toList());
+            userIds.addAll(collect);
+        }
+        // 通知项目人员
+        if(projectSimple!=null&&projectSimple.getManagerId()!=null){
+            userIds.add(projectSimple.getManagerId());
+        }
+        // userIds去重
+        userIds = userIds.stream().distinct().collect(Collectors.toList());
+        for (Long userId : userIds) {
+            if(userId==null){
+                continue;
+            }
+            System.out.println("contract userid---"+userId);
+          notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    userId,
+                    BpmMessageEnum.NOTIFY_WHEN_CONTRACT_CREATE.getTemplateCode(), templateParams
+            ));
+        }
         // 返回
         return projectConstract.getId();
     }
