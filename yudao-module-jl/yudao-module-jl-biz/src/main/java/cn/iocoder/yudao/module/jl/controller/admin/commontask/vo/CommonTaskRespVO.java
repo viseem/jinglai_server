@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -19,5 +22,9 @@ public class CommonTaskRespVO extends CommonTaskBaseVO {
     private LocalDateTime createTime;
 
     private List<ProjectSop> sopList;
+
+    private ProjectChargeitem chargeItem;
+    private ProjectOnly project;
+    private ProductSelector product;
 
 }

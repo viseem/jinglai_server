@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.jl.entity.commontask;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import lombok.*;
@@ -209,4 +212,13 @@ public class CommonTask extends BaseEntity {
 
     @Transient
     private List<ProjectSop> sopList;
+
+    @Transient
+    private ProjectChargeitem chargeItem;
+
+    @Transient
+    private ProductSelector product;
+
+    @Transient
+    private ProjectOnly project;
 }

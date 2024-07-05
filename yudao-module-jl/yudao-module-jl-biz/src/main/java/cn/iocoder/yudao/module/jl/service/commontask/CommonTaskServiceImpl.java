@@ -5,10 +5,8 @@ import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
+import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
@@ -18,8 +16,11 @@ import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
+import cn.iocoder.yudao.module.jl.repository.product.ProductOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.product.ProductSelectorRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
@@ -98,6 +99,15 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Resource
     private ProjectServiceImpl projectService;
+
+    @Resource
+    private ProjectChargeitemRepository projectChargeitemRepository;
+
+    @Resource
+    private ProductSelectorRepository productSelectorRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
 
     @Override
     @Transactional
@@ -359,8 +369,22 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     public Optional<CommonTask> getCommonTask(Long id) {
         Optional<CommonTask> byId = commonTaskRepository.findById(id);
         byId.ifPresent(task -> {
-            List<TaskProduct> byTaskId = taskProductRepository.findByTaskId(task.getId());
-            task.setProductList(byTaskId);
+            // 查询收费项
+            if(task.getChargeitemId()!=null){
+                Optional<ProjectChargeitem> byId1 = projectChargeitemRepository.findById(task.getChargeitemId());
+                byId1.ifPresent(task::setChargeItem);
+            }
+            // 查询产品
+            if(task.getProductId()!=null){
+                Optional<ProductSelector> byId1 = productSelectorRepository.findById(task.getProductId());
+                byId1.ifPresent(task::setProduct);
+            }
+            // 查询项目
+            if(task.getProjectId()!=null){
+                Optional<ProjectOnly> byId1 = projectOnlyRepository.findById(task.getProjectId());
+                byId1.ifPresent(task::setProject);
+            }
+
         });
         return byId;
     }
