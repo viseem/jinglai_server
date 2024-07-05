@@ -2,10 +2,12 @@ package cn.iocoder.yudao.module.jl.service.commontask;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
@@ -13,6 +15,7 @@ import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
@@ -23,6 +26,7 @@ import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRela
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectChargeitemServiceImpl;
+import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
@@ -91,6 +95,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Resource
     private ProjectSopRepository projectSopRepository;
+
+    @Resource
+    private ProjectServiceImpl projectService;
 
     @Override
     @Transactional
@@ -224,6 +231,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             vo.setQuotationId(commonTask.getQuotationId());
             vo.setProjectId(commonTask.getProjectId());
             vo.setParentTask(commonTask);
+        }
+
+        // 如果项目不为空，查询一下项目的状态，如果是开展前审批通过了，则该任务状态改为待开展
+        if(vo.getProjectId()!=null){
+            ProjectSimple projectSimple = projectService.validateProjectExists(vo.getProjectId());
+            if(Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString())){
+                vo.setStatus(CommonTaskStatusEnums.WAIT_DO.getStatus());
+            }
         }
 
         if(vo.getUserId()!=null){
