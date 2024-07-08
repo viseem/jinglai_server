@@ -129,6 +129,22 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 更新父任务的实验员，目前先只更新管理任务的，所以如果新增的是产品任务
         saveParentTaskExperIds(createReqVO, commonTask.getId());
 
+        // 发送通知
+        if(Objects.equals(createReqVO.getNeedSendMsg(),true)){
+            Map<String, Object> templateParams = new HashMap<>();
+            String content = String.format(
+                    "收到来自项目(%s)的待办任务(%s)，点击查看",
+                    createReqVO.getProjectSimple()!=null?createReqVO.getProjectSimple().getName():"",
+                    createReqVO.getName()
+            );
+            templateParams.put("content",content);
+            templateParams.put("id",commonTask.getId());
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    createReqVO.getUserId(),
+                    BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
+            ));
+        }
+
         // 返回
         return commonTask.getId();
     }
@@ -244,9 +260,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         }
 
         // 如果项目不为空，查询一下项目的状态，如果是开展前审批通过了，则该任务状态改为待开展
+        // 这里是项目开展前审批后，单独追加的任务，所以需要发送通知
         if(vo.getProjectId()!=null){
             ProjectSimple projectSimple = projectService.validateProjectExists(vo.getProjectId());
+            vo.setProjectSimple(projectSimple);
             if(Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString())){
+                vo.setNeedSendMsg(true);
                 vo.setStatus(CommonTaskStatusEnums.WAIT_DO.getStatus());
             }
         }
@@ -259,8 +278,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             });
         }
 
-
-
         if (vo.getAssignUserId() == null && getLoginUserId() != null) {
             userRepository.findById(getLoginUserId()).ifPresentOrElse(user -> {
                 vo.setAssignUserId(user.getId());
@@ -269,6 +286,10 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 throw exception(USER_NOT_EXISTS);
             });
         }
+
+
+
+
 
     }
 

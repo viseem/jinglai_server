@@ -171,7 +171,7 @@ public class JLBpmServiceImpl implements JLBpmService {
                         }
                         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                                 userId,
-                                BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
+                                BpmMessageEnum.NOTIFY_WHEN_PROJECT_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
                         ));
                     }
                 }

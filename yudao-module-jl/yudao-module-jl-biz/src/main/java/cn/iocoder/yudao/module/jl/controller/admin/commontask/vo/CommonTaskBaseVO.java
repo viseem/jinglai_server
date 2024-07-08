@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +23,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
  */
 @Data
 public class CommonTaskBaseVO {
+    private Boolean needSendMsg = false;
 
     @Schema(description = "名称")
     private String name;
@@ -118,4 +121,6 @@ public class CommonTaskBaseVO {
     private List<ProjectChargeitem> chargeList;
 
     private CommonTask parentTask;
+
+    private ProjectSimple projectSimple;
 }
