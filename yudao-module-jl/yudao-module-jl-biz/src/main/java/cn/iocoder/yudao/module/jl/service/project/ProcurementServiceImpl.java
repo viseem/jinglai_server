@@ -194,12 +194,20 @@ public class ProcurementServiceImpl implements ProcurementService {
             procurementItem.setProjectId(saveReqVO.getProjectId());
             procurementItem.setCustomerId(projectSimple.getCustomerId());
             procurementItem.setQuotationId(projectSimple.getCurrentQuotationId());
+            procurementItem.setSpec(procurementItem.getProcurementSpec());
             procurementItem.setSource(ProcurementItemSourceEnums.PROCUREMENT.getStatus());
             procurementItemRepository.save(procurementItem);
+            // 把原物资的相关信息保存一下，这样就不用每次都得填写了
+            if(procurementItem.getProjectSupplyId()!=null){
+                projectSupplyRepository.updateProcurementRelationValueById(procurementItem.getBrand(),procurementItem.getCatalogNumber(),procurementItem.getReceiveRoomName(),procurementItem.getSpec(),procurementItem.getSalePrice(),procurementItem.getOriginPrice(),procurementItem.getProjectSupplyId());
+            }
+
         });
 
         // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
         commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROCUREMENT_ORDER",saveReqVO.getAttachmentList());
+
+
 
     }
 

@@ -50,9 +50,20 @@ public class ProjectSupplyBaseVO {
     @Schema(description = "规格")
     private String spec;
 
+    /**
+     * 采购时的规格，这个可能会变化，每次采购时候会更新这个
+     */
+    @Schema(description = "采购规格")
+    private String procurementSpec;
+
+    // 这个是报价时候的单价，也是最初的销售单价
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
     private Integer unitFee;
+
+    // 这个是销售单价，每次采购的时候会更新 一下这个值
+    @Schema(description = "销售单价")
+    private Integer salePrice;
 
     private Integer officialPrice;
 
@@ -61,6 +72,9 @@ public class ProjectSupplyBaseVO {
 
     @Schema(description = "成本价")
     private Integer buyPrice;
+
+    @Schema(description = "原单价")
+    private Integer originPrice;
 
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "数量不能为空")
@@ -73,9 +87,12 @@ public class ProjectSupplyBaseVO {
     private String internalMark;
 
     private String brand;
+    private String catalogNumber;
 
     private String productCode;
 
+    @Schema(description = "收货地址")
+    private String receiveRoomName;
 
     private String type;
 

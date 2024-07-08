@@ -121,6 +121,8 @@ public class ProcurementItemOnly extends BaseEntity {
     @Column(name = "spec", nullable = false)
     private String spec;
 
+    @Transient
+    private String procurementSpec;
     /**
      * 单价
      */

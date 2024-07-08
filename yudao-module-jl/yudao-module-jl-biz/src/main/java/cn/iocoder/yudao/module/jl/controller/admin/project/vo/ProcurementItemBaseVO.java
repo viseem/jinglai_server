@@ -85,6 +85,10 @@ public class ProcurementItemBaseVO {
     @Schema(description = "规格")
     private String spec;
 
+    // 这个是采购的物资的字段
+    @Schema(description = "采购规格")
+    private String procurementSpec;
+
     // 这个现在就是销售价 salesPrice没有用
     @Schema(description = "销售单价")
     private BigDecimal unitFee;

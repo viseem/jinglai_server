@@ -53,20 +53,7 @@ public class ProjectSupply extends BaseEntity {
     private Long quotationId;
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
-    //    TODO 很大的问题
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @NotFound(action = NotFoundAction.IGNORE)
-//    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private Project project;
 
-    /**
-     * JPA 级联出 user
-     */
-    @OneToOne(fetch = FetchType.EAGER)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectSimple project;
 
     /**
      * 创建类型 报价 或者采购的时候 创建的
@@ -99,10 +86,30 @@ public class ProjectSupply extends BaseEntity {
     private String spec;
 
     /**
-     * 单价
+     * 采购规格
+     */
+    @Column(name = "procurement_spec", nullable = false)
+    private String procurementSpec;
+
+    /**
+     * 单价 这个是报价时的单价
      */
     @Column(name = "unit_fee", nullable = false)
     private BigDecimal unitFee;
+
+
+    /**
+     * 销售单价 这个每次采购时候 写的销售单价，可能会发生变化
+     */
+    @Column(name = "sale_price", nullable = false)
+    private BigDecimal salePrice;
+
+
+    /**
+     * 原单价
+     */
+    @Column(name = "origin_price", nullable = false)
+    private BigDecimal originPrice;
 
     /**
      * 单量
@@ -192,12 +199,17 @@ public class ProjectSupply extends BaseEntity {
     @Transient
     private InventoryStoreIn latestStoreLog;
 
-
     /**
      * 品牌
      */
     @Column(name = "brand")
     private String brand;
+
+    /**
+     * 目录号
+     */
+    @Column(name = "catalog_number")
+    private String catalogNumber;
 
     /*
     * 货号
@@ -217,6 +229,11 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    /**
+     * 收货地址
+     */
+    @Column(name = "receive_room_name")
+    private String receiveRoomName;
 
     /**
      * 内部备注
@@ -231,27 +248,14 @@ public class ProjectSupply extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<ProcurementItem> procurements;
 
-    /*@OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SELECT)
-    private List<SupplySendInItem> sendIns;
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Fetch(FetchMode.SELECT)
-    private List<SupplyPickupItem> pickups;*/
-
     /**
-     * 查询ProcurementItem
+     * JPA 级联出 user
      */
-/*    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_supply_id")
+    @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProcurementItem> procurements;*/
+    @JoinColumn(name = "project_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private ProjectSimple project;
 
     /**
      * 入库记录

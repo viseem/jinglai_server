@@ -5,6 +5,7 @@ import org.hibernate.annotations.OrderBy;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,6 +14,11 @@ import java.util.List;
 *
 */
 public interface ProjectSupplyRepository extends JpaRepository<ProjectSupply, Long>, JpaSpecificationExecutor<ProjectSupply> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectSupply p set p.brand = ?1, p.catalogNumber = ?2, p.receiveRoomName = ?3, p.procurementSpec = ?4, p.salePrice = ?5, p.originPrice = ?6 " +
+            "where p.id = ?7")
+    int updateProcurementRelationValueById(String brand, String catalogNumber, String receiveRoomName, String procurementSpec, BigDecimal salePrice, BigDecimal originPrice, Long id);
     @Query("select p from ProjectSupply p where p.projectCategoryId = ?1")
     List<ProjectSupply> findByProjectCategoryId(Long projectCategoryId);
     @Transactional
