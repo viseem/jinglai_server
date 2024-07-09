@@ -423,12 +423,12 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
                     fundSales.getSalesId(),
                     BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),templateParams
             ));
-            Map<String, Object> superParams = new HashMap<>();
+/*            Map<String, Object> superParams = new HashMap<>();
             superParams.put("content",fundSales.getSuperContent());
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                     getSuperUserId(),
                     BpmMessageEnum.NOTIFY_WHEN_FUND_IMPORT.getTemplateCode(),superParams
-            ));
+            ));*/
         }
 
 
