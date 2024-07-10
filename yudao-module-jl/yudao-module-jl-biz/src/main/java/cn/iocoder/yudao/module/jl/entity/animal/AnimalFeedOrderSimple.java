@@ -12,6 +12,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * 动物饲养申请单 Entity
@@ -207,7 +208,7 @@ public class AnimalFeedOrderSimple extends BaseEntity {
      * 单价
      */
     @Column(name = "unit_fee")
-    private Integer unitFee;
+    private BigDecimal unitFee;
 
     /**
      * 入库备注

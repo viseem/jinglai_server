@@ -10,7 +10,7 @@ import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptListReqV
 import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptUpdateReqVO;
 import cn.iocoder.yudao.module.system.convert.dept.DeptConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
-import cn.iocoder.yudao.module.system.dal.mysql.dept.DeptMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.dept.AdminDeptMapper;
 import cn.iocoder.yudao.module.system.enums.dept.DeptIdEnum;
 import cn.iocoder.yudao.module.system.mq.producer.dept.DeptProducer;
 import com.google.common.collect.ImmutableMap;
@@ -57,7 +57,7 @@ public class DeptServiceImpl implements DeptService {
     private volatile Multimap<Long, DeptDO> parentDeptCache;
 
     @Resource
-    private DeptMapper deptMapper;
+    private AdminDeptMapper adminDeptMapper;
 
     @Resource
     private DeptProducer deptProducer;
@@ -71,7 +71,7 @@ public class DeptServiceImpl implements DeptService {
         // 注意：忽略自动多租户，因为要全局初始化缓存
         TenantUtils.executeIgnore(() -> {
             // 第一步：查询数据
-            List<DeptDO> depts = deptMapper.selectList();
+            List<DeptDO> depts = adminDeptMapper.selectList();
             log.info("[initLocalCache][缓存部门，数量为:{}]", depts.size());
 
             // 第二步：构建缓存
@@ -95,7 +95,7 @@ public class DeptServiceImpl implements DeptService {
         validateForCreateOrUpdate(null, reqVO.getParentId(), reqVO.getName());
         // 插入部门
         DeptDO dept = DeptConvert.INSTANCE.convert(reqVO);
-        deptMapper.insert(dept);
+        adminDeptMapper.insert(dept);
         // 发送刷新消息
         deptProducer.sendDeptRefreshMessage();
         return dept.getId();
@@ -110,7 +110,7 @@ public class DeptServiceImpl implements DeptService {
         validateForCreateOrUpdate(reqVO.getId(), reqVO.getParentId(), reqVO.getName());
         // 更新部门
         DeptDO updateObj = DeptConvert.INSTANCE.convert(reqVO);
-        deptMapper.updateById(updateObj);
+        adminDeptMapper.updateById(updateObj);
         // 发送刷新消息
         deptProducer.sendDeptRefreshMessage();
     }
@@ -120,18 +120,18 @@ public class DeptServiceImpl implements DeptService {
         // 校验是否存在
         validateDeptExists(id);
         // 校验是否有子部门
-        if (deptMapper.selectCountByParentId(id) > 0) {
+        if (adminDeptMapper.selectCountByParentId(id) > 0) {
             throw exception(DEPT_EXITS_CHILDREN);
         }
         // 删除部门
-        deptMapper.deleteById(id);
+        adminDeptMapper.deleteById(id);
         // 发送刷新消息
         deptProducer.sendDeptRefreshMessage();
     }
 
     @Override
     public List<DeptDO> getDeptList(DeptListReqVO reqVO) {
-        return deptMapper.selectList(reqVO);
+        return adminDeptMapper.selectList(reqVO);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class DeptServiceImpl implements DeptService {
             throw exception(DEPT_PARENT_ERROR);
         }
         // 父岗位不存在
-        DeptDO dept = deptMapper.selectById(parentId);
+        DeptDO dept = adminDeptMapper.selectById(parentId);
         if (dept == null) {
             throw exception(DEPT_PARENT_NOT_EXITS);
         }
@@ -216,14 +216,14 @@ public class DeptServiceImpl implements DeptService {
         if (id == null) {
             return;
         }
-        DeptDO dept = deptMapper.selectById(id);
+        DeptDO dept = adminDeptMapper.selectById(id);
         if (dept == null) {
             throw exception(DEPT_NOT_FOUND);
         }
     }
 
     private void validateDeptNameUnique(Long id, Long parentId, String name) {
-        DeptDO menu = deptMapper.selectByParentIdAndName(parentId, name);
+        DeptDO menu = adminDeptMapper.selectByParentIdAndName(parentId, name);
         if (menu == null) {
             return;
         }
@@ -238,16 +238,16 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public List<DeptDO> getDeptList(Collection<Long> ids) {
-        return deptMapper.selectBatchIds(ids);
+        return adminDeptMapper.selectBatchIds(ids);
     }
 
     @Override
     public DeptDO getDept(Long id) {
-        return deptMapper.selectById(id);
+        return adminDeptMapper.selectById(id);
     }
     @Override
     public DeptDO getDeptBy(DeptByReqVO reqVO) {
-        DeptDO deptDO = deptMapper.selectOne(DeptDO::getLeaderUserId, reqVO.getLeaderUserId());
+        DeptDO deptDO = adminDeptMapper.selectOne(DeptDO::getLeaderUserId, reqVO.getLeaderUserId());
 /*        List<DeptDO> result = new ArrayList<>();
         if(deptDO!=null){
             // 递归，简单粗暴

@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.persistence.*;
@@ -237,7 +238,7 @@ public class AnimalFeedOrder extends BaseEntity {
      * 单价
      */
     @Column(name = "unit_fee")
-    private Integer unitFee;
+    private BigDecimal unitFee;
 
     /**
      * 入库备注
@@ -311,7 +312,7 @@ public class AnimalFeedOrder extends BaseEntity {
 
 
     @Transient
-    private Integer Amount;
+    private BigDecimal Amount;
 
     @Transient
     private Integer dayCount;
@@ -324,7 +325,7 @@ public class AnimalFeedOrder extends BaseEntity {
 
     // 根据筛选的开始日期，结束日期计算的
     @Transient
-    private Integer currentAmount;
+    private BigDecimal currentAmount;
 
     @Transient
     private LocalDateTime currentStartDate;

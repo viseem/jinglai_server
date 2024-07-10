@@ -2,15 +2,21 @@ package cn.iocoder.yudao.module.jl.service.animal;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
 import cn.iocoder.yudao.module.jl.repository.animal.*;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
+import cn.iocoder.yudao.module.jl.service.dept.XDeptServiceImpl;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +26,11 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -108,6 +114,15 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
     @Resource
     private CustomerSimpleRepository customerSimpleRepository;
 
+    @Resource
+    private XDeptServiceImpl deptService;
+
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private UserServiceImpl userService;
+
     @Override
     public Long createAnimalFeedOrder(AnimalFeedOrderCreateReqVO createReqVO) {
         // 插入
@@ -169,6 +184,24 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(saveObj.getId())));
             // 更新流程实例编号
             animalFeedOrderRepository.updateProcessInstanceIdById(processInstanceId, saveObj.getId());
+        }
+
+        // 通知饲养部负责人
+        Long animalFeedDeptManagerId = deptService.getAnimalFeedDeptManagerId();
+        if(animalFeedDeptManagerId!=null){
+            User user = userService.validateUserExists(getLoginUserId());
+            Map<String, Object> templateParams = new HashMap<>();
+            String content = String.format(
+                    "收到(%s)提交的饲养申请单(%s)，请及时处理",
+                    user.getNickname(),
+                    saveReqVO.getName()
+            );
+            templateParams.put("id", saveObj.getId());
+            templateParams.put("content", content);
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    animalFeedDeptManagerId,
+                    BpmMessageEnum.NOTIFY_WHEN_ANIMAL_FEED_APPLY.getTemplateCode(), templateParams
+            ));
         }
 
 
@@ -249,7 +282,7 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         return byId;
     }
 
-    private Integer processFeedOrderAmount(AnimalFeedOrder animalFeedOrder, LocalDateTime _startDate, LocalDateTime _endDate,int... needSetCurrentEnd) {
+    private BigDecimal processFeedOrderAmount(AnimalFeedOrder animalFeedOrder, LocalDateTime _startDate, LocalDateTime _endDate,int... needSetCurrentEnd) {
 
         animalFeedOrder.setCurrentQuantity(animalFeedOrder.getQuantity());
         animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCageQuantity());
@@ -270,18 +303,21 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
         Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
         final AtomicInteger[] dayCount = {new AtomicInteger()};
-        AtomicInteger totalAmount = new AtomicInteger();
+        BigDecimal totalAmount = BigDecimal.ZERO;
         // 原子操作一个 变更数量的值，并设置初始值
-        AtomicReference<Integer> quantity = new AtomicReference<>(Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity());
-
+        Integer quantity = Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity();
+        System.out.println("-=-=-=-=-=-=-----------------------");
         //初始化一下实时只数 笼数
 //        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity());
 //        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity());
 
-        if (animalFeedOrder.getUnitFee() != null && quantity.get() != null && startDate[0] != null) {
+        if (animalFeedOrder.getUnitFee() != null && quantity != null && startDate[0] != null) {
             if (logs != null) {
-                logs.forEach(log -> {
+/*                logs.forEach(log -> {
 
+
+                });*/
+                for (AnimalFeedLog log : logs) {
                     animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity() + log.getChangeCageQuantity());
                     animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity() + log.getChangeQuantity());
 
@@ -290,14 +326,14 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                     // 默认获取变更数量是 变更的笼数
                     Integer changeQuantity = log.getChangeCageQuantity();
                     // 如果饲养规则 是按照 每只老鼠每天
-                        // 则变更数量 改为 变更的数量；原子变更数量 改为 饲养单的入库数量
+                    // 则变更数量 改为 变更的数量；原子变更数量 改为 饲养单的入库数量
                     if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
-                        quantity.set(animalFeedOrder.getQuantity());
+                        quantity=animalFeedOrder.getQuantity();
                         changeQuantity = log.getChangeQuantity();
                     }
 
                     //增加一下总金额
-                    totalAmount.addAndGet(quantity.get() * animalFeedOrder.getUnitFee());
+                    totalAmount = totalAmount.add(animalFeedOrder.getUnitFee().multiply( new BigDecimal(quantity)) );
 
                     // 计算operateTime和startDate的天数差
                     Long dayDiff = log.getOperateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
@@ -305,26 +341,26 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                     if (dateStrToRowAmountMap.containsKey(dateStr)) {
                     } else {
                         // 如果这天还没有计费
-                        totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee() * dayDiff));
+                        totalAmount= totalAmount.add(animalFeedOrder.getUnitFee().multiply (new BigDecimal(quantity * dayDiff)));
 
                         dayCount[0].incrementAndGet();
                         dateStrToRowAmountMap.put(dateStr, 0);
                     }
                     startDate[0] = log.getOperateTime();
-                    quantity.set(quantity.get() + changeQuantity);
+                    quantity = quantity + changeQuantity;
 
                     log.setDateStr(dateStr);
                     log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                });
+                }
             }
 
             Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() + 1;
 
-            totalAmount.addAndGet((int) (quantity.get() * animalFeedOrder.getUnitFee() * dayDiff));
+            totalAmount= totalAmount.add( animalFeedOrder.getUnitFee().multiply (new BigDecimal(quantity * dayDiff)));
         }
 //        animalFeedOrder.setDayCount(dayCount[0].get());
 //        animalFeedOrder.setAmount(Math.max(totalAmount.get(), 0));
-        return Math.max(totalAmount.get(), 0);
+        return totalAmount;
     }
 
 /*    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
