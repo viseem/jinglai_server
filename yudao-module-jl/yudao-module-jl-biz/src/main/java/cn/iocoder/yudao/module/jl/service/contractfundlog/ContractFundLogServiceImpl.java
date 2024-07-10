@@ -98,11 +98,21 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         // 如果status不为空，则记录auditId为当前登录用户
         if(Objects.equals(createReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             createReqVO.setAuditId(getLoginUserId());
+
+            // 如果是已核验，则发送通知
+            String superContent = String.format("%s的客户%s款项(%s)到账：%s元。",
+                    projectConstract.getSales()!=null?projectConstract.getSales().getNickname():"",
+                    projectConstract.getCustomer()!=null?projectConstract.getCustomer().getName():"",
+                    createReqVO.getName(),
+                    createReqVO.getReceivedPrice());
+            Map<String, Object> templateParams = new HashMap<>();
+            templateParams.put("content",superContent);
+            templateParams.put("contractId",projectConstract.getId());
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    getSuperUserId(),
+                    BpmMessageEnum.NOTIFY_WHEN_FUND_BIND.getTemplateCode(),templateParams
+            ));
         }
-
-
-
-
 
         // 插入
         ContractFundLog contractFundLog = contractFundLogMapper.toEntity(createReqVO);
@@ -125,12 +135,29 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     @Transactional
     public void updateContractFundLog(ContractFundLogUpdateReqVO updateReqVO) {
         // 校验存在
-        validateContractFundLogExists(updateReqVO.getId());
+        ContractFundLog contractFundLog = validateContractFundLogExists(updateReqVO.getId());
 
 
         // 如果status不为空，则记录auditId为当前登录用户
         if(Objects.equals(updateReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
             updateReqVO.setAuditId(getLoginUserId());
+            // 如果原先的合同为空，则说明现在是要绑定合同，则通知一次
+            if(contractFundLog.getContractId()==0L&&updateReqVO.getContractId()!=null){
+                ProjectConstract projectConstract = projectConstractService.validateProjectConstractExists(updateReqVO.getContractId());
+                // 如果是已核验，则发送通知
+                String superContent = String.format("%s的客户%s款项(%s)到账：%s元。",
+                        projectConstract.getSales()!=null?projectConstract.getSales().getNickname():"",
+                        projectConstract.getCustomer()!=null?projectConstract.getCustomer().getName():"",
+                        updateReqVO.getName(),
+                        updateReqVO.getReceivedPrice());
+                Map<String, Object> templateParams = new HashMap<>();
+                templateParams.put("content",superContent);
+                templateParams.put("contractId",projectConstract.getId());
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        getSuperUserId(),
+                        BpmMessageEnum.NOTIFY_WHEN_FUND_BIND.getTemplateCode(),templateParams
+                ));
+            }
         }
 
         // 更新
