@@ -206,6 +206,23 @@ public class Project extends BaseEntity{
     @Column(name = "current_quotation_id",insertable =false, updatable = false)
     private Long currentQuotationId;
 
+    /**
+     * 客户签名图片地址
+     */
+    @Column(name = "customer_sign_img_url")
+    private String customerSignImgUrl;
+
+    /**
+     * 客户签名备注
+     */
+    @Column(name = "customer_sign_mark")
+    private String customerSignMark;
+
+    /**
+     * 客户签名时间
+     */
+    @Column(name = "customer_sign_time")
+    private LocalDateTime customerSignTime;
 
     @Transient
     private Integer completePercent;

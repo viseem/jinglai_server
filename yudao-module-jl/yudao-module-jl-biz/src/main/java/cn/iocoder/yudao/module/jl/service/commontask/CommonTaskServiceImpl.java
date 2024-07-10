@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.commontask;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
@@ -828,5 +829,39 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 创建 Sort 对象
         return Sort.by(orders);
+    }
+
+    @Transactional
+    public void sendTaskAndMsg(Long currentQuotationId, String projectName, Long projectId) {
+        commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(), currentQuotationId,CommonTaskStatusEnums.WAIT_SEND.getStatus());
+
+        // 发送通知：1、只发给任务状态是未下发的 2、排除当前登录人
+        HashSet<Long> userIds = new HashSet<>();
+
+        //查询任务
+        List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(currentQuotationId);
+        if(byQuotationId!=null){
+            for (CommonTask commonTask : byQuotationId) {
+                userIds.add(commonTask.getUserId());
+            }
+        }
+
+        Map<String, Object> templateParams = new HashMap<>();
+        String content = String.format(
+                "收到来自项目(%s)的待办任务，点击查看",
+                projectName
+        );
+        templateParams.put("projectName", projectName);
+        templateParams.put("content", content);
+        templateParams.put("id", projectId);
+        for (Long userId : userIds) {
+            if (userId == null||userId.equals(WebFrameworkUtils.getLoginUserId())) {
+                continue;
+            }
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    userId,
+                    BpmMessageEnum.NOTIFY_WHEN_PROJECT_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
+            ));
+        }
     }
 }

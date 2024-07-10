@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -40,5 +41,11 @@ public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>,
 
     @Query("select p from ProjectOnly p where p.managerId in ?1 and p.code is not null")
     List<ProjectOnly> findByInManagerIdAndCodeNotNull(Long[] managerIds);
+
+    @Transactional
+    @Modifying
+    @Query("update ProjectOnly p set p.customerSignImgUrl = ?1, p.customerSignMark = ?2, p.customerSignTime = ?3 " +
+            "where p.id = ?4")
+    int updateCustomerSignImgUrlAndCustomerSignMarkAndCustomerSignTimeById(String customerSignImgUrl, String customerSignMark, LocalDateTime customerSignTime, Long id);
 
 }

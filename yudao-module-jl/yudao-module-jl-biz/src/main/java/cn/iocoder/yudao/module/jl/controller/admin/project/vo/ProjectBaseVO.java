@@ -100,6 +100,21 @@ public class ProjectBaseVO {
     @Schema(description = "销售 id", example = "8556")
     private Long customerId;
 
+    /**
+     * 客户签名图片地址
+     */
+    private String customerSignImgUrl;
+
+    /**
+     * 客户签名备注
+     */
+    private String customerSignMark;
+
+    /**
+     * 客户签名时间
+     */
+    private LocalDateTime customerSignTime;
+
 
     /*
      * 开展前审批，冗余字段

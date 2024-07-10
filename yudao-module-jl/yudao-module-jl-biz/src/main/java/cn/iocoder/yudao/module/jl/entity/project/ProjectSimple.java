@@ -198,6 +198,24 @@ public class ProjectSimple extends BaseEntity {
     @Column(name = "do_audit_mark", nullable = false )
     private String doAuditMark;
 
+    /**
+     * 客户签名图片地址
+     */
+    @Column(name = "customer_sign_img_url")
+    private String customerSignImgUrl;
+
+    /**
+     * 客户签名备注
+     */
+    @Column(name = "customer_sign_mark")
+    private String customerSignMark;
+
+    /**
+     * 客户签名时间
+     */
+    @Column(name = "customer_sign_time")
+    private LocalDateTime customerSignTime;
+
 /*    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
