@@ -21,6 +21,14 @@ public interface CommonTaskService {
     Long createCommonTask(@Valid CommonTaskCreateReqVO createReqVO);
 
     /**
+     * 批量创建通用任务
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
+    void batchCreateCommonTask(@Valid CommonTaskBatchCreateReqVO createReqVO);
+
+    /**
      * 更新通用任务
      *
      * @param updateReqVO 更新信息

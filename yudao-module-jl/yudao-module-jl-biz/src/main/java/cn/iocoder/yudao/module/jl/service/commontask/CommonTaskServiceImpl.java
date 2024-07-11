@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskarrangerelation.TaskArrangeRelation;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskCreateTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -30,6 +31,7 @@ import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectChargeitemServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
@@ -110,6 +112,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Resource
     private ProjectOnlyRepository projectOnlyRepository;
 
+    @Resource
+    private UserServiceImpl userService;
+
     @Override
     @Transactional
     public Long createCommonTask(CommonTaskCreateReqVO createReqVO) {
@@ -148,6 +153,52 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 返回
         return commonTask.getId();
+    }
+    @Override
+    @Transactional
+    public void batchCreateCommonTask(CommonTaskBatchCreateReqVO vo){
+        // 收费项、任务关系表
+        List<TaskArrangeRelation> relationList = new ArrayList<>();
+
+        // 当前登录人既是指派人
+        User user = userService.validateUserExists(getLoginUserId());
+
+        // 查询一下项目是否已经进行过开展前审批
+        Long projectId = vo.getChargeItemList().get(0).getProjectId();
+        ProjectSimple projectSimple = projectService.validateProjectExists(projectId);
+        Boolean isDoAudit = projectService.validateProjectIsDoAuditSuccess(projectSimple);
+
+        for (ProjectChargeitem item : vo.getChargeItemList()) {
+            // 任务
+            CommonTask task = new CommonTask();
+            task.setName(item.getName());
+            task.setStatus(isDoAudit?CommonTaskStatusEnums.WAIT_DO.getStatus() : CommonTaskStatusEnums.WAIT_SEND.getStatus());
+            task.setCreateType(CommonTaskCreateTypeEnums.PRODUCT.getStatus());
+            task.setAssignUserId(getLoginUserId());
+            task.setAssignUserName(user.getNickname());
+            task.setChargeitemId(item.getId());
+            task.setQuotationId(item.getQuotationId());
+            task.setProductId(item.getProductId());
+            task.setProjectId(item.getProjectId());
+            task.setProjectCategoryId(item.getProjectCategoryId());
+
+            task.setUserId(vo.getUserId());
+            task.setUserNickname(vo.getUserNickname());
+//            taskList.add(task);
+            commonTaskRepository.save(task);
+
+            // 任务收费项关系表
+            TaskArrangeRelation relation = new TaskArrangeRelation();
+            relation.setProjectId(item.getProjectId());
+            relation.setQuotationId(item.getQuotationId());
+            relation.setChargeItemId(item.getId());
+            relation.setProductId(item.getProductId());
+            relation.setTaskId(task.getId());
+            relationList.add(relation);
+        }
+
+        taskArrangeRelationRepository.saveAll(relationList);
+
     }
 
     private void saveParentTaskExperIds(CommonTaskBaseVO createReqVO, Long taskId) {

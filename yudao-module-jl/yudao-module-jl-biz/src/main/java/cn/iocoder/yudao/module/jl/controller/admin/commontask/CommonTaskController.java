@@ -48,6 +48,14 @@ public class CommonTaskController {
         return success(commonTaskService.createCommonTask(createReqVO));
     }
 
+    @PostMapping("/batch-create")
+    @Operation(summary = "批量创建通用任务")
+    @PreAuthorize("@ss.hasPermission('jl:common-task:create')")
+    public CommonResult<Boolean> batchCreateCommonTask(@Valid @RequestBody CommonTaskBatchCreateReqVO createReqVO) {
+        commonTaskService.batchCreateCommonTask(createReqVO);
+        return success(true);
+    }
+
     @PostMapping("/send")
     @Operation(summary = "下发通用任务")
     @PreAuthorize("@ss.hasPermission('jl:common-task:update')")

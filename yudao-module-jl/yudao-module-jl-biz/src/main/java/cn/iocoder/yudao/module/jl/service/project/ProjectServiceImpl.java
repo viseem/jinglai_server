@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
@@ -292,6 +293,13 @@ public class ProjectServiceImpl implements ProjectService {
             throw exception(PROJECT_NOT_EXISTS);
         }
         return byId.orElse(null);
+    }
+
+    public Boolean validateProjectIsDoAuditSuccess(ProjectSimple project) {
+        if(Objects.equals(project.getDoApplyResult(), BpmProcessInstanceResultEnum.APPROVE.getResult().toString())&&project.getCustomerSignImgUrl()!=null){
+            return project.getCustomerSignImgUrl().contains("http");
+        }
+        return false;
     }
 
     @Override
