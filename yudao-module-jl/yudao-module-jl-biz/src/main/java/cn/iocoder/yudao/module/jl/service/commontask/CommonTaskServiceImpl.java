@@ -884,7 +884,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Transactional
     public void sendTaskAndMsg(Long currentQuotationId, String projectName, Long projectId) {
-        commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(), currentQuotationId,CommonTaskStatusEnums.WAIT_SEND.getStatus());
 
         // 发送通知：1、只发给任务状态是未下发的 2、排除当前登录人
         HashSet<Long> userIds = new HashSet<>();
@@ -893,7 +892,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(currentQuotationId);
         if(byQuotationId!=null){
             for (CommonTask commonTask : byQuotationId) {
-                userIds.add(commonTask.getUserId());
+                if(Objects.equals(commonTask.getStatus(),CommonTaskStatusEnums.WAIT_SEND.getStatus())){
+                    userIds.add(commonTask.getUserId());
+                }
             }
         }
 
@@ -914,5 +915,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                     BpmMessageEnum.NOTIFY_WHEN_PROJECT_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
             ));
         }
+
+        commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(), currentQuotationId,CommonTaskStatusEnums.WAIT_SEND.getStatus());
     }
 }

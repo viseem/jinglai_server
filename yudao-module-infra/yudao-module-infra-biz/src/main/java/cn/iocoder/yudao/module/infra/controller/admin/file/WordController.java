@@ -1,30 +1,16 @@
 package cn.iocoder.yudao.module.infra.controller.admin.file;
 
-import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
-import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import cn.iocoder.yudao.module.infra.controller.admin.file.vo.file.word.Html2WordReqVO;
-import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
-import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
-import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Optional;
 
 @Tag(name = "管理后台 - word")
 @RestController
@@ -33,10 +19,9 @@ import java.util.Optional;
 @Slf4j
 public class WordController {
 
-    @Resource
-    private ProjectQuotationRepository projectQuotationRepository;
 
-    @GetMapping("/html2word")
+
+/*    @GetMapping("/html2word")
     @Operation(summary = "html转word")
     @OperateLog(logArgs = false) // 上传文件，没有记录操作日志的必要
     public void html2Word(Html2WordReqVO reqVO, HttpServletResponse response) throws Exception {
@@ -55,8 +40,7 @@ public class WordController {
         // Write the document bytes to the response
         response.getOutputStream().write(bytes);
         response.flushBuffer();
-//        ServletUtils.writeAttachment(response, "output.docx", bytes);
-    }
+    }*/
 
     private byte[] convertAndSave(String htmlContent) {
         try {
