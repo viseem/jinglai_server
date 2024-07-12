@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.open.project;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationRespVO;
@@ -19,6 +21,8 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectCategoryService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationService;
+import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
+import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.controller.admin.util.vo.UtilStoreGetReqVO;
 import cn.iocoder.yudao.module.system.service.util.UtilServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -62,6 +65,9 @@ public class JLOpenProjectController {
     @Resource
     private UtilServiceImpl utilService;
 
+    @Resource
+    private NotifyMessageSendApi notifyMessageSendApi;
+
 
     @PostMapping("/get")
     @Operation(summary = "通过 ID 获得项目")
@@ -79,6 +85,27 @@ public class JLOpenProjectController {
     public CommonResult<Boolean> getProjectQuotation(@RequestBody @Valid ProjectCustomerSignReqVO vo) {
         utilService.validStoreWithException(vo);
         ProjectSimple projectSimple = projectServiceImpl.validateProjectExists(vo.getProjectId());
+        //发送通知给项目相关负责人
+        HashSet<Long> userIds = new HashSet<>();
+        userIds.add(projectSimple.getManagerId());
+        userIds.add(projectSimple.getSalesId());
+        Map<String, Object> templateParams = new HashMap<>();
+        String content = String.format(
+                "客户(%s)的项目(%s)安排单已签字，请及时处理",
+                projectSimple.getCustomer()!=null?projectSimple.getCustomer().getName():"",
+                projectSimple.getName()
+        );
+        templateParams.put("projectName", projectSimple.getName());
+        templateParams.put("content", content);
+        templateParams.put("id", vo.getProjectId());
+        for (Long userId : userIds) {
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    userId,
+                    BpmMessageEnum.NOTIFY_WHEN_TASK_ARRANGE_CUSTOMER_SIGN.getTemplateCode(), templateParams
+            ));
+        }
+
+
         // 修改项目的客户签字的相关信息
         projectOnlyRepository.updateCustomerSignImgUrlAndCustomerSignMarkAndCustomerSignTimeById(vo.getCustomerSignImgUrl(),vo.getCustomerSignMark(), LocalDateTime.now(),vo.getProjectId());
         // 如果项目的内部审批已经通过，则把未下发的任务下发一遍
