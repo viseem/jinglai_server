@@ -365,6 +365,7 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         );*/
         rowItem3.setCol1(processInvoiceInfoContent(invoiceApplication));
         rowItem3.setCol4("寄送地址/备注：\n"+Objects.requireNonNullElse(invoiceApplication.getSendAddress(), "")+"\n"+Objects.requireNonNullElse(invoiceApplication.getMark(), ""));
+        rowItem3.setCol6("开票要求：\n"+invoiceApplication.getRequire());
         itemList.add(rowItem3);
 
 

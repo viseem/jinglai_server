@@ -47,9 +47,14 @@ public class JLInvoiceApplicationExcelMergeStrategy extends AbstractMergeStrateg
 
         if(columnIndex==3){
             if(rowIndex==2){
-                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 3, colCount-1));
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 3, 4));
             }
+        }
 
+        if(columnIndex==5){
+            if(rowIndex==2){
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 5, colCount-1));
+            }
         }
 
         if(columnIndex==4){
