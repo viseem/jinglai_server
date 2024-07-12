@@ -17,4 +17,10 @@ public class FileUploadReqVO {
     @Schema(description = "文件附件", example = "yudaoyuanma.png")
     private String path;
 
+    @Schema(description = "id")
+    private String storeId;
+
+    @Schema(description = "口令")
+    private String storePwd;
+
 }
