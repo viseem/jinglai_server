@@ -127,6 +127,13 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     }
 
     @Override
+    public void updateProjectQuotationPrice(ProjectQuotationUpdatePriceReqVO updateReqVO) {
+        // 校验存在
+        validateProjectQuotationExists(updateReqVO.getId());
+        projectQuotationRepository.updateOriginPriceAndResultPriceById(updateReqVO.getOriginPrice(), updateReqVO.getResultPrice(), updateReqVO.getId());
+    }
+
+    @Override
     public void updateProjectQuotationDiscount(ProjectQuotationNoRequireVO updateReqVO) {
         projectQuotationRepository.updateDiscountById(updateReqVO.getDiscount(), updateReqVO.getId());
     }

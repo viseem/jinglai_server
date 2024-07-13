@@ -31,6 +31,9 @@ public interface ProjectQuotationService {
      */
     void updateProjectQuotation(@Valid ProjectQuotationUpdateReqVO updateReqVO);
 
+    void updateProjectQuotationPrice(@Valid ProjectQuotationUpdatePriceReqVO updateReqVO);
+
+
     void updateProjectQuotationDiscount(@Valid ProjectQuotationNoRequireVO updateReqVO);
     void updateProjectQuotationSupplyDiscount(@Valid ProjectQuotationNoRequireVO updateReqVO);
 
