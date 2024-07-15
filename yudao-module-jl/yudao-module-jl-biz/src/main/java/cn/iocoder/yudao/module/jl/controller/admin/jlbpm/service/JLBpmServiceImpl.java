@@ -257,8 +257,10 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Override
     @Transactional
     public void cancelInstance(BpmProcessInstanceCancelReqVO reqVO) {
+        ProcessInstance processInstance = processInstanceService.getProcessInstance(reqVO.getId());
+        String processDefinitionKey = processInstance.getProcessDefinitionKey();
 
-        if (reqVO.getProcessType().equals("PROCUREMENT")) {
+        if (processDefinitionKey.contains("PROCUREMENT")) {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.CANCEL.getStatus());
             procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.CANCEL.getStatus(), reqVO.getRefId());
 //            procurementRepository.updateProcessInstanceIdById(null, reqVO.getRefId());
@@ -266,6 +268,10 @@ public class JLBpmServiceImpl implements JLBpmService {
 
         if (reqVO.getProcessType().equals("PROJECT_OUTED")) {
             projectOnlyRepository.updateOutboundApplyResultById( null, reqVO.getRefId());
+        }
+        // 如果是报价审批
+        if(processDefinitionKey.contains(QUOTATION_AUDIT)){
+            projectQuotationRepository.updateAuditProcessIdAndAuditStatusById(null,null,reqVO.getRefId());
         }
 
         processInstanceService.cancelProcessInstance(getLoginUserId(), reqVO);
