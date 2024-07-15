@@ -297,4 +297,28 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     @Column(name = "from_title", nullable = false )
     private String fromTitle;
 
+    /**
+     * 申请作废状态
+     */
+    @Column(name = "void_apply_status", nullable = false )
+    private String voidApplyStatus;
+
+    /**
+     * 申请作废备注
+     */
+    @Column(name = "void_apply_mark", nullable = false )
+    private String voidApplyMark;
+
+    /**
+     * 作废审批备注
+     */
+    @Column(name = "void_audit_mark", nullable = false )
+    private String voidAuditMark;
+
+    /**
+     * 作废审批人
+     */
+    @Column(name = "void_audit_user", nullable = false )
+    private Long voidAuditUser;
+
 }

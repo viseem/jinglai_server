@@ -62,6 +62,22 @@ public class ContractInvoiceLogController {
         return success(true);
     }
 
+    @PutMapping("/void-apply")
+    @Operation(summary = "申请作废发票")
+    @PreAuthorize("@ss.hasPermission('jl:contract-invoice-log:update')")
+    public CommonResult<Boolean> applyVoidContractInvoiceLog(@Valid @RequestBody ContractInvoiceLogVoidReqVO vo) {
+        contractInvoiceLogService.applyVoidContractInvoiceLog(vo);
+        return success(true);
+    }
+
+    @PutMapping("/void-audit")
+    @Operation(summary = "审批作废发票")
+    @PreAuthorize("@ss.hasPermission('jl:contract-invoice-log:update')")
+    public CommonResult<Boolean> auditVoidContractInvoiceLog(@Valid @RequestBody ContractInvoiceLogVoidReqVO vo) {
+        contractInvoiceLogService.auditVoidContractInvoiceLog(vo);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除合同发票记录")
     @Parameter(name = "id", description = "编号", required = true)

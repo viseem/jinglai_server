@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -156,6 +157,27 @@ public class ContractInvoiceLogBaseVO {
 
     @Schema(description = "谁开的票")
     private String fromTitle;
+
+    /**
+     * 申请作废状态
+     */
+    private String voidApplyStatus;
+
+    /**
+     * 申请作废备注
+     */
+    private String voidApplyMark;
+
+    /**
+     * 作废审批备注
+     */
+    private String voidAuditMark;
+
+    /**
+     * 作废审批人
+     */
+    private Long voidAuditUser;
+
 
     private ProjectConstractOnly contract;
 

@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.contractinvoicelog;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.contractinvoicelog.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
@@ -132,6 +133,28 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     }
 
     @Override
+    public void applyVoidContractInvoiceLog(ContractInvoiceLogVoidReqVO vo){
+        validateContractInvoiceLogExists(vo.getId());
+        contractInvoiceLogRepository.updateVoidApplyStatusAndVoidApplyMarkById(vo.getVoidApplyStatus(),vo.getVoidApplyMark(),vo.getId());
+    }
+
+    @Override
+    @Transactional
+    public void auditVoidContractInvoiceLog(ContractInvoiceLogVoidReqVO vo){
+        ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(vo.getId());
+        // 这是取消了
+        if(contractInvoiceLog.getVoidApplyStatus()==null){
+            return;
+        }
+        contractInvoiceLogRepository.updateVoidAuditMarkAndVoidAuditUserAndVoidApplyStatusById(vo.getVoidAuditMark(),getLoginUserId(),vo.getVoidApplyStatus(),vo.getId());
+        // 同意就把发票改成已作废
+        if(vo.getVoidApplyStatus().equals(BpmProcessInstanceResultEnum.APPROVE.getResult().toString())){
+            System.out.println("1231231---");
+            contractInvoiceLogRepository.updateStatusById(ContractInvoiceStatusEnums.VOIDED.getStatus(),vo.getId());
+        }
+    }
+
+    @Override
     public void deleteContractInvoiceLog(Long id) {
         // 校验存在
         ContractInvoiceLog contractInvoiceLog = validateContractInvoiceLogExists(id);
@@ -186,6 +209,12 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
             if(pageReqVO.getId() != null) {
                 predicates.add(cb.equal(root.get("id"), pageReqVO.getId()));
+            }
+
+            if(pageReqVO.getHasVoidApply()!=null){
+                if(pageReqVO.getHasVoidApply()){
+                    predicates.add(cb.isNotNull(root.get("voidApplyStatus")));
+                }
             }
 
             if(pageReqVO.getNoContract() != null){

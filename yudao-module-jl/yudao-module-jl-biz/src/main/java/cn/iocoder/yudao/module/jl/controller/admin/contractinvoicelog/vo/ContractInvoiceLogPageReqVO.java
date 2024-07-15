@@ -27,6 +27,8 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
 
     private Boolean noContract;
 
+    private Boolean hasVoidApply;
+
 
     @Schema(description = "时间范围", example = "27395")
     private String timeRange;

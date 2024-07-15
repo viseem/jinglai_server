@@ -31,6 +31,21 @@ public interface ContractInvoiceLogService {
     void updateContractInvoiceLog(@Valid ContractInvoiceLogUpdateReqVO updateReqVO);
 
     /**
+     * 更新合同发票记录
+     *
+     * @param updateReqVO 更新信息
+     */
+    void applyVoidContractInvoiceLog(@Valid ContractInvoiceLogVoidReqVO updateReqVO);
+
+    /**
+     * 更新合同发票记录
+     *
+     * @param updateReqVO 更新信息
+     */
+    void auditVoidContractInvoiceLog(@Valid ContractInvoiceLogVoidReqVO updateReqVO);
+
+
+    /**
      * 删除合同发票记录
      *
      * @param id 编号
