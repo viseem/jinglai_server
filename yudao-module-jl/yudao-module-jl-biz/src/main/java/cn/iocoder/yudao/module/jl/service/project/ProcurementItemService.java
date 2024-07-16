@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItemOnly;
 
 /**
  * 项目采购单申请明细 Service 接口
@@ -57,6 +58,9 @@ public interface ProcurementItemService {
      * @return 项目采购单申请明细分页
      */
     PageResult<ProcurementItem> getProcurementItemPage(ProcurementItemPageReqVO pageReqVO, ProcurementItemPageOrder orderV0);
+
+    PageResult<ProcurementItemOnly> getProcurementItemPageSimple(ProcurementItemPageReqVO pageReqVO, ProcurementItemPageOrder orderV0);
+
 
     /**
      * 获得项目采购单申请明细列表, 用于 Excel 导出

@@ -1,10 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.inventorystorelog;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
-import cn.iocoder.yudao.module.jl.entity.project.Procurement;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
-import cn.iocoder.yudao.module.jl.entity.project.ProcurementOnly;
-import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.enums.InventoryStoreLogChangeTypeEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
@@ -85,11 +82,11 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
     @Transactional
     public Long createInventoryStoreLog(InventoryStoreLogCreateReqVO createReqVO) {
 
-        Optional<ProcurementItem> byId = procurementItemOnlyRepository.findById(createReqVO.getSourceItemId());
+        Optional<ProcurementItemOnly> byId = procurementItemOnlyRepository.findById(createReqVO.getSourceItemId());
         if (byId.isEmpty()) {
             throw exception(PROCUREMENT_ITEM_NOT_EXISTS);
         }
-        ProcurementItem procurementItem = byId.get();
+        ProcurementItemOnly procurementItem = byId.get();
         createReqVO.setName(procurementItem.getName());
         createReqVO.setSource(procurementItem.getSource());
         createReqVO.setBrand(procurementItem.getBrand());

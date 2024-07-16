@@ -4,11 +4,13 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventorystorelog.InventoryStoreLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItemOnly;
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
 import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -100,12 +102,41 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<ProcurementItem> spec = (root, query, cb) -> {
+        Specification<ProcurementItem> spec = getSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<ProcurementItemOnly> getProcurementItemPageSimple(ProcurementItemPageReqVO pageReqVO, ProcurementItemPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<ProcurementItemOnly> spec = getSpecification(pageReqVO);
+
+        // 执行查询
+        Page<ProcurementItemOnly> page = procurementItemOnlyRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private static <T>Specification<T> getSpecification(ProcurementItemPageReqVO pageReqVO) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
 
-            if(pageReqVO.getRoomIds()!=null){
+            if (pageReqVO.getRoomIds() != null) {
                 predicates.add(root.get("receiveRoomId").in(pageReqVO.getRoomIds()));
             }
 
@@ -190,13 +221,13 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
             if (pageReqVO.getStatus() != null) {
 
-                if(pageReqVO.getStatus().equals(ProcurementItemStatusEnums.PART_STORAGE.getStatus())){
+                if (pageReqVO.getStatus().equals(ProcurementItemStatusEnums.PART_STORAGE.getStatus())) {
                     // 查询 inedQuantity>0 && inedQuantity<quantity
-                    predicates.add(cb.and(cb.greaterThan(root.get("inedQuantity"), BigDecimal.ZERO),cb.lessThan(root.get("inedQuantity"), root.get("quantity"))));
+                    predicates.add(cb.and(cb.greaterThan(root.get("inedQuantity"), BigDecimal.ZERO), cb.lessThan(root.get("inedQuantity"), root.get("quantity"))));
                 } else if (pageReqVO.getStatus().equals(ProcurementItemStatusEnums.ALL_STORAGE.getStatus())) {
                     // 查询 inedQuantity>=quantity
                     predicates.add(cb.greaterThanOrEqualTo(root.get("inedQuantity"), root.get("quantity")));
-                }else{
+                } else {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
 
@@ -205,12 +236,6 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
     @Override

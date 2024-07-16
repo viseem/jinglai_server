@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItemOnly;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -81,6 +82,14 @@ public class ProcurementItemController {
     public CommonResult<PageResult<ProcurementItemRespVO>> getProcurementItemPage(@Valid ProcurementItemPageReqVO pageVO, @Valid ProcurementItemPageOrder orderV0) {
         PageResult<ProcurementItem> pageResult = procurementItemService.getProcurementItemPage(pageVO, orderV0);
         return success(procurementItemMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/page-simple")
+    @Operation(summary = "(分页)获得项目采购单申请明细列表")
+    @PreAuthorize("@ss.hasPermission('jl:procurement-item:query')")
+    public CommonResult<PageResult<ProcurementItemRespVO>> getProcurementItemPageSimple(@Valid ProcurementItemPageReqVO pageVO, @Valid ProcurementItemPageOrder orderV0) {
+        PageResult<ProcurementItemOnly> pageResult = procurementItemService.getProcurementItemPageSimple(pageVO, orderV0);
+        return success(procurementItemMapper.toPageSimple(pageResult));
     }
 
     @GetMapping("/export-excel")
