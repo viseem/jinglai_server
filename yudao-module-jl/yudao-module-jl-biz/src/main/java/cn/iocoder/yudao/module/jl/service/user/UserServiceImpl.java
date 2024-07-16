@@ -273,15 +273,11 @@ public class UserServiceImpl implements UserService {
     public List<Long> findBizManagerIdByUserId(Long userId) {
         List<Long> ids = new ArrayList<>();
         List<SubjectGroupMember> byUserId = subjectGroupMemberRepository.findByUserId(userId);
-        System.out.println(byUserId.size()+"-=-=-=-=");
         if (byUserId != null && byUserId.size() > 0) {
             SubjectGroupMember member = byUserId.get(0);
-            System.out.println("memeber---"+member.getNickname()+member.getGroupId());
             List<SubjectGroupMember> byGroupId = subjectGroupMemberRepository.findByGroupId(member.getGroupId());
-            System.out.println("byGroupId---"+byGroupId.size());
             if (byGroupId != null && byGroupId.size() > 0) {
                 for (SubjectGroupMember subjectGroupMember : byGroupId) {
-                    System.out.println("post---"+subjectGroupMember.getPost());
                     if (Objects.equals(subjectGroupMember.getPost(), SubjectGroupMemberPostEnums.BUSINESS_LEADER.getStatus())) {
                         ids.add(subjectGroupMember.getUserId());
                     }
@@ -289,5 +285,9 @@ public class UserServiceImpl implements UserService {
             }
         }
         return ids;
+    }
+
+    public Long[] getInvoiceApplyVoidUserIds(){
+        return new Long[]{171L};
     }
 }

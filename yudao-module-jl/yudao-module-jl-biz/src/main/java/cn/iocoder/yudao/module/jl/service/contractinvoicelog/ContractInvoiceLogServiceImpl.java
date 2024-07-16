@@ -16,6 +16,7 @@ import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
@@ -73,6 +74,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
     @Resource
     private UserRepository userRepository;
+
+    @Resource
+    private UserServiceImpl userService;
 
     @Override
     @Transactional
@@ -133,9 +137,27 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
     }
 
     @Override
+    @Transactional
     public void applyVoidContractInvoiceLog(ContractInvoiceLogVoidReqVO vo){
         validateContractInvoiceLogExists(vo.getId());
         contractInvoiceLogRepository.updateVoidApplyStatusAndVoidApplyMarkById(vo.getVoidApplyStatus(),vo.getVoidApplyMark(),vo.getId());
+
+        User user = userService.validateUserExists(getLoginUserId());
+        Long[] invoiceApplyVoidUserIds = userService.getInvoiceApplyVoidUserIds();
+        // 发送通知
+        Map<String, Object> templateParams = new HashMap<>();
+        String content = String.format(
+                "%s提交了发票(编号:%s)作废申请：%s，请及时处理",
+                user.getNickname(),vo.getId(),vo.getVoidApplyMark()
+        );
+        templateParams.put("content", content);
+        templateParams.put("id", vo.getId());
+        for (Long userId : invoiceApplyVoidUserIds) {
+            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                    userId,
+                    BpmMessageEnum.NOTIFY_WHEN_INVOICE_APPLY_VOID.getTemplateCode(), templateParams
+            ));
+        }
     }
 
     @Override
