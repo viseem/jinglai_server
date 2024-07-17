@@ -11,6 +11,7 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -138,6 +139,24 @@ public class ProjectChargeitem extends BaseEntity {
      */
     @Column(name = "create_type", nullable = false )
     private Integer createType =0;
+
+    /**
+     * 当前单价
+     */
+    @Column(name = "current_price")
+    private BigDecimal currentPrice;
+
+    /**
+     * 当前数量
+     */
+    @Column(name = "current_quantity")
+    private Integer currentQuantity;
+
+    /**
+     * 当前规格
+     */
+    @Column(name = "current_spec")
+    private String currentSpec;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

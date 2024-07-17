@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -81,5 +83,20 @@ public class ProjectChargeitemBaseVO {
 
     @Schema(description = "创建类型")
     private Integer createType;
+
+    /**
+     * 当前单价
+     */
+    private BigDecimal currentPrice;
+
+    /**
+     * 当前数量
+     */
+    private Integer currentQuantity;
+
+    /**
+     * 当前规格
+     */
+    private String currentSpec;
 
 }
