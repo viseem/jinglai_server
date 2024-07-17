@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -109,6 +111,30 @@ public class ProjectSupplyBaseVO {
 
     private Integer isAppend;
 
+    /**
+     * 当前单价
+     */
+    private BigDecimal currentPrice;
+
+    /**
+     * 当前数量
+     */
+    private Integer currentQuantity;
+
+    /**
+     * 当前规格
+     */
+    private String currentSpec;
+
+    /**
+     * 当前品牌
+     */
+    private String currentBrand;
+
+    /**
+     * 当前目录号
+     */
+    private String currentCatalogNumber;
 
 
 }

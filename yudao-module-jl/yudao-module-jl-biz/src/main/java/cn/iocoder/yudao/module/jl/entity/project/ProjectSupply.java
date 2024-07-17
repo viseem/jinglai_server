@@ -241,6 +241,38 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "internal_mark")
     private String internalMark;
 
+    /**
+     * 当前单价
+     */
+    @Column(name = "current_price")
+    private BigDecimal currentPrice;
+
+    /**
+     * 当前数量
+     */
+    @Column(name = "current_quantity")
+    private Integer currentQuantity;
+
+    /**
+     * 当前规格
+     */
+    @Column(name = "current_spec")
+    private String currentSpec;
+
+    /**
+     * 当前品牌
+     */
+    @Column(name = "current_brand")
+    private String currentBrand;
+
+    /**
+     * 当前目录号
+     */
+    @Column(name = "current_catalog_number")
+    private String currentCatalogNumber;
+
+
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_supply_id", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
