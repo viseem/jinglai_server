@@ -3,7 +3,9 @@ package cn.iocoder.yudao.module.jl.repository.project;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +15,10 @@ import java.util.List;
 *
 */
 public interface ProjectConstractOnlyRepository extends JpaRepository<ProjectConstractOnly, Long>, JpaSpecificationExecutor<ProjectConstractOnly> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectConstractOnly p set p.salesId = ?1 where p.customerId = ?2")
+    int updateSalesIdByCustomerId(Long salesId, Long customerId);
     @Query("select p from ProjectConstractOnly p where p.status = ?1 and p.salesId in ?2")
     List<ProjectConstractOnly> findByStatusAndSalesIdIn(String status, Long[] salesIds);
     @Query("select p from ProjectConstractOnly p " +

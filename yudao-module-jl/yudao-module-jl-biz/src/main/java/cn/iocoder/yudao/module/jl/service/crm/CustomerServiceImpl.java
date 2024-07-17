@@ -1,64 +1,55 @@
 package cn.iocoder.yudao.module.jl.service.crm;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
-import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
-import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportRespVO;
-import cn.iocoder.yudao.module.jl.controller.admin.contractfundlog.vo.ContractFundLogImportVO;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
-import cn.iocoder.yudao.module.jl.entity.crm.Institution;
+import cn.iocoder.yudao.module.jl.entity.customerchangelog.CustomerChangeLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
-import cn.iocoder.yudao.module.jl.entity.user.User;
-import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.crm.InstitutionRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.crmsubjectgroup.CrmSubjectGroupRepository;
+import cn.iocoder.yudao.module.jl.repository.customerchangelog.CustomerChangeLogRepository;
+import cn.iocoder.yudao.module.jl.repository.invoiceapplication.InvoiceApplicationRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectFundRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
-import cn.iocoder.yudao.module.jl.repository.projectfundlog.ProjectFundLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import cn.iocoder.yudao.module.jl.service.contractfundlog.ContractFundLogServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
-import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-
+import java.math.BigDecimal;
 import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
-import cn.iocoder.yudao.module.jl.entity.crm.Customer;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.crm.CustomerMapper;
-import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getSuperUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.CUSTOMER_NOT_EXISTS;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
@@ -73,10 +64,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Resource
     private ProjectConstractRepository projectConstractRepository;
-    @Resource
-    private ProjectFundRepository projectFundRepository;
-    @Resource
-    private ProjectFundLogRepository projectFundLogRepository;
 
     @Resource
     private ContractFundLogRepository contractFundLogRepository;
@@ -100,11 +87,24 @@ public class CustomerServiceImpl implements CustomerService {
     private CrmSubjectGroupRepository crmSubjectGroupRepository;
 
     @Resource
-    private InstitutionRepository institutionRepository;
-
+    private CustomerMapper customerMapper;
 
     @Resource
-    private CustomerMapper customerMapper;
+    private SalesleadRepository salesleadRepository;
+
+    @Resource
+    private ProjectOnlyRepository projectOnlyRepository;
+
+    @Resource
+    private ProjectConstractOnlyRepository projectConstractOnlyRepository;
+
+    @Resource
+    private InvoiceApplicationRepository invoiceApplicationRepository;
+
+    @Resource
+    private CustomerChangeLogRepository customerChangeLogRepository;
+
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -178,6 +178,31 @@ public class CustomerServiceImpl implements CustomerService {
         validateCustomerExists(updateReqVO.getId());
         // 更新
         customerRepository.updateToCustomerById(true,updateReqVO.getId());
+    }
+
+    @Override
+    public void transferCustomer(TransferCustomerReqVO vo) {
+        // 校验存在
+        Customer customer = validateCustomerExists(vo.getId());
+        // 写变更记录
+        CustomerChangeLog log = new CustomerChangeLog();
+        log.setCustomerId(vo.getId());
+        log.setType(vo.getType());
+        log.setToOwnerId(vo.getToOwnerId());
+        log.setFromOwnerId(customer.getSalesId());
+        log.setMark(vo.getMark());
+        customerChangeLogRepository.save(log);
+        //客户
+        customerRepository.updateSalesIdById(vo.getToOwnerId(),vo.getId());
+        //商机
+        salesleadRepository.updateCreatorByCustomerId(vo.getToOwnerId(),vo.getId());
+        projectOnlyRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
+        //合同、发票、回款、申请开票记录
+        projectConstractOnlyRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
+        contractInvoiceLogRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
+        contractFundLogRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
+
+        invoiceApplicationRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
     }
 
     @Override

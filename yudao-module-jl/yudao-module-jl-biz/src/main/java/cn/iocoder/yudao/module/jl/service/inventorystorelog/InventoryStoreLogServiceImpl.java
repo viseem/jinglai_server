@@ -189,7 +189,6 @@ public class InventoryStoreLogServiceImpl implements InventoryStoreLogService {
         InventoryStoreLog inventoryStoreLog = validateInventoryStoreLogExists(id);
         // 删除
         inventoryStoreLogRepository.deleteById(id);
-        System.out.println("-=-=-=" + inventoryStoreLog.getSourceItemId());
         procurementItemService.updateStockQuantity(inventoryStoreLog.getSourceItemId());
     }
 

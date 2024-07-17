@@ -48,7 +48,7 @@ public class CrmContact extends BaseEntity {
      * 客户id
      */
     @Column(name = "customer_id", nullable = false )
-    private Integer customerId;
+    private Long customerId;
 
     /**
      * 手机号

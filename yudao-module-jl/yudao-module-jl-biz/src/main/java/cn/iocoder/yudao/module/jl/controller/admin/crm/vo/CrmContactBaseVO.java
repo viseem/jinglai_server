@@ -27,7 +27,7 @@ public class CrmContactBaseVO {
 
     @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "19449")
     @NotNull(message = "客户id不能为空")
-    private Integer customerId;
+    private Long customerId;
 
     @Schema(description = "手机号")
     private String phone;

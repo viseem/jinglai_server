@@ -85,6 +85,14 @@ public class CustomerController {
         return success(true);
     }
 
+    @PostMapping("/transfer")
+    @Operation(summary = "转移客户")
+    @PreAuthorize("@ss.hasPermission('jl:customer:update')")
+    public CommonResult<Boolean> transferCustomer(@Valid @RequestBody TransferCustomerReqVO vo) {
+        customerService.transferCustomer(vo);
+        return success(true);
+    }
+
     @PutMapping("/assign")
     @Operation(summary = "指派给销售")
     @PreAuthorize("@ss.hasPermission('jl:customer:update')")

@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface InvoiceApplicationRepository extends JpaRepository<InvoiceApplication, Long>, JpaSpecificationExecutor<InvoiceApplication> {
     @Transactional
     @Modifying
+    @Query("update InvoiceApplication i set i.salesId = ?1 where i.customerId = ?2")
+    int updateSalesIdByCustomerId(Long salesId, Long customerId);
+    @Transactional
+    @Modifying
     @Query("update InvoiceApplication i set i.status = ?1, i.auditId = ?2, i.auditName = ?3, i.auditMark = ?4 " +
             "where i.id = ?5")
     int updateStatusAndAuditIdAndAuditNameAndAuditMarkById(String status, Long auditId, String auditName, String auditMark, Long id);

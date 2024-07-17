@@ -11,6 +11,10 @@ import java.util.Optional;
 *
 */
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
+    @Transactional
+    @Modifying
+    @Query("update Customer c set c.salesId = ?1 where c.id = ?2")
+    int updateSalesIdById(Long salesId, Long id);
     @Query("select c from Customer c where c.phone = ?1")
     Customer findByPhone(String phone);
     @Query("select count(c) from Customer c where c.salesId = ?1 and (c.toCustomer = false or c.toCustomer is null)")

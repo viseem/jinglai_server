@@ -39,6 +39,9 @@ public interface CustomerService {
      */
     void toCustomer(@Valid ClueToCustomerReqVO updateReqVO);
 
+    void transferCustomer(@Valid TransferCustomerReqVO updateReqVO);
+
+
     void customerAssign2Sales(@Valid CustomerAssignToSalesReqVO updateReqVO);
 
     /**
