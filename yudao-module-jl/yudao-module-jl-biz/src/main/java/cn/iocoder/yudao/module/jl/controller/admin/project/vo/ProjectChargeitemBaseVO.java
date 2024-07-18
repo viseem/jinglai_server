@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.enums.ProjectQuotationItemCreateTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -82,7 +83,7 @@ public class ProjectChargeitemBaseVO {
     private Long managerId;
 
     @Schema(description = "创建类型")
-    private Integer createType;
+    private Integer createType= ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
 
     /**
      * 当前单价
@@ -99,4 +100,5 @@ public class ProjectChargeitemBaseVO {
      */
     private String currentSpec;
 
+    private Boolean deletedStatus=false;
 }

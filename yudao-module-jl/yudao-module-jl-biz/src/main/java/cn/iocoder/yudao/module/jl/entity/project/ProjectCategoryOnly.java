@@ -215,6 +215,10 @@ public class ProjectCategoryOnly extends BaseEntity {
     @Column(name = "discount", nullable = false )
     private Integer discount;
 
+    @Column(name = "create_type", nullable = false )
+    private Integer createType;
+    @Column(columnDefinition = "boolean default false",name="deleted_status")
+    private Boolean deletedStatus = false;
     /**
      * 项目的负责人id
      */

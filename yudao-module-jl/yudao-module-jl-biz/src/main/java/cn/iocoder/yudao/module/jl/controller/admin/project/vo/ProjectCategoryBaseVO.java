@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectQuotationItemCreateTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,7 +25,7 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "报价 id", example = "20286")
     private Long quoteId;
 
-    @Schema(description = "项目id", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "项目id", example = "1")
     private Long projectId;
 
     @Schema(description = "父级id", example = "1")
@@ -115,6 +116,10 @@ public class ProjectCategoryBaseVO {
      */
     @Schema(description = "原始数据")
     private String rawData;
+
+    private Integer createType = ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
+
+    private Boolean deletedStatus=false;
 
     private Integer sopTotal = 0;
 

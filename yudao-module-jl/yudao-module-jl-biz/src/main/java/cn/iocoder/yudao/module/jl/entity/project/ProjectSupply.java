@@ -271,6 +271,9 @@ public class ProjectSupply extends BaseEntity {
     @Column(name = "current_catalog_number")
     private String currentCatalogNumber;
 
+    @Column(columnDefinition = "boolean default false",name="deleted_status")
+    private Boolean deletedStatus = false;
+
 
 
     @OneToMany(fetch = FetchType.EAGER)

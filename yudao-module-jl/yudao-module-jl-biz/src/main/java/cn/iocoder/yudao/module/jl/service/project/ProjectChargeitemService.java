@@ -27,6 +27,9 @@ public interface ProjectChargeitemService {
      */
     void updateProjectChargeitem(@Valid ProjectChargeitemUpdateReqVO updateReqVO);
 
+    void updateProjectChargeitemDeletedStatus(@Valid ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO);
+
+
     /**
      * 删除项目中的实验名目的收费项
      *

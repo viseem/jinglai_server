@@ -158,6 +158,9 @@ public class ProjectChargeitem extends BaseEntity {
     @Column(name = "current_spec")
     private String currentSpec;
 
+    @Column(columnDefinition = "boolean default false",name="deleted_status")
+    private Boolean deletedStatus = false;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

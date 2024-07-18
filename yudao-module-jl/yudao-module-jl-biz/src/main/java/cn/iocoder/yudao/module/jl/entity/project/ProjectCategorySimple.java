@@ -236,6 +236,9 @@ public class ProjectCategorySimple extends BaseEntity {
     @Column(name = "sort")
     private Integer sort;
 
+    @Column(name = "create_type", nullable = false )
+    private Integer createType;
+
     /**
      * 项目的负责人id
      */
@@ -249,6 +252,10 @@ public class ProjectCategorySimple extends BaseEntity {
     //申请变更的状态
     @Column(name = "request_stage")
     private String requestStage;
+
+    @Column(columnDefinition = "boolean default false",name="deleted_status")
+    private Boolean deletedStatus = false;
+
     //最新一个approval
     @Transient
     private ProjectCategoryApproval latestApproval;

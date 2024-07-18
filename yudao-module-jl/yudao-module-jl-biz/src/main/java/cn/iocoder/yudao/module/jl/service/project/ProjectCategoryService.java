@@ -32,6 +32,9 @@ public interface ProjectCategoryService {
      */
     void updateProjectCategory(@Valid ProjectCategoryUpdateReqVO updateReqVO);
 
+    void updateProjectCategoryDeletedStatus(@Valid ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO);
+
+
     /**
      * 删除项目的实验名目
      *

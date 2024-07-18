@@ -67,6 +67,14 @@ public class ProjectCategoryController {
         return success(true);
     }
 
+    @PostMapping("/update-deleted-status")
+    @Operation(summary = "更新项目的实验名目")
+    @PreAuthorize("@ss.hasPermission('jl:project-category:update')")
+    public CommonResult<Boolean> updateProjectCategoryDeletedStatus(@Valid @RequestBody ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO) {
+        projectCategoryService.updateProjectCategoryDeletedStatus(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目的实验名目")
     @Parameter(name = "id", description = "编号", required = true)

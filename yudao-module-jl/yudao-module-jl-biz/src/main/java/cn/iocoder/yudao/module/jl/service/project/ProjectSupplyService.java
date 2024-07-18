@@ -27,6 +27,9 @@ public interface ProjectSupplyService {
      */
     void updateProjectSupply(@Valid ProjectSupplyUpdateReqVO updateReqVO);
 
+    void updateProjectSupplyDeleteStatus(@Valid ProjectSupplyUpdateDeletedStatusReqVO updateReqVO);
+
+
     /**
      * 删除项目中的实验名目的物资项
      *

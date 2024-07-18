@@ -57,6 +57,14 @@ public class ProjectChargeitemController {
         return success(true);
     }
 
+    @PostMapping("/update-deleted-status")
+    @Operation(summary = "更新项目中的实验名目的收费项")
+    @PreAuthorize("@ss.hasPermission('jl:project-chargeitem:update')")
+    public CommonResult<Boolean> updateProjectChargeitemDeletedStatus(@Valid @RequestBody ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO) {
+        projectChargeitemService.updateProjectChargeitemDeletedStatus(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目中的实验名目的收费项")
     @Parameter(name = "id", description = "编号", required = true)

@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface ProjectCategoryRepository extends JpaRepository<ProjectCategory, Long>, JpaSpecificationExecutor<ProjectCategory> {
+    @Transactional
+    @Modifying
+    @Query("update ProjectCategory p set p.deletedStatus = ?1 where p.id = ?2")
+    int updateDeletedStatusById(Boolean deletedStatus, Long id);
     @Query("select count(p) from ProjectCategory p where p.deadline < ?1 and p.operatorId in ?2 and p.stage <> ?3")
     Integer countByDeadlineLessThanAndOperatorIdInAndStageNot(LocalDateTime deadline, Long[] operatorIds, String stage);
 

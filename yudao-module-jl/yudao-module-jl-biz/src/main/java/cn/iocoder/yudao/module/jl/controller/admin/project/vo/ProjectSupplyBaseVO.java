@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 import cn.iocoder.yudao.module.jl.entity.laboratory.Category;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
+import cn.iocoder.yudao.module.jl.enums.ProjectQuotationItemCreateTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -21,7 +22,7 @@ import javax.validation.constraints.*;
 public class ProjectSupplyBaseVO {
 
     @Schema(description = "创建的类型")
-    private Integer createType=0;
+    private Integer createType= ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
 
     @Schema(description = "选中的实验名目 id")
     private Long projectCategoryId;
@@ -135,6 +136,8 @@ public class ProjectSupplyBaseVO {
      * 当前目录号
      */
     private String currentCatalogNumber;
+
+    private Boolean deletedStatus;
 
 
 }

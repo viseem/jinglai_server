@@ -216,6 +216,12 @@ public class ProjectCategory extends BaseEntity {
     @Column(name = "discount", nullable = false )
     private Integer discount;
 
+    /*
+     * 创建类型
+     * */
+    @Column(name = "create_type", nullable = false )
+    private Integer createType;
+
     /**
      * 项目的负责人id
      */
@@ -228,6 +234,10 @@ public class ProjectCategory extends BaseEntity {
     //申请变更的状态
     @Column(name = "request_stage")
     private String requestStage;
+
+    @Column(columnDefinition = "boolean default false",name="deleted_status")
+    private Boolean deletedStatus = false;
+
     //最新一个approval
     @Transient
     private ProjectCategoryApproval latestApproval;
@@ -249,9 +259,6 @@ public class ProjectCategory extends BaseEntity {
     @JoinColumn(name = "project_category_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)
     private List<ProjectSop> sopList = new ArrayList<>();
-
-
-
 
 
     /**

@@ -270,6 +270,7 @@ public interface ErrorCodeConstants {
     ErrorCode DEPT_NOT_EXISTS = new ErrorCode(1004000000, "部门不存在");
 
     ErrorCode CUSTOMER_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "客户变更日志不存在");
+    ErrorCode QUOTATION_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "报价变更日志不存在");
 
 
 

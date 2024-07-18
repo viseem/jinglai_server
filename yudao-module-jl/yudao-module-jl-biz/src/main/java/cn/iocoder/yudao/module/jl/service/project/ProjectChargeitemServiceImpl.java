@@ -95,6 +95,17 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
     }
 
     @Override
+    public void updateProjectChargeitemDeletedStatus(ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO) {
+        // 校验存在
+        validateProjectChargeitemExists(updateReqVO.getId());
+
+
+        // 更新
+        projectChargeitemRepository.updateDeletedStatusById(updateReqVO.getDeletedStatus(), updateReqVO.getId());
+
+    }
+
+    @Override
     @Transactional
     public void deleteProjectChargeitem(Long id) {
         // 校验存在

@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontodo.CommonTodo;
 import cn.iocoder.yudao.module.jl.entity.commontodolog.CommonTodoLog;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -21,6 +22,7 @@ import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategoryAtta
 import cn.iocoder.yudao.module.jl.repository.projectcategory.ProjectCategorySupplierRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commontodo.CommonTodoServiceImpl;
+import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
@@ -116,7 +118,7 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     private NotifyMessageSendApi notifyMessageSendApi;
 
     @Resource
-    private SubjectGroupMemberServiceImpl subjectGroupMemberService;
+    private ProjectQuotationServiceImpl projectQuotationService;
 
     public ProjectCategoryServiceImpl(ProjectCategorySupplierRepository projectCategorySupplierRepository,
                                       UserRepository userRepository) {
@@ -128,6 +130,11 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
     @Override
     @Transactional
     public Long createProjectCategory(ProjectCategoryCreateReqVO createReqVO) {
+
+        if(createReqVO.getQuotationId()!=null){
+            ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
+            createReqVO.setProjectId(quotation.getProjectId());
+        }
 
         ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
 
@@ -277,6 +284,21 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
         // 更新
         ProjectCategory updateObj = projectCategoryMapper.toEntity(updateReqVO);
         projectCategoryRepository.save(updateObj);
+    }
+
+    @Override
+    @Transactional
+    public void updateProjectCategoryDeletedStatus(ProjectChargeitemUpdateDeleteStatusReqVO updateReqVO) {
+
+        List<ProjectCategoryOnly> byParentId = projectCategoryOnlyRepository.findByParentId(updateReqVO.getId());
+        if(byParentId!=null&& !byParentId.isEmpty()){
+            throw exception(PROJECT_CATEGORY_SON_EXISTS);
+        }
+
+        // 校验存在
+        validateProjectCategoryExists(updateReqVO.getId());
+        projectCategoryRepository.updateDeletedStatusById(updateReqVO.getDeletedStatus(),updateReqVO.getId());
+        projectChargeitemRepository.updateDeletedStatusByProjectCategoryId(updateReqVO.getDeletedStatus(),updateReqVO.getId());
     }
 
     @Override

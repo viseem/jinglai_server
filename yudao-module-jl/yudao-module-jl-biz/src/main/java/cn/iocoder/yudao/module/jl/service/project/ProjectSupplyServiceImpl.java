@@ -3,8 +3,10 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreOut;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
+import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -48,18 +50,17 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
     private ProjectSupplyMapper projectSupplyMapper;
 
     @Resource
-    private ProjectCategoryRepository projectCategoryRepository;
-
-
-    @Resource
-    private ProjectScheduleServiceImpl projectScheduleService;
-
-    @Resource
-    private ProjectCategoryServiceImpl projectCategoryService;
+    private ProjectQuotationServiceImpl projectQuotationService;
 
     @Override
     @Transactional
     public Long createProjectSupply(ProjectSupplyCreateReqVO createReqVO) {
+
+        if(createReqVO.getQuotationId()!=null){
+            ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
+            createReqVO.setProjectId(quotation.getProjectId());
+        }
+
         // 插入
         ProjectSupply projectSupply = projectSupplyMapper.toEntity(createReqVO);
 
@@ -86,6 +87,15 @@ public class ProjectSupplyServiceImpl implements ProjectSupplyService {
         projectSupplyRepository.save(updateObj);
 
         //更新报价金额
+    }
+
+    @Override
+    public void updateProjectSupplyDeleteStatus(ProjectSupplyUpdateDeletedStatusReqVO updateReqVO) {
+        // 校验存在
+         validateProjectSupplyExists(updateReqVO.getId());
+
+        // 更新
+        projectSupplyRepository.updateDeletedStatusById(updateReqVO.getDeletedStatus(),updateReqVO.getId());
     }
 
     @Override

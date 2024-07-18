@@ -57,6 +57,14 @@ public class ProjectSupplyController {
         return success(true);
     }
 
+    @PostMapping("/update-deleted-status")
+    @Operation(summary = "更新项目中的实验名目的物资项")
+    @PreAuthorize("@ss.hasPermission('jl:project-supply:update')")
+    public CommonResult<Boolean> updateProjectSupplyDeleteStatus(@Valid @RequestBody ProjectSupplyUpdateDeletedStatusReqVO updateReqVO) {
+        projectSupplyService.updateProjectSupplyDeleteStatus(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目中的实验名目的物资项")
     @Parameter(name = "id", description = "编号", required = true)
