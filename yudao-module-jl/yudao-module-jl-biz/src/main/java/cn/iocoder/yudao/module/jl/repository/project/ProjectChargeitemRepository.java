@@ -14,6 +14,11 @@ import java.util.List;
 public interface ProjectChargeitemRepository extends JpaRepository<ProjectChargeitem, Long>, JpaSpecificationExecutor<ProjectChargeitem> {
     @Transactional
     @Modifying
+    @Query("update ProjectChargeitem p set p.currentQuantity = p.quantity, p.currentSpec = p.spec, p.currentPrice = p.unitFee,p.deletedStatus=false " +
+            "where p.quotationId = ?1")
+    int initCurrentData(Long quotationId);
+    @Transactional
+    @Modifying
     @Query("update ProjectChargeitem p set p.deletedStatus = ?1 where p.projectCategoryId = ?2")
     int updateDeletedStatusByProjectCategoryId(Boolean deletedStatus, Long projectCategoryId);
     @Transactional

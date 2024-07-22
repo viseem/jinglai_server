@@ -2,9 +2,12 @@ package cn.iocoder.yudao.module.jl.controller.admin.quotationchangelog.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -14,16 +17,14 @@ import javax.validation.constraints.*;
 @Data
 public class QuotationChangeLogBaseVO {
 
-    @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED, example = "29980")
-    @NotNull(message = "项目id不能为空")
+    @Schema(description = "项目id")
     private Long projectId;
 
     @Schema(description = "报价id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23423")
     @NotNull(message = "报价id不能为空")
     private Long quotationId;
 
-    @Schema(description = "客户id", requiredMode = Schema.RequiredMode.REQUIRED, example = "2225")
-    @NotNull(message = "客户id不能为空")
+    @Schema(description = "客户id")
     private Long customerId;
 
     @Schema(description = "变更原因", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -36,5 +37,9 @@ public class QuotationChangeLogBaseVO {
     @Schema(description = "变更明细", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "变更明细不能为空")
     private String jsonLogs;
+
+    private BigDecimal prevAmount=BigDecimal.ZERO;
+
+    private BigDecimal currentAmount=BigDecimal.ZERO;
 
 }

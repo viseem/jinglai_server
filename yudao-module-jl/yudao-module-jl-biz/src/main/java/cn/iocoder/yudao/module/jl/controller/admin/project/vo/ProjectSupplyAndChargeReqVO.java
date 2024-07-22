@@ -22,4 +22,6 @@ public class ProjectSupplyAndChargeReqVO extends UtilStoreGetReqVO {
     @Schema(description = "客户id", example = "8556")
     private Long customerId;
 
+    private Boolean needInitCurrentData = false;
+
 }

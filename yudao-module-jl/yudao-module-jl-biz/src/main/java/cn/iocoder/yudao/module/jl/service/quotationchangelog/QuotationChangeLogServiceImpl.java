@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.quotationchangelog;
 
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -38,8 +40,14 @@ public class QuotationChangeLogServiceImpl implements QuotationChangeLogService 
     @Resource
     private QuotationChangeLogMapper quotationChangeLogMapper;
 
+    @Resource
+    private ProjectQuotationServiceImpl projectQuotationService;
+
     @Override
     public Long createQuotationChangeLog(QuotationChangeLogCreateReqVO createReqVO) {
+        ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
+        createReqVO.setProjectId(quotation.getProjectId());
+        createReqVO.setCustomerId(quotation.getCustomerId());
         // 插入
         QuotationChangeLog quotationChangeLog = quotationChangeLogMapper.toEntity(createReqVO);
         quotationChangeLogRepository.save(quotationChangeLog);

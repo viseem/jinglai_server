@@ -6,14 +6,15 @@ import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.entity.quotationchangelog.QuotationChangeLog;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.project.*;
-import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
+import cn.iocoder.yudao.module.jl.repository.quotationchangelog.QuotationChangeLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
@@ -68,7 +69,7 @@ public class ProjectServiceImpl implements ProjectService {
     private UniqCodeGenerator uniqCodeGenerator;
 
     @Resource
-    private ProjectPersonRepository projectPersonRepository;
+    private QuotationChangeLogRepository quotationChangeLogRepository;
 
     @Resource
     private ProjectRepository projectRepository;
@@ -396,6 +397,14 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectSupplyAndChargeRespVO getProjectSupplyAndCharge(ProjectSupplyAndChargeReqVO reqVO){
+        // 如果需要初始化报价变更的数据，注意：先检测是第一次，再初始化
+        if(reqVO.getNeedInitCurrentData()){
+            List<QuotationChangeLog> byQuotationId = quotationChangeLogRepository.findByQuotationId(reqVO.getQuotationId());
+            if(byQuotationId==null || byQuotationId.isEmpty()){
+                projectSupplyRepository.initCurrentData(reqVO.getQuotationId());
+                projectChargeitemRepository.initCurrentData(reqVO.getQuotationId());
+            }
+        }
         ProjectSupplyAndChargeRespVO respVO = new ProjectSupplyAndChargeRespVO();
 //        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationIdWithCreateTypeZero(reqVO.getQuotationId());
         List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(reqVO.getQuotationId());
