@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -58,5 +59,15 @@ public class ProjectSettlementBaseVO {
     private BigDecimal prevAmount=BigDecimal.ZERO;
 
     private BigDecimal currentAmount=BigDecimal.ZERO;
+
+    /**
+     * 报价金额
+     */
+    private BigDecimal quotationAmount=BigDecimal.ZERO;
+
+    /**
+     * 合同金额
+     */
+    private BigDecimal contractAmount=BigDecimal.ZERO;
 
 }

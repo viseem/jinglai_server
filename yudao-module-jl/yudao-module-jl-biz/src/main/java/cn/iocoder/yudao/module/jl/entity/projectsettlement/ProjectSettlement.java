@@ -105,10 +105,22 @@ public class ProjectSettlement extends BaseEntity {
     private BigDecimal prevAmount;
 
     /**
-     * 变更明细
+     * 结算单金额
      */
     @Column(name = "current_amount", nullable = false )
     private BigDecimal currentAmount;
+
+    /**
+     * 报价金额
+     */
+    @Column(name = "quotation_amount", nullable = false )
+    private BigDecimal quotationAmount;
+
+    /**
+     * 合同金额
+     */
+    @Column(name = "contract_amount", nullable = false )
+    private BigDecimal contractAmount;
 
     /**
      * 级联

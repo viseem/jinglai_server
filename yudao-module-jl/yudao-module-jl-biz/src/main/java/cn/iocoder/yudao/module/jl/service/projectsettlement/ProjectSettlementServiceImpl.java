@@ -104,6 +104,20 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
         Specification<ProjectSettlement> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(pageReqVO.getQuotationId() != null) {
+                predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
+            }
+
+            if(pageReqVO.getProjectId() != null) {
+                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+            }
+
+
+            if(pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
+
             if(pageReqVO.getPaidAmount() != null) {
                 predicates.add(cb.equal(root.get("paidAmount"), pageReqVO.getPaidAmount()));
             }

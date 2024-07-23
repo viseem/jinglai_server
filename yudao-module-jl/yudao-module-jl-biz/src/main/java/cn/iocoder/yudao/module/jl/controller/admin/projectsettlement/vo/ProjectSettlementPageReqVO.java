@@ -34,4 +34,8 @@ public class ProjectSettlementPageReqVO extends PageParam {
     @Schema(description = "备注")
     private String mark;
 
+    private Long quotationId;
+    private Long projectId;
+    private Long customerId;
+
 }
