@@ -92,6 +92,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Resource
     private SubjectGroupMemberServiceImpl subjectGroupMemberService;
 
+    @Resource
+    private ProjectSupplyOnlyRepository projectSupplyOnlyRepository;
+
+
     @PostConstruct
     public void ProjectServiceImpl(){
         Project last = projectRepository.findFirstByOrderByIdDesc();
@@ -136,6 +140,8 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectConstractRepository projectConstractRepository;
     private final ProjectCategoryRepository projectCategoryRepository;
     private final ProjectSupplyRepository projectSupplyRepository;
+
+
     private final ProjectChargeitemRepository projectChargeitemRepository;
 
 
@@ -407,7 +413,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
         ProjectSupplyAndChargeRespVO respVO = new ProjectSupplyAndChargeRespVO();
 //        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationIdWithCreateTypeZero(reqVO.getQuotationId());
-        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(reqVO.getQuotationId());
+//        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(reqVO.getQuotationId());
+        List<ProjectSupplyOnly> byQuotationId = projectSupplyOnlyRepository.findByQuotationId(reqVO.getQuotationId());
 
         respVO.setSupplyList(byQuotationId);
         List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(reqVO.getQuotationId());

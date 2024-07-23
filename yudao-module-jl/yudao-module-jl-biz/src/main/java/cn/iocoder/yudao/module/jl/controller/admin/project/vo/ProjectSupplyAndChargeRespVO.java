@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupplyOnly;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
@@ -13,6 +14,6 @@ import java.util.Map;
 @Data
 @ToString(callSuper = true)
 public class ProjectSupplyAndChargeRespVO {
-    private List<ProjectSupply> supplyList;
+    private List<ProjectSupplyOnly> supplyList;
     private List<ProjectChargeitem> chargeList;
 }

@@ -137,7 +137,7 @@ public class ProjectSupplyBaseVO {
      */
     private String currentCatalogNumber;
 
-    private Boolean deletedStatus;
+    private Boolean deletedStatus=false;
 
 
 }

@@ -272,6 +272,7 @@ public interface ErrorCodeConstants {
     ErrorCode CUSTOMER_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "客户变更日志不存在");
     ErrorCode QUOTATION_CHANGE_LOG_NOT_EXISTS = new ErrorCode(1004000000, "报价变更日志不存在");
 
+    ErrorCode PROJECT_SETTLEMENT_NOT_EXISTS = new ErrorCode(1004000000, "项目结算不存在");
 
 
 
