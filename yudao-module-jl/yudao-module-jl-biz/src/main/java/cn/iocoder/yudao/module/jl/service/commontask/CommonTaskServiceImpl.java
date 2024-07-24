@@ -137,18 +137,20 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 发送通知
         if(Objects.equals(createReqVO.getNeedSendMsg(),true)){
-            Map<String, Object> templateParams = new HashMap<>();
-            String content = String.format(
-                    "收到来自项目(%s)的待办任务(%s)，点击查看",
-                    createReqVO.getProjectSimple()!=null?createReqVO.getProjectSimple().getName():"",
-                    createReqVO.getName()
-            );
-            templateParams.put("content",content);
-            templateParams.put("id",commonTask.getId());
-            notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                    createReqVO.getUserId(),
-                    BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
-            ));
+            if(createReqVO.getUserId()!=null){
+                Map<String, Object> templateParams = new HashMap<>();
+                String content = String.format(
+                        "收到来自项目(%s)的待办任务(%s)，点击查看",
+                        createReqVO.getProjectSimple()!=null?createReqVO.getProjectSimple().getName():"",
+                        createReqVO.getName()
+                );
+                templateParams.put("content",content);
+                templateParams.put("id",commonTask.getId());
+                notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                        createReqVO.getUserId(),
+                        BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
+                ));
+            }
         }
 
         // 返回

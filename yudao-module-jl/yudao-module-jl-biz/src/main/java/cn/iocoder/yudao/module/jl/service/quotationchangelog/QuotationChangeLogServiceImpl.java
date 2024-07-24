@@ -1,6 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.quotationchangelog;
 
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupplyOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -14,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 
 import java.util.*;
 import cn.iocoder.yudao.module.jl.controller.admin.quotationchangelog.vo.*;
@@ -43,9 +49,30 @@ public class QuotationChangeLogServiceImpl implements QuotationChangeLogService 
     @Resource
     private ProjectQuotationServiceImpl projectQuotationService;
 
+    @Resource
+    private ProjectSupplyOnlyRepository projectSupplyOnlyRepository;
+
+    @Resource
+    private ProjectCategoryOnlyRepository projectCategoryOnlyRepository;
+
+    @Resource
+    private ProjectChargeitemRepository projectChargeitemRepository;
+
     @Override
+    @Transactional
     public Long createQuotationChangeLog(QuotationChangeLogCreateReqVO createReqVO) {
         ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
+        for (ProjectChargeitem projectChargeitem : createReqVO.getChargeList()) {
+            projectChargeitem.setProjectId(quotation.getProjectId());
+        }
+        for (ProjectSupplyOnly projectSupplyOnly : createReqVO.getSupplyList()) {
+            projectSupplyOnly.setProjectId(quotation.getProjectId());
+        }
+
+        projectSupplyOnlyRepository.saveAll(createReqVO.getSupplyList());
+        projectChargeitemRepository.saveAll(createReqVO.getChargeList());
+        projectCategoryOnlyRepository.saveAll(createReqVO.getCategoryList());
+
         createReqVO.setProjectId(quotation.getProjectId());
         createReqVO.setCustomerId(quotation.getCustomerId());
         // 插入
