@@ -231,6 +231,8 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
 
+            }else{
+                predicates.add(cb.notEqual(root.get("status"), ProcurementItemStatusEnums.CANCEL.getStatus()));
             }
 
 
