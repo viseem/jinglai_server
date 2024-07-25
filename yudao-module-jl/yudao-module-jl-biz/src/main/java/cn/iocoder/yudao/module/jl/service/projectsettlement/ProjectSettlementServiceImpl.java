@@ -1,9 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectsettlement;
 
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -46,7 +49,11 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
     @Resource
     private ProjectQuotationServiceImpl projectQuotationService;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createProjectSettlement(ProjectSettlementCreateReqVO createReqVO) {
 
         ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
@@ -56,17 +63,24 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
         // 插入
         ProjectSettlement projectSettlement = projectSettlementMapper.toEntity(createReqVO);
         projectSettlementRepository.save(projectSettlement);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(projectSettlement.getId(), "PROJECT_SETTLEMENT", createReqVO.getAttachmentList());
         // 返回
         return projectSettlement.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectSettlement(ProjectSettlementUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectSettlementExists(updateReqVO.getId());
         // 更新
         ProjectSettlement updateObj = projectSettlementMapper.toEntity(updateReqVO);
         projectSettlementRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(), "PROJECT_SETTLEMENT", updateReqVO.getAttachmentList());
     }
 
     @Override

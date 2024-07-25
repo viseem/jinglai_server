@@ -74,8 +74,6 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
     @Resource
     private DictDataApiImpl dictDataApi;
 
-    @Resource
-    private ProjectConstractServiceImpl projectConstractServiceImpl;
 
     @Override
     @Transactional

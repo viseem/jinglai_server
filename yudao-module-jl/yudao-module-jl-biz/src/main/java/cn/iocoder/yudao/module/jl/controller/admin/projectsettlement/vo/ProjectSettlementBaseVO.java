@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectsettlement.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -69,5 +70,14 @@ public class ProjectSettlementBaseVO {
      * 合同金额
      */
     private BigDecimal contractAmount=BigDecimal.ZERO;
+
+    /**
+     * 合同已收金额
+     */
+    private BigDecimal contractReceivedAmount=BigDecimal.ZERO;
+
+
+    private List<CommonAttachment> attachmentList;
+
 
 }

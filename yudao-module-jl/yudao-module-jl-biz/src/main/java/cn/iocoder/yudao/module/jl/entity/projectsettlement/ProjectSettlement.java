@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.jl.entity.projectsettlement;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -117,10 +120,16 @@ public class ProjectSettlement extends BaseEntity {
     private BigDecimal quotationAmount;
 
     /**
-     * 合同金额
+     * 合同默认结算金额
      */
     @Column(name = "contract_amount", nullable = false )
     private BigDecimal contractAmount;
+
+    /**
+     * 合同已收金额
+     */
+    @Column(name = "contract_received_amount", nullable = false )
+    private BigDecimal contractReceivedAmount;
 
     /**
      * 级联
@@ -129,5 +138,15 @@ public class ProjectSettlement extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.EAGER)
+    @Where(clause = "type = 'PROJECT_SETTLEMENT'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 
 }
