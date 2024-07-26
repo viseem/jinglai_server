@@ -436,7 +436,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         }
     }
 
-    private CommonTask validateCommonTaskExists(Long id) {
+    public CommonTask validateCommonTaskExists(Long id) {
        return commonTaskRepository.findById(id).orElseThrow(() -> exception(COMMON_TASK_NOT_EXISTS));
     }
 

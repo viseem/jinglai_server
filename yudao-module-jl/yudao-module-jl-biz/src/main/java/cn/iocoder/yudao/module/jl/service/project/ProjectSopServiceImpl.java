@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.CommonTodoEnums;
@@ -11,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskServiceImpl;
+import cn.iocoder.yudao.module.jl.service.user.UserServiceImpl;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import org.springframework.stereotype.Service;
@@ -83,13 +86,16 @@ public class ProjectSopServiceImpl implements ProjectSopService {
     @Resource
     private ProjectServiceImpl projectService;
 
+    @Resource
+    private UserServiceImpl userService;
+
     @Override
     @Transactional
     public Long createProjectSop(ProjectSopCreateReqVO createReqVO) {
         // 插入
         processSaveData(createReqVO);
         ProjectSop projectSop = projectSopMapper.toEntity(createReqVO);
-        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),createReqVO.getFocusIdList())));
+//        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),createReqVO.getFocusIdList())));
         projectSopRepository.save(projectSop);
 
 
@@ -138,7 +144,7 @@ public class ProjectSopServiceImpl implements ProjectSopService {
 
         // 更新
         ProjectSop updateObj = projectSopMapper.toEntity(updateReqVO);
-        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),updateReqVO.getFocusIdList())));
+//        projectSop.setFocusIds((projectService.processFocusIds(projectSop.getFocusIds(),updateReqVO.getFocusIdList())));
         projectSopRepository.save(updateObj);
 
 
@@ -192,6 +198,47 @@ public class ProjectSopServiceImpl implements ProjectSopService {
                     }
                 } // if  projectOptional.isPresent()&&userOptional.isPresent() end
 
+            }
+
+        }
+
+        // 新版本 通用任务的通知，只通知这个节点设置的关注的人，和项目人员就行
+        if(Objects.equals(updateReqVO.getStatus(),CommonTodoEnums.DONE.getStatus())&&updateObj.getTaskId()!=null) {
+            CommonTask commonTask = commonTaskService.validateCommonTaskExists(updateObj.getTaskId());
+            if(commonTask.getProjectId()!=null){
+                ProjectSimple project = projectService.validateProjectExists(commonTask.getProjectId());
+                HashSet<Long> userIds = new HashSet<>();
+                if(project.getManagerId()!=null){
+                    userIds.add(project.getManagerId());
+                }
+
+                if(updateObj.getFocusIds()!=null){
+                    String[] split = updateObj.getFocusIds().split(",");
+                    for (String s : split) {
+                        //判断s是否是字符串数字
+                        if(s!=null&&s.matches("-?\\d+(\\.\\d+)?")){
+                            userIds.add(Long.valueOf(s));
+                        }
+                    }
+                }
+                User user = userService.validateUserExists(getLoginUserId());
+
+
+                Map<String, Object> templateParams = new HashMap<>();
+                templateParams.put("projectId",project.getId());
+                templateParams.put("content",projectSop.getContent());
+                templateParams.put("userName",user.getNickname());
+                templateParams.put("projectName", project.getName());
+                templateParams.put("categoryName", commonTask.getName());
+
+                for (Long userId : userIds) {
+                    if(userId!=null&& !userId.equals(getLoginUserId())){
+                        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
+                                userId,
+                                BpmMessageEnum.NOTIFY_WHEN_SOP_DONE.getTemplateCode(), templateParams
+                        ));
+                    }
+                }
             }
 
         }

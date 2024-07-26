@@ -15,6 +15,5 @@ public class ProjectSopUpdateReqVO extends ProjectSopBaseVO {
     @NotNull(message = "岗位ID不能为空")
     private Long id;
 
-    private List<Long> focusIdList;
 
 }
