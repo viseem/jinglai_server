@@ -119,12 +119,17 @@ public class CustomerServiceImpl implements CustomerService {
         //暂存一下salesId
         Long salesId = createReqVO.getSalesId();
 
+
         // 查询手机号是否存在
         if(createReqVO.getPhone()!=null&& !createReqVO.getPhone().isEmpty()){
             CustomerSimple byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
             if(byPhone!=null){
                 return 0L;
             }
+        }
+
+        if(createReqVO.getPhone()!=null){
+            createReqVO.setPhone(createReqVO.getPhone().replace(" ",""));
         }
 
         if(!createReqVO.getIsSeas()){
