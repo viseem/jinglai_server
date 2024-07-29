@@ -479,6 +479,11 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     @Override
     public PageResult<CommonTask> getCommonTaskPage(CommonTaskPageReqVO pageReqVO, CommonTaskPageOrder orderV0) {
+
+        // 这里处理一下 open的接口参数问题，后台接口用的是get请求，quotationId也会被orderVO读取，但是open接口是post请求，orderVO好像没有quotationID了，
+        // 这就导致 createSort里面的一个排序sort的判断失效了
+        orderV0.setQuotationId(pageReqVO.getQuotationId());
+
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
