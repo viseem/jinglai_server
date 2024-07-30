@@ -107,6 +107,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             save.setProcessInstanceId(processInstanceId);
             // 更新流程实例编号
             projectApprovalRepository.updateProcessInstanceIdById(processInstanceId, save.getId());
+            System.out.println("processInstanceId---"+processInstanceId);
+            // 如果是出库前审批，更新一下项目的出库审批字段
+            projectOnlyRepository.initOutAuditStatus(processInstanceId,BpmProcessInstanceResultEnum.PROCESS.getResult().toString(),projectApproval.getProjectId());
         } else {
 
             //直接更新审批的状态

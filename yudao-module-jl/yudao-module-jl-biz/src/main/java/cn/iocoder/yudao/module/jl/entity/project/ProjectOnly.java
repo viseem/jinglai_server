@@ -71,6 +71,8 @@ public class ProjectOnly extends BaseEntity{
     @Column(name = "outbound_user_id", nullable = false )
     private Long outboundUserId;
 
+    @Column(name = "outbound_audit_mark", nullable = false )
+    private String outboundAuditMark;
 
 
 

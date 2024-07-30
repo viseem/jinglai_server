@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.projectcategory;
 
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategory;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategorySimple;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
@@ -12,6 +13,7 @@ import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategorySimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskServiceImpl;
 import cn.iocoder.yudao.module.jl.service.project.ProjectDocumentServiceImpl;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
@@ -75,6 +77,9 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
     @Resource
     private CommonTaskRepository commonTaskRepository;
 
+    @Resource
+    private CommonTaskServiceImpl commonTaskService;
+
     public ProjectCategoryAttachmentServiceImpl(ProjectCategoryRepository projectCategoryRepository) {
         this.projectCategoryRepository = projectCategoryRepository;
     }
@@ -97,19 +102,28 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
             });
         }
 
-        Optional<ProjectCategorySimple> byId = projectCategorySimpleRepository.findById(createReqVO.getProjectCategoryId());
-        if (byId.isEmpty()){
-            throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+        if(createReqVO.getProjectCategoryId()!=null){
+            Optional<ProjectCategorySimple> byId = projectCategorySimpleRepository.findById(createReqVO.getProjectCategoryId());
+            if (byId.isEmpty()){
+                throw exception(PROJECT_CATEGORY_NOT_EXISTS);
+            }
+            projectCategorySimple = byId.get();
+            createReqVO.setProjectId(projectCategorySimple.getProjectId());
         }
-        projectCategorySimple = byId.get();
+
+        if(createReqVO.getTaskId()!=null){
+            CommonTask commonTask = commonTaskService.validateCommonTaskExists(createReqVO.getTaskId());
+            createReqVO.setProjectId(commonTask.getProjectId());
+        }
+
+
 
         // 插入
         ProjectCategoryAttachment projectCategoryAttachment = projectCategoryAttachmentMapper.toEntity(createReqVO);
-        projectCategoryAttachment.setProjectId(byId.get().getProjectId());
         projectCategoryAttachmentRepository.save(projectCategoryAttachment);
 
         // 如果是实验类型的数据，则存一份到projectDocument
-        if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.EXP.getStatus())){
+/*        if(Objects.equals(createReqVO.getType(), ProjectCategoryAttachmentEnums.EXP.getStatus())){
             projectDocumentService.createProjectDocumentWithoutReq(projectCategorySimple.getProjectId(),createReqVO.getFileName(),createReqVO.getFileUrl(), ProjectDocumentTypeEnums.EXP_DATA.getStatus());
 
             //发送通知
@@ -141,7 +155,7 @@ public class ProjectCategoryAttachmentServiceImpl implements ProjectCategoryAtta
                     ));
                 }
             }
-        }
+        }*/
 
         // 返回
         return projectCategoryAttachment.getId();
