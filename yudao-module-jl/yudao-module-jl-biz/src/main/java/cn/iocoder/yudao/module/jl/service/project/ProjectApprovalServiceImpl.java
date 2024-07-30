@@ -228,7 +228,8 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
             if (Objects.equals(result, BpmProcessInstanceResultEnum.APPROVE.getResult().toString())) {
                 // 如果是开展前审批
                 if (Objects.equals(projectApproval.getStage(), ProjectStageEnums.DOING_PREVIEW.getStatus())) {
-                    project.setStage(ProjectStageEnums.DOING.getStatus());
+                    // 这里注意一下，bpm那里已经有条件判断变更了，这里不需要变更了
+//                    project.setStage(ProjectStageEnums.DOING.getStatus());
                 } else {
                     project.setStage(projectApproval.getStage());
                 }
