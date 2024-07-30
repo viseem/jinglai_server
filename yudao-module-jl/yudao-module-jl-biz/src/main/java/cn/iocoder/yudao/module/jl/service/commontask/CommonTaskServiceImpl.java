@@ -318,7 +318,8 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         if(vo.getProjectId()!=null){
             ProjectSimple projectSimple = projectService.validateProjectExists(vo.getProjectId());
             vo.setProjectSimple(projectSimple);
-            if(Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString())){
+            //如果项目的开展前审批是同意的，并且客户已经签字确认
+            if(Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString())&&projectSimple.getCustomerSignImgUrl()!=null&&projectSimple.getCustomerSignImgUrl().contains("http")){
                 vo.setNeedSendMsg(true);
                 vo.setStatus(CommonTaskStatusEnums.WAIT_DO.getStatus());
             }
