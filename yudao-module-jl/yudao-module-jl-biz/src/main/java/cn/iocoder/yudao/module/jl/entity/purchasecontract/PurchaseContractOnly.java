@@ -94,4 +94,10 @@ public class PurchaseContractOnly extends BaseEntity {
     @Column(name = "accept_time")
     private LocalDateTime acceptTime;
 
+    /**
+     * 付款方
+     */
+    @Column(name = "payer")
+    private String payer;
+
 }

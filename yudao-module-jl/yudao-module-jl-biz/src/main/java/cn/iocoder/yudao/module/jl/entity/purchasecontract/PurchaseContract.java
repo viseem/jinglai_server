@@ -101,6 +101,12 @@ public class PurchaseContract extends BaseEntity {
     @Column(name = "accept_time")
     private LocalDateTime acceptTime;
 
+    /**
+     * 付款方
+     */
+    @Column(name = "payer")
+    private String payer;
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "lab_id", referencedColumnName = "id", insertable = false, updatable = false)

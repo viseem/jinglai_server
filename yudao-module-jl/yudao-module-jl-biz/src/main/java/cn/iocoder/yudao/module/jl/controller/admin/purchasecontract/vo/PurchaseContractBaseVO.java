@@ -57,6 +57,10 @@ public class PurchaseContractBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime acceptTime;
 
+    @Schema(description = "付款方", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "付款方不能为空")
+    private String payer;
+
     private List<CommonAttachment> attachmentList;
 
 }
