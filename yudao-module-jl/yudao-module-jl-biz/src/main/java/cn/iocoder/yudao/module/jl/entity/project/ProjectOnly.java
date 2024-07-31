@@ -209,6 +209,18 @@ public class ProjectOnly extends BaseEntity{
     @Column(name = "customer_sign_time")
     private LocalDateTime customerSignTime;
 
+    /**
+     * 当前出库的步骤
+     */
+    @Column(name = "outbound_step", nullable = false )
+    private Integer outboundStep;
+
+    /**
+     * 当前出库的日志id
+     */
+    @Column(name = "outbound_log_id", nullable = false )
+    private Integer outboundLogId;
+
     /*
      * 开展前审批，冗余字段
      * */

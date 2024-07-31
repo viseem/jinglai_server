@@ -115,6 +115,15 @@ public class ProjectBaseVO {
      */
     private LocalDateTime customerSignTime;
 
+    /**
+     * 当前出库的步骤
+     */
+    private Integer outboundStep;
+
+    /**
+     * 当前出库的日志id
+     */
+    private Integer outboundLogId;
 
     /*
      * 开展前审批，冗余字段
