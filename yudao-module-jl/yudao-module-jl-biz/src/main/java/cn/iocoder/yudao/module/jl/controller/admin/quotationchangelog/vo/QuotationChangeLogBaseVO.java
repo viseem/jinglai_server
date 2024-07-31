@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.quotationchangelog.vo;
 
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -23,6 +24,10 @@ public class QuotationChangeLogBaseVO {
     @Schema(description = "报价id", requiredMode = Schema.RequiredMode.REQUIRED, example = "23423")
     @NotNull(message = "报价id不能为空")
     private Long quotationId;
+
+    @Schema(description = "报价form", requiredMode = Schema.RequiredMode.REQUIRED, example = "23423")
+    @NotNull(message = "报价form不能为空")
+    private ProjectQuotation quotation;
 
     @Schema(description = "客户id")
     private Long customerId;

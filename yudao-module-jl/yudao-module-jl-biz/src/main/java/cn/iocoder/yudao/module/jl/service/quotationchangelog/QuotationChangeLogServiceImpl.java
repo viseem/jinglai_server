@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -50,6 +51,9 @@ public class QuotationChangeLogServiceImpl implements QuotationChangeLogService 
     private ProjectQuotationServiceImpl projectQuotationService;
 
     @Resource
+    private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
     private ProjectSupplyOnlyRepository projectSupplyOnlyRepository;
 
     @Resource
@@ -72,7 +76,7 @@ public class QuotationChangeLogServiceImpl implements QuotationChangeLogService 
         projectSupplyOnlyRepository.saveAll(createReqVO.getSupplyList());
         projectChargeitemRepository.saveAll(createReqVO.getChargeList());
         projectCategoryOnlyRepository.saveAll(createReqVO.getCategoryList());
-
+        projectQuotationRepository.save(createReqVO.getQuotation());
         createReqVO.setProjectId(quotation.getProjectId());
         createReqVO.setCustomerId(quotation.getCustomerId());
         // 插入
