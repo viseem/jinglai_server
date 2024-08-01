@@ -219,7 +219,7 @@ public class ProjectOnly extends BaseEntity{
      * 当前出库的日志id
      */
     @Column(name = "outbound_log_id", nullable = false )
-    private Integer outboundLogId;
+    private Long outboundLogId;
 
     /*
      * 开展前审批，冗余字段

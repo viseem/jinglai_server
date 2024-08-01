@@ -226,7 +226,7 @@ public class ProjectSimple extends BaseEntity {
      * 当前出库的日志id
      */
     @Column(name = "outbound_log_id", nullable = false )
-    private Integer outboundLogId;
+    private Long outboundLogId;
 
 /*    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
