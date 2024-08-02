@@ -26,13 +26,16 @@ public class InvoiceApplicationExcelRowItemVO {
     @ExcelProperty( "规格")
     private String col4 = "";
 
-    @ExcelProperty( "单价(元)")
+    @ExcelProperty( "单位")
     private String col5 = "";
 
-    @ExcelProperty( "数量")
+    @ExcelProperty( "单价(元)")
     private String col6 = "";
 
-    @ExcelProperty( "金额")
+    @ExcelProperty( "数量")
     private String col7 = "";
+
+    @ExcelProperty( "金额")
+    private String col8 = "";
 
 }

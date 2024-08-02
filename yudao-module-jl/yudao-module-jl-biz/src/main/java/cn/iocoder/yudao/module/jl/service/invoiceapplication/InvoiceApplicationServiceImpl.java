@@ -363,7 +363,7 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         );*/
         rowItem3.setCol1(processInvoiceInfoContent(invoiceApplication));
         rowItem3.setCol4("寄送地址/备注：\n"+Objects.requireNonNullElse(invoiceApplication.getSendAddress(), "")+"\n"+Objects.requireNonNullElse(invoiceApplication.getMark(), ""));
-        rowItem3.setCol6("开票要求：\n"+invoiceApplication.getRequire());
+        rowItem3.setCol7("开票要求：\n"+invoiceApplication.getRequire());
         itemList.add(rowItem3);
 
 
@@ -389,8 +389,8 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
                     invoiceItem.setCol3(invoiceType);
                     invoiceItem.setCol4("发票类型：");
                     invoiceItem.setCol5(log.getHeadType());
-                    invoiceItem.setCol6("开票单位：");
-                    invoiceItem.setCol7(log.getFromTitle());
+                    invoiceItem.setCol7("开票单位：");
+                    invoiceItem.setCol8(log.getFromTitle());
                     itemList.add(invoiceItem);
                     addHeadRow(itemList);
 
@@ -445,9 +445,10 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         rowItemVO.setCol2("品牌");
         rowItemVO.setCol3("货号");
         rowItemVO.setCol4("规格");
-        rowItemVO.setCol5("单价(元)");
-        rowItemVO.setCol6("数量");
-        rowItemVO.setCol7("金额");
+        rowItemVO.setCol5("单位");
+        rowItemVO.setCol6("单价(元)");
+        rowItemVO.setCol7("数量");
+        rowItemVO.setCol8("金额");
         itemList.add(rowItemVO);
     }
 
@@ -458,9 +459,10 @@ public class InvoiceApplicationServiceImpl implements InvoiceApplicationService 
         rowItemVO.setCol2(item.getBrand());
         rowItemVO.setCol3(item.getProductCode());
         rowItemVO.setCol4(item.getSpec());
-        rowItemVO.setCol5(item.getPrice());
-        rowItemVO.setCol6(item.getQuantity());
-        rowItemVO.setCol7(item.getAmount());
+        rowItemVO.setCol5(item.getUnit());
+        rowItemVO.setCol6(item.getPrice());
+        rowItemVO.setCol7(item.getQuantity());
+        rowItemVO.setCol8(item.getAmount());
         return rowItemVO;
     }
 

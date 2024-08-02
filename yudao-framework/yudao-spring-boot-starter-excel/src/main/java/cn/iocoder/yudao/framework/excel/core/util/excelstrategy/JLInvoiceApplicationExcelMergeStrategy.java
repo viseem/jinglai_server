@@ -11,7 +11,7 @@ import java.util.Objects;
 public class JLInvoiceApplicationExcelMergeStrategy extends AbstractMergeStrategy {
 
 
-    int colCount = 7;
+    int colCount = 8;
 
 
     public JLInvoiceApplicationExcelMergeStrategy(){
@@ -47,18 +47,20 @@ public class JLInvoiceApplicationExcelMergeStrategy extends AbstractMergeStrateg
 
         if(columnIndex==3){
             if(rowIndex==2){
-                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 3, 4));
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 3, 5));
             }
         }
 
         if(columnIndex==5){
             if(rowIndex==2){
-                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 5, colCount-1));
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(2, 2, 6, colCount-1));
             }
         }
 
         if(columnIndex==4){
-
+            if(rowIndex==3){
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(3, 3, 4, 5));
+            }
         }
 
         if(columnIndex==5){

@@ -21,6 +21,9 @@ public class InvoiceItemVO {
     @Schema(description = "规格")
     private String spec;
 
+    @Schema(description = "单位")
+    private String unit;
+
     @Schema(description = "单价(元)")
     private String price;
 
