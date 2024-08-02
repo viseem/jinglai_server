@@ -107,8 +107,7 @@ public class ProcurementItemBaseVO {
     @Schema(description = "采购价")
     private BigDecimal buyPrice = BigDecimal.ZERO;
 
-    @Schema(description = "销售价", requiredMode = Schema.RequiredMode.REQUIRED, example = "22107")
-    @NotNull(message = "销售价不能为空")
+    @Schema(description = "销售价")
     private BigDecimal salePrice = BigDecimal.ZERO;
 
     @Schema(description = "备注")
