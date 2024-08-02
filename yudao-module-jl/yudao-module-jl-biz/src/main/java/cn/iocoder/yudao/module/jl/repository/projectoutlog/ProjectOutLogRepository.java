@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ProjectOutLogRepository extends JpaRepository<ProjectOutLog, Long>, JpaSpecificationExecutor<ProjectOutLog> {
     @Transactional
     @Modifying
-    @Query("update ProjectOutLog p set p.customerScoreJson = ?1, p.customerSignImgUrl = ?2, p.customerComment = ?3 " +
+    @Query("update ProjectOutLog p set p.custoamerSignTime = CURRENT_TIMESTAMP ,p.customerScoreJson = ?1, p.customerSignImgUrl = ?2, p.customerComment = ?3 " +
             "where p.id = ?4")
     int updateCustomerScoreJsonAndCustomerSignImgUrlAndCustomerCommentById(String customerScoreJson, String customerSignImgUrl, String customerComment, Long id);
     @Transactional

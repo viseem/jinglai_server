@@ -92,7 +92,7 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
     public void updateProjectOutLogCustomerStep(ProjectOutLogUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectOutLogExists(updateReqVO.getId());
-        projectOnlyRepository.updateOutboundStepById(updateReqVO.getStep()+1,updateReqVO.getProjectId());
+        projectOnlyRepository.updateOutboundStepById(3,updateReqVO.getProjectId());
         // 更新
         projectOutLogRepository.updateCustomerScoreJsonAndCustomerSignImgUrlAndCustomerCommentById(updateReqVO.getCustomerScoreJson(), updateReqVO.getCustomerSignImgUrl() , updateReqVO.getCustomerComment(),updateReqVO.getId());
     }
