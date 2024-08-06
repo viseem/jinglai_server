@@ -56,123 +56,28 @@ public class ProjectOutLog extends BaseEntity {
     @Column(name = "customer_id", nullable = false )
     private Long customerId;
 
-    /**
-     * 内部数据评审json
-     */
-    @Column(name = "data_sign_json")
-    private String dataSignJson;
 
     /**
-     * 客户评价
+     *
      */
-    @Column(name = "customer_comment")
-    private String customerComment;
+    @Column(name = "step1_json")
+    private String step1Json;
 
     /**
-     * 客户打分
+     *
      */
-    @Column(name = "customer_score_json")
-    private String customerScoreJson;
+    @Column(name = "step2_json")
+    private String step2Json;
 
     /**
-     * 报价金额
+     *
      */
-    @Column(name = "quotation_price")
-    private BigDecimal quotationPrice;
+    @Column(name = "step3_json")
+    private String step3Json;
 
     /**
-     * 报价备注
+     *
      */
-    @Column(name = "quotation_mark")
-    private String quotationMark;
-
-    /**
-     * 已收金额
-     */
-    @Column(name = "received_price")
-    private BigDecimal receivedPrice;
-
-    /**
-     * 已收备注
-     */
-    @Column(name = "received_mark")
-    private String receivedMark;
-
-    /**
-     * 合同金额
-     */
-    @Column(name = "contract_price")
-    private BigDecimal contractPrice;
-
-    /**
-     * 合同备注
-     */
-    @Column(name = "contract_mark")
-    private String contractMark;
-
-    /**
-     * 材料成本
-     */
-    @Column(name = "supply_price")
-    private BigDecimal supplyPrice;
-
-    /**
-     * 材料备注
-     */
-    @Column(name = "supply_mark")
-    private String supplyMark;
-
-    /**
-     * 委外成本
-     */
-    @Column(name = "outsource_price")
-    private BigDecimal outsourcePrice;
-
-    /**
-     * 委外备注
-     */
-    @Column(name = "outsource_mark")
-    private String outsourceMark;
-
-    /**
-     * 客户签字链接
-     */
-    @Column(name = "customer_sign_img_url")
-    private String customerSignImgUrl;
-
-    /**
-     * 客户签字时间
-     */
-    @Column(name = "custoamer_sign_time")
-    private LocalDateTime custoamerSignTime;
-
-    /**
-     * 步骤的确认日志
-     */
-    @Column(name = "steps_json_log")
-    private String stepsJsonLog;
-
-    /**
-     * 出库金额，理论上等于已收金额
-     */
-    @Column(name = "result_price")
-    private BigDecimal resultPrice;
-
-    /**
-     * 出库金额备注
-     */
-    @Column(name = "result_mark")
-    private String resultMark;
-
-    /**
-     * 数据链接
-     */
-    @Column(name = "data_link")
-    private String dataLink;
-
-    /**
-     * 数据备注
-     */
-    @Column(name = "data_mark")
-    private String dataMark;
+    @Column(name = "step4_json")
+    private String step4Json;
 }

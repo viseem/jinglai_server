@@ -57,22 +57,6 @@ public class ProjectOutLogController {
         return success(true);
     }
 
-    @PutMapping("/update-data-step")
-    @Operation(summary = "更新example 空")
-    @PreAuthorize("@ss.hasPermission('jl:project-out-log:update')")
-    public CommonResult<Boolean> updateProjectOutLogDatStep(@Valid @RequestBody ProjectOutLogUpdateReqVO updateReqVO) {
-        projectOutLogService.updateProjectOutLogDataStep(updateReqVO);
-        return success(true);
-    }
-
-    @PutMapping("/update-customer-step")
-    @Operation(summary = "更新example 空")
-    @PreAuthorize("@ss.hasPermission('jl:project-out-log:update')")
-    public CommonResult<Boolean> updateProjectOutLogCustomerStep(@Valid @RequestBody ProjectOutLogUpdateReqVO updateReqVO) {
-        projectOutLogService.updateProjectOutLogDataStep(updateReqVO);
-        return success(true);
-    }
-
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除example 空")
     @Parameter(name = "id", description = "编号", required = true)

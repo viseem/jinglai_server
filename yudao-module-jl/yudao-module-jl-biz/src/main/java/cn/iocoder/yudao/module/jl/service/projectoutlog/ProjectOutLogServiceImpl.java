@@ -69,32 +69,38 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
     }
 
     @Override
+    @Transactional
     public void updateProjectOutLog(ProjectOutLogUpdateReqVO updateReqVO) {
         // 校验存在
-        validateProjectOutLogExists(updateReqVO.getId());
+        ProjectOutLog projectOutLog = validateProjectOutLogExists(updateReqVO.getId());
         // 更新
-        ProjectOutLog updateObj = projectOutLogMapper.toEntity(updateReqVO);
-        projectOutLogRepository.save(updateObj);
-    }
-
-    @Override
-    @Transactional
-    public void updateProjectOutLogDataStep(ProjectOutLogUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProjectOutLogExists(updateReqVO.getId());
-        projectOnlyRepository.updateOutboundStepById(updateReqVO.getStep()+1,updateReqVO.getProjectId());
-        // 更新
-        projectOutLogRepository.updateDataSignJsonById(updateReqVO.getDataSignJson(), updateReqVO.getId());
-    }
-
-    @Override
-    @Transactional
-    public void updateProjectOutLogCustomerStep(ProjectOutLogUpdateReqVO updateReqVO) {
-        // 校验存在
-        validateProjectOutLogExists(updateReqVO.getId());
-        projectOnlyRepository.updateOutboundStepById(3,updateReqVO.getProjectId());
-        // 更新
-        projectOutLogRepository.updateCustomerScoreJsonAndCustomerSignImgUrlAndCustomerCommentById(updateReqVO.getCustomerScoreJson(), updateReqVO.getCustomerSignImgUrl() , updateReqVO.getCustomerComment(),updateReqVO.getId());
+        /*ProjectOutLog updateObj = projectOutLogMapper.toEntity(updateReqVO);
+        projectOutLogRepository.save(updateObj);*/
+        projectOnlyRepository.updateOutboundStepById(updateReqVO.getStep()+1, projectOutLog.getProjectId());
+        if(updateReqVO.getStep().equals(0)){
+            if(updateReqVO.getStepJson()==null){
+                throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
+            }
+            projectOutLogRepository.updateStep1JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+        }
+        if(updateReqVO.getStep().equals(1)){
+            if(updateReqVO.getStepJson()==null){
+                throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
+            }
+            projectOutLogRepository.updateStep2JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+        }
+        if(updateReqVO.getStep().equals(2)){
+            if(updateReqVO.getStepJson()==null){
+                throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
+            }
+            projectOutLogRepository.updateStep3JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+        }
+        if(updateReqVO.getStep().equals(3)){
+            if(updateReqVO.getStepJson()==null){
+                throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
+            }
+            projectOutLogRepository.updateStep4JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+        }
     }
 
 
@@ -106,8 +112,8 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
         projectOutLogRepository.deleteById(id);
     }
 
-    private void validateProjectOutLogExists(Long id) {
-        projectOutLogRepository.findById(id).orElseThrow(() -> exception(PROJECT_OUT_LOG_NOT_EXISTS));
+    private ProjectOutLog validateProjectOutLogExists(Long id) {
+        return projectOutLogRepository.findById(id).orElseThrow(() -> exception(PROJECT_OUT_LOG_NOT_EXISTS));
     }
 
     @Override

@@ -48,11 +48,10 @@ public class JLOpenProjectOutLogController {
         return success(projectOutLog.map(projectOutLogMapper::toDto).orElseThrow(() -> exception(PROJECT_OUT_LOG_NOT_EXISTS)));
     }
 
-    @PutMapping("/update-customer-step")
+    @PutMapping("/update")
     @Operation(summary = "更新example 空")
-    @PreAuthorize("@ss.hasPermission('jl:project-out-log:update')")
-    public CommonResult<Boolean> updateProjectOutLogDatStep(@Valid @RequestBody ProjectOutLogUpdateReqVO updateReqVO) {
-        projectOutLogService.updateProjectOutLogCustomerStep(updateReqVO);
+    public CommonResult<Boolean> updateProjectOutLog(@Valid @RequestBody ProjectOutLogUpdateReqVO updateReqVO) {
+        projectOutLogService.updateProjectOutLog(updateReqVO);
         return success(true);
     }
 

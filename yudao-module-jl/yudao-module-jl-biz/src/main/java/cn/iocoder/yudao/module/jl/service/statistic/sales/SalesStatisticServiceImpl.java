@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.*;
 import cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLog;
 import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotationOnly;
 import cn.iocoder.yudao.module.jl.entity.salesgroupmember.SalesGroupMember;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
@@ -14,6 +15,7 @@ import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceL
 import cn.iocoder.yudao.module.jl.repository.crm.FollowupRepository;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.salesgroupmember.SalesGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.service.statistic.StatisticUtils;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
@@ -60,6 +62,9 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
     @Resource
     private ContractInvoiceLogRepository contractInvoiceLogRepository;
 
+    @Resource
+    private ProjectQuotationOnlyRepository projectQuotationOnlyRepository;
+
     @Override
     // 统计跟进数量
     public SalesStatisticFollowupResp countFollowup(SalesStatisticReqVO reqVO) {
@@ -90,6 +95,7 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
             //把返回的List中的id取出来
             reqVO.setUserIds(subjectGroupMemberService.findMembersUserIdsByGroupId(reqVO.getSubjectGroupId()));
         }
+        SalesStatisticSalesleadResp resp = new SalesStatisticSalesleadResp();
 
         if(reqVO.getTimeRange()!=null){
             reqVO.setStartTime(StatisticUtils.getStartTimeByTimeRange(reqVO.getTimeRange()));
@@ -97,13 +103,17 @@ public class SalesStatisticServiceImpl implements SalesStatisticService {
         System.out.println("----"+reqVO);
         Integer totalCount = salesleadRepository.countByCreateTimeBetweenAndCreatorIn(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds());
         Integer focusCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.KeyFocus.getStatus()));
-        Integer quotedCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.IS_QUOTATION.getStatus()));
+        List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), BigDecimal.ZERO);
+        if(quotations!=null){
+            Long[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray(Long[]::new);
+            resp.setQuotedCount(salesleadRepository.countByIdIn(array));
+            resp.setQuotedAndDealCount(salesleadRepository.countByIdInAndStatus(array,Integer.valueOf(SalesLeadStatusEnums.ToProject.getStatus())));
+        }
+//        Integer quotedCount = salesleadRepository.countByQuotationCreateTimeBetweenAndManagerIdIn(reqVO.getStartTime(),reqVO.getEndTime(),reqVO.getUserIds());
         Integer dealCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.ToProject.getStatus()));
         Integer lostCount = salesleadRepository.countByCreateTimeBetweenAndCreatorInAndStatus(reqVO.getStartTime(), reqVO.getEndTime(), reqVO.getUserIds(), Integer.valueOf(SalesLeadStatusEnums.LostDeal.getStatus()));
-        SalesStatisticSalesleadResp resp = new SalesStatisticSalesleadResp();
         resp.setSalesleadCount(totalCount);
         resp.setFocusCount(focusCount);
-        resp.setQuotedCount(quotedCount);
         resp.setDealCount(dealCount);
         resp.setLostCount(lostCount);
         return resp;

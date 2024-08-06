@@ -35,72 +35,30 @@ public class ProjectOutLogBaseVO {
     @Schema(description = "客户id")
     private Long customerId;
 
-    @Schema(description = "内部数据评审json")
-    private String dataSignJson;
-
-    @Schema(description = "客户评价")
-    private String customerComment;
-
-    @Schema(description = "客户打分")
-    private String customerScoreJson;
-
-    @Schema(description = "报价金额", example = "10360")
-    private BigDecimal quotationPrice;
-
-    @Schema(description = "报价备注")
-    private String quotationMark;
-
-    @Schema(description = "已收金额", example = "14734")
-    private BigDecimal receivedPrice;
-
-    @Schema(description = "已收备注")
-    private String receivedMark;
-
-    @Schema(description = "合同金额", example = "11191")
-    private BigDecimal contractPrice;
-
-    @Schema(description = "合同备注")
-    private String contractMark;
-
-    @Schema(description = "材料成本", example = "11496")
-    private BigDecimal supplyPrice;
-
-    @Schema(description = "材料备注")
-    private String supplyMark;
-
-    @Schema(description = "委外成本", example = "2216")
-    private BigDecimal outsourcePrice;
-
-    @Schema(description = "委外备注")
-    private String outsourceMark;
-
-    @Schema(description = "客户签字链接", example = "https://www.iocoder.cn")
-    private String customerSignImgUrl;
-
-    @Schema(description = "客户签字时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime custoamerSignTime;
-
-    @Schema(description = "步骤的确认日志")
-    private String stepsJsonLog;
-
-    @Schema(description = "出库金额，理论上等于已收金额", example = "12597")
-    private BigDecimal resultPrice;
-
-    @Schema(description = "出库金额备注")
-    private String resultMark;
-
-    /**
-     * 数据链接
-     */
-    private String dataLink;
-
-    /**
-     * 数据备注
-     */
-    private String dataMark;
-
-
+    @Schema(description = "步骤", requiredMode = Schema.RequiredMode.REQUIRED, example = "6093")
+    @NotNull(message = "步骤不能为空")
     private Integer step;
+
+    private String stepJson;
+
+    /**
+     *
+     */
+    private String step1Json;
+
+    /**
+     *
+     */
+    private String step2Json;
+
+    /**
+     *
+     */
+    private String step3Json;
+
+    /**
+     *
+     */
+    private String step4Json;
 
 }

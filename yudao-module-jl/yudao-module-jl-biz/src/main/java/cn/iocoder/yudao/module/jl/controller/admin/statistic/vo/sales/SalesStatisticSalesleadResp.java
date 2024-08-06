@@ -16,6 +16,8 @@ public class SalesStatisticSalesleadResp {
     Integer focusCount;
     //已报价个数
     Integer quotedCount;
+    //已报价的成交个数
+    Integer quotedAndDealCount;
     //已成交个数
     Integer dealCount;
     //已丢单个数

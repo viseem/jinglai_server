@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.crm.SalesleadCompetitorMapper;
@@ -15,6 +16,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectConstractMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.*;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectConstractServiceImpl;
@@ -33,6 +35,7 @@ import javax.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -118,6 +121,9 @@ public class SalesleadServiceImpl implements SalesleadService {
 
     @Resource
     private ProjectQuotationRepository projectQuotationRepository;
+
+    @Resource
+    private ProjectQuotationOnlyRepository projectQuotationOnlyRepository;
 
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
@@ -557,7 +563,19 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
 
             if(pageReqVO.getQuotationTime() != null) {
-                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
+                List<Long> collect = new ArrayList<>();
+                if(pageReqVO.getCreatorIds()!=null){
+                    collect = Arrays.stream(pageReqVO.getCreatorIds()).collect(Collectors.toList());
+                }
+                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
+                    // creatorIds添加一个元素
+                    collect.add(getLoginUserId());
+                }
+                System.out.println("---"+collect.size());
+                List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
+//                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
+                Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
+                predicates.add(root.get("id").in(array));
             }
 
             if(pageReqVO.getSource() != null) {
@@ -605,7 +623,13 @@ public class SalesleadServiceImpl implements SalesleadService {
                     }
                 }
             }else{
-                predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                if(pageReqVO.getQuotationTime()==null){
+                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                }else{
+                    // 为了兼容PI组看板的查询，如果按照报价查询的话，可能这个商机是别的组创建的
+                    predicates.add(cb.or(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()),root.get("managerId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray())));
+
+                }
             }
 
             if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {

@@ -28,21 +28,6 @@ public interface ProjectOutLogService {
     void updateProjectOutLog(@Valid ProjectOutLogUpdateReqVO updateReqVO);
 
     /**
-     * 更新example 空
-     *
-     * @param updateReqVO 更新信息
-     */
-    void updateProjectOutLogDataStep(@Valid ProjectOutLogUpdateReqVO updateReqVO);
-
-
-    /**
-     * 更新example 空
-     *
-     * @param updateReqVO 更新信息
-     */
-    void updateProjectOutLogCustomerStep(@Valid ProjectOutLogUpdateReqVO updateReqVO);
-
-    /**
      * 删除example 空
      *
      * @param id 编号
