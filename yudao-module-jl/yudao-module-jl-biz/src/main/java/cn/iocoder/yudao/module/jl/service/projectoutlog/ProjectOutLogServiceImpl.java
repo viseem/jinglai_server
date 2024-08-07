@@ -83,6 +83,7 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
                 throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
             }
             projectOutLogRepository.updateStep1JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+            projectOnlyRepository.updateStageById(ProjectStageEnums.OUTING.getStatus(), updateReqVO.getProjectId());
         }
         if(updateReqVO.getStep().equals(1)){
             if(updateReqVO.getStepJson()==null){
@@ -103,7 +104,7 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
             }
             projectOutLogRepository.updateStep4JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
             // 项目变更为已出库
-            projectOnlyRepository.updateStageById(ProjectStageEnums.OUTED.getStatus(), updateReqVO.getProjectId());
+//            projectOnlyRepository.updateStageById(ProjectStageEnums.OUTED.getStatus(), updateReqVO.getProjectId());
         }
     }
 

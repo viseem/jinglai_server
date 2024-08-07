@@ -598,7 +598,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }*/
             }
 
-            if(pageReqVO.getSalesId() != null) {
+            if(pageReqVO.getSalesId() != null&&pageReqVO.getAttribute()==null) {
                 predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
             }
 
@@ -632,7 +632,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
             }
 
-            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
+            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())&&pageReqVO.getSalesId()==null) {
 //                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
                 predicates.add(cb.or(
                         root.get("creator").in(Collections.singletonList(getLoginUserId())),
