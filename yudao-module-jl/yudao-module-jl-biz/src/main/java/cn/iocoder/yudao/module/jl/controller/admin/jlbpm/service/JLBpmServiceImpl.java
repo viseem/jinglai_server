@@ -231,11 +231,13 @@ public class JLBpmServiceImpl implements JLBpmService {
             // 如果是三个采购单：项目、实验室、行政
             if (Objects.equals(processDefinitionKey, PROJECT_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, OFFICE_PROCUREMENT_AUDIT) || Objects.equals(processDefinitionKey, LAB_PROCUREMENT_AUDIT)) {
                 procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.REJECT.getStatus());
+                procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.REJECT_PROCUREMENT.getStatus(), reqVO.getRefId());
             }
 
             // 如果是购销合同
             if (Objects.equals(processDefinitionKey, PROCUREMENT_PURCHASE_CONTRACT_AUDIT)) {
                 purchaseContractRepository.updateStatusById(PurchaseContractStatusEnums.REJECT.getStatus(), reqVO.getRefId());
+                procurementItemRepository.updateStatusByPurchaseContractId(ProcurementItemStatusEnums.REJECT_ORDER.getStatus(), reqVO.getRefId());
             }
 
             // 商机报价审核

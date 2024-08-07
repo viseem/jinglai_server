@@ -318,6 +318,8 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 重置状态
         procurementRepository.updateStatusById(id,procurementOnly.getStatus());
+        // 重置物资状态
+        procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.APPLY_PROCUREMENT.getStatus(), id);
     }
 
     @Override

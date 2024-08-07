@@ -248,6 +248,18 @@ public class ProductDetail extends BaseEntity {
     @Column(name = "sort")
     private Integer sort;
 
+    /**
+     * 产品缩略图地址
+     */
+    @Column(name = "cover_url")
+    private String coverUrl;
+
+    /**
+     * 产品缩略图名称
+     */
+    @Column(name = "cover_name")
+    private String coverName;
+
 
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

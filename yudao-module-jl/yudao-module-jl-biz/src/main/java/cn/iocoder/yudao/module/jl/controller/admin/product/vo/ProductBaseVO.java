@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigDecimal;
 import java.math.BigDecimal;
 import java.math.BigDecimal;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -115,5 +116,15 @@ public class ProductBaseVO {
 
     @Schema(description = "排序")
     private Integer sort=100;
+
+    /**
+     * 产品缩略图地址
+     */
+    private String coverUrl;
+
+    /**
+     * 产品缩略图名称
+     */
+    private String coverName;
 
 }
