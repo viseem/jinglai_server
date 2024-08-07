@@ -127,6 +127,13 @@ public class CustomerServiceImpl implements CustomerService {
                 return 0L;
             }
         }
+        // 查询是否重名
+        if(createReqVO.getName()!=null&& !createReqVO.getName().isEmpty()){
+            CustomerSimple byName = customerSimpleRepository.findByName(createReqVO.getName());
+            if(byName!=null){
+                return -1L;
+            }
+        }
 
         if(createReqVO.getPhone()!=null){
             createReqVO.setPhone(createReqVO.getPhone().replace(" ",""));

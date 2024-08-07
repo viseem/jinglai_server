@@ -63,8 +63,11 @@ public class CustomerController {
     public CommonResult<Long> createCustomer(@Valid @RequestBody CustomerCreateReqVO createReqVO) {
         Long customer = customerService.createCustomer(createReqVO);
         String msg="";
-        if(customer == null || customer<=0){
+        if(customer != null && customer==0){
             msg="该手机号已存在";
+        }
+        if(customer != null &&customer == -1){
+            msg="已存在重名客户，为避免无法区分和重复录入问题，请在姓名后填写单位信息";
         }
         return success(customer,msg);
     }

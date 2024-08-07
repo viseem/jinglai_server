@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.service.projectoutlog;
 
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectServiceImpl;
 import org.springframework.stereotype.Service;
@@ -95,11 +96,14 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
             }
             projectOutLogRepository.updateStep3JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
         }
+        // 这是最后一步 项目就出库了
         if(updateReqVO.getStep().equals(3)){
             if(updateReqVO.getStepJson()==null){
                 throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);
             }
             projectOutLogRepository.updateStep4JsonById(updateReqVO.getStepJson(), updateReqVO.getId());
+            // 项目变更为已出库
+            projectOnlyRepository.updateStageById(ProjectStageEnums.OUTED.getStatus(), updateReqVO.getProjectId());
         }
     }
 
