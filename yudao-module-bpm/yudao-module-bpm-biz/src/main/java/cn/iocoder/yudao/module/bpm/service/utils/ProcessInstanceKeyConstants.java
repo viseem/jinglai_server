@@ -11,6 +11,9 @@ public class ProcessInstanceKeyConstants {
 
     public static final String QUOTATION_AUDIT = "QUOTATION_AUDIT";
 
+    public static final String PROJECT_OUTED = "PROJECT_OUTED";
+
+
     public static final String PROJECT_STATUS_CHANGE = "PROJECT_STATUS_CHANGE";
 
 }

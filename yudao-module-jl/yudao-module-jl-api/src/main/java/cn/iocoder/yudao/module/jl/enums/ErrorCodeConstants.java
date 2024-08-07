@@ -293,6 +293,9 @@ public interface ErrorCodeConstants {
     ErrorCode BPM_PARAMS_ERROR = new ErrorCode(1005003006, "参数错误");
     ErrorCode PROCUREMENT_AUDIT_TYPE_NOT_EXIST = new ErrorCode(1005003007, "采购审批类型不存在");
 
+    ErrorCode BPM_CAN_NOT_CANCEL = new ErrorCode(1005003008, "该流程不可取消");
+
+
 
     // ====== store =====
 

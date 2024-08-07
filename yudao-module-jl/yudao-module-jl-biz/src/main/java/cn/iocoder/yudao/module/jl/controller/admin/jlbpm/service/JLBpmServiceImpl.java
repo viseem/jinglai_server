@@ -40,8 +40,7 @@ import java.util.*;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.*;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.BPM_PARAMS_ERROR;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -262,13 +261,17 @@ public class JLBpmServiceImpl implements JLBpmService {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(reqVO.getId());
         String processDefinitionKey = processInstance.getProcessDefinitionKey();
 
+        boolean canCancel = processDefinitionKey.contains("PROCUREMENT") || reqVO.getProcessType().equals(PROJECT_OUTED) || processDefinitionKey.contains(QUOTATION_AUDIT);
+        if(!canCancel){
+            throw  exception(BPM_CAN_NOT_CANCEL);
+        }
+
         if (processDefinitionKey.contains("PROCUREMENT")) {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.CANCEL.getStatus());
             procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.CANCEL.getStatus(), reqVO.getRefId());
-//            procurementRepository.updateProcessInstanceIdById(null, reqVO.getRefId());
         }
 
-        if (reqVO.getProcessType().equals("PROJECT_OUTED")) {
+        if (reqVO.getProcessType().equals(PROJECT_OUTED)) {
             projectOnlyRepository.updateOutboundApplyResultById( null, reqVO.getRefId());
         }
         // 如果是报价审批

@@ -44,7 +44,7 @@ public class JLMessageController {
 
     @PostMapping("/send-urge")
     @Operation(summary = "发送催办消息")
-    public CommonResult<Boolean> getAssetDevicePage(@Valid @RequestBody JLMessageReqVO reqVO) {
+    public CommonResult<Boolean> sendUrgeMsg(@Valid @RequestBody JLMessageReqVO reqVO) {
 
         Optional<User> byId = userRepository.findById(getLoginUserId());
         if (byId.isEmpty()) {
@@ -56,6 +56,9 @@ public class JLMessageController {
                 user.getNickname(),
                 reqVO.getTitle());
         Map<String, Object> templateParams = new HashMap<>();
+        templateParams.put("msgType", reqVO.getMsgType());
+        templateParams.put("refId", reqVO.getRefId());
+        templateParams.put("projectName", reqVO.getProjectName());
         templateParams.put("content", content + (reqVO.getMark() != null ? "备注：" + reqVO.getMark() : ""));
         templateParams.put("processInstanceId", reqVO.getProcessInstanceId());
         notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
