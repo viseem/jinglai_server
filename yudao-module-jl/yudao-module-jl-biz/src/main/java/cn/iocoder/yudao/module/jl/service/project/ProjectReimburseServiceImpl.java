@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -98,10 +99,29 @@ public class ProjectReimburseServiceImpl implements ProjectReimburseService {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
+        List<ProjectReimburse> content = null;
+        long totalElements = 0;
         // 创建 Specification
+        Specification<ProjectReimburse> spec = getSpecification(pageReqVO);
+
+        if(pageReqVO.getPageNo()!=-1){
+            // 创建 Pageable 对象
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            // 执行查询
+            Page<ProjectReimburse> page = projectReimburseRepository.findAll(spec, pageable);
+            content=page.getContent();
+            totalElements = page.getTotalElements();
+        }else{
+            content = projectReimburseRepository.findAll(spec);
+        }
+
+
+        return new PageResult<>(content,totalElements);
+    }
+
+    @NotNull
+    private static Specification<ProjectReimburse> getSpecification(ProjectReimbursePageReqVO pageReqVO) {
         Specification<ProjectReimburse> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -140,13 +160,7 @@ public class ProjectReimburseServiceImpl implements ProjectReimburseService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProjectReimburse> page = projectReimburseRepository.findAll(spec, pageable);
-//        List<ProjectReimburse> list = page.getContent();
-//        list.forEach(this::processItem);
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     private void processItem(ProjectReimburse item) {

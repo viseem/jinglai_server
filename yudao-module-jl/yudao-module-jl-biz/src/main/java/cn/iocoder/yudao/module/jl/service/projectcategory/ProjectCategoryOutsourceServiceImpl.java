@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.projectcategory;
 import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -101,11 +102,28 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
-
         // 创建 Specification
-        Specification<ProjectCategoryOutsource> spec = (root, query, cb) -> {
+        Specification<ProjectCategoryOutsource> spec = getSpecification(pageReqVO);
+        List<ProjectCategoryOutsource> content = null;
+        long totalElements = 0;
+        if(pageReqVO.getPageNo()!=-1){
+            // 创建 Pageable 对象
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            // 执行查询
+            Page<ProjectCategoryOutsource> page = projectCategoryOutsourceRepository.findAll(spec, pageable);
+             content = page.getContent();
+             totalElements = page.getTotalElements();
+        }else{
+            content = projectCategoryOutsourceRepository.findAll(spec);
+        }
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(content, totalElements);
+    }
+
+    @NotNull
+    private static <T>Specification<T> getSpecification(ProjectCategoryOutsourcePageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getProjectId() != null) {
@@ -155,15 +173,7 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<ProjectCategoryOutsource> page = projectCategoryOutsourceRepository.findAll(spec, pageable);
-//        List<ProjectCategoryOutsource> outsources = page.getContent();
-//        outsources.forEach(this::processItem);
-
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     private void processItem(ProjectCategoryOutsource item) {
