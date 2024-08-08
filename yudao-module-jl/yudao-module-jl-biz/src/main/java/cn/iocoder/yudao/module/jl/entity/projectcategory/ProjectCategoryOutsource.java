@@ -71,6 +71,12 @@ public class ProjectCategoryOutsource extends BaseEntity {
     private String type;
 
     /**
+     * 供应商名称
+     */
+    @Column(name = "supplier_name", nullable = false )
+    private String supplierName;
+
+    /**
      * 外包内容
      */
     @Column(name = "content", nullable = false )

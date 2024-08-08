@@ -24,13 +24,16 @@ public class ProjectCategoryOutsourceBaseVO {
     @Schema(description = "项目的实验名目id")
     private Long projectCategoryId;
 
-    @Schema(description = "类型：项目、实验、其它", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
-    @NotNull(message = "类型：项目、实验、其它不能为空")
+    @Schema(description = "类型：项目、实验、其它")
     private String type;
 
     @Schema(description = "外包内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "外包内容不能为空")
     private String content;
+
+    @Schema(description = "供应商名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "供应商名称不能为空")
+    private String supplierName;
 
     @Schema(description = "外包供应商id", example = "20117")
     private Integer categorySupplierId;
