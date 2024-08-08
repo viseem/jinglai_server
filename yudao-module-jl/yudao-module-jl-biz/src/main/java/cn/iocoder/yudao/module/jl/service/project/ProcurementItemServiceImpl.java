@@ -98,17 +98,24 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
-
         // 创建 Specification
         Specification<ProcurementItem> spec = getSpecification(pageReqVO);
 
+        List<ProcurementItem> content = null;
+        long totalElements = 0;
         // 执行查询
-        Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
+        // 创建 Pageable 对象
+        if(pageReqVO.getPageNo()!=-1){
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
+            totalElements = page.getTotalElements();
+            content = page.getContent();
+        }else{
+            content = procurementItemRepository.findAll(spec);
+        }
 
         // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return new PageResult<>(content, totalElements);
     }
 
     @Override
