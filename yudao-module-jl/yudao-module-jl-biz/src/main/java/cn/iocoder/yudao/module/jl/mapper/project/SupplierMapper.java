@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
+import cn.iocoder.yudao.module.jl.entity.project.SupplierSimple;
 import org.mapstruct.*;
 
 
@@ -26,4 +27,6 @@ public interface SupplierMapper {
     List<SupplierExcelVO> toExcelList(List<Supplier> list);
 
     PageResult<SupplierRespVO> toPage(PageResult<Supplier> page);
+    PageResult<SupplierRespVO> toPageSimple(PageResult<SupplierSimple> page);
+
 }

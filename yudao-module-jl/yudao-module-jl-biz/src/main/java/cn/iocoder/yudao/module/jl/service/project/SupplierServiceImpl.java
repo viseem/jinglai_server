@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.jl.entity.project.SupplierSimple;
+import cn.iocoder.yudao.module.jl.repository.project.SupplierSimpleRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectsupplierinvoice.ProjectSupplierInvoiceServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
@@ -9,6 +11,7 @@ import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
 import com.xingyuv.captcha.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
@@ -48,6 +51,9 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Resource
     private SupplierRepository supplierRepository;
+
+    @Resource
+    private SupplierSimpleRepository supplierSimpleRepository;
 
     @Resource
     private SupplierMapper supplierMapper;
@@ -132,7 +138,36 @@ public class SupplierServiceImpl implements SupplierService {
         Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
 
         // 创建 Specification
-        Specification<Supplier> spec = (root, query, cb) -> {
+        Specification<Supplier> spec = getSpecification(pageReqVO);
+
+        // 执行查询
+        Page<Supplier> page = supplierRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<SupplierSimple> getSupplierPageSimple(SupplierPageReqVO pageReqVO, SupplierPageOrder orderV0) {
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<SupplierSimple> spec = getSpecification(pageReqVO);
+
+        // 执行查询
+        Page<SupplierSimple> page = supplierSimpleRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    @NotNull
+    private static <T>Specification<T> getSpecification(SupplierPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if(pageReqVO.getCateType() != null) {
@@ -254,12 +289,7 @@ public class SupplierServiceImpl implements SupplierService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        // 执行查询
-        Page<Supplier> page = supplierRepository.findAll(spec, pageable);
-
-        // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return spec;
     }
 
     @Override

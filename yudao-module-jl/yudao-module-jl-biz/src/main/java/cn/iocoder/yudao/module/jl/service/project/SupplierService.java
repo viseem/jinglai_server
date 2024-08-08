@@ -5,6 +5,7 @@ import javax.validation.*;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Supplier;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.jl.entity.project.SupplierSimple;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
 
@@ -67,6 +68,14 @@ public interface SupplierService {
      * @return 项目采购单物流信息分页
      */
     PageResult<Supplier> getSupplierPage(SupplierPageReqVO pageReqVO, SupplierPageOrder orderV0);
+
+    /**
+     * 获得项目采购单物流信息分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 项目采购单物流信息分页
+     */
+    PageResult<SupplierSimple> getSupplierPageSimple(SupplierPageReqVO pageReqVO, SupplierPageOrder orderV0);
 
     /**
      * 获得项目采购单物流信息列表, 用于 Excel 导出

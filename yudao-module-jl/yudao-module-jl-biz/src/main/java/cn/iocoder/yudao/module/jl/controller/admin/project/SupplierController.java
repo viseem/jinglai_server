@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project;
 
+import cn.iocoder.yudao.module.jl.entity.project.SupplierSimple;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -95,6 +96,13 @@ public class SupplierController {
     public CommonResult<PageResult<SupplierRespVO>> getSupplierPage(@Valid SupplierPageReqVO pageVO, @Valid SupplierPageOrder orderV0) {
         PageResult<Supplier> pageResult = supplierService.getSupplierPage(pageVO, orderV0);
         return success(supplierMapper.toPage(pageResult));
+    }
+
+    @GetMapping("/page-simple")
+    @Operation(summary = "(分页)获得项目采购单物流信息列表")
+    public CommonResult<PageResult<SupplierRespVO>> getSupplierPageSimple(@Valid SupplierPageReqVO pageVO, @Valid SupplierPageOrder orderV0) {
+        PageResult<SupplierSimple> pageResult = supplierService.getSupplierPageSimple(pageVO, orderV0);
+        return success(supplierMapper.toPageSimple(pageResult));
     }
 
     @GetMapping("/export-excel")
