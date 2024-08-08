@@ -18,6 +18,9 @@ public class ProjectCategoryOutsourceBaseVO {
     @NotNull(message = "项目id不能为空")
     private Long projectId;
 
+    private Long commonTaskId;
+
+
     @Schema(description = "项目的实验名目id")
     private Long projectCategoryId;
 

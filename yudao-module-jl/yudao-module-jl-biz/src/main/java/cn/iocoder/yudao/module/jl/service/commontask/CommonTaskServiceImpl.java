@@ -515,7 +515,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             }
 
             // 这里的逻辑是：如果没有收费项id、没有报价id，则默认查询自己的任务
-            if ((pageReqVO.getChargeitemId() == null && pageReqVO.getQuotationId()==null)&& !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+            if ((pageReqVO.getChargeitemId() == null && pageReqVO.getQuotationId()==null&& pageReqVO.getProjectId()==null)&& !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
                 Long[] users = pageReqVO.getUserId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));
             }

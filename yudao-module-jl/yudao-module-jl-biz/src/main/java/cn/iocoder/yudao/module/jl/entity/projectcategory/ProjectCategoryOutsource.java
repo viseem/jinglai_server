@@ -42,6 +42,12 @@ public class ProjectCategoryOutsource extends BaseEntity {
     private Long projectId;
 
     /**
+     * 通用任务id
+     */
+    @Column(name = "common_task_id", nullable = false )
+    private Long commonTaskId;
+
+    /**
      * 项目的实验名目id
      */
     @Column(name = "project_category_id", nullable = false )
