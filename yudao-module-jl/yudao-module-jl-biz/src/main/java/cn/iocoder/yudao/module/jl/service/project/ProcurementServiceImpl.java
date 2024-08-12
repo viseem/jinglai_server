@@ -412,6 +412,14 @@ public class ProcurementServiceImpl implements ProcurementService {
                 predicates.add(cb.between(root.get("acceptTime"), pageReqVO.getAcceptTime()[0],pageReqVO.getAcceptTime()[1]));
             }
 
+            if (pageReqVO.getUserId() != null) {
+                predicates.add(cb.equal(root.get("userId"), pageReqVO.getUserId()));
+            }
+
+            if (pageReqVO.getCustomerId() != null) {
+                predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+            }
+
             if (pageReqVO.getProjectId() != null) {
                 predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
             }
