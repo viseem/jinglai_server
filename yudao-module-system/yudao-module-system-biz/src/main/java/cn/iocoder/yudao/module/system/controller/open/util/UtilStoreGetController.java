@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.system.controller.open.util;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.system.controller.admin.util.vo.UtilStoreGetReqVO;
+import cn.iocoder.yudao.module.system.service.util.UtilServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,15 +19,14 @@ import javax.validation.Valid;
 @RestController
 @Validated
 public class UtilStoreGetController {
+
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private UtilServiceImpl utilService;
+
     @PostMapping("/store/get")
     @Operation(summary = "获取存储")
     public CommonResult<String> get(@RequestBody @Valid UtilStoreGetReqVO reqVO) {
-        String redisKey  = reqVO.getStoreId() + ":" + reqVO.getStorePwd();
-        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
-        String jsonStr = valueOps.get(redisKey);
-        return CommonResult.success(jsonStr);
+        return CommonResult.success(utilService.getStore(reqVO));
     }
 
 }

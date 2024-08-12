@@ -21,4 +21,5 @@ public interface UtilService {
 
     Boolean validStoreWithException(@Valid UtilStoreGetReqVO reqVO);
 
+    String generateIdAndSet(String jsonStr, String pwd, int expirationTime);
 }

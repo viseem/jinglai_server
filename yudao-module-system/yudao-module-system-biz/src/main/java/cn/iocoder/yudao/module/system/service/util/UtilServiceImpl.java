@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import java.time.Duration;
+import java.util.UUID;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
@@ -41,6 +44,26 @@ public class UtilServiceImpl implements UtilService {
             throw exception(STORE_NOT_EXISTS);
         }
         return true;
+    }
+
+    @Override
+    public String generateIdAndSet(String jsonStr, String pwd, int expirationTime) {
+        String id = generateUniqueId();
+
+        String redisKey  = id + ":" + pwd;
+        // 将信息存储到Redis中
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        valueOps.set(redisKey, jsonStr);
+        // 设置过期时间
+        stringRedisTemplate.expire(redisKey, Duration.ofDays(expirationTime));
+        return id;
+    }
+
+    private String generateUniqueId() {
+        // 使用UUID生成唯一标识符
+        String string = UUID.randomUUID().toString();
+        // 去掉横线-
+        return string.replaceAll("-", "");
     }
 
 
