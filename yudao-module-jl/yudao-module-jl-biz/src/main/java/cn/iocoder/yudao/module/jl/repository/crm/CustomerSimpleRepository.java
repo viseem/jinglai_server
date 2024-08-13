@@ -7,15 +7,17 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
 * CustomerRepository
 *
 */
 public interface CustomerSimpleRepository extends JpaRepository<CustomerSimple, Long>, JpaSpecificationExecutor<CustomerSimple> {
     @Query("select c from CustomerSimple c where c.name = ?1")
-    CustomerSimple findByName(String name);
+    List<CustomerSimple> findByName(String name);
     @Query("select c from CustomerSimple c where c.phone = ?1")
-    CustomerSimple findByPhone(String phone);
+    List<CustomerSimple> findByPhone(String phone);
     @Query("select count(c) from Customer c where c.creator = ?1 and (c.toCustomer = false or c.toCustomer is null)")
     Integer countByNotToCustomerAndCreator(Long creator);
     @Transactional

@@ -122,15 +122,15 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 查询手机号是否存在
         if(createReqVO.getPhone()!=null&& !createReqVO.getPhone().isEmpty()){
-            CustomerSimple byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
-            if(byPhone!=null){
+            List<CustomerSimple> byPhone = customerSimpleRepository.findByPhone(createReqVO.getPhone());
+            if(byPhone!=null&& !byPhone.isEmpty()){
                 return 0L;
             }
         }
         // 查询是否重名
         if(createReqVO.getName()!=null&& !createReqVO.getName().isEmpty()){
-            CustomerSimple byName = customerSimpleRepository.findByName(createReqVO.getName());
-            if(byName!=null){
+            List<CustomerSimple> byName = customerSimpleRepository.findByName(createReqVO.getName());
+            if(byName!=null&& !byName.isEmpty()){
                 return -1L;
             }
         }
@@ -657,8 +657,8 @@ public class CustomerServiceImpl implements CustomerService {
             if(item.getPhone()!=null){
                 item.setPhone(item.getPhone().trim());
             }
-            CustomerSimple byPhone = customerSimpleRepository.findByPhone(item.getPhone());
-            if(byPhone==null){
+            List<CustomerSimple> byPhone = customerSimpleRepository.findByPhone(item.getPhone());
+            if(byPhone==null||byPhone.isEmpty()){
                 Customer customer = customerMapper.toEntity(item);
 
                 if (item.getType() != null) {
