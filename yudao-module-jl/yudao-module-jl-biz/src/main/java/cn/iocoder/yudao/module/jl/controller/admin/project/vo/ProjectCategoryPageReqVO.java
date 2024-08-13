@@ -54,6 +54,8 @@ public class ProjectCategoryPageReqVO extends PageParam {
     @Schema(description = "类型，报价/安排单", example = "1")
     private String type = "schedule";
 
+    private Integer createType;
+
     private List<String> types;
 
     @Schema(description = "名目的实验类型，动物/细胞/分子等", example = "2")

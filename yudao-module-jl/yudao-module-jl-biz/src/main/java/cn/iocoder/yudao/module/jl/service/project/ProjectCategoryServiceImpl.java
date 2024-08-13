@@ -707,9 +707,14 @@ public class ProjectCategoryServiceImpl implements ProjectCategoryService {
                 }
             }
 
+            if(pageReqVO.getCreateType()!=null){
+                predicates.add(cb.equal(root.get("createType"), pageReqVO.getCreateType()));
+            }
+
             if(pageReqVO.getCategoryType() != null) {
                 predicates.add(cb.equal(root.get("categoryType"), pageReqVO.getCategoryType()));
             }
+
 
             if(pageReqVO.getCategoryId() != null) {
                 predicates.add(cb.equal(root.get("categoryId"), pageReqVO.getCategoryId()));
