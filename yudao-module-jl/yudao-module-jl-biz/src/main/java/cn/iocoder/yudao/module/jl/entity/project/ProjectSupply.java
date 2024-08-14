@@ -274,6 +274,12 @@ public class ProjectSupply extends BaseEntity {
     @Column(columnDefinition = "boolean default false",name="deleted_status")
     private Boolean deletedStatus = false;
 
+    /**
+     * 单位
+     */
+    @Column(name = "unit")
+    private String unit;
+
 
 
     @OneToMany(fetch = FetchType.EAGER)

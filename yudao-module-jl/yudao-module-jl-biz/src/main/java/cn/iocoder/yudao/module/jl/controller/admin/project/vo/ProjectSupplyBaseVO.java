@@ -54,6 +54,11 @@ public class ProjectSupplyBaseVO {
     private String spec;
 
     /**
+     * 单位
+     */
+    private String unit;
+
+    /**
      * 采购时的规格，这个可能会变化，每次采购时候会更新这个
      */
     @Schema(description = "采购规格")

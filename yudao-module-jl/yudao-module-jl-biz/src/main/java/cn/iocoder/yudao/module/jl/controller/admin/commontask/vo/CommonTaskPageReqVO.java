@@ -21,6 +21,10 @@ public class CommonTaskPageReqVO extends UtilStoreGetReqVO {
 
     private Boolean hasSopList = false;
 
+    private Boolean hasCustomer = true;
+
+    private Boolean hasProject = true;
+
     @Schema(description = "创建类型")
     private Integer createType;
 

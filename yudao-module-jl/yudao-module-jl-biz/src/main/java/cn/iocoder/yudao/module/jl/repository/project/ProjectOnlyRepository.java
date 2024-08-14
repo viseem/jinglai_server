@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * ProjectRepository
  */
 public interface ProjectOnlyRepository extends JpaRepository<ProjectOnly, Long>, JpaSpecificationExecutor<ProjectOnly> {
+    @Query("select p from ProjectOnly p where p.id in ?1")
+    List<ProjectOnly> findByIdIn(Collection<Long> ids);
     @Transactional
     @Modifying
     @Query("update ProjectOnly p set p.outboundStep = ?1 where p.id = ?2")

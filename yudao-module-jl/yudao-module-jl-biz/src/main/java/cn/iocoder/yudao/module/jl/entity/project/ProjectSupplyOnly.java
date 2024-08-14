@@ -172,6 +172,12 @@ public class ProjectSupplyOnly extends BaseEntity {
     private Integer outQuantity;
 
     /**
+     * 单位
+     */
+    @Column(name = "unit")
+    private String unit;
+
+    /**
      * 计算 已采购数量
      */
     @Transient

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.commontask;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
@@ -221,4 +222,7 @@ public class CommonTask extends BaseEntity {
 
     @Transient
     private ProjectOnly project;
+
+    @Transient
+    private CustomerOnly customer;
 }

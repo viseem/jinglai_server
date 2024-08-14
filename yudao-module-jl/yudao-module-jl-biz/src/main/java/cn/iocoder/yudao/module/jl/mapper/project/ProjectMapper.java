@@ -4,6 +4,7 @@ import java.util.*;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.Project;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import org.mapstruct.*;
 
@@ -16,6 +17,9 @@ public interface ProjectMapper {
     Project toEntity(ProjectUpdateReqVO dto);
 
     ProjectRespVO toDto(Project entity);
+
+    ProjectOnly simple2Only(ProjectSimple simple);
+
     ProjectCreateReqVO toCreateDto(Project entity);
 
 

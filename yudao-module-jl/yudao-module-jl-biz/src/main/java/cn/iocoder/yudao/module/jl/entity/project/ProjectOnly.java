@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.AllArgsConstructor;
@@ -251,6 +252,9 @@ public class ProjectOnly extends BaseEntity{
     private Long waitDoCount;
     @Transient
     private List<User> focusList = new ArrayList<>();
+
+    @Transient
+    private CustomerOnly customer;
 
     //这个是客户的课题组合集
     @Transient

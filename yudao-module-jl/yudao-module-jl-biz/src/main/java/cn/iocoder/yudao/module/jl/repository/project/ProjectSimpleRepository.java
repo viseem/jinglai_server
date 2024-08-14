@@ -15,6 +15,8 @@ import java.util.List;
 *
 */
 public interface ProjectSimpleRepository extends JpaRepository<ProjectSimple, Long>, JpaSpecificationExecutor<ProjectSimple> {
+    @Query("select p from ProjectSimple p where p.id in ?1")
+    List<ProjectSimple> findByIdIn(Collection<Long> ids);
     @Query(value = "SELECT * FROM jl_project_base WHERE creator IN ?1", nativeQuery = true)
     List<ProjectSimple> findByCreatorIn(Long[] creators);
     @Query("select count(p) from ProjectSimple p where p.endDate between ?1 and ?2 and p.creator in ?3 and p.stage <> ?4")

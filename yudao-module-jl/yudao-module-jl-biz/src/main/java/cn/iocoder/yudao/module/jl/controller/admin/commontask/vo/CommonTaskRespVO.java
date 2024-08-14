@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask.vo;
 
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
@@ -25,6 +26,7 @@ public class CommonTaskRespVO extends CommonTaskBaseVO {
 
     private ProjectChargeitem chargeItem;
     private ProjectOnly project;
+    private CustomerOnly customer;
     private ProductSelector product;
 
 }

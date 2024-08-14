@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.enums.BpmTaskStatustEnum;
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerOnly;
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
@@ -17,13 +18,13 @@ import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerOnlyRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.repository.product.ProductOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.product.ProductSelectorRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectCategoryRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectOnlyRepository;
-import cn.iocoder.yudao.module.jl.repository.project.ProjectSopRepository;
+import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskarrangerelation.TaskArrangeRelationRepository;
 import cn.iocoder.yudao.module.jl.repository.taskproduct.TaskProductRepository;
@@ -92,8 +93,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     private ProjectChargeitemServiceImpl chargeItemService;
 
     @Resource
-    private ProjectQuotationRepository projectQuotationRepository;
-
+    private CustomerOnlyRepository customerOnlyRepository;
     @Resource
     private ProjectQuotationServiceImpl projectQuotationService;
 
@@ -113,7 +113,13 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     private ProjectOnlyRepository projectOnlyRepository;
 
     @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
+
+    @Resource
     private UserServiceImpl userService;
+
+    @Resource
+    private ProjectMapper projectMapper;
 
     @Override
     @Transactional
@@ -123,9 +129,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 插入
         CommonTask commonTask = commonTaskMapper.toEntity(createReqVO);
-        if(createReqVO.getManageTaskId()==null || createReqVO.getManageTaskId()==0){
+        if (createReqVO.getManageTaskId() == null || createReqVO.getManageTaskId() == 0) {
             commonTaskRepository.save(commonTask);
-        }else{
+        } else {
             commonTask.setId(createReqVO.getManageTaskId());
         }
 
@@ -136,16 +142,16 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         saveParentTaskExperIds(createReqVO, commonTask.getId());
 
         // 发送通知
-        if(Objects.equals(createReqVO.getNeedSendMsg(),true)){
-            if(createReqVO.getUserId()!=null){
+        if (Objects.equals(createReqVO.getNeedSendMsg(), true)) {
+            if (createReqVO.getUserId() != null) {
                 Map<String, Object> templateParams = new HashMap<>();
                 String content = String.format(
                         "收到来自项目(%s)的待办任务(%s)，点击查看",
-                        createReqVO.getProjectSimple()!=null?createReqVO.getProjectSimple().getName():"",
+                        createReqVO.getProjectSimple() != null ? createReqVO.getProjectSimple().getName() : "",
                         createReqVO.getName()
                 );
-                templateParams.put("content",content);
-                templateParams.put("id",commonTask.getId());
+                templateParams.put("content", content);
+                templateParams.put("id", commonTask.getId());
                 notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                         createReqVO.getUserId(),
                         BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_WAIT_DO.getTemplateCode(), templateParams
@@ -156,9 +162,10 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 返回
         return commonTask.getId();
     }
+
     @Override
     @Transactional
-    public void batchCreateCommonTask(CommonTaskBatchCreateReqVO vo){
+    public void batchCreateCommonTask(CommonTaskBatchCreateReqVO vo) {
         // 收费项、任务关系表
         List<TaskArrangeRelation> relationList = new ArrayList<>();
 
@@ -174,7 +181,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             // 任务
             CommonTask task = new CommonTask();
             task.setName(item.getName());
-            task.setStatus(isDoAudit?CommonTaskStatusEnums.WAIT_DO.getStatus() : CommonTaskStatusEnums.WAIT_SEND.getStatus());
+            task.setStatus(isDoAudit ? CommonTaskStatusEnums.WAIT_DO.getStatus() : CommonTaskStatusEnums.WAIT_SEND.getStatus());
             task.setCreateType(CommonTaskCreateTypeEnums.PRODUCT.getStatus());
             task.setAssignUserId(getLoginUserId());
             task.setAssignUserName(user.getNickname());
@@ -205,10 +212,10 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     private void saveParentTaskExperIds(CommonTaskBaseVO createReqVO, Long taskId) {
         //如果父级id不为空
-        if(createReqVO.getParentId()!=null&&createReqVO.getParentId()>0){
+        if (createReqVO.getParentId() != null && createReqVO.getParentId() > 0) {
             CommonTask commonTask = createReqVO.getParentTask();
             // 如果父级是管理任务，则新增的是产品任务，需要更新一下管理任务的experIds字段
-            if(Objects.equals(commonTask.getCreateType(),CommonTaskCreateTypeEnums.MANAGE.getStatus())){
+            if (Objects.equals(commonTask.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())) {
                 List<CommonTask> byParentId = commonTaskRepository.findByParentId(createReqVO.getParentId());
                 // 把实验员的id在管理任务中记录一下
                 List<Long> experIds = new ArrayList<>();
@@ -217,7 +224,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                     experIds.add(task.getUserId());
                 }
 
-                if(!experIds.isEmpty()){
+                if (!experIds.isEmpty()) {
                     // experIds去重一下
 
                     commonTaskRepository.updateExperIdsById(experIds.stream()
@@ -231,9 +238,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     private void saveTaskArrangeRelation(CommonTaskBaseVO reqVO, Long taskId) {
 
-        if(reqVO.getChargeitemId()!=null){
+        if (reqVO.getChargeitemId() != null) {
             ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(reqVO.getChargeitemId());
-            reqVO.setQuotationId( chargeItem.getQuotationId());
+            reqVO.setQuotationId(chargeItem.getQuotationId());
             reqVO.setProjectId(chargeItem.getProjectId());
 
 
@@ -241,28 +248,28 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
 
         // 如果是产品(实验)任务，第三级的任务，这里也有两种途径创建：1、收费项的指派按钮 2、任务弹窗里面的新增子任务
-        if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.PRODUCT.getStatus())){
+        if (Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.PRODUCT.getStatus())) {
             TaskArrangeRelation relation = new TaskArrangeRelation();
             relation.setTaskId(taskId);
             relation.setChargeItemId(reqVO.getChargeitemId());
             relation.setProductId(reqVO.getProductId());
-            relation.setProjectId( reqVO.getProjectId());
-            relation.setQuotationId( reqVO.getQuotationId());
+            relation.setProjectId(reqVO.getProjectId());
+            relation.setQuotationId(reqVO.getQuotationId());
             taskArrangeRelationRepository.save(relation);
         }
 
-        System.out.println("---==---=="+reqVO.getQuotationId());
+        System.out.println("---==---==" + reqVO.getQuotationId());
 
         // 如果是管理任务
-        if(Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())){
-            if(reqVO.getChargeList()!=null&& !reqVO.getChargeList().isEmpty()){
+        if (Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())) {
+            if (reqVO.getChargeList() != null && !reqVO.getChargeList().isEmpty()) {
 
 //                List<TaskArrangeRelation> relationList = new ArrayList<>();
                 // 不用存到relation里面
                 for (ProjectChargeitem charge : reqVO.getChargeList()) {
-                    if(charge.getTaskList()!=null&&!charge.getTaskList().isEmpty()){
+                    if (charge.getTaskList() != null && !charge.getTaskList().isEmpty()) {
 
-                        charge.getTaskList().forEach(task-> {
+                        charge.getTaskList().forEach(task -> {
                             task.setParentId(taskId);
                             task.setProjectId(reqVO.getProjectId());
                             task.setQuotationId(reqVO.getQuotationId());
@@ -295,18 +302,18 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
-        if(vo.getChargeitemId()!=null&&vo.getChargeitemId()>0){
+        if (vo.getChargeitemId() != null && vo.getChargeitemId() > 0) {
             ProjectChargeitem chargeItem = chargeItemService.validateProjectChargeitemExists(vo.getChargeitemId());
             vo.setQuotationId(chargeItem.getQuotationId());
             vo.setProjectId(chargeItem.getProjectId());
-        }else{
-            if(vo.getQuotationId()!=null&&vo.getQuotationId()>0){
+        } else {
+            if (vo.getQuotationId() != null && vo.getQuotationId() > 0) {
                 ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(vo.getQuotationId());
                 vo.setProjectId(quotation.getProjectId());
             }
         }
 
-        if(vo.getParentId()!=null&&vo.getParentId()>0){
+        if (vo.getParentId() != null && vo.getParentId() > 0) {
             CommonTask commonTask = validateCommonTaskExists(vo.getParentId());
             vo.setQuotationId(commonTask.getQuotationId());
             vo.setProjectId(commonTask.getProjectId());
@@ -315,17 +322,17 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 如果项目不为空，查询一下项目的状态，如果是开展前审批通过了，则该任务状态改为待开展
         // 这里是项目开展前审批后，单独追加的任务，所以需要发送通知
-        if(vo.getProjectId()!=null){
+        if (vo.getProjectId() != null) {
             ProjectSimple projectSimple = projectService.validateProjectExists(vo.getProjectId());
             vo.setProjectSimple(projectSimple);
             //如果项目的开展前审批是同意的，并且客户已经签字确认
-            if(Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString())&&projectSimple.getCustomerSignImgUrl()!=null&&projectSimple.getCustomerSignImgUrl().contains("http")){
+            if (Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString()) && projectSimple.getCustomerSignImgUrl() != null && projectSimple.getCustomerSignImgUrl().contains("http")) {
                 vo.setNeedSendMsg(true);
                 vo.setStatus(CommonTaskStatusEnums.WAIT_DO.getStatus());
             }
         }
 
-        if(vo.getUserId()!=null){
+        if (vo.getUserId() != null) {
             userRepository.findById(vo.getUserId()).ifPresentOrElse(user -> {
                 vo.setUserNickname(user.getNickname());
             }, () -> {
@@ -341,9 +348,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                 throw exception(USER_NOT_EXISTS);
             });
         }
-
-
-
 
 
     }
@@ -377,7 +381,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         CommonTask updateObj = commonTaskMapper.toEntity(updateReqVO);
         commonTaskRepository.save(updateObj);
 
-        saveParentTaskExperIds(updateReqVO,updateObj.getId());
+        saveParentTaskExperIds(updateReqVO, updateObj.getId());
 //        saveTaskArrangeRelation(updateReqVO, updateObj.getId());
     }
 
@@ -395,12 +399,12 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(reqVO.getQuotationId());
             byQuotationId.forEach(task -> {
                 // 只有等于待下发状态的才下发
-                if(Objects.equals(task.getStatus(),CommonTaskStatusEnums.WAIT_SEND.getStatus())){
+                if (Objects.equals(task.getStatus(), CommonTaskStatusEnums.WAIT_SEND.getStatus())) {
                     //改状态为待接收
                     task.setStatus(CommonTaskStatusEnums.WAIT_RECEIVE.getStatus());
                     Map<String, Object> templateParams = new HashMap<>();
                     templateParams.put("content", processSendTaskContent(task));
-                    templateParams.put("id",task.getId());
+                    templateParams.put("id", task.getId());
                     notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
                             task.getUserId(),
                             BpmMessageEnum.NOTIFY_WHEN_COMMON_TASK_SEND.getTemplateCode(), templateParams
@@ -412,7 +416,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
     }
 
     private String processSendTaskContent(CommonTask task) {
-        return "您有一个任务待接收,任务名称：" + task.getName()+",请及时处理";
+        return "您有一个任务待接收,任务名称：" + task.getName() + ",请及时处理";
     }
 
 
@@ -426,19 +430,19 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         // 删除中间表
         TaskArrangeRelation byTaskId = taskArrangeRelationRepository.findByTaskId(id);
-        if(byTaskId!=null){
+        if (byTaskId != null) {
             taskArrangeRelationRepository.deleteById(byTaskId.getId());
         }
 
         // 删除子任务
         List<CommonTask> byParentId = commonTaskRepository.findByParentId(id);
-        if(byParentId!=null&&!byParentId.isEmpty()){
+        if (byParentId != null && !byParentId.isEmpty()) {
             commonTaskRepository.deleteAllByIdInBatch(byParentId.stream().map(CommonTask::getId).collect(Collectors.toList()));
         }
     }
 
     public CommonTask validateCommonTaskExists(Long id) {
-       return commonTaskRepository.findById(id).orElseThrow(() -> exception(COMMON_TASK_NOT_EXISTS));
+        return commonTaskRepository.findById(id).orElseThrow(() -> exception(COMMON_TASK_NOT_EXISTS));
     }
 
     @Override
@@ -446,17 +450,17 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         Optional<CommonTask> byId = commonTaskRepository.findById(id);
         byId.ifPresent(task -> {
             // 查询收费项
-            if(task.getChargeitemId()!=null){
+            if (task.getChargeitemId() != null) {
                 Optional<ProjectChargeitem> byId1 = projectChargeitemRepository.findById(task.getChargeitemId());
                 byId1.ifPresent(task::setChargeItem);
             }
             // 查询产品
-            if(task.getProductId()!=null){
+            if (task.getProductId() != null) {
                 Optional<ProductSelector> byId1 = productSelectorRepository.findById(task.getProductId());
                 byId1.ifPresent(task::setProduct);
             }
             // 查询项目
-            if(task.getProjectId()!=null){
+            if (task.getProjectId() != null) {
                 Optional<ProjectOnly> byId1 = projectOnlyRepository.findById(task.getProjectId());
                 byId1.ifPresent(task::setProject);
             }
@@ -464,6 +468,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         });
         return byId;
     }
+
     @Override
     public CommonTaskCountStatusRespVO getCommonTaskStatusCount() {
         CommonTaskCountStatusRespVO respVO = new CommonTaskCountStatusRespVO();
@@ -496,13 +501,13 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             List<Predicate> predicates = new ArrayList<>();
 
             // 如果传递了 chargeItemId 或者quotationId,要默认查询包含未下发的任务
-            if(pageReqVO.getChargeitemId()!=null || pageReqVO.getQuotationId()!=null || pageReqVO.getParentId()!=null){
+            if (pageReqVO.getChargeitemId() != null || pageReqVO.getQuotationId() != null || pageReqVO.getParentId() != null) {
                 pageReqVO.setHasWaitSend(true);
             }
 
 
             //查询 除了未下发的
-            if(Objects.equals(pageReqVO.getHasWaitSend(),false)){
+            if (Objects.equals(pageReqVO.getHasWaitSend(), false)) {
                 predicates.add(cb.notEqual(root.get("status"), CommonTaskStatusEnums.WAIT_SEND.getStatus()));
             }
 
@@ -515,7 +520,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             }
 
             // 这里的逻辑是：如果没有收费项id、没有报价id，则默认查询自己的任务
-            if ((pageReqVO.getChargeitemId() == null && pageReqVO.getQuotationId()==null&& pageReqVO.getProjectId()==null)&& !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
+            if ((pageReqVO.getChargeitemId() == null && pageReqVO.getQuotationId() == null && pageReqVO.getProjectId() == null) && !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())) {
                 Long[] users = pageReqVO.getUserId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getUserId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                 predicates.add(root.get("userId").in(Arrays.stream(users).toArray()));
             }
@@ -626,7 +631,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         Page<CommonTask> page = commonTaskRepository.findAll(spec, pageable);
 
         List<CommonTask> content = page.getContent();
-        if(pageReqVO.getHasSopList()){
+        if (pageReqVO.getHasSopList()) {
             List<Long> taskIds = content.stream()
                     .map(CommonTask::getId)
                     .collect(Collectors.toList());
@@ -639,6 +644,29 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
                 content.forEach(commonTask ->
                         commonTask.setSopList(sopMap.getOrDefault(commonTask.getId(), new ArrayList<>()))
+                );
+            }
+        }
+
+
+        if (pageReqVO.getHasProject()) {
+            List<Long> ids = content.stream()
+                    .map(CommonTask::getProjectId)
+                    .collect(Collectors.toList());
+
+            List<ProjectSimple> byIdIn = projectSimpleRepository.findByIdIn(ids);
+
+            if (byIdIn != null) {
+
+                content.forEach(commonTask -> {
+                            byIdIn.forEach(ProjectSimple -> {
+                                if (ProjectSimple.getId().equals(commonTask.getProjectId())) {
+                                    ProjectOnly projectOnly = projectMapper.simple2Only(ProjectSimple);
+                                    commonTask.setCustomer(projectOnly.getCustomer());
+                                    commonTask.setProject(projectOnly);
+                                }
+                            });
+                        }
                 );
             }
         }
@@ -767,18 +795,17 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
 
-        if(order.getQuotationId()!=null){
+        if (order.getQuotationId() != null) {
 //            orderV0.setCreateTime("asc");
-            orders.add(new Sort.Order( Sort.Direction.ASC , "sort"));
+            orders.add(new Sort.Order(Sort.Direction.ASC, "sort"));
         }
 
         orders.add(new Sort.Order("desc".equals(order.getCreateTime()) ? Sort.Direction.DESC : Sort.Direction.ASC, "status"));
-        if(order.getQuotationId()!=null){
+        if (order.getQuotationId() != null) {
             orders.add(new Sort.Order(Sort.Direction.ASC, "id"));
-        }else{
+        } else {
             orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
         }
-
 
 
         if (order.getId() != null) {
@@ -898,9 +925,9 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         //查询任务
         List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(currentQuotationId);
-        if(byQuotationId!=null){
+        if (byQuotationId != null) {
             for (CommonTask commonTask : byQuotationId) {
-                if(Objects.equals(commonTask.getStatus(),CommonTaskStatusEnums.WAIT_SEND.getStatus())){
+                if (Objects.equals(commonTask.getStatus(), CommonTaskStatusEnums.WAIT_SEND.getStatus())) {
                     userIds.add(commonTask.getUserId());
                 }
             }
@@ -915,7 +942,7 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         templateParams.put("content", content);
         templateParams.put("id", projectId);
         for (Long userId : userIds) {
-            if (userId == null||userId.equals(WebFrameworkUtils.getLoginUserId())) {
+            if (userId == null || userId.equals(WebFrameworkUtils.getLoginUserId())) {
                 continue;
             }
             notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
@@ -924,6 +951,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             ));
         }
 
-        commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(), currentQuotationId,CommonTaskStatusEnums.WAIT_SEND.getStatus());
+        commonTaskRepository.updateStatusByQuotationIdAndStatus(CommonTaskStatusEnums.WAIT_DO.getStatus(), currentQuotationId, CommonTaskStatusEnums.WAIT_SEND.getStatus());
     }
 }
