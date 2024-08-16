@@ -15,6 +15,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class CustomerPageReqVO extends PageParam {
 
+    private Boolean repeatSearch = false;
+
     private Boolean toCustomer = true;
 
     private Long subjectGroupId;
@@ -73,6 +75,9 @@ public class CustomerPageReqVO extends PageParam {
 
     @Schema(description = "公司", example = "14623")
     private Long companyId;
+
+    @Schema(description = "研究所", example = "5204")
+    private Long researchId;
 
     @Schema(description = "省")
     private String province;

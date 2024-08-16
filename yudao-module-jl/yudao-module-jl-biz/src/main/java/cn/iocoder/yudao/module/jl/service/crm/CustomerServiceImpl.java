@@ -296,148 +296,162 @@ public class CustomerServiceImpl implements CustomerService {
         Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            //获取attributeUsers
+            if(pageReqVO.getRepeatSearch()){
+                List<Predicate> searchPredicates = new ArrayList<>();
 
+                if(pageReqVO.getName() != null) {
+                    searchPredicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+                }
 
-                //如果不是any，则都是in查询
-            if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
-                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                pageReqVO.setCreators(users);
-                predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-            }
+                if(pageReqVO.getUniversityId() != null) {
+                    searchPredicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
+                }
 
-            if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
-                predicates.add(root.get("salesId").isNull());
+                if(pageReqVO.getCompanyId() != null) {
+                    searchPredicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
+                }
+
+                if(pageReqVO.getResearchId() != null) {
+                    searchPredicates.add(cb.equal(root.get("researchId"), pageReqVO.getResearchId()));
+                }
+
+                if(pageReqVO.getHospitalId() != null&&pageReqVO.getHospitalDepartment() != null) {
+                    searchPredicates.add(cb.and(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()),cb.like(root.get("hospitalDepartment"), "%" + pageReqVO.getHospitalDepartment() + "%")));
+                }
+
+                predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
             }else{
-                predicates.add(cb.greaterThan(root.get("salesId"), 0));
-            }
+                if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())&&!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())){
+                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                    pageReqVO.setCreators(users);
+                    predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
+                }
+
+                if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
+                    predicates.add(root.get("salesId").isNull());
+                }else{
+                    predicates.add(cb.greaterThan(root.get("salesId"), 0));
+                }
 
 
-            if(pageReqVO.getSubjectGroupId() != null) {
-                mysqlFindInSet(pageReqVO.getSubjectGroupId(),"subjectGroupIds", root, cb, predicates);
-            }
+                if(pageReqVO.getSubjectGroupId() != null) {
+                    mysqlFindInSet(pageReqVO.getSubjectGroupId(),"subjectGroupIds", root, cb, predicates);
+                }
 
-/*           if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus())){
-               if(!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
-                   predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreators()).toArray()));
-               }
+                // hospital_id or university_id or company_id or research_id
+                if(pageReqVO.getInstitutionId()!=null){
+                    predicates.add(cb.or(
+                            cb.equal(root.get("hospitalId"), pageReqVO.getInstitutionId()),
+                            cb.equal(root.get("universityId"), pageReqVO.getInstitutionId()),
+                            cb.equal(root.get("companyId"), pageReqVO.getInstitutionId()),
+                            cb.equal(root.get("researchId"), pageReqVO.getInstitutionId())
+                    ));
+                }
 
-               if(pageReqVO.getAttribute().equals(DataAttributeTypeEnums.SEAS.getStatus())) {
-                   predicates.add(root.get("salesId").isNull());
-               }
-           }*/
+                if(pageReqVO.getToCustomer() != null) {
+                    predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
+                }
 
-            // hospital_id or university_id or company_id or research_id
-            if(pageReqVO.getInstitutionId()!=null){
-                predicates.add(cb.or(
-                        cb.equal(root.get("hospitalId"), pageReqVO.getInstitutionId()),
-                        cb.equal(root.get("universityId"), pageReqVO.getInstitutionId()),
-                        cb.equal(root.get("companyId"), pageReqVO.getInstitutionId()),
-                        cb.equal(root.get("researchId"), pageReqVO.getInstitutionId())
-                ));
-            }
+                if(pageReqVO.getInstitutionMark() != null) {
+                    predicates.add(cb.like(root.get("institutionMark"), "%" + pageReqVO.getInstitutionMark() + "%"));
+                }
 
+                if(pageReqVO.getName() != null) {
+                    predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
+                }
 
+                if(pageReqVO.getSource() != null) {
+                    predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
+                }
 
-            if(pageReqVO.getToCustomer() != null) {
-                predicates.add(cb.equal(root.get("toCustomer"), pageReqVO.getToCustomer()));
-            }
+                if(pageReqVO.getPhone() != null) {
+                    predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
+                }
 
-            if(pageReqVO.getInstitutionMark() != null) {
-                predicates.add(cb.like(root.get("institutionMark"), "%" + pageReqVO.getInstitutionMark() + "%"));
-            }
+                if(pageReqVO.getEmail() != null) {
+                    predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
+                }
 
-            if(pageReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
-            }
+                if(pageReqVO.getMark() != null) {
+                    predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
+                }
 
-            if(pageReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
-            }
+                if(pageReqVO.getWechat() != null) {
+                    predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
+                }
 
-            if(pageReqVO.getPhone() != null) {
-                predicates.add(cb.like(root.get("phone"), "%" + pageReqVO.getPhone() + "%"));
-            }
+                if(pageReqVO.getDoctorProfessionalRank() != null) {
+                    predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
+                }
 
-            if(pageReqVO.getEmail() != null) {
-                predicates.add(cb.equal(root.get("email"), pageReqVO.getEmail()));
-            }
+                if(pageReqVO.getHospitalDepartment() != null) {
+                    predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
+                }
 
-            if(pageReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
-            }
+                if(pageReqVO.getAcademicTitle() != null) {
+                    predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
+                }
 
-            if(pageReqVO.getWechat() != null) {
-                predicates.add(cb.equal(root.get("wechat"), pageReqVO.getWechat()));
-            }
+                if(pageReqVO.getAcademicCredential() != null) {
+                    predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
+                }
 
-            if(pageReqVO.getDoctorProfessionalRank() != null) {
-                predicates.add(cb.equal(root.get("doctorProfessionalRank"), pageReqVO.getDoctorProfessionalRank()));
-            }
+                if(pageReqVO.getHospitalId() != null) {
+                    predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
+                }
 
-            if(pageReqVO.getHospitalDepartment() != null) {
-                predicates.add(cb.equal(root.get("hospitalDepartment"), pageReqVO.getHospitalDepartment()));
-            }
+                if(pageReqVO.getUniversityId() != null) {
+                    predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
+                }
 
-            if(pageReqVO.getAcademicTitle() != null) {
-                predicates.add(cb.equal(root.get("academicTitle"), pageReqVO.getAcademicTitle()));
-            }
+                if(pageReqVO.getCompanyId() != null) {
+                    predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
+                }
 
-            if(pageReqVO.getAcademicCredential() != null) {
-                predicates.add(cb.equal(root.get("academicCredential"), pageReqVO.getAcademicCredential()));
-            }
+                if(pageReqVO.getResearchId() != null) {
+                    predicates.add(cb.equal(root.get("researchId"), pageReqVO.getResearchId()));
+                }
 
-            if(pageReqVO.getHospitalId() != null) {
-                predicates.add(cb.equal(root.get("hospitalId"), pageReqVO.getHospitalId()));
-            }
+                if(pageReqVO.getProvince() != null) {
+                    predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
+                }
 
-            if(pageReqVO.getUniversityId() != null) {
-                predicates.add(cb.equal(root.get("universityId"), pageReqVO.getUniversityId()));
-            }
+                if(pageReqVO.getCity() != null) {
+                    predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
+                }
 
-            if(pageReqVO.getCompanyId() != null) {
-                predicates.add(cb.equal(root.get("companyId"), pageReqVO.getCompanyId()));
-            }
+                if(pageReqVO.getArea() != null) {
+                    predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
+                }
 
-            if(pageReqVO.getProvince() != null) {
-                predicates.add(cb.equal(root.get("province"), pageReqVO.getProvince()));
-            }
+                if(pageReqVO.getType() != null) {
+                    predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
+                }
 
-            if(pageReqVO.getCity() != null) {
-                predicates.add(cb.equal(root.get("city"), pageReqVO.getCity()));
-            }
+                if(pageReqVO.getDealCount() != null) {
+                    predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
+                }
 
-            if(pageReqVO.getArea() != null) {
-                predicates.add(cb.equal(root.get("area"), pageReqVO.getArea()));
-            }
+                if(pageReqVO.getDealTotalAmount() != null) {
+                    predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
+                }
 
-            if(pageReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), pageReqVO.getType()));
-            }
+                if(pageReqVO.getArrears() != null) {
+                    predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
+                }
 
-            if(pageReqVO.getDealCount() != null) {
-                predicates.add(cb.equal(root.get("dealCount"), pageReqVO.getDealCount()));
-            }
-
-            if(pageReqVO.getDealTotalAmount() != null) {
-                predicates.add(cb.equal(root.get("dealTotalAmount"), pageReqVO.getDealTotalAmount()));
-            }
-
-            if(pageReqVO.getArrears() != null) {
-                predicates.add(cb.equal(root.get("arrears"), pageReqVO.getArrears()));
-            }
-
-            if(pageReqVO.getLastFollowupTime() != null) {
-                predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
-            }
+                if(pageReqVO.getLastFollowupTime() != null) {
+                    predicates.add(cb.between(root.get("lastFollowupTime"), pageReqVO.getLastFollowupTime()[0], pageReqVO.getLastFollowupTime()[1]));
+                }
 
 
-            if(pageReqVO.getLastFollowupId() != null) {
-                predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
-            }
+                if(pageReqVO.getLastFollowupId() != null) {
+                    predicates.add(cb.equal(root.get("lastFollowupId"), pageReqVO.getLastFollowupId()));
+                }
 
-            if(pageReqVO.getLastSalesleadId() != null) {
-                predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
+                if(pageReqVO.getLastSalesleadId() != null) {
+                    predicates.add(cb.equal(root.get("lastSalesleadId"), pageReqVO.getLastSalesleadId()));
+                }
             }
 
 

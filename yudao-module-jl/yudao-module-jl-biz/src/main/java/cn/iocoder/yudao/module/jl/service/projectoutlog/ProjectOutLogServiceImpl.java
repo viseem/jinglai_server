@@ -77,7 +77,9 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
         // 更新
         /*ProjectOutLog updateObj = projectOutLogMapper.toEntity(updateReqVO);
         projectOutLogRepository.save(updateObj);*/
-        projectOnlyRepository.updateOutboundStepById(updateReqVO.getStep()+1, projectOutLog.getProjectId());
+        if(!updateReqVO.getNotUpdateStep()){
+            projectOnlyRepository.updateOutboundStepById(updateReqVO.getStep()+1, projectOutLog.getProjectId());
+        }
         if(updateReqVO.getStep().equals(0)){
             if(updateReqVO.getStepJson()==null){
                 throw exception(PROJECT_OUT_LOG_PARAMS_ERROR);

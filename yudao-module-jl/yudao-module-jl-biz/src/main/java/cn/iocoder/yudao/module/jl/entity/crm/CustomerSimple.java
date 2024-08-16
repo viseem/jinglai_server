@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.crm;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -210,6 +211,10 @@ public class CustomerSimple extends BaseEntity {
     @Column(name = "last_saleslead_id")
     private Long lastSalesleadId;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "sales_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private User sales;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)

@@ -15,4 +15,6 @@ public class ProjectOutLogUpdateReqVO extends ProjectOutLogBaseVO {
     @NotNull(message = "ID不能为空")
     private Long id;
 
+    private Boolean notUpdateStep=false;
+
 }
