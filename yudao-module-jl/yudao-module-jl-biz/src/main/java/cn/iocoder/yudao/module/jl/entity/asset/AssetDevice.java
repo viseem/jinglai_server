@@ -127,6 +127,18 @@ public class AssetDevice extends BaseEntity {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    /**
+     * sort
+     */
+    @Column(name = "sort")
+    private Integer sort;
+
+    /**
+     * 分类id
+     */
+    @Column(name = "cate_id")
+    private Long cateId;
+
     @Transient
     private Boolean busy;
 

@@ -261,12 +261,12 @@ public class JLBpmServiceImpl implements JLBpmService {
         ProcessInstance processInstance = processInstanceService.getProcessInstance(reqVO.getId());
         String processDefinitionKey = processInstance.getProcessDefinitionKey();
 
-        boolean canCancel = processDefinitionKey.contains("PROCUREMENT") || reqVO.getProcessType().equals(PROJECT_OUTED) || processDefinitionKey.contains(QUOTATION_AUDIT);
+        boolean canCancel = (processDefinitionKey.contains("PROCUREMENT")&&!processDefinitionKey.contains("PURCHASE_CONTRACT")) || reqVO.getProcessType().equals(PROJECT_OUTED) || processDefinitionKey.contains(QUOTATION_AUDIT);
         if(!canCancel){
             throw  exception(BPM_CAN_NOT_CANCEL);
         }
 
-        if (processDefinitionKey.contains("PROCUREMENT")) {
+        if (processDefinitionKey.contains("PROCUREMENT")&&!processDefinitionKey.contains("PURCHASE_CONTRACT")) {
             procurementRepository.updateStatusById(reqVO.getRefId(), ProcurementStatusEnums.CANCEL.getStatus());
             procurementItemRepository.updateStatusByProcurementId(ProcurementItemStatusEnums.CANCEL.getStatus(), reqVO.getRefId());
         }

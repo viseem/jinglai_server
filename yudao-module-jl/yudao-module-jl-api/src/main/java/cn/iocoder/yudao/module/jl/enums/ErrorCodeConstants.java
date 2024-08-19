@@ -277,7 +277,7 @@ public interface ErrorCodeConstants {
     ErrorCode PROJECT_OUT_LOG_NOT_EXISTS = new ErrorCode(1004000000, "项目出库日志不存在");
 
     ErrorCode PROJECT_OUT_LOG_PARAMS_ERROR = new ErrorCode(1204000000, "项目出库日志参数错误");
-
+    ErrorCode DEVICE_CATE_NOT_EXISTS = new ErrorCode(1204000001, "设备分类不存在");
 
     // ========== 企业微信模块 ==========
     ErrorCode WX_CP_SEND_MSG_ERROR = new ErrorCode(1009100000, "发送企业微信消息失败");

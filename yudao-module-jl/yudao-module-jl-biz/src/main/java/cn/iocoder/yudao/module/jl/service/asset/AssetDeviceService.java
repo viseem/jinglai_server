@@ -27,6 +27,9 @@ public interface AssetDeviceService {
      */
     void updateAssetDevice(@Valid AssetDeviceUpdateReqVO updateReqVO);
 
+    void linkCate(@Valid AssetDeviceLinkCateReqVO updateReqVO);
+
+
     /**
      * 删除公司资产（设备）
      *

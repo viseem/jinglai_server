@@ -57,6 +57,14 @@ public class AssetDeviceController {
         return success(true);
     }
 
+    @PutMapping("/link-cate")
+    @Operation(summary = "更新公司资产（设备）")
+    @PreAuthorize("@ss.hasPermission('jl:asset-device:update')")
+    public CommonResult<Boolean> linkAssetDeviceCate(@Valid @RequestBody AssetDeviceLinkCateReqVO updateReqVO) {
+        assetDeviceService.linkCate(updateReqVO);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除公司资产（设备）")
     @Parameter(name = "id", description = "编号", required = true)

@@ -59,6 +59,13 @@ public class AssetDeviceBaseVO {
     @Schema(description = "颜色标识")
     private String color;
 
+    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "排序不能为空")
+    private Integer sort = 100;
+
+    @Schema(description = "分类")
+    private Long cateId;
+
     private Boolean busy;
 
     //开始时间

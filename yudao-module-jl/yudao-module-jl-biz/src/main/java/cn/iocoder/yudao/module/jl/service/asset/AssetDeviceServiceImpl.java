@@ -92,6 +92,11 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
     }
 
     @Override
+    public void linkCate(AssetDeviceLinkCateReqVO vo){
+        assetDeviceRepository.updateCateIdByIdIn(vo.getCateId(),vo.getDeviceIds());
+    }
+
+    @Override
     public void deleteAssetDevice(Long id) {
         // 校验存在
         validateAssetDeviceExists(id);
@@ -140,6 +145,10 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
 
                 // Combine the predicates with 'or' (or 'and', depending on your needs)
                 predicates.add(cb.or(predicate1, predicate2));
+            }
+
+            if(pageReqVO.getCateId() != null) {
+                predicates.add(cb.equal(root.get("cateId"), pageReqVO.getCateId()));
             }
 
             if(pageReqVO.getName() != null) {
@@ -262,6 +271,9 @@ public class AssetDeviceServiceImpl implements AssetDeviceService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
+
+        orders.add(new Sort.Order(Sort.Direction.ASC, "sort"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
