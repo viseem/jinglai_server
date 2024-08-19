@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 
 /**
  * 销售线索 Service 接口
@@ -91,6 +92,15 @@ public interface SalesleadService {
      * @return 销售线索分页
      */
     PageResult<Saleslead> getSalesleadPage(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0);
+
+
+    /**
+     * 获得销售线索分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 销售线索分页
+     */
+    PageResult<SalesleadOnly> getSalesleadPageSimple(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0);
 
     /**
      * 获得销售线索列表, 用于 Excel 导出

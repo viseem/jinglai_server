@@ -208,22 +208,6 @@ public class Saleslead extends BaseEntity {
     private ProjectSimple project;
 
 
-/*    @OneToOne(fetch = FetchType.EAGER, optional=true)
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name="quotation", referencedColumnName="id", insertable = false, updatable = false)
-    private ProjectQuote quote;*/
-
-
-/*    @OneToMany
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
-    private List<SalesleadCompetitor> competitorQuotations;
-
-    @OneToMany
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "saleslead_id", referencedColumnName="id", insertable = false, updatable = false)
-    private List<SalesleadCustomerPlan> customerPlans;*/
-
     // 客户姓名
     @Transient
     private String customerName;

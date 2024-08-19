@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Saleslead;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import org.mapstruct.*;
 
 
@@ -24,4 +25,7 @@ public interface SalesleadMapper {
     List<SalesleadExcelVO> toExcelList(List<Saleslead> list);
 
     PageResult<SalesleadRespVO> toPage(PageResult<Saleslead> page);
+
+    PageResult<SalesleadRespVO> toPageSimple(PageResult<SalesleadOnly> page);
+
 }

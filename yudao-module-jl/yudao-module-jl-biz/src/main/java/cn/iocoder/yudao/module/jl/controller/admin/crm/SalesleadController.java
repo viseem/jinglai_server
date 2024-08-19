@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CommonLogExcelCel
 import cn.iocoder.yudao.framework.excel.core.util.excelhandler.CustomExcelCellSizeWriterHandler;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.SalesleadDetail;
+import cn.iocoder.yudao.module.jl.entity.crm.SalesleadOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.repository.crm.SalesleadRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
@@ -177,26 +178,16 @@ public class SalesleadController {
     @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
     public CommonResult<PageResult<SalesleadRespVO>> getSalesleadPage(SalesleadPageReqVO pageVO, @Valid SalesleadPageOrder orderV0) {
         PageResult<Saleslead> pageResult = salesleadService.getSalesleadPage(pageVO, orderV0);
-        // 遍历计算quote字段里的categoryList字段的里的chargeList 和 supplyList的总价
-
         PageResult<SalesleadRespVO> resp = salesleadMapper.toPage(pageResult);
+        return success(resp);
+    }
 
-/*
-        resp.getList().forEach(saleslead -> {
-            if (saleslead != null && saleslead.getQuote() != null) {
-                if (saleslead.getQuote().getCategoryList() != null) {
-                    saleslead.getQuote().getCategoryList().forEach(category -> {
-                        Long chargeTotalPrice = category.getChargeList().stream().mapToLong(charge -> charge.getQuantity() * Long.parseLong(charge.getUnitFee())).sum();
-                        Long supplyTotalPrice = category.getSupplyList().stream().mapToLong(supply -> supply.getQuantity() * Long.parseLong(supply.getUnitFee())).sum();
-                        saleslead.setTotalPrice(chargeTotalPrice + supplyTotalPrice);
-                    });
-                }
-            }
-
-        });
-*/
-
-
+    @GetMapping("/page-simple")
+    @Operation(summary = "(分页)获得销售线索列表")
+    @PreAuthorize("@ss.hasPermission('jl:saleslead:query')")
+    public CommonResult<PageResult<SalesleadRespVO>> getSalesleadPageSimple(SalesleadPageReqVO pageVO, @Valid SalesleadPageOrder orderV0) {
+        PageResult<SalesleadOnly> pageResult = salesleadService.getSalesleadPageSimple(pageVO, orderV0);
+        PageResult<SalesleadRespVO> resp = salesleadMapper.toPageSimple(pageResult);
         return success(resp);
     }
 

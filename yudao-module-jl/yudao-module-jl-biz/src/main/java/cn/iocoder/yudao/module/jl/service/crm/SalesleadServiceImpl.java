@@ -75,6 +75,9 @@ public class SalesleadServiceImpl implements SalesleadService {
     private SalesleadDetailRepository salesleadDetailRepository;
 
     @Resource
+    private SalesleadOnlyRepository salesleadOnlyRepository;
+
+    @Resource
     private CustomerRepository customerRepository;
 
     @Resource
@@ -539,156 +542,189 @@ public class SalesleadServiceImpl implements SalesleadService {
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
+    @Override
+    public PageResult<SalesleadOnly> getSalesleadPageSimple(SalesleadPageReqVO pageReqVO, SalesleadPageOrder orderV0) {
+
+//        Long[] users = dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+
+        // 创建 Sort 对象
+        Sort sort = createSort(orderV0);
+
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+
+        // 创建 Specification
+        Specification<SalesleadOnly> spec = getSalesleadSpecification(pageReqVO);
+
+        // 执行查询
+        Page<SalesleadOnly> page = salesleadOnlyRepository.findAll(spec, pageable);
+
+        // 转换为 PageResult 并返回
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
     @NotNull
-    private Specification<Saleslead> getSalesleadSpecification(SalesleadPageReqVO pageReqVO) {
-        Specification<Saleslead> spec = (root, query, cb) -> {
+    private <T>Specification<T> getSalesleadSpecification(SalesleadPageReqVO pageReqVO) {
+        Specification<T> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // price大于指定金额的
-            if (pageReqVO.getQuotation() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
-            }
+            if(pageReqVO.getRepeatSearch()){
+                List<Predicate> searchPredicates = new ArrayList<>();
 
-            // price小于指定金额的
-            if (pageReqVO.getQuotationBig() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotationBig()));
-            }
-
-            if (pageReqVO.getCreateTime() != null) {
-                predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
-            }
-
-            if(pageReqVO.getUpdateTime() != null) {
-                predicates.add(cb.between(root.get("updateTime"), pageReqVO.getUpdateTime()[0], pageReqVO.getUpdateTime()[1]));
-            }
-
-            if(pageReqVO.getQuotationTime() != null) {
-                List<Long> collect = new ArrayList<>();
-                if(pageReqVO.getCreatorIds()!=null){
-                    collect = Arrays.stream(pageReqVO.getCreatorIds()).collect(Collectors.toList());
+                if(pageReqVO.getRequirement() != null) {
+                    searchPredicates.add(cb.and(cb.like(root.get("requirement"), "%" + pageReqVO.getRequirement() + "%"),cb.between(root.get("createTime"), LocalDateTime.now().minusDays(3), LocalDateTime.now())));
                 }
-                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
-                    // creatorIds添加一个元素
-                    collect.add(getLoginUserId());
+
+                predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
+            }else{
+                // price大于指定金额的
+                if (pageReqVO.getQuotation() != null) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
                 }
-                System.out.println("---"+collect.size());
-                List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
+
+                // price小于指定金额的
+                if (pageReqVO.getQuotationBig() != null) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotationBig()));
+                }
+
+                if (pageReqVO.getCreateTime() != null) {
+                    predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
+                }
+
+                if(pageReqVO.getUpdateTime() != null) {
+                    predicates.add(cb.between(root.get("updateTime"), pageReqVO.getUpdateTime()[0], pageReqVO.getUpdateTime()[1]));
+                }
+
+                if(pageReqVO.getQuotationTime() != null) {
+                    List<Long> collect = new ArrayList<>();
+                    if(pageReqVO.getCreatorIds()!=null){
+                        collect = Arrays.stream(pageReqVO.getCreatorIds()).collect(Collectors.toList());
+                    }
+                    if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.MY.getStatus())){
+                        // creatorIds添加一个元素
+                        collect.add(getLoginUserId());
+                    }
+                    System.out.println("---"+collect.size());
+                    List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
 //                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
-                Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
-                predicates.add(root.get("id").in(array));
-            }
+                    Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
+                    predicates.add(root.get("id").in(array));
+                }
 
-            if(pageReqVO.getSource() != null) {
-                predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
-            }
+                if(pageReqVO.getSource() != null) {
+                    predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
+                }
 
-            if(pageReqVO.getRequirement() != null) {
-                predicates.add(cb.equal(root.get("requirement"), pageReqVO.getRequirement()));
-            }
+                if(pageReqVO.getRequirement() != null) {
+                    predicates.add(cb.equal(root.get("requirement"), pageReqVO.getRequirement()));
+                }
 
-            if(pageReqVO.getBudget() != null) {
-                predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
-            }
+                if(pageReqVO.getBudget() != null) {
+                    predicates.add(cb.equal(root.get("budget"), pageReqVO.getBudget()));
+                }
 
 
-            if(pageReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"),pageReqVO.getManagerId()==1?getLoginUserId():pageReqVO.getManagerId()));
+                if(pageReqVO.getManagerId() != null) {
+                    predicates.add(cb.equal(root.get("managerId"),pageReqVO.getManagerId()==1?getLoginUserId():pageReqVO.getManagerId()));
 /*                if(pageReqVO.getStatus() != null) {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }*/
-            }
+                }
 
-            if(pageReqVO.getSalesId() != null&&pageReqVO.getAttribute()==null) {
-                predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
-            }
+                if(pageReqVO.getSalesId() != null&&pageReqVO.getAttribute()==null) {
+                    predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
+                }
 
-            if(pageReqVO.getCreatorIds()==null){
-                if(pageReqVO.getCustomerId() != null) {
-                    predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
-                }else{
-                    if (pageReqVO.getManagerId() == null) {
-                        if(pageReqVO.getAttribute()!=null){
-                            if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                                predicates.add(root.get("creator").isNull());
-                            }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())&& pageReqVO.getPiGroupId() == null){
-                                Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-                                pageReqVO.setCreators(users);
-                                Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
-                                // 或者条件
-                                predicates.add(cb.or(root.get("creator").in(ids),root.get("managerId").in(ids)));
+                if(pageReqVO.getCreatorIds()==null){
+                    if(pageReqVO.getCustomerId() != null) {
+                        predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
+                    }else{
+                        if (pageReqVO.getManagerId() == null) {
+                            if(pageReqVO.getAttribute()!=null){
+                                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                                    predicates.add(root.get("creator").isNull());
+                                }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())&& pageReqVO.getPiGroupId() == null){
+                                    Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+                                    pageReqVO.setCreators(users);
+                                    Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
+                                    // 或者条件
+                                    predicates.add(cb.or(root.get("creator").in(ids),root.get("managerId").in(ids)));
+                                }
                             }
+
+
                         }
-
+                    }
+                }else{
+                    if(pageReqVO.getQuotationTime()==null){
+                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                    }else{
+                        // 为了兼容PI组看板的查询，如果按照报价查询的话，可能这个商机是别的组创建的
+                        predicates.add(cb.or(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()),root.get("managerId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray())));
 
                     }
                 }
-            }else{
-                if(pageReqVO.getQuotationTime()==null){
-                    predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
-                }else{
-                    // 为了兼容PI组看板的查询，如果按照报价查询的话，可能这个商机是别的组创建的
-                    predicates.add(cb.or(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()),root.get("managerId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray())));
 
-                }
-            }
-
-            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())&&pageReqVO.getSalesId()==null) {
+                if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())&&pageReqVO.getSalesId()==null) {
 //                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
-                predicates.add(cb.or(
-                        root.get("creator").in(Collections.singletonList(getLoginUserId())),
-                        root.get("managerId").in(Collections.singletonList(getLoginUserId()))
-                ));
-            }
+                    predicates.add(cb.or(
+                            root.get("creator").in(Collections.singletonList(getLoginUserId())),
+                            root.get("managerId").in(Collections.singletonList(getLoginUserId()))
+                    ));
+                }
 
-            if (pageReqVO.getPiGroupId() != null) {
-                Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
+                if (pageReqVO.getPiGroupId() != null) {
+                    Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
 //                predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
-                predicates.add(cb.or(
-                        root.get("creator").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
-                        root.get("managerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
-                ));
-            }
-
-            if(pageReqVO.getTimeRange()!=null){
-                predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
-            }
-
-
-            if(pageReqVO.getStatus() != null) {
-                //查询未转项目的
-                if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
-                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
-                }else{
-
-                    predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
+                    predicates.add(cb.or(
+                            root.get("creator").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
+                            root.get("managerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
+                    ));
                 }
 
-            }
+                if(pageReqVO.getTimeRange()!=null){
+                    predicates.add(cb.between(root.get("createTime"), StatisticUtils.getStartTimeByTimeRange(pageReqVO.getTimeRange()), LocalDateTime.now()));
+                }
 
-            //如果statusArr不为空，则查询statusArr中的状态
-            if(pageReqVO.getStatusArr() != null) {
-                predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
 
-                //判断statusArr是否包含未转项目的状态
-                if(pageReqVO.getIsWorkstation()==null || !pageReqVO.getIsWorkstation()){
-                    if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
-                        predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                if(pageReqVO.getStatus() != null) {
+                    //查询未转项目的
+                    if(pageReqVO.getStatus().toString().equals(SalesLeadStatusEnums.NotToProject.getStatus())){
+                        predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                    }else{
+
+                        predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                     }
+
                 }
 
+                //如果statusArr不为空，则查询statusArr中的状态
+                if(pageReqVO.getStatusArr() != null) {
+                    predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
+
+                    //判断statusArr是否包含未转项目的状态
+                    if(pageReqVO.getIsWorkstation()==null || !pageReqVO.getIsWorkstation()){
+                        if(Arrays.asList(pageReqVO.getStatusArr()).contains(SalesLeadStatusEnums.QUOTATION.getStatus())){
+                            predicates.add(cb.equal(root.get("managerId"),getLoginUserId()));
+                        }
+                    }
+
+                }
+
+                if(pageReqVO.getProjectId() != null) {
+                    predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
+                }
+
+                if(pageReqVO.getBusinessType() != null) {
+                    predicates.add(cb.equal(root.get("businessType"), pageReqVO.getBusinessType()));
+                }
+
+                if(pageReqVO.getLostNote() != null) {
+                    predicates.add(cb.equal(root.get("lostNote"), pageReqVO.getLostNote()));
+                }
             }
 
-            if(pageReqVO.getProjectId() != null) {
-                predicates.add(cb.equal(root.get("projectId"), pageReqVO.getProjectId()));
-            }
 
-            if(pageReqVO.getBusinessType() != null) {
-                predicates.add(cb.equal(root.get("businessType"), pageReqVO.getBusinessType()));
-            }
-
-            if(pageReqVO.getLostNote() != null) {
-                predicates.add(cb.equal(root.get("lostNote"), pageReqVO.getLostNote()));
-            }
 
 
 
