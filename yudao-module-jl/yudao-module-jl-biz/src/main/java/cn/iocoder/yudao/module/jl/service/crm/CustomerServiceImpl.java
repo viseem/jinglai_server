@@ -206,8 +206,8 @@ public class CustomerServiceImpl implements CustomerService {
         customerChangeLogRepository.save(log);
         //客户
         customerRepository.updateSalesIdById(vo.getToOwnerId(),vo.getId());
-        //商机
-        salesleadRepository.updateCreatorByCustomerId(vo.getToOwnerId(),vo.getId());
+        //商机 注意有的商机可能转出去了，所以只同步属于这个客户并且属于这个销售的
+        salesleadRepository.updateCreatorByCustomerIdAndCreator(vo.getToOwnerId(),vo.getId(),customer.getSalesId());
         projectOnlyRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());
         //合同、发票、回款、申请开票记录
         projectConstractOnlyRepository.updateSalesIdByCustomerId(vo.getToOwnerId(),vo.getId());

@@ -35,6 +35,11 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
 
     @Transactional
     @Modifying
+    @Query("update Saleslead s set s.creator = ?1 where s.customerId = ?2 and s.creator = ?3")
+    int updateCreatorByCustomerIdAndCreator(Long creator, Long customerId,Long creator2);
+
+    @Transactional
+    @Modifying
     @Query("update Saleslead s set s.contractId = ?1 where s.id = ?2")
     int updateContractIdById(Long contractId, Long id);
     @Transactional
