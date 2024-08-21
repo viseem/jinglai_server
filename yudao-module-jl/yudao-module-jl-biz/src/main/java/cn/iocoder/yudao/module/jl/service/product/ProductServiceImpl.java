@@ -338,7 +338,10 @@ public class ProductServiceImpl implements ProductService {
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
+        List<Product> all = productRepository.findAll(spec);
+        for (Product product : all) {
+            product.setCateName(product.getCate()!=null?product.getCate().getName():"");
+        }
         // 执行查询
         return productRepository.findAll(spec);
     }

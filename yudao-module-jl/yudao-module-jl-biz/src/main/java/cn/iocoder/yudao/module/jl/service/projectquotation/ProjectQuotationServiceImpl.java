@@ -172,8 +172,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 /*        if(projectSimple.getCurrentQuotationId()==null || updateReqVO.getId()==null){
 
         }*/
-        projectRepository.updateCurrentQuotationIdById(save.getId(), updateReqVO.getProjectId());
-        salesleadRepository.updateCurrentQuotationIdById(save.getId(), projectSimple.getSalesleadId());
+//        projectRepository.updateCurrentQuotationIdById(save.getId(), updateReqVO.getProjectId());
+//        salesleadRepository.updateCurrentQuotationIdById(save.getId(), projectSimple.getSalesleadId());
 
         ScheduleSaveSupplyAndChargeItemReqVO saveReqVO = new ScheduleSaveSupplyAndChargeItemReqVO();
         saveReqVO.setProjectId(save.getProjectId());

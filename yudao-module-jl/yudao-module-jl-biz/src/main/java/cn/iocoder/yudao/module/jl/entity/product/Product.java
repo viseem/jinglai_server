@@ -234,27 +234,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "pi_group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private SubjectGroupOnly subjectGroup;
 
-/*    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProductUser> userList;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProductDevice> deviceList;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<ProductSop> sopList;*/
-
-    /*
-     * 级联附件
-     * */
-/*    @OneToMany(fetch = FetchType.EAGER)
-    @Where(clause = "type = 'JL_PRODUCT'")
-    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CommonAttachment> attachmentList = new ArrayList<>();*/
+    @Transient
+    private String cateName;
 }

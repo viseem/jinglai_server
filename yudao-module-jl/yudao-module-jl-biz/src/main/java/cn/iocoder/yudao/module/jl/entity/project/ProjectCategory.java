@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ProjectQuotationItemCreateTypeEnums;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -220,7 +221,7 @@ public class ProjectCategory extends BaseEntity {
      * 创建类型
      * */
     @Column(name = "create_type", nullable = false )
-    private Integer createType;
+    private Integer createType= ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
 
     /**
      * 项目的负责人id

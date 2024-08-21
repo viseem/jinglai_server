@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachme
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryLog;
 import cn.iocoder.yudao.module.jl.entity.taskrelation.TaskRelationOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.enums.ProjectQuotationItemCreateTypeEnums;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -237,7 +238,7 @@ public class ProjectCategorySimple extends BaseEntity {
     private Integer sort;
 
     @Column(name = "create_type", nullable = false )
-    private Integer createType;
+    private Integer createType= ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
 
     /**
      * 项目的负责人id

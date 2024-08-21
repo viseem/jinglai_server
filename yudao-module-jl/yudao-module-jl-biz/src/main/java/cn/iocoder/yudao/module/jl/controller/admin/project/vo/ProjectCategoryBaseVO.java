@@ -117,6 +117,8 @@ public class ProjectCategoryBaseVO {
     @Schema(description = "原始数据")
     private String rawData;
 
+    @Schema(description = "创建类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "1")
+    @NotNull(message = "创建类型不能为空")
     private Integer createType = ProjectQuotationItemCreateTypeEnums.QUOTATION.getStatus();
 
     private Boolean deletedStatus=false;
