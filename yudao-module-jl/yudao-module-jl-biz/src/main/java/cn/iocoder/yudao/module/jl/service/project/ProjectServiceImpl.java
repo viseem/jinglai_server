@@ -7,11 +7,9 @@ import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerPr
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.quotationchangelog.QuotationChangeLog;
-import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectCategoryStatusEnums;
-import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
-import cn.iocoder.yudao.module.jl.enums.SalesLeadStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.quotationchangelog.QuotationChangeLogRepository;
@@ -94,6 +92,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Resource
     private ProjectSupplyOnlyRepository projectSupplyOnlyRepository;
+
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
 
 
     @PostConstruct
@@ -726,6 +727,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
     private void processProjectItem(Project project,Boolean isDetail) {
+/*
+        long allCount = projectCategoryRepository.countByProjectIdAndType(project.getId());
+
         long completeCount = projectCategoryRepository.countByProjectIdAndStageAndType(
                 project.getId(), ProjectCategoryStatusEnums.COMPLETE.getStatus()
         );
@@ -737,8 +741,14 @@ public class ProjectServiceImpl implements ProjectService {
         );
         long doingCount = projectCategoryRepository.countByProjectIdAndStageAndType(
                 project.getId(), ProjectCategoryStatusEnums.DOING.getStatus()
-        );
-        long allCount = projectCategoryRepository.countByProjectIdAndType(project.getId());
+        );*/
+
+        long allCount = commonTaskRepository.countByQuotationIdAndStatusNot(project.getCurrentQuotationId(), CommonTaskStatusEnums.WAIT_SEND.getStatus());
+        long completeCount = commonTaskRepository.countByQuotationIdAndStatus(project.getCurrentQuotationId(), CommonTaskStatusEnums.DONE.getStatus());
+        long waitDoCount = commonTaskRepository.countByQuotationIdAndStatus(project.getCurrentQuotationId(), CommonTaskStatusEnums.WAIT_DO.getStatus());
+        long pauseCount = commonTaskRepository.countByQuotationIdAndStatus(project.getCurrentQuotationId(), CommonTaskStatusEnums.PAUSE.getStatus());
+        long doingCount = commonTaskRepository.countByQuotationIdAndStatus(project.getCurrentQuotationId(), CommonTaskStatusEnums.DOING.getStatus());
+
         project.setAllCount(allCount);
         project.setCompleteCount(completeCount);
         project.setDoingCount(doingCount);
