@@ -479,7 +479,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             item.setName(projectChargeitem.getName());
             item.setMark(projectChargeitem.getMark());
             item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
-            item.setUnitFee(BigDecimal.valueOf(projectChargeitem.getUnitFee()));
+            item.setUnitFee(projectChargeitem.getUnitFee());
             item.setQuantity(projectChargeitem.getQuantity());
             item.setSpec(projectChargeitem.getSpec());
             quotationList.add(item);

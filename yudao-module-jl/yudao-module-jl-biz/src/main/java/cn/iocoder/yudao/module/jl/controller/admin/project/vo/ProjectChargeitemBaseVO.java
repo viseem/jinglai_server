@@ -58,7 +58,7 @@ public class ProjectChargeitemBaseVO {
 
     @Schema(description = "单价", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "单价不能为空")
-    private String unitFee;
+    private BigDecimal unitFee;
 
     @Schema(description = "成本价")
     private Integer buyPrice;
