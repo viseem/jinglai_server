@@ -183,6 +183,12 @@ public class SalesleadDetail extends BaseEntity {
     @Column(name = "current_quotation_id")
     private Long currentQuotationId;
 
+    /**
+     * 疾病类型
+     */
+    @Column(name = "disease_type",nullable = true)
+    private String diseaseType;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)

@@ -45,6 +45,9 @@ public class SalesleadPageReqVO extends PageParam {
     @Schema(description = "销售线索来源")
     private String source;
 
+    @Schema(description = "疾病类型")
+    private String diseaseType;
+
     @Schema(description = "关键需求")
     private String requirement;
 

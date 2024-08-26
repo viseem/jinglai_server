@@ -577,6 +577,8 @@ public class SalesleadServiceImpl implements SalesleadService {
 
                 predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
             }else{
+
+
                 // price大于指定金额的
                 if (pageReqVO.getQuotation() != null) {
                     predicates.add(cb.greaterThanOrEqualTo(root.get("quotation"), pageReqVO.getQuotation()));
@@ -611,12 +613,17 @@ public class SalesleadServiceImpl implements SalesleadService {
                     predicates.add(root.get("id").in(array));
                 }
 
+                // 疾病类型
+                if (pageReqVO.getDiseaseType() != null) {
+                    predicates.add(cb.equal(root.get("diseaseType"), pageReqVO.getDiseaseType()));
+                }
+
                 if(pageReqVO.getSource() != null) {
                     predicates.add(cb.equal(root.get("source"), pageReqVO.getSource()));
                 }
 
                 if(pageReqVO.getRequirement() != null) {
-                    predicates.add(cb.equal(root.get("requirement"), pageReqVO.getRequirement()));
+                    predicates.add(cb.and(cb.like(root.get("requirement"), "%" + pageReqVO.getRequirement() + "%"),cb.between(root.get("createTime"), LocalDateTime.now().minusDays(3), LocalDateTime.now())));
                 }
 
                 if(pageReqVO.getBudget() != null) {

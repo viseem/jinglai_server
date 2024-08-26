@@ -186,6 +186,12 @@ public class Saleslead extends BaseEntity {
     private String quotationProcessId;
 
     /**
+     * 疾病类型
+     */
+    @Column(name = "disease_type",nullable = true)
+    private String diseaseType;
+
+    /**
      * 当前报价id
      */
     @Column(name = "current_quotation_id")

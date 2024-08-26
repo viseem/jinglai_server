@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
@@ -97,5 +98,8 @@ public class SalesleadBaseVO {
 
     @Schema(description = "当前报价id")
     private String currentQuotationId;
+
+    @Schema(description = "疾病类型")
+    private String diseaseType;
 
 }

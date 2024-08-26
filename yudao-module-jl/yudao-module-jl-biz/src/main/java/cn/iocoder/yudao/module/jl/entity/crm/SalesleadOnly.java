@@ -186,6 +186,12 @@ public class SalesleadOnly extends BaseEntity {
     @Column(name = "current_quotation_id")
     private Long currentQuotationId;
 
+    /**
+     * 疾病类型
+     */
+    @Column(name = "disease_type",nullable = true)
+    private String diseaseType;
+
 
     // 客户姓名
     @Transient
