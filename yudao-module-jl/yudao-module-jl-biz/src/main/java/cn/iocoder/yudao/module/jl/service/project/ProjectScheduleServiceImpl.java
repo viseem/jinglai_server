@@ -393,7 +393,7 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
                 if (Objects.equals(projectChargeitem.getProjectCategoryId(), projectCategory.getId())) {
                     if (projectChargeitem.getUnitFee() != null && projectChargeitem.getQuantity() != null) {
-                        BigDecimal unitFee = new BigDecimal(projectChargeitem.getUnitFee());
+                        BigDecimal unitFee = projectChargeitem.getUnitFee();
                         BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
                         BigDecimal price = unitFee.multiply(quantity);
                         if(projectChargeitem.getDiscount()!=null){

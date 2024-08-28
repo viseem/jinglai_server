@@ -554,6 +554,9 @@ public class ProjectServiceImpl implements ProjectService {
 
 
             if(pageReqVO.getFocusId() != null) {
+                if(pageReqVO.getFocusId()==-1L){
+                    pageReqVO.setFocusId(getLoginUserId());
+                }
                 mysqlFindInSet(pageReqVO.getFocusId(),"focusIds", root, cb, predicates);
             }
 
