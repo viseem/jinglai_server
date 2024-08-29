@@ -157,6 +157,11 @@ public class PurchaseContractServiceImpl implements PurchaseContractService {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
 
+            if (pageReqVO.getAcceptTime() != null) {
+                predicates.add(cb.between(root.get("acceptTime"), pageReqVO.getAcceptTime()[0],pageReqVO.getAcceptTime()[1]));
+            }
+
+
             if(pageReqVO.getProcurementType() != null) {
                 predicates.add(cb.equal(root.get("procurementType"), pageReqVO.getProcurementType()));
             }
