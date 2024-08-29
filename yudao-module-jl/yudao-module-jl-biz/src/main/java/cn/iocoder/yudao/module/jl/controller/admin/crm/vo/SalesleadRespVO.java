@@ -53,4 +53,6 @@ public class SalesleadRespVO extends SalesleadBaseVO {
     private List<CollaborationRecord> recordList = new ArrayList<>();
 
     private ProjectConstractOnly contract;
+
+    private User sales;
 }

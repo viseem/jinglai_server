@@ -214,6 +214,15 @@ public class Saleslead extends BaseEntity {
     private ProjectSimple project;
 
 
+    /**
+     * 级联
+     */
+    @OneToOne(fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)
+    private User sales;
+
+
     // 客户姓名
     @Transient
     private String customerName;
