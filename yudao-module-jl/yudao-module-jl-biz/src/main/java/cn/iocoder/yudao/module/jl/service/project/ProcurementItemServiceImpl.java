@@ -233,7 +233,7 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
                     predicates.add(cb.and(cb.greaterThan(root.get("inedQuantity"), BigDecimal.ZERO), cb.lessThan(root.get("inedQuantity"), root.get("quantity"))));
                 } else if (pageReqVO.getStatus().equals(ProcurementItemStatusEnums.ALL_STORAGE.getStatus())) {
                     // 查询 inedQuantity>=quantity
-                    predicates.add(cb.greaterThanOrEqualTo(root.get("inedQuantity"), root.get("quantity")));
+                    predicates.add(cb.and(cb.greaterThan(root.get("inedQuantity"), BigDecimal.ZERO),cb.greaterThanOrEqualTo(root.get("inedQuantity"), root.get("quantity"))));
                 } else {
                     predicates.add(cb.equal(root.get("status"), pageReqVO.getStatus()));
                 }
