@@ -134,6 +134,9 @@ public class InstitutionServiceImpl implements InstitutionService {
             if (pageReqVO.getName() != null) {
                 predicates.add(cb.like(root.get("name"), "%" + pageReqVO.getName() + "%"));
             }
+            if (pageReqVO.getContact() != null) {
+                predicates.add(cb.like(root.get("contact"), "%" + pageReqVO.getContact() + "%"));
+            }
 
             if (pageReqVO.getAddress() != null) {
                 predicates.add(cb.equal(root.get("address"), pageReqVO.getAddress()));
@@ -238,6 +241,85 @@ public class InstitutionServiceImpl implements InstitutionService {
             }
 
         });
+
+        return respVO;
+    }
+
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public InstitutionImportRespVO importListTaxNumber(List<InstitutionImportTaxNumberVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        InstitutionImportRespVO respVO = InstitutionImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new ArrayList<>()).build();
+
+
+// 收集所有机构名称
+        List<String> institutionNames = importUsers.stream()
+                .map(item -> item.getName() != null ? item.getName().trim() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+// 批量查询机构
+        List<Institution> existingInstitutions = institutionRepository.findByNameIn(institutionNames);
+
+// 将查询结果转为 Map 方便后续查找
+        Map<String, Institution> institutionMap = existingInstitutions.stream()
+                .collect(Collectors.toMap(Institution::getName, institution -> institution));
+
+// 准备批量保存的实体
+        List<Institution> institutionsToSave = new ArrayList<>();
+
+        for (InstitutionImportTaxNumberVO item : importUsers) {
+            if (item.getName() == null) {
+                respVO.getFailureNames().add("企业名字为空");
+                continue;
+            }
+
+            String trimmedName = item.getName().trim();
+            item.setName(trimmedName);
+
+            Institution institution = institutionMap.get(trimmedName);
+
+            if (institution == null) {
+                // 如果机构不存在，创建新的实体
+                Institution entity = institutionMapper.toEntity(item);
+                if (item.getType() != null) {
+                    switch (item.getType()) {
+                        case "医院":
+                            entity.setType("hospital");
+                            break;
+                        case "学校":
+                            entity.setType("school");
+                            break;
+                        case "研究所":
+                            entity.setType("research");
+                            break;
+                        default:
+                            entity.setType("academy");
+                    }
+                } else {
+                    entity.setType("academy");
+                }
+
+                institutionsToSave.add(entity);
+                respVO.getCreateNames().add(item.getName());
+            } else {
+                // 如果机构已存在，更新信息
+                if (institution.getBillCode() == null || institution.getBillCode().length() < 2) {
+                    institution.setBillCode(item.getBillCode());
+                }
+                if (institution.getContact() == null || institution.getContact().length() < 2) {
+                    institution.setContact(item.getContact());
+                }
+                institutionsToSave.add(institution);
+            }
+        }
+
+// 批量保存所有机构
+        if (!institutionsToSave.isEmpty()) {
+            institutionRepository.saveAll(institutionsToSave);
+        }
 
         return respVO;
     }

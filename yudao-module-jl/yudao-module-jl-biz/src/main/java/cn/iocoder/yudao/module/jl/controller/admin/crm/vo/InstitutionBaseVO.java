@@ -26,6 +26,9 @@ public class InstitutionBaseVO {
     @NotNull(message = "名字不能为空")
     private String name;
 
+    @Schema(description = "联系人")
+    private String contact;
+
     @Schema(description = "详细地址")
     private String address;
 

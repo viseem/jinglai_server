@@ -28,6 +28,8 @@ public class InstitutionPageReqVO extends PageParam {
     @Schema(description = "名字", example = "李四")
     private String name;
 
+    @Schema(description = "联系人", example = "李四")
+    private String contact;
     @Schema(description = "详细地址")
     private String address;
 

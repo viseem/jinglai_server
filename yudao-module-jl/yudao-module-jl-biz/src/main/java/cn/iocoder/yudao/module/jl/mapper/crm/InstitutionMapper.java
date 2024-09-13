@@ -11,6 +11,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface InstitutionMapper {
     Institution toEntity(InstitutionCreateReqVO dto);
+    Institution toEntity(InstitutionImportTaxNumberVO dto);
 
     Institution toEntity(InstitutionUpdateReqVO dto);
 

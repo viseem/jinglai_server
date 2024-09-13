@@ -1,36 +1,33 @@
 package cn.iocoder.yudao.module.jl.controller.admin.crm;
 
-import io.swagger.v3.oas.annotations.Parameters;
-import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.security.access.prepost.PreAuthorize;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Operation;
-
-import javax.validation.constraints.*;
-import javax.validation.*;
-import javax.servlet.http.*;
-import java.util.*;
-import java.io.IOException;
-
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
-
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.*;
 import cn.iocoder.yudao.module.jl.entity.crm.Institution;
 import cn.iocoder.yudao.module.jl.mapper.crm.InstitutionMapper;
-import cn.iocoder.yudao.module.jl.service.crm.InstitutionService;
+import cn.iocoder.yudao.module.jl.service.crm.InstitutionServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.INSTITUTION_NOT_EXISTS;
 
 @Tag(name = "管理后台 - 机构/公司")
 @RestController
@@ -39,7 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class InstitutionController {
 
     @Resource
-    private InstitutionService institutionService;
+    private InstitutionServiceImpl institutionService;
 
     @Resource
     private InstitutionMapper institutionMapper;
@@ -116,4 +113,15 @@ public class InstitutionController {
         return success(institutionService.importList(list, updateSupport));
     }
 
+    @PostMapping("/import-excel-tax-number")
+    @Operation(summary = "导入用户")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+            @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
+    })
+    public CommonResult<InstitutionImportRespVO> importExcelTaxNumber(@RequestParam("file") MultipartFile file,
+                                                             @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+        List<InstitutionImportTaxNumberVO> list = ExcelUtils.read(file, InstitutionImportTaxNumberVO.class);
+        return success(institutionService.importListTaxNumber(list, updateSupport));
+    }
 }
