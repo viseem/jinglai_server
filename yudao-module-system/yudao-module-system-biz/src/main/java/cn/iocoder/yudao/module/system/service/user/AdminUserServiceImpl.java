@@ -16,11 +16,14 @@ import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.UserPostDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dept.UserPostMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.oauth2.OAuth2AccessTokenMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.dept.PostService;
+import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import com.google.common.annotations.VisibleForTesting;
@@ -73,6 +76,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Resource
     private FileApi fileApi;
+
+    @Resource
+    private OAuth2TokenService oauth2TokenService;
+
+    @Resource
+    private OAuth2AccessTokenMapper oauth2AccessTokenMapper;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -150,9 +160,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         // 校验旧密码密码
         validateOldPassword(id, reqVO.getOldPassword());
         // 执行更新
-        AdminUserDO updateObj = new AdminUserDO().setId(id);
-        updateObj.setPassword(encodePassword(reqVO.getNewPassword())); // 加密密码
-        userMapper.updateById(updateObj);
+        updateUserPassword(id,reqVO.getNewPassword());
     }
 
     @Override
@@ -177,6 +185,13 @@ public class AdminUserServiceImpl implements AdminUserService {
         updateObj.setId(id);
         updateObj.setPassword(encodePassword(password)); // 加密密码
         userMapper.updateById(updateObj);
+        // 失效token缓存
+        List<OAuth2AccessTokenDO> oAuth2AccessTokenDOS = oauth2AccessTokenMapper.selectListByUserId(id);
+        for (OAuth2AccessTokenDO accessTokenDO : oAuth2AccessTokenDOS) {
+            oauth2TokenService.removeAccessToken(accessTokenDO.getAccessToken());
+        }
+
+
     }
 
     @Override

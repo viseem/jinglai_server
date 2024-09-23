@@ -72,6 +72,10 @@ public class ContractInvoiceLogPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] actualDate;
 
+    @Schema(description = "到账日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] receivedTime;
+
     @Schema(description = "物流单号")
     private String shipmentNumber;
 

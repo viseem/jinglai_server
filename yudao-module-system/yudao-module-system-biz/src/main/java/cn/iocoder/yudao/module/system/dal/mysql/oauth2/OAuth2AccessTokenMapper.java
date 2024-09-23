@@ -21,6 +21,10 @@ public interface OAuth2AccessTokenMapper extends BaseMapperX<OAuth2AccessTokenDO
         return selectList(OAuth2AccessTokenDO::getRefreshToken, refreshToken);
     }
 
+    default List<OAuth2AccessTokenDO> selectListByUserId(Long userId) {
+        return selectList(OAuth2AccessTokenDO::getUserId, userId);
+    }
+
     default PageResult<OAuth2AccessTokenDO> selectPage(OAuth2AccessTokenPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<OAuth2AccessTokenDO>()
                 .eqIfPresent(OAuth2AccessTokenDO::getUserId, reqVO.getUserId())

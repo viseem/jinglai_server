@@ -310,7 +310,9 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
             if(pageReqVO.getNumber() != null) {
                 predicates.add(cb.equal(root.get("number"), pageReqVO.getNumber()));
             }
-
+            if(pageReqVO.getReceivedTime() != null) {
+                predicates.add(cb.between(root.get("receivedTime"), pageReqVO.getReceivedTime()[0], pageReqVO.getReceivedTime()[1]));
+            }
             if(pageReqVO.getActualDate() != null) {
                 predicates.add(cb.between(root.get("actualDate"), pageReqVO.getActualDate()[0], pageReqVO.getActualDate()[1]));
             } 

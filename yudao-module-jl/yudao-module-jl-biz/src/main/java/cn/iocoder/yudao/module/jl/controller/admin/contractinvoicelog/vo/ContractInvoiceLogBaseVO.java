@@ -70,6 +70,10 @@ public class ContractInvoiceLogBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime date;
 
+    @Schema(description = "到账日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime receivedTime;
+
     @Schema(description = "开票类型：增值税专用发票")
     private String type;
 

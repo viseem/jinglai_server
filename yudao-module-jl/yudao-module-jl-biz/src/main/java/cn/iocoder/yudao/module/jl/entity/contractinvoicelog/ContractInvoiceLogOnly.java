@@ -104,6 +104,12 @@ public class ContractInvoiceLogOnly extends BaseEntity {
     private LocalDateTime date;
 
     /**
+     * 到账日期
+     */
+    @Column(name = "received_time")
+    private LocalDateTime receivedTime;
+
+    /**
      * 开票类型：增值税专用发票
      */
     @Column(name = "type", nullable = false )

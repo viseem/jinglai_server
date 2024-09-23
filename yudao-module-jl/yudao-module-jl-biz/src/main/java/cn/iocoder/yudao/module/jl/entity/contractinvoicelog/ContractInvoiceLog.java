@@ -137,6 +137,12 @@ public class ContractInvoiceLog extends BaseEntity {
     private LocalDateTime actualDate;
 
     /**
+     * 到账日期
+     */
+    @Column(name = "received_time")
+    private LocalDateTime receivedTime;
+
+    /**
      * 物流单号
      */
     @Column(name = "shipment_number")
