@@ -10,7 +10,10 @@ import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerCreateReqVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.user.User;
+import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerRepository;
+import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
 import cn.iocoder.yudao.module.jl.service.crm.CustomerService;
 import cn.iocoder.yudao.module.member.controller.app.auth.vo.*;
 import cn.iocoder.yudao.module.member.convert.auth.AuthConvert;
@@ -73,7 +76,11 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Resource
     private MemberUserMapper userMapper;
 
+    @Resource
+    private UserMapper jlUserMapper;
 
+    @Resource
+    private UserRepository userRepository;
 
     @Resource
     private CustomerRepository customerRepository;
@@ -208,6 +215,38 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         // 创建 Token 令牌
         OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.createAccessToken(new OAuth2AccessTokenCreateReqDTO()
                 .setUserId(customerId).setUserType(UserTypeEnum.MEMBER.getValue())
+                .setClientId(OAuth2ClientConstants.CLIENT_ID_DEFAULT));
+
+        respVO.setToken(accessTokenRespDTO.getAccessToken());
+        return respVO;
+    }
+
+    public JLAppAdminUserLoginRespVO adminUserLoginByPhoneCode(@Valid JLAppLoginByPhoneReqVO reqVO) {
+        WxMaPhoneNumberInfo phoneNumberInfo;
+
+        if(reqVO.getPhone()==null){
+            try {
+                phoneNumberInfo = wxMaService.getUserService().getNewPhoneNoInfo(reqVO.getPhoneCode());
+            } catch (Exception exception) {
+                throw exception(AUTH_WEIXIN_MINI_APP_PHONE_CODE_ERROR);
+            }
+
+        }else{
+            phoneNumberInfo=new WxMaPhoneNumberInfo();
+            phoneNumberInfo.setPhoneNumber(reqVO.getPhone());
+        }
+
+        JLAppAdminUserLoginRespVO respVO = new JLAppAdminUserLoginRespVO();
+        User byMobile = userRepository.findByMobile(phoneNumberInfo.getPhoneNumber());
+        if (byMobile==null){
+            throw exception(USER_NOT_EXISTS);
+        }
+
+        respVO.setUser(jlUserMapper.toDto(byMobile));
+
+        // 创建 Token 令牌
+        OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.createAccessToken(new OAuth2AccessTokenCreateReqDTO()
+                .setUserId(byMobile.getId()).setUserType(UserTypeEnum.ADMIN.getValue())
                 .setClientId(OAuth2ClientConstants.CLIENT_ID_DEFAULT));
 
         respVO.setToken(accessTokenRespDTO.getAccessToken());

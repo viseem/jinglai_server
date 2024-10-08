@@ -8,6 +8,7 @@ import cn.iocoder.yudao.framework.security.core.annotations.PreAuthenticated;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.member.controller.app.auth.vo.*;
 import cn.iocoder.yudao.module.member.service.auth.MemberAuthService;
+import cn.iocoder.yudao.module.member.service.auth.MemberAuthServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -32,7 +33,7 @@ import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUti
 public class AppAuthController {
 
     @Resource
-    private MemberAuthService authService;
+    private MemberAuthServiceImpl authService;
 
     @Resource
     private SecurityProperties securityProperties;
@@ -123,6 +124,13 @@ public class AppAuthController {
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
     public CommonResult<JLAppLoginRespVO> loginByPhone(@Valid @RequestBody JLAppLoginByPhoneReqVO reqVO) {
         return success(authService.loginByPhoneCode(reqVO));
+    }
+
+    @PostMapping("/admin/login-by-phonecode")
+    @Operation(summary = "后台用户-小程序登录")
+    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+    public CommonResult<JLAppAdminUserLoginRespVO> loginByPhone2(@Valid @RequestBody JLAppLoginByPhoneReqVO reqVO) {
+        return success(authService.adminUserLoginByPhoneCode(reqVO));
     }
 
 }

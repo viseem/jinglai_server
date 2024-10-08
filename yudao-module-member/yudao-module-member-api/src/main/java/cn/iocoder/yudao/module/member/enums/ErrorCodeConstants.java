@@ -10,7 +10,7 @@ import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 public interface ErrorCodeConstants {
 
     // ========== 用户相关  1004001000============
-    ErrorCode USER_NOT_EXISTS = new ErrorCode(1004001000, "用户不存在");
+    ErrorCode USER_NOT_EXISTS = new ErrorCode(1004001000, "用户不存在或手机号未绑定");
     ErrorCode USER_PASSWORD_FAILED = new ErrorCode(1004001001, "密码校验失败");
 
     // ========== AUTH 模块 1004003000 ==========

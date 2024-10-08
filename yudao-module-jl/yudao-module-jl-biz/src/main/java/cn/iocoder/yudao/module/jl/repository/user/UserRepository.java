@@ -15,6 +15,8 @@ import java.util.List;
 *
 */
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    @Query("select u from User u where u.mobile = ?1")
+    User findByMobile(String mobile);
     @Query("select u from User u where u.deptId = ?1")
     List<User> findByDeptId(Long deptId);
 
