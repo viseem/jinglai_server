@@ -17,6 +17,10 @@ public class SalesleadPageReqVO extends PageParam {
     private Long piGroupId;
     private Boolean repeatSearch = false;
 
+
+    @Schema(description = "不看已成交")
+    private Boolean noTransfer;
+
     @Schema(description = "归属：ALL MY SUB")
     private String attribute = DataAttributeTypeEnums.ALL.getStatus();
 

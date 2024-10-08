@@ -579,6 +579,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                 predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
             }else{
 
+                if(pageReqVO.getNoTransfer()!=null&&pageReqVO.getNoTransfer()){
+                    // status不等于 transfer
+                    predicates.add(cb.notEqual(root.get("status"), SalesLeadStatusEnums.ToProject.getStatus()));
+                }
+
 
                 // price大于指定金额的
                 if (pageReqVO.getQuotation() != null) {

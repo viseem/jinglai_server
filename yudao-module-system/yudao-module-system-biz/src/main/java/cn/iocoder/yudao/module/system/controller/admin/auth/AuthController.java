@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
 import cn.iocoder.yudao.module.system.enums.permission.MenuTypeEnum;
 import cn.iocoder.yudao.module.system.service.auth.AdminAuthService;
+import cn.iocoder.yudao.module.system.service.auth.AdminAuthServiceImpl;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.social.SocialUserService;
@@ -46,7 +47,7 @@ import static java.util.Collections.singleton;
 public class AuthController {
 
     @Resource
-    private AdminAuthService authService;
+    private AdminAuthServiceImpl authService;
     @Resource
     private AdminUserService userService;
     @Resource
