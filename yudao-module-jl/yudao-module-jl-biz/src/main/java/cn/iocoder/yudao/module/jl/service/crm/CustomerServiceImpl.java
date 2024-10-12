@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.customerchangelog.CustomerChangeLog;
+import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.DataAttributeTypeEnums;
@@ -256,12 +257,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Optional<Customer> getCustomer(Long id) {
-        Optional<Customer> byId = customerRepository.findById(id);
-        Customer customer = byId.get();
+        Customer customer = validateCustomerExists(id);
         if(customer.getSubjectGroupIds() != null&&!customer.getSubjectGroupIds().isEmpty()){
             customer.setSubjectGroupList(idsString2QueryList(customer.getSubjectGroupIds(),crmSubjectGroupRepository));
         }
-        return byId;
+        return Optional.of(customer);
     }
 
     @Override
@@ -470,17 +470,24 @@ public class CustomerServiceImpl implements CustomerService {
         // 创建 Sort 对象
         Sort sort = createSort(orderV0);
 
-        // 创建 Pageable 对象
-        Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
-
         // 创建 Specification
         Specification<CustomerSimple> spec = getCustomerSpecification(pageReqVO);
 
+        List<CustomerSimple> content = null;
+        long totalElements = 0;
         // 执行查询
-        Page<CustomerSimple> page = customerSimpleRepository.findAll(spec, pageable);
+        // 创建 Pageable 对象
+        if(pageReqVO.getPageNo()!=-1){
+            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+            Page<CustomerSimple> page = customerSimpleRepository.findAll(spec, pageable);
+            totalElements = page.getTotalElements();
+            content = page.getContent();
+        }else{
+            content = customerSimpleRepository.findAll(spec);
+        }
 
         // 转换为 PageResult 并返回
-        return new PageResult<>(page.getContent(), page.getTotalElements());
+        return new PageResult<>(content, totalElements);
     }
 
     @Override
