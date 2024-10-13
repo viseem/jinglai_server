@@ -629,7 +629,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
 
                 if(pageReqVO.getRequirement() != null) {
-                    predicates.add(cb.and(cb.like(root.get("requirement"), "%" + pageReqVO.getRequirement() + "%"),cb.between(root.get("createTime"), LocalDateTime.now().minusDays(3), LocalDateTime.now())));
+                    predicates.add(cb.like(root.get("requirement"), "%" + pageReqVO.getRequirement() + "%"));
                 }
 
                 if(pageReqVO.getBudget() != null) {
