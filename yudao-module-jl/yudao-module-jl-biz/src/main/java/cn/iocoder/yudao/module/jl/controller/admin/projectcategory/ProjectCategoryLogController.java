@@ -60,9 +60,9 @@ public class ProjectCategoryLogController {
     @PutMapping("/save")
     @Operation(summary = "更新项目实验名目的操作日志")
     @PreAuthorize("@ss.hasPermission('jl:project-category-log:update')")
-    public CommonResult<Boolean> saveProjectCategoryLog(@Valid @RequestBody ProjectCategoryLogSaveReqVO saveReqVO) {
-        projectCategoryLogService.saveProjectCategoryLog(saveReqVO);
-        return success(true);
+    public CommonResult<Long> saveProjectCategoryLog(@Valid @RequestBody ProjectCategoryLogSaveReqVO saveReqVO) {
+        Long l = projectCategoryLogService.saveProjectCategoryLog(saveReqVO);
+        return success(l);
     }
 
     @DeleteMapping("/delete")

@@ -100,7 +100,7 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
 
     // 新增和更新 都用的这个
     @Override
-    public void saveProjectCategoryLog(ProjectCategoryLogSaveReqVO saveReqVO) {
+    public Long saveProjectCategoryLog(ProjectCategoryLogSaveReqVO saveReqVO) {
 
         if(saveReqVO.getId() != null) {
             // 校验存在
@@ -127,6 +127,7 @@ public class ProjectCategoryLogServiceImpl implements ProjectCategoryLogService 
             }).collect(Collectors.toList()));
         }
 
+        return refId;
     }
 
     @Override

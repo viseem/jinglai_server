@@ -32,7 +32,7 @@ public interface ProjectCategoryLogService {
      *
      * @param saveReqVO 更新信息
      */
-    void saveProjectCategoryLog(@Valid ProjectCategoryLogSaveReqVO saveReqVO);
+    Long saveProjectCategoryLog(@Valid ProjectCategoryLogSaveReqVO saveReqVO);
 
     /**
      * 删除项目实验名目的操作日志
