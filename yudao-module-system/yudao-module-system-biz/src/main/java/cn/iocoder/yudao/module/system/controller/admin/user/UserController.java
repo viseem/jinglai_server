@@ -158,6 +158,20 @@ public class UserController {
     @OperateLog(enable = false)
     public CommonResult<PageResult<UserPageItemRespVO>> getUserPageSimple(@Valid UserPageReqVO reqVO) {
 
+        if(reqVO.getAttribute()!=null){
+            if(reqVO.getAttribute().equals("ALL")){
+                //查询自己负责的部门id
+                DeptByReqVO dept = new DeptByReqVO();
+                dept.setLeaderUserId(getLoginUserId());
+                DeptDO deptBy = deptService.getDeptBy(dept);
+                if(deptBy!=null){
+                    reqVO.setDeptId(deptBy.getId());
+                }else{
+                    reqVO.setDeptId(-1L);
+                }
+            }
+        }
+
         // 获得用户分页列表
         PageResult<AdminUserDO> pageResult = userService.getUserPage(reqVO);
         if (CollUtil.isEmpty(pageResult.getList())) {
