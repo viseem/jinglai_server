@@ -6,9 +6,11 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerCreateReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.user.vo.UserRespVO;
 import cn.iocoder.yudao.module.jl.entity.crm.Customer;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
@@ -28,11 +30,14 @@ import cn.iocoder.yudao.module.system.api.oauth2.dto.OAuth2AccessTokenRespDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.social.SocialUserApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
+import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
 import cn.iocoder.yudao.module.system.enums.logger.LoginResultEnum;
 import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
 import cn.iocoder.yudao.module.system.enums.social.SocialTypeEnum;
+import cn.iocoder.yudao.module.system.service.permission.PermissionServiceImpl;
+import cn.iocoder.yudao.module.system.service.permission.RoleServiceImpl;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,12 +46,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.CUSTOMER_NOT_EXISTS;
 import static cn.iocoder.yudao.module.member.enums.ErrorCodeConstants.*;
+import static java.util.Collections.singleton;
 
 /**
  * 会员的认证 Service 接口
@@ -87,6 +96,12 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     @Resource
     private CustomerService customerService;
+
+    @Resource
+    private PermissionServiceImpl permissionService;
+
+    @Resource
+    private RoleServiceImpl roleService;
 
 
     @Override
@@ -242,7 +257,12 @@ public class MemberAuthServiceImpl implements MemberAuthService {
             throw exception(USER_NOT_EXISTS);
         }
 
-        respVO.setUser(jlUserMapper.toDto(byMobile));
+        // 获得角色列表
+        Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(getLoginUserId(), singleton(CommonStatusEnum.ENABLE.getStatus()));
+        List<RoleDO> roleList = roleService.getRoleListFromCache(roleIds);
+        UserRespVO dto = jlUserMapper.toDto(byMobile);
+        dto.setRoles(CollectionUtils.convertSet(roleList, RoleDO::getCode));
+        respVO.setUser(dto);
 
         // 创建 Token 令牌
         OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.createAccessToken(new OAuth2AccessTokenCreateReqDTO()

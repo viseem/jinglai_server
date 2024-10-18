@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.user.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Schema(description = "管理后台 - 用户信息 Response VO")
 @Data
@@ -45,5 +46,8 @@ public class UserRespVO extends UserBaseVO {
 
     @Schema(description = "企业微信id")
     private String wxCpId;
+
+    @Schema(description = "角色标识数组", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Set<String> roles;
 
 }
