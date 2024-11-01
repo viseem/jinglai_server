@@ -263,6 +263,7 @@ public class SalesleadServiceImpl implements SalesleadService {
     public Integer saveSaleslead(SalesleadUpdateReqVO updateReqVO) {
 
         Saleslead saleslead = null;
+        Long salesId = null;
         // 如果managerId是-1，则说明是主动报价
         if(updateReqVO.getManagerId()!=null&&updateReqVO.getManagerId().equals(-1L)){
             updateReqVO.setManagerId(getLoginUserId());
@@ -274,6 +275,7 @@ public class SalesleadServiceImpl implements SalesleadService {
         if(updateReqVO.getId() != null) {
             // 校验存在
             saleslead = validateSalesleadExists(updateReqVO.getId());
+            salesId = saleslead.getCreator();
             updateReqVO.setProjectId(saleslead.getProjectId());
             // 如果线索已经是转项目状态，则不再修改状态
             if(Objects.equals(saleslead.getStatus().toString(),SalesLeadStatusEnums.ToProject.getStatus())){
@@ -292,7 +294,8 @@ public class SalesleadServiceImpl implements SalesleadService {
         }
 
         saleslead = salesleadRepository.save(saleleadsObj);
-        Long salesleadSalesId = saleslead.getCreator()!=null?saleslead.getCreator():getLoginUserId();
+
+        Long salesleadSalesId = salesId!=null?salesId:getLoginUserId();
         // 查询销售人员
         Optional<User> salesOptional = userRepository.findById(salesleadSalesId);
         Long salesleadId = saleleadsObj.getId();
@@ -369,6 +372,10 @@ public class SalesleadServiceImpl implements SalesleadService {
                 projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
             }
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
+
+                if(salesId==null|| !(salesId >0)){
+                    throw exception(USER_NOT_EXISTS);
+                }
 
                 ProjectConstract bySn = projectConstractRepository.findBySn(updateReqVO.getContractSn());
                 if (bySn != null) {

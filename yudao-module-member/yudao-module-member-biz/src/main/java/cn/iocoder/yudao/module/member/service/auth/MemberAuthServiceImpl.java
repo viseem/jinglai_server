@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.member.service.auth;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
+import cn.binarywang.wx.miniapp.config.WxMaConfig;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
@@ -238,11 +239,15 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     public JLAppAdminUserLoginRespVO adminUserLoginByPhoneCode(@Valid JLAppLoginByPhoneReqVO reqVO) {
         WxMaPhoneNumberInfo phoneNumberInfo;
-
+        if (!wxMaService.switchover("wxe0e332dd7d99555e")) {
+            throw new IllegalArgumentException(String.format("未找到对应appid=[%s]的配置，请核实！", "wxe0e332dd7d99555e"));
+        }
         if(reqVO.getPhone()==null){
             try {
+                System.out.println("code------"+reqVO.getPhoneCode());
                 phoneNumberInfo = wxMaService.getUserService().getNewPhoneNoInfo(reqVO.getPhoneCode());
             } catch (Exception exception) {
+                log.error("[loginByPhoneCode][手机号({}) 解析失败]", reqVO.getPhone(), exception);
                 throw exception(AUTH_WEIXIN_MINI_APP_PHONE_CODE_ERROR);
             }
 
@@ -258,7 +263,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         }
 
         // 获得角色列表
-        Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(getLoginUserId(), singleton(CommonStatusEnum.ENABLE.getStatus()));
+        Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(byMobile.getId(), singleton(CommonStatusEnum.ENABLE.getStatus()));
         List<RoleDO> roleList = roleService.getRoleListFromCache(roleIds);
         UserRespVO dto = jlUserMapper.toDto(byMobile);
         dto.setRoles(CollectionUtils.convertSet(roleList, RoleDO::getCode));
