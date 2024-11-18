@@ -286,6 +286,42 @@ public class ProcurementItem extends BaseEntity {
     @Column(name = "contract_accept_time")
     private LocalDateTime contractAcceptTime;
 
+
+    @Transient
+    private String applierName;
+
+    public String getApplierName(){
+        return user==null?"":user.getNickname();
+    }
+
+    @Transient
+    private String supplierName;
+
+    public String getSupplierName(){
+        return supplier==null?"":supplier.getName();
+    }
+
+    @Transient
+    private String purchaseManagerName;
+
+    @Transient
+    private String salesName;
+
+    @Transient
+    private String payerName;
+
+    public String getPayerName(){
+        return purchaseContract!=null&&purchaseContract.getPayer()!=null?purchaseContract.getPayer():"";
+    }
+
+    @Transient
+    private String customerName;
+
+    public String getCustomerName(){
+        return customer==null?"":customer.getName();
+    }
+
+
     @OneToOne(fetch = FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "supplier_id", referencedColumnName = "id", insertable = false, updatable = false)

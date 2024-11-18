@@ -16,58 +16,54 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @Data
 public class ProcurementItemExcelVO {
 
-    @ExcelProperty("ID")
-    private Long id;
+    @ExcelProperty("申请人")
+    private String applierName;
 
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
+    @ExcelProperty("申请日期")
+    private String createTime;
 
-    @ExcelProperty("采购单id")
-    private Long procurementId;
+    @ExcelProperty("批准日期")
+    private String purchaseAcceptTime;
 
-    @ExcelProperty("项目物资 id")
-    private Long projectSupplyId;
-
-    @ExcelProperty("名称")
-    private String name;
-
-    @ExcelProperty("采购规则/单位")
-    private String feeStandard;
-
-    @ExcelProperty("单价")
-    private String unitFee;
-
-    @ExcelProperty("单量")
-    private Integer unitAmount;
-
-    @ExcelProperty("采购数量")
-    private Integer quantity;
-
-    @ExcelProperty("供货商id")
-    private Long supplierId;
-
-    @ExcelProperty("原价")
-    private Integer buyPrice;
-
-    @ExcelProperty("销售价")
-    private Integer salePrice;
-
-    @ExcelProperty("备注")
-    private String mark;
-
-    @ExcelProperty("有效期")
-    private String validDate;
 
     @ExcelProperty("品牌")
     private String brand;
 
-    @ExcelProperty("目录号")
+
+    @ExcelProperty("货号")
     private String catalogNumber;
 
-    @ExcelProperty("货期")
-    private String deliveryDate;
 
-    @ExcelProperty("状态:等待采购信息、等待打款、等待采购、等待签收、等待入库")
-    private String status;
+    @ExcelProperty("明细名称")
+    private String name;
 
+
+    @ExcelProperty("规格")
+    private String spec;
+
+
+    @ExcelProperty("原价")
+    private String originPrice;
+
+    @ExcelProperty("数量")
+    private String quantity;
+
+    @ExcelProperty("采购价")
+    private String buyPrice;
+
+    @ExcelProperty("供应商")
+    private String supplierName;
+
+    @ExcelProperty("付款方")
+    private String payerName;
+
+    @ExcelProperty("项目部/实验部")
+    private String purchaseManagerName;
+
+    @ExcelProperty("销售人员")
+    private String salesName;
+
+    @ExcelProperty("客户")
+    private String customerName;
 }
+

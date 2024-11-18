@@ -2,14 +2,18 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
+import cn.iocoder.yudao.module.jl.entity.inventory.InventoryRoom;
 import cn.iocoder.yudao.module.jl.entity.inventorystorelog.InventoryStoreLog;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItem;
 import cn.iocoder.yudao.module.jl.entity.project.ProcurementItemOnly;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.ProcurementItemMapper;
+import cn.iocoder.yudao.module.jl.repository.inventory.InventoryRoomRepository;
 import cn.iocoder.yudao.module.jl.repository.inventorystorelog.InventoryStoreLogRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProcurementItemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSimpleRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,10 +27,8 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -51,6 +53,12 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
     @Resource
     private InventoryStoreLogRepository inventoryStoreLogRepository;
+
+    @Resource
+    private InventoryRoomRepository inventoryRoomRepository;
+
+    @Resource
+    private ProjectSimpleRepository projectSimpleRepository;
 
     @Override
     public Long createProcurementItem(ProcurementItemCreateReqVO createReqVO) {
@@ -248,79 +256,51 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
     }
 
     @Override
-    public List<ProcurementItem> getProcurementItemList(ProcurementItemExportReqVO exportReqVO) {
-        // 创建 Specification
-        Specification<ProcurementItem> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (exportReqVO.getProcurementId() != null) {
-                predicates.add(cb.equal(root.get("procurementId"), exportReqVO.getProcurementId()));
-            }
-
-            if (exportReqVO.getProjectSupplyId() != null) {
-                predicates.add(cb.equal(root.get("projectSupplyId"), exportReqVO.getProjectSupplyId()));
-            }
-
-            if (exportReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
-            }
-
-            if (exportReqVO.getFeeStandard() != null) {
-                predicates.add(cb.equal(root.get("feeStandard"), exportReqVO.getFeeStandard()));
-            }
-
-            if (exportReqVO.getUnitFee() != null) {
-                predicates.add(cb.equal(root.get("unitFee"), exportReqVO.getUnitFee()));
-            }
-
-            if (exportReqVO.getUnitAmount() != null) {
-                predicates.add(cb.equal(root.get("unitAmount"), exportReqVO.getUnitAmount()));
-            }
-
-            if (exportReqVO.getQuantity() != null) {
-                predicates.add(cb.equal(root.get("quantity"), exportReqVO.getQuantity()));
-            }
-
-            if (exportReqVO.getSupplierId() != null) {
-                predicates.add(cb.equal(root.get("supplierId"), exportReqVO.getSupplierId()));
-            }
-
-            if (exportReqVO.getBuyPrice() != null) {
-                predicates.add(cb.equal(root.get("buyPrice"), exportReqVO.getBuyPrice()));
-            }
-
-            if (exportReqVO.getSalePrice() != null) {
-                predicates.add(cb.equal(root.get("salePrice"), exportReqVO.getSalePrice()));
-            }
-
-            if (exportReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
-            }
-
-            if (exportReqVO.getValidDate() != null) {
-                predicates.add(cb.between(root.get("validDate"), exportReqVO.getValidDate()[0], exportReqVO.getValidDate()[1]));
-            }
-            if (exportReqVO.getBrand() != null) {
-                predicates.add(cb.equal(root.get("brand"), exportReqVO.getBrand()));
-            }
-
-            if (exportReqVO.getCatalogNumber() != null) {
-                predicates.add(cb.equal(root.get("catalogNumber"), exportReqVO.getCatalogNumber()));
-            }
-
-            if (exportReqVO.getDeliveryDate() != null) {
-                predicates.add(cb.between(root.get("deliveryDate"), exportReqVO.getDeliveryDate()[0], exportReqVO.getDeliveryDate()[1]));
-            }
-            if (exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
+    public List<ProcurementItem> getProcurementItemList(ProcurementItemPageReqVO exportReqVO) {
+        Sort sort = createSort(new ProcurementItemPageOrder());
         // 执行查询
-        return procurementItemRepository.findAll(spec);
+        // 步骤1: 查询所有的ProcurementItem
+        List<ProcurementItem> all = procurementItemRepository.findAll(getSpecification(exportReqVO), sort);
+
+        // 步骤2: 提取唯一的receiveRoomId
+        Set<Long> receiveRoomIds = all.stream()
+                .map(ProcurementItem::getReceiveRoomId)
+                .collect(Collectors.toSet());
+
+
+        Set<Long> projectIds = all.stream()
+                .map(ProcurementItem::getProjectId)
+                .collect(Collectors.toSet());
+
+
+        // 步骤3: 使用in查询获取所有的receiveRoomList
+        List<InventoryRoom> receiveRoomList = inventoryRoomRepository.findAllById(receiveRoomIds);
+
+        List<ProjectSimple> projectSimpleList = projectSimpleRepository.findAllById(projectIds);
+
+        // 步骤4: 构建一个映射，从receiveRoomId到InventoryRoom
+        Map<Long, InventoryRoom> receiveRoomIdToInventoryRoomMap = receiveRoomList.stream()
+                .collect(Collectors.toMap(InventoryRoom::getId, Function.identity()));
+
+        Map<Long, ProjectSimple> projectSimpleMap = projectSimpleList.stream()
+                .collect(Collectors.toMap(ProjectSimple::getId, Function.identity()));
+
+        // 步骤5: 给ProcurementItem赋值purchaseManagerName
+        for (ProcurementItem procurementItem : all) {
+            InventoryRoom inventoryRoom = receiveRoomIdToInventoryRoomMap.get(procurementItem.getReceiveRoomId());
+            if (inventoryRoom != null && inventoryRoom.getManager() != null) {
+                procurementItem.setPurchaseManagerName(inventoryRoom.getManager().getNickname());
+            }
+            ProjectSimple projectSimple = projectSimpleMap.get(procurementItem.getProjectId());
+            if(projectSimple!=null&& projectSimple.getSales()!=null){
+                procurementItem.setSalesName(projectSimple.getSales().getNickname());
+            }
+            if(projectSimple!=null&& projectSimple.getManager()!=null){
+                procurementItem.setCustomerName(projectSimple.getManager().getNickname());
+            }
+        }
+
+        return all;
     }
 
     private Sort createSort(ProcurementItemPageOrder order) {

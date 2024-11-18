@@ -96,7 +96,7 @@ public class ProcurementItemController {
     @Operation(summary = "导出项目采购单申请明细 Excel")
     @PreAuthorize("@ss.hasPermission('jl:procurement-item:export')")
     @OperateLog(type = EXPORT)
-    public void exportProcurementItemExcel(@Valid ProcurementItemExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
+    public void exportProcurementItemExcel(@Valid ProcurementItemPageReqVO exportReqVO, HttpServletResponse response) throws IOException {
         List<ProcurementItem> list = procurementItemService.getProcurementItemList(exportReqVO);
         // 导出 Excel
         List<ProcurementItemExcelVO> excelData = procurementItemMapper.toExcelList(list);

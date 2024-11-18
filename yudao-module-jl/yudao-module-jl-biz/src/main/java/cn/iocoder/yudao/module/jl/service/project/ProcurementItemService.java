@@ -68,6 +68,6 @@ public interface ProcurementItemService {
      * @param exportReqVO 查询条件
      * @return 项目采购单申请明细列表
      */
-    List<ProcurementItem> getProcurementItemList(ProcurementItemExportReqVO exportReqVO);
+    List<ProcurementItem> getProcurementItemList(ProcurementItemPageReqVO exportReqVO);
 
 }
