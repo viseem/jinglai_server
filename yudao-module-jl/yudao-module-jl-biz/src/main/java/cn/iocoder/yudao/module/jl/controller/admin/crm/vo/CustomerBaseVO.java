@@ -31,6 +31,7 @@ public class CustomerBaseVO {
 
     @Schema(description = "姓名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotNull(message = "姓名不能为空")
+    @Pattern(regexp = "^[^/]*$", message = "姓名不能包含 '/' 字符")
     private String name;
 
     @Schema(description = "客户来源")

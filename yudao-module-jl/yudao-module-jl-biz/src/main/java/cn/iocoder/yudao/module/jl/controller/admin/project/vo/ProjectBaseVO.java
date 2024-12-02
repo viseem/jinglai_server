@@ -43,6 +43,7 @@ public class ProjectBaseVO {
 
     @Schema(description = "项目名字", requiredMode = Schema.RequiredMode.REQUIRED, example = "赵六")
     @NotNull(message = "项目名字不能为空")
+    @Pattern(regexp = "^[^/]*$", message = "项目名字不能包含 '/' 字符")
     private String name;
 
     @Schema(description = "编号")
