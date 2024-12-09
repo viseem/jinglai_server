@@ -9,6 +9,7 @@ import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -80,13 +81,13 @@ public class AnimalFeedOrderExcelVO {
     private String billRulesLabel;
 
     @ExcelProperty("收费单价")
-    private String unitFee;
+    private BigDecimal unitFee;
 
     @ExcelProperty("实时收费总额")
-    private String currentAmount;
+    private BigDecimal currentAmount;
 
     @ExcelProperty("预计收费总额")
-    private String amount;
+    private BigDecimal amount;
 
     @ExcelProperty("备注")
     private String mark;
