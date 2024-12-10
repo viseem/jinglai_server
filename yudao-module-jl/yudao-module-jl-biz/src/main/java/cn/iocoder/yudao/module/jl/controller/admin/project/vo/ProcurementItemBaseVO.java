@@ -39,6 +39,8 @@ public class ProcurementItemBaseVO {
     private Long purchaseContractId;
 
     private Long parentId;
+    private Long quotationId;
+
 
     @Schema(description = "原价")
     private BigDecimal originPrice = BigDecimal.ZERO;

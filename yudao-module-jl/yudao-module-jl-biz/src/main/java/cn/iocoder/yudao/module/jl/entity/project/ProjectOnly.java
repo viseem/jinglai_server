@@ -57,8 +57,6 @@ public class ProjectOnly extends BaseEntity{
     private Long customerId;
 
 
-
-
     @Column(name = "process_instance_id", nullable = false )
     private String processInstanceId;
 
