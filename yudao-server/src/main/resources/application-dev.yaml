@@ -143,6 +143,9 @@ spring:
 
 # 日志文件配置
 logging:
+  level:
+    root: warn  # 设置根日志级别为 warn，info 级别及以下的日志将不会显示
+    org.springframework: warn  # 如果要对 Spring 框架日志进行相同配置
   file:
     name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
 
