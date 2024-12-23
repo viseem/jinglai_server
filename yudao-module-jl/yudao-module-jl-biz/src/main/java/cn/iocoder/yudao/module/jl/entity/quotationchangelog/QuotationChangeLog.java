@@ -86,6 +86,12 @@ public class QuotationChangeLog extends BaseEntity {
     private BigDecimal currentAmount;
 
     /**
+     * 变更明细
+     */
+    @Column(name = "current_discount_amount", nullable = false )
+    private BigDecimal currentDiscountAmount;
+
+    /**
      * 级联
      */
     @OneToOne(fetch = FetchType.EAGER)

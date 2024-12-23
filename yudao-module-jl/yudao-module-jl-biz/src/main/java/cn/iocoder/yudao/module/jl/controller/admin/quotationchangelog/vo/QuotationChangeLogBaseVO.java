@@ -46,5 +46,6 @@ public class QuotationChangeLogBaseVO {
     private BigDecimal prevAmount=BigDecimal.ZERO;
 
     private BigDecimal currentAmount=BigDecimal.ZERO;
+    private BigDecimal currentDiscountAmount=BigDecimal.ZERO;
 
 }
