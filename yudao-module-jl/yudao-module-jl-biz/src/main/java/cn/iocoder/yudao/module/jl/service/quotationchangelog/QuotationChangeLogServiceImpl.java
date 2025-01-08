@@ -68,6 +68,7 @@ public class QuotationChangeLogServiceImpl implements QuotationChangeLogService 
         ProjectQuotation quotation = projectQuotationService.validateProjectQuotationExists(createReqVO.getQuotationId());
         for (ProjectChargeitem projectChargeitem : createReqVO.getChargeList()) {
             projectChargeitem.setProjectId(quotation.getProjectId());
+            projectChargeitem.setQuotationId(quotation.getId());
         }
         for (ProjectSupplyOnly projectSupplyOnly : createReqVO.getSupplyList()) {
             projectSupplyOnly.setProjectId(quotation.getProjectId());
