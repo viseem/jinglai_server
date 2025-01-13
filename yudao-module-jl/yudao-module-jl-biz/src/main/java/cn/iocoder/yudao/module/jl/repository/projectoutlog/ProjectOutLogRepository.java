@@ -4,11 +4,16 @@ import cn.iocoder.yudao.module.jl.entity.projectoutlog.ProjectOutLog;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
 * ProjectOutLogRepository
 *
 */
 public interface ProjectOutLogRepository extends JpaRepository<ProjectOutLog, Long>, JpaSpecificationExecutor<ProjectOutLog> {
+    @Query("select p from ProjectOutLog p where p.projectId in ?1")
+    List<ProjectOutLog> findByProjectIdIn(Collection<Long> projectIds);
     @Transactional
     @Modifying
     @Query("update ProjectOutLog p set p.step1Json = ?1 where p.id = ?2")

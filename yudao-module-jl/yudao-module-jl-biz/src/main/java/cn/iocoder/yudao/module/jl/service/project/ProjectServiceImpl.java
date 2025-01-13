@@ -2,21 +2,28 @@ package cn.iocoder.yudao.module.jl.service.project;
 
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceRespVO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
+import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
+import cn.iocoder.yudao.module.jl.entity.projectoutlog.ProjectOutLog;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.quotationchangelog.QuotationChangeLog;
 import cn.iocoder.yudao.module.jl.enums.*;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
+import cn.iocoder.yudao.module.jl.repository.projectoutlog.ProjectOutLogRepository;
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.quotationchangelog.QuotationChangeLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
+import cn.iocoder.yudao.module.jl.service.projectoutlog.ProjectOutLogServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +102,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Resource
     private CommonTaskRepository commonTaskRepository;
+
+    @Resource
+    private ProjectOutLogRepository projectOutLogRepository;
+
+    @Resource
+    private BpmProcessInstanceService processInstanceService;
 
 
     @PostConstruct
@@ -439,9 +452,26 @@ public class ProjectServiceImpl implements ProjectService {
         Specification<Project> spec = getProjectCommonSpecification(pageReqVO);
         // 执行查询
         Page<Project> page = projectRepository.findAll(spec, pageable);
-        page.forEach(item->{
+
+        // 获取project id
+        List<Long> ids = page.getContent().stream().map(Project::getId).collect(Collectors.toList());
+        List<ProjectOutLog> outLogs=null;
+        if(!ids.isEmpty()){
+            outLogs = projectOutLogRepository.findByProjectIdIn(ids);
+        }
+        for (Project item : page) {
+            if(item.getStage().equals(ProjectStageEnums.OUTED.getStatus())){
+                if(outLogs!=null && !outLogs.isEmpty()){
+                    outLogs.stream().filter(outLog->outLog.getProjectId().equals(item.getId())).findFirst().ifPresent(item::setOutLog);
+                }
+                if(item.getProcessInstanceId()!=null){
+                    HistoricProcessInstance historicProcessInstance = processInstanceService.getHistoricProcessInstance(item.getProcessInstanceId());
+                    item.setOutProcessInstance(historicProcessInstance);
+                }
+            }
+
             processProjectItem(item,false);
-        });
+        }
 
         // 转换为 PageResult 并返回
         return new PageResult<>(page.getContent(), page.getTotalElements());

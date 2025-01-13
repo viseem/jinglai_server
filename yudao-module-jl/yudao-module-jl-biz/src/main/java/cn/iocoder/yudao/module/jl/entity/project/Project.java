@@ -1,11 +1,14 @@
 package cn.iocoder.yudao.module.jl.entity.project;
 
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceRespVO;
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
 import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.crmsubjectgroup.CrmSubjectGroup;
+import cn.iocoder.yudao.module.jl.entity.projectoutlog.ProjectOutLog;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.hibernate.annotations.*;
 
 import java.util.*;
@@ -321,4 +324,10 @@ public class Project extends BaseEntity{
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "subject_group_id", referencedColumnName = "id", insertable = false, updatable = false)
     private CrmSubjectGroup subjectGroup;
+
+    @Transient
+    private ProjectOutLog outLog;
+
+    @Transient
+    private HistoricProcessInstance outProcessInstance;
 }
