@@ -823,59 +823,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public List<Project> getProjectList(ProjectExportReqVO exportReqVO) {
+    public PageResult<Project> getProjectList(ProjectPageReqVO exportReqVO) {
         // 创建 Specification
-        Specification<Project> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if(exportReqVO.getSalesleadId() != null) {
-                predicates.add(cb.equal(root.get("salesleadId"), exportReqVO.getSalesleadId()));
-            }
-
-            if(exportReqVO.getName() != null) {
-                predicates.add(cb.like(root.get("name"), "%" + exportReqVO.getName() + "%"));
-            }
-
-            if(exportReqVO.getStage() != null) {
-                predicates.add(cb.equal(root.get("stage"), exportReqVO.getStage()));
-            }
-
-            if(exportReqVO.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), exportReqVO.getStatus()));
-            }
-
-            if(exportReqVO.getType() != null) {
-                predicates.add(cb.equal(root.get("type"), exportReqVO.getType()));
-            }
-
-            if(exportReqVO.getStartDate() != null) {
-                predicates.add(cb.between(root.get("startDate"), exportReqVO.getStartDate()[0], exportReqVO.getStartDate()[1]));
-            } 
-            if(exportReqVO.getEndDate() != null) {
-                predicates.add(cb.between(root.get("endDate"), exportReqVO.getEndDate()[0], exportReqVO.getEndDate()[1]));
-            } 
-            if(exportReqVO.getManagerId() != null) {
-                predicates.add(cb.equal(root.get("managerId"), exportReqVO.getManagerId()));
-            }
-
-            if(exportReqVO.getParticipants() != null) {
-                predicates.add(cb.equal(root.get("participants"), exportReqVO.getParticipants()));
-            }
-
-            if(exportReqVO.getSalesId() != null) {
-                predicates.add(cb.equal(root.get("salesId"), exportReqVO.getSalesId()));
-            }
-
-            if(exportReqVO.getCustomerId() != null) {
-                predicates.add(cb.equal(root.get("customerId"), exportReqVO.getCustomerId()));
-            }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
         // 执行查询
-        return projectRepository.findAll(spec);
+        return getProjectPage(exportReqVO,new ProjectPageOrder());
     }
 
 

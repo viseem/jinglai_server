@@ -38,6 +38,8 @@ public interface DictTypeConstants {
     // ====== 饲养
     String FEED_BILL_RULES = "FEED_BILL_RULES"; // 发票种类：全电专票 全电普票
 
-
+    // ====  项目
+    // PROJECT_TYPE = 'projectType'
+    String PROJECT_TYPE = "projectType";
 
 }

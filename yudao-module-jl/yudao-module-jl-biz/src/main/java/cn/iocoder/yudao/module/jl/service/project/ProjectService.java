@@ -117,7 +117,7 @@ public interface ProjectService {
      * @param exportReqVO 查询条件
      * @return 项目管理列表
      */
-    List<Project> getProjectList(ProjectExportReqVO exportReqVO);
+    PageResult<Project> getProjectList(ProjectPageReqVO exportReqVO);
 
 
     /**
