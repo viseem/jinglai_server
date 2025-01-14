@@ -13,8 +13,6 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import javax.validation.*;
 import javax.servlet.http.*;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -251,15 +248,17 @@ public class ProjectController {
 
                 // 把project.outLog.step1Json中的json数据，覆盖到item包含的值
                 if(project.getOutLog()!=null){
-                    BeanUtil.copyProperties(JSONUtil.toBean(project.getOutLog().getStep1Json(), ProjectOutLogStep1Json.class), item);
-                    ProjectOutLogStep3Json json3 = JSONUtil.toBean(project.getOutLog().getStep3Json(), ProjectOutLogStep3Json.class);
-                    //如果json3不为空，计算customerScores的value和，value是字符串数字,先转为BigDecimal再相加
-                    if (json3 != null) {
-                        BigDecimal customerScore = json3.getCustomerScores().stream()
-                                .map(row1 -> new BigDecimal(row1.getValue()))
-                                .reduce(BigDecimal.ZERO, BigDecimal::add);
-                        item.setCustomerScore(customerScore.toString());
-                    }
+                    try{
+                        BeanUtil.copyProperties(JSONUtil.toBean(project.getOutLog().getStep1Json(), ProjectOutLogStep1Json.class), item);
+                        ProjectOutLogStep3Json json3 = JSONUtil.toBean(project.getOutLog().getStep3Json(), ProjectOutLogStep3Json.class);
+                        //如果json3不为空，计算customerScores的value和，value是字符串数字,先转为BigDecimal再相加
+                        if (json3 != null&&json3.getCustomerScores()!=null) {
+                            BigDecimal customerScore = json3.getCustomerScores().stream()
+                                    .map(row1 -> new BigDecimal(row1.getValue()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            item.setCustomerScore(customerScore.toString());
+                        }
+                    }catch (Exception ignored){}
                 }
 
 
@@ -267,11 +266,12 @@ public class ProjectController {
                 if(project.getContractList()!=null){
                     List<ProjectConstractOnly> contractList = project.getContractList().stream().filter(contract -> contract.getStatus().equals(ProjectContractStatusEnums.SIGNED.getStatus())).collect(Collectors.toList());
                     if(!contractList.isEmpty()){
-                        item.setContractSn(contractList.get(0).getSn());
-                        // contractList.get(0).getSignedTime()格式化LocalDateTime
-                        item.setSignedTime(contractList.get(0).getSignedTime()!=null?contractList.get(0).getSignedTime().format(DateTimeFormatter.ofPattern("yyyy/M/d")):"");
-                        BigDecimal totalPrice = contractList.stream().map(ProjectConstractOnly::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-                        item.setContractAmount(totalPrice.toString());
+                        try{
+                            item.setContractSn(contractList.get(0).getSn());
+                            item.setSignedTime(contractList.get(0).getSignedTime()!=null?contractList.get(0).getSignedTime().format(DateTimeFormatter.ofPattern("yyyy/M/d")):"");
+                            BigDecimal totalPrice = contractList.stream().map(ProjectConstractOnly::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                            item.setContractAmount(totalPrice.toString());
+                        }catch (Exception ignored){}
                    }
                 }
                 excelData.add(item);
