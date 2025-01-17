@@ -1,6 +1,12 @@
 package cn.iocoder.yudao.module.jl.service.projectsettlement;
 
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationExportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationItemVO;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectSupply;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectChargeitemRepository;
+import cn.iocoder.yudao.module.jl.repository.project.ProjectSupplyRepository;
 import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import cn.iocoder.yudao.module.jl.service.projectquotation.ProjectQuotationServiceImpl;
 import org.springframework.stereotype.Service;
@@ -51,6 +57,11 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
 
     @Resource
     private CommonAttachmentServiceImpl commonAttachmentService;
+
+    @Resource
+    private ProjectSupplyRepository projectSupplyRepository;
+    @Resource
+    private ProjectChargeitemRepository projectChargeitemRepository;
 
     @Override
     @Transactional
@@ -159,32 +170,74 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
     }
 
     @Override
-    public List<ProjectSettlement> getProjectSettlementList(ProjectSettlementExportReqVO exportReqVO) {
+    public ProjectSettlementExportRespVO getProjectSettlementList(ProjectSettlementExportReqVO exportReqVO) {
         // 创建 Specification
-        Specification<ProjectSettlement> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if(exportReqVO.getPaidAmount() != null) {
-                predicates.add(cb.equal(root.get("paidAmount"), exportReqVO.getPaidAmount()));
+        ProjectSettlementExportRespVO resp = new ProjectSettlementExportRespVO();
+        List<ProjectQuotationItemVO> quotationList = new ArrayList<>();
+        //查询物资列表
+        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(exportReqVO.getQuotationId());
+        resp.setSupplyCount(byQuotationId.size());
+        //遍历物资列表赋值到resp的itemList
+        for (ProjectSupply projectSupply : byQuotationId) {
+            ProjectQuotationItemVO item = new ProjectQuotationItemVO();
+            item.setProjectCategoryName("实验材料准备");
+            item.setName(projectSupply.getName());
+            item.setMark(projectSupply.getMark());
+            item.setProjectCategoryId(projectSupply.getProjectCategoryId());
+            item.setBrand(projectSupply.getBrand());
+            item.setBuyPrice(projectSupply.getBuyPrice());
+            item.setProductCode(projectSupply.getProductCode());
+            item.setUnitFee(projectSupply.getUnitFee());
+            item.setQuantity(projectSupply.getQuantity());
+            item.setType(projectSupply.getType());
+            item.setSpec(projectSupply.getSpec());
+            quotationList.add(item);
+        }
+        quotationList.add(new ProjectQuotationItemVO() {
+            {
+                setProjectCategoryName("实验材料费小计");
             }
+        });
 
-            if(exportReqVO.getReminderDate() != null) {
-                predicates.add(cb.between(root.get("reminderDate"), exportReqVO.getReminderDate()[0], exportReqVO.getReminderDate()[1]));
-            } 
-            if(exportReqVO.getAmount() != null) {
-                predicates.add(cb.equal(root.get("amount"), exportReqVO.getAmount()));
+        // 查询收费项列表，并按照projectCategoryId排序
+        List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
+        resp.setChargeCount(byQuotationId1.size());
+        //byQuotationId1按照projectCategoryId排序 升序
+        byQuotationId1.sort(Comparator.comparing(ProjectChargeitem::getProjectCategoryId));
+        //遍历收费项列表赋值到resp的itemList
+        for (ProjectChargeitem projectChargeitem : byQuotationId1) {
+            ProjectQuotationItemVO item = new ProjectQuotationItemVO();
+            if (projectChargeitem.getCategory() != null) {
+                item.setProjectCategoryName(projectChargeitem.getCategory().getName());
+                item.setProjectCategoryCycle(projectChargeitem.getCategory().getCycle());
             }
-
-            if(exportReqVO.getMark() != null) {
-                predicates.add(cb.equal(root.get("mark"), exportReqVO.getMark()));
+            item.setName(projectChargeitem.getName());
+            item.setMark(projectChargeitem.getMark());
+            item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
+            item.setUnitFee(projectChargeitem.getUnitFee());
+            item.setQuantity(projectChargeitem.getQuantity());
+            item.setSpec(projectChargeitem.getSpec());
+            quotationList.add(item);
+        }
+        quotationList.add(new ProjectQuotationItemVO() {
+            {
+                setProjectCategoryName("实验服务小计");
             }
-
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        // 执行查询
-        return projectSettlementRepository.findAll(spec);
+        });
+        quotationList.add(new ProjectQuotationItemVO() {
+            {
+                setProjectCategoryName("合 计");
+            }
+        });
+        quotationList.add(new ProjectQuotationItemVO() {
+            {
+                setProjectCategoryName("最终优惠价");
+                setPriceAmount(exportReqVO.getResultDiscountAmount());
+            }
+        });
+//        resp.setRowCount(quotationList.size());
+        resp.setQuotationItems(quotationList);
+        return resp;
     }
 
     private Sort createSort(ProjectSettlementPageOrder order) {

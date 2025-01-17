@@ -14,22 +14,25 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Schema(description = "管理后台 - 项目结算 Excel 导出 Request VO，参数和 ProjectSettlementPageReqVO 是一致的")
 @Data
 public class ProjectSettlementExportReqVO {
-
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
-    @Schema(description = "结算金额")
-    private BigDecimal paidAmount;
-
-    @Schema(description = "提醒日期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] reminderDate;
-
-    @Schema(description = "应收金额")
-    private BigDecimal amount;
-
     @Schema(description = "备注")
     private String mark;
+
+    @Schema(description = "方案")
+    private String planText;
+
+    @Schema(description = "项目id", example = "19220")
+    private Long projectId;
+
+    @Schema(description = "报价id", example = "19220")
+    private Long quotationId;
+
+    @Schema(description = "客户id", example = "22455")
+    private Long customerId;
+    private BigDecimal resultDiscountAmount;
+
 
 }

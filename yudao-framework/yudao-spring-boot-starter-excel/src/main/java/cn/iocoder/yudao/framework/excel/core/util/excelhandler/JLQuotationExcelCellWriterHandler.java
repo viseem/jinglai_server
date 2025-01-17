@@ -18,7 +18,7 @@ public class JLQuotationExcelCellWriterHandler implements CellWriteHandler {
     public JLQuotationExcelCellWriterHandler(Integer supplyCount, Integer chargeCount){
         this.supplyCount=supplyCount;
         this.chargeCount=chargeCount;
-        this.rowCount=supplyCount+chargeCount+3;
+        this.rowCount=supplyCount+chargeCount+3;  // 这里还是到合计的行数
     }
 
     @Override
@@ -58,7 +58,8 @@ public class JLQuotationExcelCellWriterHandler implements CellWriteHandler {
         }
 
         int actualCellRowNum = cell.getRowIndex() + 1;
-        if (cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
+        // 不是最后一行的最终优惠价
+        if (cell.getRowIndex()!=rowCount+1&&cell.getRowIndex() >= 1 && 5 == cell.getColumnIndex())
         {
             cell.setCellFormula("D" + actualCellRowNum +"*E" + actualCellRowNum);
         }
@@ -81,6 +82,7 @@ public class JLQuotationExcelCellWriterHandler implements CellWriteHandler {
                 cell.setCellValue(0);
             }
         }
+        // 这个是合计
         if(cell.getRowIndex()==rowCount && 5 == cell.getColumnIndex()){
             cell.setCellFormula("SUM(F"+(supplyCount+2)+"+F" + cell.getRowIndex() +")");
         }

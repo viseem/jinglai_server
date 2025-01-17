@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo;
 
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
@@ -34,5 +36,6 @@ public class ProjectQuotationExportReqVO {
 
     @Schema(description = "客户id", example = "22455")
     private Long customerId;
+
 
 }

@@ -64,6 +64,6 @@ public interface ProjectSettlementService {
      * @param exportReqVO 查询条件
      * @return 项目结算列表
      */
-    List<ProjectSettlement> getProjectSettlementList(ProjectSettlementExportReqVO exportReqVO);
+    ProjectSettlementExportRespVO getProjectSettlementList(ProjectSettlementExportReqVO exportReqVO);
 
 }

@@ -58,14 +58,20 @@ public class JLQuotationExcelMergeStrategy extends AbstractMergeStrategy {
                 sheet.addMergedRegionUnsafe(new CellRangeAddress(supplyCount+1, supplyCount+1, 0, 4));
             }
 
+            // 实验服务小记
             if(Objects.equals(relativeRowIndex, rowCount+1)){
                 sheet.addMergedRegionUnsafe(new CellRangeAddress(rowCount+2, rowCount+2, 0, 4));
             }
 
+            // 合计
             if(Objects.equals(relativeRowIndex, rowCount+2)){
                 sheet.addMergedRegionUnsafe(new CellRangeAddress(rowCount+3, rowCount+3, 0, 4));
             }
 
+            // 最终优惠价
+            if(Objects.equals(relativeRowIndex, rowCount+3)){
+                sheet.addMergedRegionUnsafe(new CellRangeAddress(rowCount+4, rowCount+4, 0, 4));
+            }
         }
 
 

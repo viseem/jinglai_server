@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectsettlement;
 
+import cn.iocoder.yudao.framework.excel.core.util.excelhandler.JLQuotationExcelCellWriterHandler;
+import cn.iocoder.yudao.framework.excel.core.util.excelstrategy.JLQuotationExcelMergeStrategy;
+import cn.iocoder.yudao.module.jl.controller.admin.projectquotation.vo.ProjectQuotationExcelVO;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -88,10 +91,11 @@ public class ProjectSettlementController {
     @PreAuthorize("@ss.hasPermission('jl:project-settlement:export')")
     @OperateLog(type = EXPORT)
     public void exportProjectSettlementExcel(@Valid ProjectSettlementExportReqVO exportReqVO, HttpServletResponse response) throws IOException {
-        List<ProjectSettlement> list = projectSettlementService.getProjectSettlementList(exportReqVO);
+        ProjectSettlementExportRespVO resp = projectSettlementService.getProjectSettlementList(exportReqVO);
         // 导出 Excel
-        List<ProjectSettlementExcelVO> excelData = projectSettlementMapper.toExcelList(list);
-        ExcelUtils.write(response, "项目结算.xls", "数据", ProjectSettlementExcelVO.class, excelData);
+        List<ProjectSettlementExcelVO> excelData = projectSettlementMapper.toExcelList2(resp.getQuotationItems());
+        System.out.println("eex---"+excelData.get(excelData.size()-1));
+        ExcelUtils.write(response, "结算单.xls", "数据", ProjectSettlementExcelVO.class, excelData, new JLQuotationExcelMergeStrategy(resp.getSupplyCount(),resp.getChargeCount()),new JLQuotationExcelCellWriterHandler(resp.getSupplyCount(),resp.getChargeCount()));
     }
 
 }

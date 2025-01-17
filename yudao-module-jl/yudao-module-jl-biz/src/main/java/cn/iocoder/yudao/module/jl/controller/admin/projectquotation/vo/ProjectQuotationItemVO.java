@@ -35,6 +35,9 @@ public class ProjectQuotationItemVO {
     @NotNull(message = "单价不能为空")
     private BigDecimal unitFee;
 
+    @Schema(description = "金额")
+    private BigDecimal priceAmount;
+
     @Schema(description = "成本价")
     private Integer buyPrice;
 

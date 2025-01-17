@@ -19,22 +19,28 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @Data
 public class ProjectSettlementExcelVO {
 
-    @ExcelProperty("ID")
-    private Long id;
+    @ExcelProperty("品目")
+    private String projectCategoryName;
 
-    @ExcelProperty("创建时间")
-    private LocalDateTime createTime;
+    @ExcelProperty("项目名称")
+    private String name;
 
-    @ExcelProperty("结算金额")
-    private BigDecimal paidAmount;
+    @ExcelProperty("规格/单位")
+    private String spec;
 
-    @ExcelProperty("提醒日期")
-    private LocalDateTime reminderDate;
+    @ExcelProperty("数量")
+    private Integer quantity;
 
-    @ExcelProperty("应收金额")
-    private BigDecimal amount;
+    @ExcelProperty("单价")
+    private Integer unitFee;
+
+    @ExcelProperty("金额")
+    private String priceAmount;
 
     @ExcelProperty("备注")
     private String mark;
+
+    @ExcelProperty("周期")
+    private String projectCategoryCycle;
 
 }
