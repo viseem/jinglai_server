@@ -184,13 +184,13 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
             item.setName(projectSupply.getName());
             item.setMark(projectSupply.getMark());
             item.setProjectCategoryId(projectSupply.getProjectCategoryId());
-            item.setBrand(projectSupply.getBrand());
+            item.setBrand(projectSupply.getCurrentBrand());
             item.setBuyPrice(projectSupply.getBuyPrice());
-            item.setProductCode(projectSupply.getProductCode());
-            item.setUnitFee(projectSupply.getUnitFee());
-            item.setQuantity(projectSupply.getQuantity());
+            item.setProductCode(projectSupply.getCurrentCatalogNumber());
+            item.setUnitFee(projectSupply.getCurrentPrice());
+            item.setQuantity(projectSupply.getCurrentQuantity());
             item.setType(projectSupply.getType());
-            item.setSpec(projectSupply.getSpec());
+            item.setSpec(projectSupply.getCurrentSpec());
             quotationList.add(item);
         }
         quotationList.add(new ProjectQuotationItemVO() {
@@ -214,9 +214,9 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
             item.setName(projectChargeitem.getName());
             item.setMark(projectChargeitem.getMark());
             item.setProjectCategoryId(projectChargeitem.getProjectCategoryId());
-            item.setUnitFee(projectChargeitem.getUnitFee());
-            item.setQuantity(projectChargeitem.getQuantity());
-            item.setSpec(projectChargeitem.getSpec());
+            item.setUnitFee(projectChargeitem.getCurrentPrice());
+            item.setQuantity(projectChargeitem.getCurrentQuantity());
+            item.setSpec(projectChargeitem.getCurrentSpec());
             quotationList.add(item);
         }
         quotationList.add(new ProjectQuotationItemVO() {
