@@ -14,6 +14,8 @@ import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.jpa.domain.Specification;
@@ -109,6 +111,12 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
     @Override
     public Optional<ProjectSettlement> getProjectSettlement(Long id) {
         return projectSettlementRepository.findById(id);
+    }
+
+    public BigDecimal getSettlementAmountByProjectId(Long projectId){
+        return projectSettlementRepository.findByProjectId(projectId).stream()
+                .map(ProjectSettlement::getPaidAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override

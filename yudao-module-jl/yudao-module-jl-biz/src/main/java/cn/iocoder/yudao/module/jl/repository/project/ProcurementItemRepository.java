@@ -6,6 +6,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ import java.util.List;
 *
 */
 public interface ProcurementItemRepository extends JpaRepository<ProcurementItem, Long>, JpaSpecificationExecutor<ProcurementItem> {
+    @Query("select p from ProcurementItem p where p.projectId = ?1 and p.status in ?2")
+    List<ProcurementItem> findByProjectIdAndStatusIn(Long projectId, Collection<String> statuses);
     @Transactional
     @Modifying
     @Query("update ProcurementItem p set p.contractAcceptTime = ?1 where p.purchaseContractId = ?2")

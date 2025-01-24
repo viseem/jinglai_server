@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryAttachment;
 import cn.iocoder.yudao.module.jl.entity.projectcategory.ProjectCategoryOutsource;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.mapper.project.*;
 import cn.iocoder.yudao.module.jl.mapper.projectcategory.ProjectCategoryAttachmentMapper;
@@ -241,27 +242,6 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         return cost;
     }
 
-    /**
-     * 计算当前安排单的采购成本
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public Long getProcurementCostByScheduleId(Long id) {
-        long cost = 0;
-
-        // 计算采购的成本
-        List<ProcurementItem> procurementItemList = procurementItemRepository.findByScheduleId(id);
-        for (ProcurementItem procurementItem : procurementItemList) {
-            if (procurementItem.getBuyPrice() != null) {
-                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
-            }
-
-        }
-
-        return cost;
-    }
 
     /**
      * 计算当前安排单的报销
@@ -437,14 +417,15 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
     @Override
     public Long getProcurementCostByProjectId(Long id) {
         long cost = 0;
-/*
-        List<ProcurementPayment> byProjectId = procurementPaymentRepository.findByProjectId(id);
-        for (ProcurementPayment procurementPayment : byProjectId) {
-            if (procurementPayment.getAmount() != null) {
-                cost += procurementPayment.getAmount();
-            }
-        }*/
 
+        // 计算采购的成本
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectIdAndStatusIn(id, List.of(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), ProcurementItemStatusEnums.PART_STORAGE.getStatus(), ProcurementItemStatusEnums.ALL_STORAGE.getStatus(), ProcurementItemStatusEnums.ORDERED.getStatus()));
+        for (ProcurementItem procurementItem : procurementItemList) {
+            if (procurementItem.getBuyPrice() != null) {
+                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
+            }
+
+        }
 
         return cost;
     }

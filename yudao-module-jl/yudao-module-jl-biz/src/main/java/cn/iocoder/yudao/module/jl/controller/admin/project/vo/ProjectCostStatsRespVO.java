@@ -17,6 +17,9 @@ public class ProjectCostStatsRespVO {
     @Schema(description = "合同已收")
     private BigDecimal contractReceivedAmount;
 
+    @Schema(description = "结算单应收")
+    private BigDecimal settlementAmount;
+
 
     @Schema(description = "物资成本")
     private Long supplyCost;

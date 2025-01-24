@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
+import cn.iocoder.yudao.module.jl.service.projectsettlement.ProjectSettlementServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
@@ -52,8 +53,6 @@ import cn.iocoder.yudao.module.jl.service.project.ProjectService;
 public class ProjectController {
     @Resource
     private ProjectService projectService;
-    @Resource
-    private ProjectPersonRepository projectPersonRepository;
 
     @Resource
     private ProjectScheduleService projectScheduleService;
@@ -63,6 +62,9 @@ public class ProjectController {
 
     @Resource
     private DictDataApiImpl dictDataApi;
+
+    @Resource
+    private ProjectSettlementServiceImpl projectSettlementService;
 
     @PostMapping("/create")
     @Operation(summary = "创建项目管理")
@@ -166,6 +168,9 @@ public class ProjectController {
         //计算合同应收和已收 TODO 可以合并成一个方法
         ret.setContractAmount(projectScheduleService.getContractAmountByProjectId(id));
         ret.setContractReceivedAmount(projectScheduleService.getContractReceivedAmountByProjectId(id));
+
+        // 计算结算单应收
+        ret.setSettlementAmount(projectSettlementService.getSettlementAmountByProjectId(id));
 
         ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
         ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
