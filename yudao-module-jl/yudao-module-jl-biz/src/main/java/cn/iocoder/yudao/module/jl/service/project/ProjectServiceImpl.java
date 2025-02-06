@@ -267,6 +267,7 @@ public class ProjectServiceImpl implements ProjectService {
         //更新出库状态、流程实例id、申请人
         projectRepository.updateStageAndProcessInstanceIdAndApplyUserById(outboundApplyReqVO.getProjectId(),ProjectStageEnums.OUTING.getStatus(),processInstanceId,getLoginUserId());
         projectRepository.updateOutboundApplyResultById("1",outboundApplyReqVO.getProjectId());
+        projectRepository.updateOutboundApplyTimeById(LocalDateTime.now(),outboundApplyReqVO.getProjectId());
     }
 
     @Override
@@ -464,10 +465,10 @@ public class ProjectServiceImpl implements ProjectService {
                 if(outLogs!=null && !outLogs.isEmpty()){
                     outLogs.stream().filter(outLog->outLog.getProjectId().equals(item.getId())).findFirst().ifPresent(item::setOutLog);
                 }
-                if(item.getProcessInstanceId()!=null){
-                    HistoricProcessInstance historicProcessInstance = processInstanceService.getHistoricProcessInstance(item.getProcessInstanceId());
-                    item.setOutProcessInstance(historicProcessInstance);
-                }
+//                if(item.getProcessInstanceId()!=null){
+//                    HistoricProcessInstance historicProcessInstance = processInstanceService.getHistoricProcessInstance(item.getProcessInstanceId());
+//                    item.setOutProcessInstance(historicProcessInstance);
+//                }
             }
 
             processProjectItem(item,false);
@@ -641,6 +642,10 @@ public class ProjectServiceImpl implements ProjectService {
                 predicates.add(cb.between(root.get("endDate"), pageReqVO.getEndDate()[0], pageReqVO.getEndDate()[1]));
             }
 
+            // 出库时间
+            if(pageReqVO.getOutTime() != null) {
+                predicates.add(cb.between(root.get("outboundTime"), pageReqVO.getOutTime()[0], pageReqVO.getOutTime()[1]));
+            }
 
             if(pageReqVO.getParticipants() != null) {
                 predicates.add(cb.equal(root.get("participants"), pageReqVO.getParticipants()));

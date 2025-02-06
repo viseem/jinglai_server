@@ -236,6 +236,18 @@ public class ProjectOnly extends BaseEntity{
     private String doAuditMark;
 
 
+    /**
+     * 出库申请时间
+     */
+    @Column(name = "outbound_apply_time")
+    private LocalDateTime outboundApplyTime;
+
+    /**
+     * 出库时间
+     */
+    @Column(name = "outbound_time")
+    private LocalDateTime outboundTime;
+
     @Transient
     private Integer completePercent;
     @Transient

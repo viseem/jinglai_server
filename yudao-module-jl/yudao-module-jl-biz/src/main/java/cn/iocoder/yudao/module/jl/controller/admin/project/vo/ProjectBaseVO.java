@@ -71,6 +71,14 @@ public class ProjectBaseVO {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime lastFollowTime;
 
+    @Schema(description = "出库申请时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime outboundApplyTime;
+
+    @Schema(description = "出库时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime outboundTime;
+
     @Schema(description = "项目负责人", example = "6150")
     private Long managerId;
 

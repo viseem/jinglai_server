@@ -134,6 +134,11 @@ public class JLBpmServiceImpl implements JLBpmService {
             if(Objects.equals(processDefinitionKey,PROJECT_STATUS_CHANGE)){
                 processProjectStatusChangeBpm(approveReqVO);
             }
+
+            // 如果是项目出库
+            if(Objects.equals(processDefinitionKey,PROJECT_OUTBOUND_APPLY)){
+                projectOnlyRepository.updateOutboundTimeById(LocalDateTime.now(), approveReqVO.getRefId());
+            }
         }
 
 

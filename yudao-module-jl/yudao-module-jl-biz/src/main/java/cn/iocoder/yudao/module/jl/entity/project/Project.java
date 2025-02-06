@@ -239,6 +239,18 @@ public class Project extends BaseEntity{
     @Column(name = "outbound_log_id", nullable = false )
     private Long outboundLogId;
 
+    /**
+     * 出库申请时间
+     */
+    @Column(name = "outbound_apply_time")
+    private LocalDateTime outboundApplyTime;
+
+    /**
+     * 出库时间
+     */
+    @Column(name = "outbound_time")
+    private LocalDateTime outboundTime;
+
     @Transient
     private Integer completePercent;
     @Transient

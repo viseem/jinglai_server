@@ -16,4 +16,7 @@ public class ProcessInstanceKeyConstants {
 
     public static final String PROJECT_STATUS_CHANGE = "PROJECT_STATUS_CHANGE";
 
+    // 出库申请
+    public static final String PROJECT_OUTBOUND_APPLY = "PROJECT_OUTBOUND_APPLY";
+
 }
