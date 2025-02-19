@@ -236,7 +236,7 @@ public class ProjectController {
                 item.setCustomerName(project.getCustomer()!=null?project.getCustomer().getName():"");
                 item.setStartTime(project.getStartDate()!=null?project.getStartDate().format(DateTimeFormatter.ofPattern("yyyy/M/d")):"");
                 item.setEndTime(project.getEndDate()!=null?project.getEndDate().format(DateTimeFormatter.ofPattern("yyyy/M/d")):"");
-                item.setOutTime(new java.text.SimpleDateFormat("yyyy/M/d").format(project.getOutboundTime()));
+                item.setOutTime(project.getOutboundTime()!=null?project.getOutboundTime().format(DateTimeFormatter.ofPattern("yyyy/M/d")):"");
 
                 item.setSalesName(project.getSales()!=null?project.getSales().getNickname():"");
                 item.setPreManagerName(project.getPreManager()!=null?project.getPreManager().getNickname():"");
