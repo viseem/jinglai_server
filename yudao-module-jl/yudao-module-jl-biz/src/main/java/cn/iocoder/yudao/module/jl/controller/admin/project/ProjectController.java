@@ -154,6 +154,18 @@ public class ProjectController {
         return success(ret);
     }
 
+    @GetMapping("/overview")
+    @Operation(summary = "通过 ID 获得项目的概况")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('jl:project:query')")
+    public CommonResult<ProjectOverviewRespVO> getProjectOverview(@RequestParam("id") Long id) {
+        Optional<Project> project = projectService.getProject(id);
+        String formattedString = String.format("项目名称:%s,开始时间:%s,结束时间:%s,项目结算应收:%s,合同金额:%s,合同已收:%s,项目项目当前阶段:%s,");
+        ProjectOverviewRespVO overviewRes = new ProjectOverviewRespVO();
+        overviewRes.setOverviewContent("1");
+        return success(overviewRes);
+    }
+
     @GetMapping("/cost-stats")
     @Operation(summary = "通过 ID 获得项目管理")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
@@ -172,12 +184,12 @@ public class ProjectController {
         // 计算结算单应收
         ret.setSettlementAmount(projectSettlementService.getSettlementAmountByProjectId(id));
 
-        ret.setSupplyCost(projectScheduleService.getSupplyQuotationByQuotationId(quotationId));
+        ret.setSupplyCost(projectScheduleService.getProcurementCostByProjectId(id));
         ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
         ret.setInvoiceAmount(projectScheduleService.getInvoiceAmountByProjectId(id));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByProjectId(id));
-        ret.setProcurementCost(projectScheduleService.getProcurementCostByProjectId(id));
+//        ret.setProcurementCost(projectScheduleService.getProcurementCostByProjectId(id));
         return success(ret);
     }
 

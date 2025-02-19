@@ -22,7 +22,7 @@ public class ProjectCostStatsRespVO {
 
 
     @Schema(description = "物资成本")
-    private Long supplyCost;
+    private BigDecimal supplyCost;
 
     @Schema(description = "采购成本")
     private Long procurementCost;

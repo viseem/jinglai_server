@@ -37,4 +37,8 @@ public enum ProcurementItemStatusEnums implements StringArrayValuable {
         return new ArrayList<>();
     }
 
+    public static List<String> isApproveProcurement() {
+        return  List.of(APPROVE_PROCUREMENT.getStatus(), PART_STORAGE.getStatus(), ALL_STORAGE.getStatus(), ORDERED.getStatus());
+    }
+
 }

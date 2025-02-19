@@ -42,7 +42,7 @@ public interface ProjectScheduleService {
 
     BigDecimal getChargeItemQuotationByQuotationId(Long id);
 
-    Long getProcurementCostByProjectId(Long id);
+    BigDecimal getProcurementCostByProjectId(Long id);
 
     Long getReimburseCostByProjectId(Long id);
 

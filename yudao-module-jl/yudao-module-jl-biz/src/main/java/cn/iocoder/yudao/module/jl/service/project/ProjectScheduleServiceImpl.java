@@ -342,8 +342,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算物资的成本
         List<ProjectSupply> projectSupplyList = projectSupplyRepository.findByQuotationId(id);
         for (ProjectSupply projectSupply : projectSupplyList) {
-            if (projectSupply.getUnitFee() != null) {
-                cost += projectSupply.getUnitFee().longValue() * projectSupply.getQuantity();
+            if (projectSupply.getBuyPrice() != null) {
+                cost += projectSupply.getBuyPrice().longValue() * projectSupply.getQuantity();
             }
         }
 
@@ -372,8 +372,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             BigDecimal categoryPrice = BigDecimal.ZERO;
             for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
                 if (Objects.equals(projectChargeitem.getProjectCategoryId(), projectCategory.getId())) {
-                    if (projectChargeitem.getUnitFee() != null && projectChargeitem.getQuantity() != null) {
-                        BigDecimal unitFee = projectChargeitem.getUnitFee();
+                    if (projectChargeitem.getBuyPrice() != null && projectChargeitem.getQuantity() != null) {
+                        BigDecimal unitFee = projectChargeitem.getBuyPrice();
                         BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
                         BigDecimal price = unitFee.multiply(quantity);
                         if(projectChargeitem.getDiscount()!=null){
@@ -415,16 +415,19 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
      * @return
      */
     @Override
-    public Long getProcurementCostByProjectId(Long id) {
-        long cost = 0;
+    public BigDecimal getProcurementCostByProjectId(Long id) {
+        BigDecimal cost = BigDecimal.ZERO;
 
         // 计算采购的成本
-        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectIdAndStatusIn(id, List.of(ProcurementItemStatusEnums.APPROVE_PROCUREMENT.getStatus(), ProcurementItemStatusEnums.PART_STORAGE.getStatus(), ProcurementItemStatusEnums.ALL_STORAGE.getStatus(), ProcurementItemStatusEnums.ORDERED.getStatus()));
+        List<ProcurementItem> procurementItemList = procurementItemRepository.findByProjectIdAndStatusIn(id, ProcurementItemStatusEnums.isApproveProcurement());
         for (ProcurementItem procurementItem : procurementItemList) {
-            if (procurementItem.getBuyPrice() != null) {
-                cost += procurementItem.getBuyPrice().longValue() * procurementItem.getQuantity();
-            }
-
+                //cost += procurementItem.getBuyPrice() * procurementItem.getQuantity();
+                if (procurementItem.getBuyPrice() != null && procurementItem.getQuantity() != null) {
+                    BigDecimal price = procurementItem.getBuyPrice();
+                    BigDecimal quantity = new BigDecimal(procurementItem.getQuantity());
+                    BigDecimal amount = price.multiply(quantity);
+                    cost = cost.add(amount);
+                }
         }
 
         return cost;
@@ -464,8 +467,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
         // 计算委外的成本
         List<ProjectCategoryOutsource> projectCategoryOutsourceList = projectCategoryOutsourceRepository.findByProjectId(id);
         for (ProjectCategoryOutsource projectCategoryOutsource : projectCategoryOutsourceList) {
-            if (projectCategoryOutsource.getPaidPrice() != null) {
-                cost += projectCategoryOutsource.getPaidPrice().longValue();
+            if (projectCategoryOutsource.getBuyPrice() != null) {
+                cost += projectCategoryOutsource.getBuyPrice().longValue();
             }
         }
 
