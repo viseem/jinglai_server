@@ -127,6 +127,8 @@ public class ProjectSimple extends BaseEntity {
     @Column(name = "tag_ids")
     private String tagIds;
 
+    @Column(name = "process_instance_id", nullable = false )
+    private String processInstanceId;
     /**
      * 转移日志
      */

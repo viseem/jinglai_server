@@ -45,4 +45,13 @@ public enum CommonTaskStatusEnums implements StringArrayValuable {
         return new Integer[]{DONE.status, WAIT_SEND.status};
     }
 
+    public static String getDescriptionByStatus(Integer status) {
+        for (CommonTaskStatusEnums stage : CommonTaskStatusEnums.values()) {
+            if (stage.getStatus().equals(status)) {
+                return stage.getName(); // 找到对应的描述
+            }
+        }
+        return ""; // 如果没有找到，返回空字符串
+    }
+
 }

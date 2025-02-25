@@ -15,15 +15,15 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public enum ProjectStageEnums implements StringArrayValuable {
-    DOING("3", "开展中"),
-    DOING_PREVIEW("2", "开展前审批"),
-    CONTRACT_SIGNED("1","合同已签订"),
-    EXP_ARRANGE("101","实验安排制定"),
-    PAUSE("3","开展中，原先的暂停"),
     OUTED("9","已出库"),
     OUTING("7","出库审批"),
     SETTLEMENT("11","结算"),
-
+    DOING("3", "开展中"),
+    DOING_PREVIEW("2", "开展前审批"),
+    EXP_ARRANGE("101","实验安排制定"),
+    Preparation("100","项目筹备"),
+    CONTRACT_SIGNED("1","合同已签订"),
+    PAUSE("3","开展中"),
     ;
 
     private final String status;
@@ -32,6 +32,15 @@ public enum ProjectStageEnums implements StringArrayValuable {
     @Override
     public List<String> array() {
         return new ArrayList<>();
+    }
+
+    public static String getDescriptionByStatus(String status) {
+        for (ProjectStageEnums stage : ProjectStageEnums.values()) {
+            if (stage.getStatus().equals(status)) {
+                return stage.getName(); // 找到对应的描述
+            }
+        }
+        return ""; // 如果没有找到，返回空字符串
     }
 
 }

@@ -30,6 +30,9 @@ public class ProjectCostStatsRespVO {
     @Schema(description = "收费项的成本")
     private BigDecimal chargeItemCost;
 
+    @Schema(description = "收费项的成本")
+    private BigDecimal chargeItemSale;
+
     @Schema(description = "已开票的金额")
     private BigDecimal invoiceAmount;
 

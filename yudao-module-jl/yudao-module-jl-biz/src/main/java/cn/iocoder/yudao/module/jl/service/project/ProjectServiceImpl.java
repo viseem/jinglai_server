@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceRespVO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
+import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectoutlog.ProjectOutLog;
@@ -53,6 +56,7 @@ import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROJECT_OUTED;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
@@ -107,7 +111,7 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectOutLogRepository projectOutLogRepository;
 
     @Resource
-    private BpmProcessInstanceService processInstanceService;
+    private BpmProcessInstanceServiceImpl processInstanceService;
 
 
     @PostConstruct
@@ -255,7 +259,14 @@ public class ProjectServiceImpl implements ProjectService {
     public void projectOutboundApply(ProjectOutboundApplyReqVO outboundApplyReqVO){
         // 校验存在
         ProjectSimple project = validateProjectExists(outboundApplyReqVO.getProjectId());
-
+        if(project.getProcessInstanceId()!=null){
+            // todo 取消已经在审批的流程
+            BpmProcessInstanceCancelReqVO cancelReqVO = new BpmProcessInstanceCancelReqVO();
+            cancelReqVO.setId(project.getProcessInstanceId());
+            cancelReqVO.setReason("重新提交，自动取消流程");
+            cancelReqVO.setProcessType(PROJECT_OUTED);
+            processInstanceService.cancelProcessInstance(WebFrameworkUtils.getLoginUserId(), cancelReqVO);
+        }
         //加入审批流
         Map<String, Object> processInstanceVariables = new HashMap<>();
         String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),

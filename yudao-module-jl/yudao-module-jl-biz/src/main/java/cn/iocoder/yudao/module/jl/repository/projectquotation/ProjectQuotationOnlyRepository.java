@@ -18,6 +18,8 @@ import java.util.List;
 *
 */
 public interface ProjectQuotationOnlyRepository extends JpaRepository<ProjectQuotationOnly, Long>, JpaSpecificationExecutor<ProjectQuotationOnly> {
+    @Query("select p from ProjectQuotationOnly p where p.projectId = ?1")
+    List<ProjectQuotationOnly> findByProjectId(Long projectId);
     @Query("select p from ProjectQuotationOnly p " +
             "where p.updateTime between ?1 and ?2 and p.updater in ?3 and p.resultPrice > ?4")
     List<ProjectQuotationOnly> findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(LocalDateTime updateTimeStart, LocalDateTime updateTimeEnd, Long[] updaters, BigDecimal resultPrice);

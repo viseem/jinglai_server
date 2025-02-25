@@ -372,8 +372,8 @@ public class ProjectScheduleServiceImpl implements ProjectScheduleService {
             BigDecimal categoryPrice = BigDecimal.ZERO;
             for (ProjectChargeitem projectChargeitem : projectChargeitemList) {
                 if (Objects.equals(projectChargeitem.getProjectCategoryId(), projectCategory.getId())) {
-                    if (projectChargeitem.getBuyPrice() != null && projectChargeitem.getQuantity() != null) {
-                        BigDecimal unitFee = projectChargeitem.getBuyPrice();
+                    if (projectChargeitem.getUnitFee() != null && projectChargeitem.getQuantity() != null) {
+                        BigDecimal unitFee = projectChargeitem.getUnitFee();
                         BigDecimal quantity = new BigDecimal(projectChargeitem.getQuantity());
                         BigDecimal price = unitFee.multiply(quantity);
                         if(projectChargeitem.getDiscount()!=null){

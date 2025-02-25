@@ -4,11 +4,18 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo2.ProjectOutLogStep1Json;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo2.ProjectOutLogStep3Json;
+import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSimple;
+import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotationOnly;
+import cn.iocoder.yudao.module.jl.enums.CommonTaskStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.ProjectStageEnums;
+import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
+import cn.iocoder.yudao.module.jl.repository.crm.SalesleadOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.projectperson.ProjectPersonRepository;
+import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationOnlyRepository;
 import cn.iocoder.yudao.module.jl.service.project.ProjectScheduleService;
 import cn.iocoder.yudao.module.jl.service.projectsettlement.ProjectSettlementServiceImpl;
 import cn.iocoder.yudao.module.system.api.dict.DictDataApiImpl;
@@ -25,6 +32,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.io.IOException;
@@ -65,6 +73,12 @@ public class ProjectController {
 
     @Resource
     private ProjectSettlementServiceImpl projectSettlementService;
+
+    @Resource
+    private CommonTaskRepository commonTaskRepository;
+
+    @Resource
+    private ProjectQuotationOnlyRepository projectQuotationOnlyRepository;
 
     @PostMapping("/create")
     @Operation(summary = "创建项目管理")
@@ -159,10 +173,36 @@ public class ProjectController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('jl:project:query')")
     public CommonResult<ProjectOverviewRespVO> getProjectOverview(@RequestParam("id") Long id) {
-        Optional<Project> project = projectService.getProject(id);
-        String formattedString = String.format("项目名称:%s,开始时间:%s,结束时间:%s,项目结算应收:%s,合同金额:%s,合同已收:%s,项目项目当前阶段:%s,");
+        Optional<Project> projectRes = projectService.getProject(id);
+        Project project = projectRes.orElseThrow(() -> exception(PROJECT_NOT_EXISTS));
+        String projectName = project.getName();
+        String projectStage = ProjectStageEnums.getDescriptionByStatus(project.getStatus());
+
+        LocalDateTime startDate = project.getStartDate();
+        LocalDateTime endDate = project.getEndDate();
+        BigDecimal settlementAmount = projectSettlementService.getSettlementAmountByProjectId(id);
+        BigDecimal contractAmount = projectScheduleService.getContractAmountByProjectId(id);
+        BigDecimal contractReceivedAmount = projectScheduleService.getContractReceivedAmountByProjectId(id);
+        BigDecimal supplyCost = projectScheduleService.getProcurementCostByProjectId(id);
+        Long categoryOutSource = projectScheduleService.getCategoryOutSourceCostByProjectId(id);
+        BigDecimal chargeItemSale = projectScheduleService.getChargeItemQuotationByQuotationId(id);
+        List<CommonTask> byQuotationId = commonTaskRepository.findByQuotationId(project.getCurrentQuotationId());
+        String taskFormattedString="";
+        if(!byQuotationId.isEmpty()){
+             taskFormattedString = byQuotationId.stream()
+                    .map(commonTask -> String.format("(任务名称:%s,任务状态:%s,任务负责人:%s,任务周期:%s-%s)",
+                            commonTask.getName(), CommonTaskStatusEnums.getDescriptionByStatus(commonTask.getStatus()), commonTask.getUserNickname(), commonTask.getStartDate(),commonTask.getEndDate()))
+                    .collect(Collectors.joining(""));
+        }
+        Optional<ProjectQuotationOnly> byId = projectQuotationOnlyRepository.findById(project.getCurrentQuotationId());
+        String quotationPlanText = byId.map(ProjectQuotationOnly::getPlanText).orElse("");
+        String formattedString = String.format(
+        "项目名称:%s,开始时间:%s,结束时间:%s,项目结算应收:%s,合同金额:%s,合同已收:%s,试剂成本:%s,委外成本:%s,收费项报价:%s,项目项目当前阶段:%s,实验任务:%s,该项目的实验方案:%s",
+        projectName, startDate, endDate, settlementAmount, contractAmount, contractReceivedAmount, supplyCost, categoryOutSource, chargeItemSale, projectStage,taskFormattedString,
+                quotationPlanText
+                );
         ProjectOverviewRespVO overviewRes = new ProjectOverviewRespVO();
-        overviewRes.setOverviewContent("1");
+        overviewRes.setOverviewContent(formattedString);
         return success(overviewRes);
     }
 
@@ -185,7 +225,7 @@ public class ProjectController {
         ret.setSettlementAmount(projectSettlementService.getSettlementAmountByProjectId(id));
 
         ret.setSupplyCost(projectScheduleService.getProcurementCostByProjectId(id));
-        ret.setChargeItemCost(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
+        ret.setChargeItemSale(projectScheduleService.getChargeItemQuotationByQuotationId(quotationId));
         ret.setInvoiceAmount(projectScheduleService.getInvoiceAmountByProjectId(id));
         ret.setOutsourceCost(projectScheduleService.getCategoryOutSourceCostByProjectId(id));
         ret.setReimbursementCost(projectScheduleService.getReimburseCostByProjectId(id));
