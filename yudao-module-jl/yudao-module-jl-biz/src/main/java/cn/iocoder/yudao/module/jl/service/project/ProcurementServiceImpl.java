@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.jl.service.project;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
+import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryCheckIn;
 import cn.iocoder.yudao.module.jl.entity.inventory.InventoryStoreIn;
@@ -124,6 +126,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
     @Resource
     private LaboratoryLabRepository laboratoryLabRepository;
+
+    @Resource
+    private BpmProcessInstanceServiceImpl processInstanceService;
 
     @Override
     public Long createProcurement(ProcurementCreateReqVO createReqVO) {
@@ -298,6 +303,15 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         ProcurementOnly procurementOnly = validateProcurementExists(id);
         procurementOnly.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+
+/*        if(procurementOnly.getProcessInstanceId()!=null){
+            // todo 取消已经在审批的流程,前端有限制
+            BpmProcessInstanceCancelReqVO cancelReqVO = new BpmProcessInstanceCancelReqVO();
+            cancelReqVO.setId(procurementOnly.getProcessInstanceId());
+            cancelReqVO.setReason("重新提交，自动取消流程");
+            cancelReqVO.setProcessType(QUOTATION_AUDIT);
+            processInstanceService.cancelProcessInstance(getLoginUserId(), cancelReqVO);
+        }*/
 
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();

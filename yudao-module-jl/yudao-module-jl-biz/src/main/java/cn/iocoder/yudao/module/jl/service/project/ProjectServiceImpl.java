@@ -1,19 +1,19 @@
 package cn.iocoder.yudao.module.jl.service.project;
 
-import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
-import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceRespVO;
 import cn.iocoder.yudao.module.bpm.enums.task.BpmProcessInstanceResultEnum;
-import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.appcustomer.CustomerProjectPageReqVO;
+import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
 import cn.iocoder.yudao.module.jl.entity.project.*;
 import cn.iocoder.yudao.module.jl.entity.projectoutlog.ProjectOutLog;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
 import cn.iocoder.yudao.module.jl.entity.quotationchangelog.QuotationChangeLog;
 import cn.iocoder.yudao.module.jl.enums.*;
+import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
 import cn.iocoder.yudao.module.jl.mapper.project.ProjectScheduleMapper;
 import cn.iocoder.yudao.module.jl.repository.commontask.CommonTaskRepository;
 import cn.iocoder.yudao.module.jl.repository.project.*;
@@ -21,44 +21,35 @@ import cn.iocoder.yudao.module.jl.repository.projectoutlog.ProjectOutLogReposito
 import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRepository;
 import cn.iocoder.yudao.module.jl.repository.quotationchangelog.QuotationChangeLogRepository;
 import cn.iocoder.yudao.module.jl.repository.user.UserRepository;
-import cn.iocoder.yudao.module.jl.service.projectoutlog.ProjectOutLogServiceImpl;
 import cn.iocoder.yudao.module.jl.service.subjectgroupmember.SubjectGroupMemberServiceImpl;
 import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
-import org.flowable.engine.history.HistoricProcessInstance;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
-import cn.iocoder.yudao.module.jl.controller.admin.project.vo.*;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.project.ProjectMapper;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROJECT_OUTED;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_CONSTRACT_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.PROJECT_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.idsString2QueryList;
+import static cn.iocoder.yudao.module.jl.utils.JLSqlUtils.mysqlFindInSet;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
@@ -265,7 +256,8 @@ public class ProjectServiceImpl implements ProjectService {
             cancelReqVO.setId(project.getProcessInstanceId());
             cancelReqVO.setReason("重新提交，自动取消流程");
             cancelReqVO.setProcessType(PROJECT_OUTED);
-            processInstanceService.cancelProcessInstance(WebFrameworkUtils.getLoginUserId(), cancelReqVO);
+            cancelReqVO.setCancelError(false);
+            processInstanceService.cancelProcessInstance(getLoginUserId(), cancelReqVO);
         }
         //加入审批流
         Map<String, Object> processInstanceVariables = new HashMap<>();

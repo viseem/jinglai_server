@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.projectquotation;
 
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCancelReqVO;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceServiceImpl;
 import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.ProjectQuotationAuditReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectCategoryQuotationVO;
 import cn.iocoder.yudao.module.jl.controller.admin.project.vo.ProjectScheduleSaledleadsUpdateReqVO;
@@ -57,6 +60,7 @@ import cn.iocoder.yudao.module.jl.repository.projectquotation.ProjectQuotationRe
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.PROJECT_OUTED;
 import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.QUOTATION_AUDIT;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
@@ -103,6 +107,9 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
     @Resource
     private NotifyMessageSendApi notifyMessageSendApi;
+
+    @Resource
+    private BpmProcessInstanceServiceImpl processInstanceService;
 
 
     @Override
@@ -248,6 +255,15 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
     public String quotationAudit(ProjectQuotationAuditReqVO reqVO) {
 
         ProjectQuotation quotation = validateProjectQuotationExists(reqVO.getId());
+
+/*        if(quotation.getAuditProcessId()!=null){
+            // todo 取消已经在审批的流程,前端有限制
+            BpmProcessInstanceCancelReqVO cancelReqVO = new BpmProcessInstanceCancelReqVO();
+            cancelReqVO.setId(quotation.getAuditProcessId());
+            cancelReqVO.setReason("重新提交，自动取消流程");
+            cancelReqVO.setProcessType(QUOTATION_AUDIT);
+            processInstanceService.cancelProcessInstance(WebFrameworkUtils.getLoginUserId(), cancelReqVO);
+        }*/
 
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();

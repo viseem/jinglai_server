@@ -22,4 +22,6 @@ public class BpmProcessInstanceCancelReqVO {
     private String processType;
 
     private Long refId;
+
+    private Boolean cancelError = true;
 }
