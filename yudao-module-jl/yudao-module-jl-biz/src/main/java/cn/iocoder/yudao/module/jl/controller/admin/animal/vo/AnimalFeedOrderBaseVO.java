@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.jl.controller.admin.animal.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -114,7 +116,7 @@ public class AnimalFeedOrderBaseVO {
     private String billRules;
 
     @Schema(description = "单价")
-    private Integer unitFee;
+    private BigDecimal unitFee;
 
     @Schema(description = "入库备注")
     private String inMark;
