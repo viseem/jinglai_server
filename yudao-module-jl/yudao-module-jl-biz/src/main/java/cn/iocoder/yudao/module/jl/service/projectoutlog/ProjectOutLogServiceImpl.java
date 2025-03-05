@@ -57,6 +57,9 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
     @Transactional
     public Long createProjectOutLog(ProjectOutLogCreateReqVO createReqVO) {
         ProjectSimple projectSimple = projectService.validateProjectExists(createReqVO.getProjectId());
+        if(projectSimple.getStartDate()==null||projectSimple.getEndDate()==null){
+            throw exception(PROJECT_DATE_NOT_EXISTS);
+        }
         createReqVO.setQuotationId(projectSimple.getCurrentQuotationId());
         createReqVO.setCustomerId(projectSimple.getCustomerId());
         // 插入
@@ -74,6 +77,7 @@ public class ProjectOutLogServiceImpl implements ProjectOutLogService {
     public void updateProjectOutLog(ProjectOutLogUpdateReqVO updateReqVO) {
         // 校验存在
         ProjectOutLog projectOutLog = validateProjectOutLogExists(updateReqVO.getId());
+
         // 更新
         /*ProjectOutLog updateObj = projectOutLogMapper.toEntity(updateReqVO);
         projectOutLogRepository.save(updateObj);*/
