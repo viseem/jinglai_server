@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.jl.entity.projectcategory;
 
 import cn.iocoder.yudao.module.jl.entity.BaseEntity;
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectCategoryOnly;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -171,5 +172,15 @@ public class ProjectCategoryOutsource extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private List<FinancePayment> paymentList = new ArrayList<>();
 
+
+    /*
+     * 级联附件
+     * */
+    @OneToMany(fetch = FetchType.LAZY)
+    @Where(clause = "type = 'PROJECT_OUTSOURCE'")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name = "ref_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private List<CommonAttachment> attachmentList = new ArrayList<>();
 
 }

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.projectcategory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -70,4 +71,5 @@ public class ProjectCategoryOutsourceBaseVO {
     @Schema(description = "附件")
     private String files;
 
+    private List<CommonAttachment> attachmentList;
 }

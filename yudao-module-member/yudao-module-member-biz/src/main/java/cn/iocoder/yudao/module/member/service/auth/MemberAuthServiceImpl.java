@@ -185,7 +185,6 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Override
     public JLAppLoginRespVO loginByPhoneCode(@Valid JLAppLoginByPhoneReqVO reqVO) {
         WxMaPhoneNumberInfo phoneNumberInfo;
-
         if(reqVO.getPhone()==null){
             try {
                 phoneNumberInfo = wxMaService.getUserService().getNewPhoneNoInfo(reqVO.getPhoneCode());

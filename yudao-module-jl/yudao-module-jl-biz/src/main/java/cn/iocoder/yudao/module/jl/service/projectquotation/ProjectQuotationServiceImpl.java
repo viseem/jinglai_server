@@ -256,14 +256,15 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
         ProjectQuotation quotation = validateProjectQuotationExists(reqVO.getId());
 
-/*        if(quotation.getAuditProcessId()!=null){
+        if(quotation.getAuditProcessId()!=null){
             // todo 取消已经在审批的流程,前端有限制
             BpmProcessInstanceCancelReqVO cancelReqVO = new BpmProcessInstanceCancelReqVO();
             cancelReqVO.setId(quotation.getAuditProcessId());
             cancelReqVO.setReason("重新提交，自动取消流程");
             cancelReqVO.setProcessType(QUOTATION_AUDIT);
+            cancelReqVO.setCancelError(false);
             processInstanceService.cancelProcessInstance(WebFrameworkUtils.getLoginUserId(), cancelReqVO);
-        }*/
+        }
 
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();

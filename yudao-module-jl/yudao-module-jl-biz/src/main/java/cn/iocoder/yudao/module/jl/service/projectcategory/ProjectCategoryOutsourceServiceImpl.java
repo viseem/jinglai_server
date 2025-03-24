@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.service.projectcategory;
 import cn.iocoder.yudao.module.jl.entity.financepayment.FinancePayment;
 import cn.iocoder.yudao.module.jl.enums.FinancePaymentEnums;
 import cn.iocoder.yudao.module.jl.repository.financepayment.FinancePaymentRepository;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -49,22 +50,34 @@ public class ProjectCategoryOutsourceServiceImpl implements ProjectCategoryOutso
     @Resource
     private FinancePaymentRepository financePaymentRepository;
 
+    @Resource
+    private CommonAttachmentServiceImpl commonAttachmentService;
+
     @Override
+    @Transactional
     public Long createProjectCategoryOutsource(ProjectCategoryOutsourceCreateReqVO createReqVO) {
         // 插入
         ProjectCategoryOutsource projectCategoryOutsource = projectCategoryOutsourceMapper.toEntity(createReqVO);
         projectCategoryOutsourceRepository.save(projectCategoryOutsource);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(projectCategoryOutsource.getId(),"PROJECT_OUTSOURCE",createReqVO.getAttachmentList());
+
         // 返回
         return projectCategoryOutsource.getId();
     }
 
     @Override
+    @Transactional
     public void updateProjectCategoryOutsource(ProjectCategoryOutsourceUpdateReqVO updateReqVO) {
         // 校验存在
         validateProjectCategoryOutsourceExists(updateReqVO.getId());
         // 更新
         ProjectCategoryOutsource updateObj = projectCategoryOutsourceMapper.toEntity(updateReqVO);
         projectCategoryOutsourceRepository.save(updateObj);
+
+        // 把attachmentList批量插入到附件表CommonAttachment中,使用saveAll方法
+        commonAttachmentService.saveAttachmentList(updateObj.getId(),"PROJECT_OUTSOURCE",updateObj.getAttachmentList());
     }
 
     @Transactional
