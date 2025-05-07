@@ -151,7 +151,11 @@ public class Saleslead extends BaseEntity {
     @Column(name = "last_follow_time")
     private LocalDateTime lastFollowTime;
 
-
+    /*
+     * 成交时间
+     * */
+    @Column(name = "to_project_time")
+    private LocalDateTime toProjectTime;
     /**
      * 报价的创建时间
      */

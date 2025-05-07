@@ -154,6 +154,13 @@ public class ProjectQuotation extends BaseEntity {
     @Column(name = "saleslead_id")
     private Long salesleadId;
 
+
+    /**
+     * 商机状态
+     */
+    @Column(name = "saleslead_status")
+    private String salesleadStatus;
+
     /**
      * 级联
      */

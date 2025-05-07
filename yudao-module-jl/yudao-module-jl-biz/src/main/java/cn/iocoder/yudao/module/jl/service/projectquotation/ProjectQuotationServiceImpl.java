@@ -411,6 +411,14 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
             if(pageReqVO.getQuotationNotNull()!=null&&pageReqVO.getQuotationNotNull()){
                 predicates.add(cb.isNotNull(root.get("resultPrice")));
             }
+            if(pageReqVO.getIsNotToProject()!=null){
+                if(pageReqVO.getIsNotToProject()){
+                    // salesleadStatus不等于或者为null
+                    predicates.add(cb.or(cb.isNull(root.get("salesleadStatus")),cb.notEqual(root.get("salesleadStatus"), SalesLeadStatusEnums.ToProject.getStatus())));
+                }else{
+//                    predicates.add(cb.equal(root.get("salesleadStatus"), SalesLeadStatusEnums.ToProject.getStatus()));
+                }
+            }
 
             if (pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));

@@ -293,6 +293,12 @@ public class SalesleadServiceImpl implements SalesleadService {
             saleleadsObj.setQuotationCreateTime(LocalDateTime.now());
         }
 
+        // 如果是已成交
+        if(updateReqVO.getStatus().equals(SalesLeadStatusEnums.ToProject.getStatus())){
+            // 当前localDateTime
+            saleleadsObj.setToProjectTime(LocalDateTime.now());
+        }
+
         saleslead = salesleadRepository.save(saleleadsObj);
 
         Long salesleadSalesId = salesId!=null?salesId:getLoginUserId();
@@ -370,6 +376,9 @@ public class SalesleadServiceImpl implements SalesleadService {
                 project.setFocusIds(projectService.processFocusIds(project.getFocusIds(),null));
                 projectOnlyRepository.save(project);
                 projectCategoryRepository.updateTypeByQuotationId(ProjectCategoryTypeEnums.SCHEDULE.getStatus(), project.getCurrentQuotationId());
+
+                // 更新报价日志的商机状态
+                projectQuotationRepository.updateSalesleadStatusBySalesleadId(SalesLeadStatusEnums.ToProject.getStatus(),salesleadId);
             }
             if(Objects.equals(updateReqVO.getType(),ProjectTypeEnums.NormalProject.getStatus())){
 
@@ -785,9 +794,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             }
 
         }
-        List<Saleslead> salesleadList1 = salesleadRepository.findAll(spec);
+//        List<Saleslead> salesleadList1 = salesleadRepository.findAll(spec);
         // 执行查询
-        return salesleadList1;
+        return salesleadList;
     }
 
     private Sort createSort(SalesleadPageOrder order) {

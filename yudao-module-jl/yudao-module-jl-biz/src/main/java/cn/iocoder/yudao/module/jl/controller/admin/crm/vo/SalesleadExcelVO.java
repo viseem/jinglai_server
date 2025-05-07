@@ -70,6 +70,9 @@ public class SalesleadExcelVO {
     @ExcelProperty("成本价")
     private String costPrice;
 
+    @ExcelProperty("成交价")
+    private String contractAmount;
+
     @ExcelProperty("供应商")
     private String supplier;
 

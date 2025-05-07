@@ -102,4 +102,10 @@ public class SalesleadBaseVO {
     @Schema(description = "疾病类型")
     private String diseaseType;
 
+
+    /*
+     * 成交时间
+     * */
+    private LocalDateTime toProjectTime;
+
 }

@@ -22,6 +22,9 @@ public class ProjectQuotationPageReqVO extends PageParam {
     @Schema(description = "报价金额是否为null")
     private Boolean quotationNotNull;
 
+    // 是否已转项目
+    private Boolean isNotToProject=true;
+
     @Schema(description = "版本号")
     private String code;
 

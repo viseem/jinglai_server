@@ -83,4 +83,6 @@ public class ProjectQuotationBaseVO {
 
     @Schema(description = "商机id")
     private Long salesleadId;
+    @Schema(description = "商机状态")
+    private Long salesleadStatus;
 }
