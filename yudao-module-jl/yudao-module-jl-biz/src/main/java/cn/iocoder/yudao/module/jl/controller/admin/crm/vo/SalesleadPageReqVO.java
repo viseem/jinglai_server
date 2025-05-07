@@ -46,6 +46,10 @@ public class SalesleadPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] quotationTime;
 
+    @Schema(description = "成交时间")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] toProjectTime;
+
     @Schema(description = "销售线索来源")
     private String source;
 

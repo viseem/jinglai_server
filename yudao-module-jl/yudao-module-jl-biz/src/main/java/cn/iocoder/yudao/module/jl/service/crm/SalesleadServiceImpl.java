@@ -614,9 +614,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if (pageReqVO.getCreateTime() != null) {
                     predicates.add(cb.between(root.get("createTime"), pageReqVO.getCreateTime()[0], pageReqVO.getCreateTime()[1]));
                 }
-
                 if(pageReqVO.getUpdateTime() != null) {
                     predicates.add(cb.between(root.get("updateTime"), pageReqVO.getUpdateTime()[0], pageReqVO.getUpdateTime()[1]));
+                }
+                if(pageReqVO.getToProjectTime() != null) {
+                    predicates.add(cb.between(root.get("toProjectTime"), pageReqVO.getToProjectTime()[0], pageReqVO.getToProjectTime()[1]));
                 }
 
                 if(pageReqVO.getQuotationTime() != null) {
@@ -628,7 +630,6 @@ public class SalesleadServiceImpl implements SalesleadService {
                         // creatorIds添加一个元素
                         collect.add(getLoginUserId());
                     }
-                    System.out.println("---"+collect.size());
                     List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
 //                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
                     Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
