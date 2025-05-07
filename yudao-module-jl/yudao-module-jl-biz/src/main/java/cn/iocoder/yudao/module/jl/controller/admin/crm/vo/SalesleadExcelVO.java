@@ -30,28 +30,28 @@ public class SalesleadExcelVO {
     @ExcelProperty("咨询时间")
     private LocalDate createTime;
 
-    @ExcelProperty("咨询编号")
+    @ExcelProperty("编号")
     private String id;
+
 
     @ExcelProperty("销售")
     private String salesName;
+    @ExcelProperty("售前人员")
+    private String managerName;
 
-    @ExcelProperty("客户姓名")
+    @ExcelProperty("客户")
     private String customerName;
 
     @ExcelProperty("客户单位")
     private String customerInstitution;
 
-    @ExcelProperty("客户联系方式")
-    private String customerPhone;
+//    @ExcelProperty("客户联系方式")
+//    private String customerPhone;
 
-    @ExcelProperty("客户类型")
-    private String customerType;
+//    @ExcelProperty("客户类型")
+//    private String customerType;
 
-    @ExcelProperty("项目负责人")
-    private String managerName;
-
-    @ExcelProperty(value = "项目类型", converter = DictConvert.class)
+    @ExcelProperty(value = "业务类型", converter = DictConvert.class)
     @DictFormat("business_type") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
     private String businessType;
 
@@ -61,23 +61,26 @@ public class SalesleadExcelVO {
     @ExcelProperty("报价时间")
     private LocalDate quotationUpdateTime;
 
-    @ExcelProperty("项目内容")
+    @ExcelProperty("疾病类型/需求")
     private String requirement;
 
-    @ExcelProperty("项目情况")
+    @ExcelProperty("项目状态")
     private String projectStatus;
 
-    @ExcelProperty("成本价")
-    private String costPrice;
+//    @ExcelProperty("成本价")
+//    private String costPrice;
 
-    @ExcelProperty("成交价")
-    private String contractAmount;
+//    @ExcelProperty("供应商")
+//    private String supplier;
 
-    @ExcelProperty("供应商")
-    private String supplier;
-
-    @ExcelProperty("终端价")
+    @ExcelProperty("最终报价")
     private String quotation;
+
+    @ExcelProperty("成交时间")
+    private String toProjectTime;
+
+    @ExcelProperty("成交金额")
+    private String contractAmount;
 
     @ExcelProperty("最近跟进时间")
     private String lastFollowTime;

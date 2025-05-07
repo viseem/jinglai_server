@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
 import cn.iocoder.yudao.module.jl.entity.crm.*;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstract;
+import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectDocument;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.projectquotation.ProjectQuotation;
@@ -792,6 +793,9 @@ public class SalesleadServiceImpl implements SalesleadService {
             if(saleslead.getLastFollowup()!=null){
                 saleslead.setLastFollowContent(saleslead.getLastFollowup().getContent());
                 saleslead.setLastFollowTime(saleslead.getLastFollowup().getCreateTime());
+            }
+            if(saleslead.getProject()!=null&&saleslead.getProject().getContracts()!=null&& !saleslead.getProject().getContracts().isEmpty()){
+                saleslead.setContractAmount(saleslead.getProject().getContracts().stream().map(ProjectConstractOnly::getPaperPrice).reduce(BigDecimal::add).orElse(BigDecimal.ZERO));
             }
 
         }

@@ -248,4 +248,8 @@ public class Saleslead extends BaseEntity {
     @Transient
     private String lastFollowContent;
 
+//    合同金额
+    @Transient
+    private BigDecimal contractAmount;
+
 }
