@@ -18,6 +18,7 @@ import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
+import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -293,6 +294,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         // 饲养单的结束日期，如果等于null，则设置为当前
         LocalDateTime endDate = _endDate;
 
+        System.out.println("enddate"+endDate+"startdate"+startDate);
+
         if (endDate == null || endDate.isAfter(LocalDateTime.now())){
             endDate = LocalDateTime.now();
             if(needSetCurrentEnd.length>0){
@@ -314,12 +317,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             if (logs != null) {
                 // logs按照operateTime增序排序
                 logs.sort(Comparator.comparing(AnimalFeedLog::getOperateTime));
-/*                logs.forEach(log -> {
-
-
-                });*/
+                Boolean isFirstAdd = true;
                 for (AnimalFeedLog log : logs) {
-                    System.out.println("----"+log.getId());
                     animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity() + log.getChangeCageQuantity());
                     animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity() + log.getChangeQuantity());
                     // 默认获取变更数量是 变更的笼数
@@ -339,9 +338,11 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                     // 分隔出来操作时间中的日期
                     String dateStr = log.getOperateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-
-                    //增加一下总金额
-                    totalAmount = totalAmount.add(animalFeedOrder.getUnitFee().multiply( new BigDecimal(quantity)) );
+                    //增加一下总金额 第一天的
+                    if(isFirstAdd){
+                        totalAmount = totalAmount.add(animalFeedOrder.getUnitFee().multiply( new BigDecimal(quantity)) );
+                        isFirstAdd = false;
+                    }
                     // 计算operateTime和startDate的天数差
 
                     if (dateStrToRowAmountMap.containsKey(dateStr)) {
@@ -352,11 +353,9 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                         dayCount[0].incrementAndGet();
                         dateStrToRowAmountMap.put(dateStr, 0);
                     }
+                    System.out.println("quantity---"+quantity+"dayDiff---"+dayDiff+"totalAmount--"+totalAmount);
                     startDate[0] = log.getOperateTime();
                     quantity = quantity + changeQuantity;
-                    System.out.println("totalAmount1===="+totalAmount+"quantity==="+quantity);
-                    System.out.println("dayDiff1===="+dayDiff);
-
                     log.setDateStr(dateStr);
                     log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
                 }
@@ -364,11 +363,10 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
 
             Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() + 1;
 
-            System.out.println("dayDiff2==="+dayDiff);
 
             totalAmount= totalAmount.add( animalFeedOrder.getUnitFee().multiply (new BigDecimal(quantity * dayDiff)));
+            System.out.println("quantity22---"+quantity+"dayDiff2---"+dayDiff+"totalAmount2--"+totalAmount);
 
-            System.out.println("totalAmount2====="+totalAmount);
 
         }
 //        animalFeedOrder.setDayCount(dayCount[0].get());
