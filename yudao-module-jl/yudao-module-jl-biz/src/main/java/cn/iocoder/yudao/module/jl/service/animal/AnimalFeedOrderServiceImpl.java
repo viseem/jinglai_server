@@ -304,10 +304,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 .collect(Collectors.toList());
 
         // 4. 计算起始数量（加上起始时间前所有日志的变化）
-        int currentQuantity = baseQuantity;
+        int currentQuantity = order.getQuantity();
+        int currentCageQuantity = order.getCageQuantity();
         for (AnimalFeedLog log : logs) {
             if (log.getOperateTime().isBefore(start)) {
-                currentQuantity += getChangeQuantity(log, isPerAnimal);
+                currentQuantity += log.getChangeQuantity();
+                currentCageQuantity += log.getChangeCageQuantity();
             }
         }
 
@@ -316,39 +318,43 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         LocalDate date = start.toLocalDate();
         LocalDate endDateLocal = endDate.toLocalDate();
         int quantity = currentQuantity;
+        int cageQuantity = currentCageQuantity;
         int logIndex = 0;
         int nextDayChange = 0;
+        int nextDayCageChange = 0;
         
         // 按日期遍历每一天
         while (!date.isAfter(endDateLocal)) {
             // 处理当天所有日志，变化次日生效
             while (logIndex < logs.size() && logs.get(logIndex).getOperateTime().toLocalDate().equals(date)) {
-                nextDayChange += getChangeQuantity(logs.get(logIndex), isPerAnimal);
+                nextDayChange += logs.get(logIndex).getChangeQuantity();
+                nextDayCageChange += logs.get(logIndex).getChangeCageQuantity();
                 formatLogDisplayInfo(logs.get(logIndex));
                 logIndex++;
             }
             
             // 记录当天数量
-            dateToQuantity.put(date, quantity);
+            dateToQuantity.put(date, isPerAnimal ? quantity : cageQuantity);
             
             // 应用前一天的变化
             quantity += nextDayChange;
+            cageQuantity += nextDayCageChange;
             nextDayChange = 0;
+            nextDayCageChange = 0;
             date = date.plusDays(1);
         }
 
-        // 6. 计算总数量（每天的数量之和）
+        // 6. 设置当前数量
+        order.setCurrentQuantity(quantity);
+        order.setCurrentCageQuantity(cageQuantity);
+
+        // 7. 计算总数量（每天的数量之和）
         long totalQuantity = dateToQuantity.values().stream()
                 .mapToLong(Integer::longValue)
                 .sum();
 
-        // 7. 乘以单价
+        // 8. 乘以单价
         return order.getUnitFee().multiply(BigDecimal.valueOf(totalQuantity));
-    }
-
-    // 辅助方法：获取变更数量
-    private int getChangeQuantity(AnimalFeedLog log, boolean isPerAnimal) {
-        return isPerAnimal ? log.getChangeQuantity() : log.getChangeCageQuantity();
     }
 
     // 辅助方法：格式化日志显示信息
