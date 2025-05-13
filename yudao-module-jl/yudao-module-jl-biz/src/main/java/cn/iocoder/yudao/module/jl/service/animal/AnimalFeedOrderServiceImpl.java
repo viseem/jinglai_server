@@ -1,13 +1,17 @@
 package cn.iocoder.yudao.module.jl.service.animal;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.enums.message.BpmMessageEnum;
+import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedLog;
+import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
 import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrderOnly;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedBillRulesEnums;
 import cn.iocoder.yudao.module.jl.enums.AnimalFeedStageEnums;
+import cn.iocoder.yudao.module.jl.mapper.animal.AnimalFeedOrderMapper;
 import cn.iocoder.yudao.module.jl.repository.animal.*;
 import cn.iocoder.yudao.module.jl.repository.crm.CustomerSimpleRepository;
 import cn.iocoder.yudao.module.jl.service.dept.XDeptServiceImpl;
@@ -19,41 +23,34 @@ import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
 import cn.iocoder.yudao.module.system.enums.DictTypeConstants;
 import com.google.gson.Gson;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.springframework.data.jpa.domain.Specification;
+import com.google.gson.GsonBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import cn.iocoder.yudao.module.jl.controller.admin.animal.vo.*;
-import cn.iocoder.yudao.module.jl.entity.animal.AnimalFeedOrder;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-
-import cn.iocoder.yudao.module.jl.mapper.animal.AnimalFeedOrderMapper;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.ANIMAL_FEED_ORDER_NOT_EXISTS;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.CUSTOMER_NOT_EXISTS;
 import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.*;
 
 /**
@@ -283,95 +280,81 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         return byId;
     }
 
-    private BigDecimal processFeedOrderAmount(AnimalFeedOrder animalFeedOrder, LocalDateTime _startDate, LocalDateTime _endDate,int... needSetCurrentEnd) {
+    private BigDecimal processFeedOrderAmount(AnimalFeedOrder order, LocalDateTime start, LocalDateTime end, int... needSetCurrentEnd) {
+        // 1. 处理时间范围
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endDate = (end == null || end.isAfter(now)) ? now : end;
+        if (needSetCurrentEnd.length > 0) {
+            order.setCurrentEndDate(endDate);
+        }
+        if (order.getUnitFee() == null || start == null || start.isAfter(endDate)) {
+            return BigDecimal.ZERO;
+        }
 
-        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getQuantity());
-        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCageQuantity());
+        // 2. 计费模式
+        boolean isPerAnimal = AnimalFeedBillRulesEnums.ONE.getStatus().equals(order.getBillRules());
+        int baseQuantity = isPerAnimal ? order.getQuantity() : order.getCageQuantity();
+        if (baseQuantity == 0) return BigDecimal.ZERO;
 
-        List<AnimalFeedLog> logs = animalFeedOrder.getLogs();
-        // 饲养单的开始日期
-        final LocalDateTime[] startDate = {_startDate};
-        // 饲养单的结束日期，如果等于null，则设置为当前
-        LocalDateTime endDate = _endDate;
+        // 3. 日志排序
+        List<AnimalFeedLog> logs = Optional.ofNullable(order.getLogs())
+                .orElse(Collections.emptyList())
+                .stream()
+                .sorted(Comparator.comparing(AnimalFeedLog::getOperateTime))
+                .collect(Collectors.toList());
 
-        System.out.println("enddate"+endDate+"startdate"+startDate);
-
-        if (endDate == null || endDate.isAfter(LocalDateTime.now())){
-            endDate = LocalDateTime.now();
-            if(needSetCurrentEnd.length>0){
-            animalFeedOrder.setCurrentEndDate(endDate);
+        // 4. 计算起始数量（加上起始时间前所有日志的变化）
+        int currentQuantity = baseQuantity;
+        for (AnimalFeedLog log : logs) {
+            if (log.getOperateTime().isBefore(start)) {
+                currentQuantity += getChangeQuantity(log, isPerAnimal);
             }
         }
 
-
-        Map<String, Integer> dateStrToRowAmountMap = new HashMap<>();
-        final AtomicInteger[] dayCount = {new AtomicInteger()};
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        // 原子操作一个 变更数量的值，并设置初始值
-        Integer quantity = Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())?animalFeedOrder.getQuantity():animalFeedOrder.getCageQuantity();
-        //初始化一下实时只数 笼数
-//        animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity());
-//        animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity());
-
-        if (animalFeedOrder.getUnitFee() != null && quantity != null && startDate[0] != null) {
-            if (logs != null) {
-                // logs按照operateTime增序排序
-                logs.sort(Comparator.comparing(AnimalFeedLog::getOperateTime));
-                Boolean isFirstAdd = true;
-                for (AnimalFeedLog log : logs) {
-                    animalFeedOrder.setCurrentCageQuantity(animalFeedOrder.getCurrentCageQuantity() + log.getChangeCageQuantity());
-                    animalFeedOrder.setCurrentQuantity(animalFeedOrder.getCurrentQuantity() + log.getChangeQuantity());
-                    // 默认获取变更数量是 变更的笼数
-                    Integer changeQuantity = log.getChangeCageQuantity();
-                    // 如果饲养规则 是按照 每只老鼠每天
-                    // 则变更数量 改为 变更的数量；原子变更数量 改为 饲养单的入库数量
-                    if (Objects.equals(animalFeedOrder.getBillRules(), AnimalFeedBillRulesEnums.ONE.getStatus())) {
-                        quantity=animalFeedOrder.getQuantity();
-                        changeQuantity = log.getChangeQuantity();
-                    }
-                    Long dayDiff = log.getOperateTime().toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay();
-                    if(dayDiff<=0){
-                        quantity = quantity + changeQuantity;
-                        continue;
-                    }
-
-                    // 分隔出来操作时间中的日期
-                    String dateStr = log.getOperateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-                    //增加一下总金额 第一天的
-                    if(isFirstAdd){
-                        totalAmount = totalAmount.add(animalFeedOrder.getUnitFee().multiply( new BigDecimal(quantity)) );
-                        isFirstAdd = false;
-                    }
-                    // 计算operateTime和startDate的天数差
-
-                    if (dateStrToRowAmountMap.containsKey(dateStr)) {
-                    } else {
-                        // 如果这天还没有计费
-                        totalAmount= totalAmount.add(animalFeedOrder.getUnitFee().multiply (new BigDecimal(quantity * dayDiff)));
-
-                        dayCount[0].incrementAndGet();
-                        dateStrToRowAmountMap.put(dateStr, 0);
-                    }
-                    System.out.println("quantity---"+quantity+"dayDiff---"+dayDiff+"totalAmount--"+totalAmount);
-                    startDate[0] = log.getOperateTime();
-                    quantity = quantity + changeQuantity;
-                    log.setDateStr(dateStr);
-                    log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-                }
+        // 5. 遍历每一天，遇到日志变化，次日生效
+        Map<LocalDate, Integer> dateToQuantity = new LinkedHashMap<>();
+        LocalDate date = start.toLocalDate();
+        LocalDate endDateLocal = endDate.toLocalDate();
+        int quantity = currentQuantity;
+        int logIndex = 0;
+        int nextDayChange = 0;
+        
+        // 按日期遍历每一天
+        while (!date.isAfter(endDateLocal)) {
+            // 处理当天所有日志，变化次日生效
+            while (logIndex < logs.size() && logs.get(logIndex).getOperateTime().toLocalDate().equals(date)) {
+                nextDayChange += getChangeQuantity(logs.get(logIndex), isPerAnimal);
+                formatLogDisplayInfo(logs.get(logIndex));
+                logIndex++;
             }
-
-            Long dayDiff = endDate.toLocalDate().toEpochDay() - startDate[0].toLocalDate().toEpochDay() + 1;
-
-
-            totalAmount= totalAmount.add( animalFeedOrder.getUnitFee().multiply (new BigDecimal(quantity * dayDiff)));
-            System.out.println("quantity22---"+quantity+"dayDiff2---"+dayDiff+"totalAmount2--"+totalAmount);
-
-
+            
+            // 记录当天数量
+            dateToQuantity.put(date, quantity);
+            
+            // 应用前一天的变化
+            quantity += nextDayChange;
+            nextDayChange = 0;
+            date = date.plusDays(1);
         }
-//        animalFeedOrder.setDayCount(dayCount[0].get());
-//        animalFeedOrder.setAmount(Math.max(totalAmount.get(), 0));
-        return totalAmount;
+
+        // 6. 计算总数量（每天的数量之和）
+        long totalQuantity = dateToQuantity.values().stream()
+                .mapToLong(Integer::longValue)
+                .sum();
+
+        // 7. 乘以单价
+        return order.getUnitFee().multiply(BigDecimal.valueOf(totalQuantity));
+    }
+
+    // 辅助方法：获取变更数量
+    private int getChangeQuantity(AnimalFeedLog log, boolean isPerAnimal) {
+        return isPerAnimal ? log.getChangeQuantity() : log.getChangeCageQuantity();
+    }
+
+    // 辅助方法：格式化日志显示信息
+    private void formatLogDisplayInfo(AnimalFeedLog log) {
+        log.setDateStr(log.getOperateTime().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        log.setTimeStr(log.getOperateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
     }
 
 /*    private void processLatestFeedStore(AnimalFeedOrder animalFeedOrder) {
