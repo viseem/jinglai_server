@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.util.*;
@@ -161,6 +162,14 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
             if (pageReqVO.getPurchaseAcceptTime() != null) {
                 predicates.add(cb.between(root.get("purchaseAcceptTime"), pageReqVO.getPurchaseAcceptTime()[0], pageReqVO.getPurchaseAcceptTime()[1]));
+            }
+
+            if(pageReqVO.getOnlyHasStock()!=null&&pageReqVO.getOnlyHasStock()){
+                // inedQuantity大于outedQuantity的绝对值
+                predicates.add(cb.gt(
+                        root.get("inedQuantity"),
+                        cb.abs(root.get("outedQuantity"))
+                ));
             }
 
             if (pageReqVO.getProjectId() != null) {

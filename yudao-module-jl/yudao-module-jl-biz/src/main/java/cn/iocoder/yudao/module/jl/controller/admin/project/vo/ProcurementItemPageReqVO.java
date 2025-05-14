@@ -91,4 +91,5 @@ public class ProcurementItemPageReqVO extends PageParam {
     @Schema(description = "状态:等待采购信息、等待打款、等待采购、等待签收、等待入库", example = "2")
     private String status;
 
+    private Boolean onlyHasStock;
 }
