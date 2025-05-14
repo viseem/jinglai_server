@@ -288,13 +288,19 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
             order.setCurrentEndDate(endDate);
         }
         if (order.getUnitFee() == null || start == null || start.isAfter(endDate)) {
+            order.setCurrentQuantity(0);
+            order.setCurrentCageQuantity(0);
             return BigDecimal.ZERO;
         }
 
         // 2. 计费模式
         boolean isPerAnimal = AnimalFeedBillRulesEnums.ONE.getStatus().equals(order.getBillRules());
-        int baseQuantity = isPerAnimal ? order.getQuantity() : order.getCageQuantity();
-        if (baseQuantity == 0) return BigDecimal.ZERO;
+        int baseQuantity = isPerAnimal ? (order.getQuantity() != null ? order.getQuantity() : 0) : (order.getCageQuantity() != null ? order.getCageQuantity() : 0);
+        if (baseQuantity == 0) {
+            order.setCurrentQuantity(0);
+            order.setCurrentCageQuantity(0);
+            return BigDecimal.ZERO;
+        }
 
         // 3. 日志排序
         List<AnimalFeedLog> logs = Optional.ofNullable(order.getLogs())
@@ -304,12 +310,12 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
                 .collect(Collectors.toList());
 
         // 4. 计算起始数量（加上起始时间前所有日志的变化）
-        int currentQuantity = order.getQuantity();
-        int currentCageQuantity = order.getCageQuantity();
+        int currentQuantity = order.getQuantity() != null ? order.getQuantity() : 0;
+        int currentCageQuantity = order.getCageQuantity() != null ? order.getCageQuantity() : 0;
         for (AnimalFeedLog log : logs) {
             if (log.getOperateTime().isBefore(start)) {
-                currentQuantity += log.getChangeQuantity();
-                currentCageQuantity += log.getChangeCageQuantity();
+                currentQuantity += log.getChangeQuantity() != null ? log.getChangeQuantity() : 0;
+                currentCageQuantity += log.getChangeCageQuantity() != null ? log.getChangeCageQuantity() : 0;
             }
         }
 
@@ -327,8 +333,8 @@ public class AnimalFeedOrderServiceImpl implements AnimalFeedOrderService {
         while (!date.isAfter(endDateLocal)) {
             // 处理当天所有日志，变化次日生效
             while (logIndex < logs.size() && logs.get(logIndex).getOperateTime().toLocalDate().equals(date)) {
-                nextDayChange += logs.get(logIndex).getChangeQuantity();
-                nextDayCageChange += logs.get(logIndex).getChangeCageQuantity();
+                nextDayChange += logs.get(logIndex).getChangeQuantity() != null ? logs.get(logIndex).getChangeQuantity() : 0;
+                nextDayCageChange += logs.get(logIndex).getChangeCageQuantity() != null ? logs.get(logIndex).getChangeCageQuantity() : 0;
                 formatLogDisplayInfo(logs.get(logIndex));
                 logIndex++;
             }
