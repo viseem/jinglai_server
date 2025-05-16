@@ -21,6 +21,8 @@ public class CommonTaskPageReqVO extends UtilStoreGetReqVO {
 
     private Boolean hasSopList = false;
 
+    private Boolean hasUser = false;
+
     private Boolean hasCustomer = true;
 
     private Boolean hasProject = true;

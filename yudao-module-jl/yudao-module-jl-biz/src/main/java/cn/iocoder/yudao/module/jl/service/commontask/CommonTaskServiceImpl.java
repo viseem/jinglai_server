@@ -299,6 +299,14 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
     }
 
+    public void transferManager(CommonTaskTransferManagerReqVO reqVO) {
+
+        User user = userService.validateUserExists(reqVO.getToUserId());
+
+        commonTaskRepository.updateUserIdAndUserNicknameByProjectIdAndUserId(user.getId(),user.getNickname(), reqVO.getProjectId(),reqVO.getFromUserId());
+
+    }
+
     @Transactional
     public void processCommonTaskSaveData(CommonTaskBaseVO vo) {
 
@@ -669,6 +677,24 @@ public class CommonTaskServiceImpl implements CommonTaskService {
                         }
                 );
             }
+        }
+
+        // 查询user
+        if(pageReqVO.getHasUser()!=null&&pageReqVO.getHasUser()){
+            List<Long> userIds = content.stream()
+                    .map(CommonTask::getUserId)
+                    .collect(Collectors.toList());
+            List<User> byIdIn = userRepository.findByIdIn(userIds);
+
+            if(byIdIn!=null){
+                content.forEach(commonTask ->
+                        commonTask.setUser(byIdIn.stream()
+                                .filter(user -> user.getId().equals(commonTask.getUserId()))
+                                .findFirst()
+                                .orElse(null))
+                );
+            }
+
         }
 
         // 转换为 PageResult 并返回

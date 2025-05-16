@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.jl.entity.project.ProjectChargeitem;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectSop;
 import cn.iocoder.yudao.module.jl.entity.taskproduct.TaskProduct;
+import cn.iocoder.yudao.module.jl.entity.user.User;
 import lombok.*;
 import java.util.*;
 import javax.persistence.*;
@@ -225,4 +226,7 @@ public class CommonTask extends BaseEntity {
 
     @Transient
     private CustomerOnly customer;
+
+    @Transient
+    private User user;
 }

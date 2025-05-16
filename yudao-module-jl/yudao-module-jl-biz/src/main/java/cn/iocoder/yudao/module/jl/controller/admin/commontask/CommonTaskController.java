@@ -1,33 +1,31 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commontask;
 
-import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.security.access.prepost.PreAuthorize;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Operation;
-
-import javax.validation.*;
-import javax.servlet.http.*;
-import java.util.*;
-import java.io.IOException;
-
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
-
 import cn.iocoder.yudao.module.jl.controller.admin.commontask.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commontask.CommonTask;
 import cn.iocoder.yudao.module.jl.mapper.commontask.CommonTaskMapper;
-import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskService;
+import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.COMMON_TASK_NOT_EXISTS;
 
 @Tag(name = "管理后台 - 通用任务")
 @RestController
@@ -36,7 +34,7 @@ import cn.iocoder.yudao.module.jl.service.commontask.CommonTaskService;
 public class CommonTaskController {
 
     @Resource
-    private CommonTaskService commonTaskService;
+    private CommonTaskServiceImpl commonTaskService;
 
     @Resource
     private CommonTaskMapper commonTaskMapper;
@@ -47,7 +45,13 @@ public class CommonTaskController {
     public CommonResult<Long> createCommonTask(@Valid @RequestBody CommonTaskCreateReqVO createReqVO) {
         return success(commonTaskService.createCommonTask(createReqVO));
     }
-
+    @PostMapping("/transfer-manager")
+    @Operation(summary = "创建通用任务")
+    @PreAuthorize("@ss.hasPermission('jl:common-task:create')")
+    public CommonResult<Long> transferCommonTask(@Valid @RequestBody CommonTaskTransferManagerReqVO reqVO) {
+        commonTaskService.transferManager(reqVO);
+        return success(null);
+    }
     @PostMapping("/batch-create")
     @Operation(summary = "批量创建通用任务")
     @PreAuthorize("@ss.hasPermission('jl:common-task:create')")

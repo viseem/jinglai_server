@@ -12,6 +12,10 @@ import java.util.List;
 *
 */
 public interface CommonTaskRepository extends JpaRepository<CommonTask, Long>, JpaSpecificationExecutor<CommonTask> {
+    @Transactional
+    @Modifying
+    @Query("update CommonTask c set c.userId = ?1, c.userNickname = ?2 where c.projectId = ?3 and c.userId = ?4")
+    int updateUserIdAndUserNicknameByProjectIdAndUserId(Long userId, String userNickname, Long projectId, Long userId1);
     @Query("select count(c) from CommonTask c where c.quotationId = ?1 and c.status <> ?2")
     long countByQuotationIdAndStatusNot(Long quotationId, Integer status);
     @Query("select count(c) from CommonTask c where c.quotationId = ?1 and c.status = ?2")

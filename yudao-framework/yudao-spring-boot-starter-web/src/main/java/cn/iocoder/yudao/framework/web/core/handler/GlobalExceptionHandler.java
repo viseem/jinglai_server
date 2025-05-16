@@ -2,15 +2,16 @@ package cn.iocoder.yudao.framework.web.core.handler;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.iocoder.yudao.framework.apilog.core.service.ApiErrorLog;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.apilog.core.service.ApiErrorLogFrameworkService;
 import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import cn.iocoder.yudao.module.infra.api.logger.dto.ApiErrorLogCreateReqDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -25,6 +26,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
@@ -32,19 +38,27 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 
 import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.*;
 
 /**
  * 全局异常处理器，将 Exception 翻译成 CommonResult + 对应的异常编号
  *
- * @author 芋道源码
+ * @author yun36524
  */
 @RestControllerAdvice
 @AllArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
 
+    /**
+     * 忽略的 ServiceException 错误提示，避免打印过多 logger
+     */
+    public static final Set<String> IGNORE_ERROR_MESSAGES = SetUtils.asSet("无效的刷新令牌");
+
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final String applicationName;
 
     private final ApiErrorLogFrameworkService apiErrorLogFrameworkService;
@@ -82,14 +96,14 @@ public class GlobalExceptionHandler {
         if (ex instanceof HttpRequestMethodNotSupportedException) {
             return httpRequestMethodNotSupportedExceptionHandler((HttpRequestMethodNotSupportedException) ex);
         }
-        if (ex instanceof RequestNotPermitted) {
-            return requestNotPermittedExceptionHandler(request, (RequestNotPermitted) ex);
-        }
         if (ex instanceof ServiceException) {
             return serviceExceptionHandler((ServiceException) ex);
         }
         if (ex instanceof AccessDeniedException) {
             return accessDeniedExceptionHandler(request, (AccessDeniedException) ex);
+        }
+        if (ex instanceof MaxUploadSizeExceededException) {
+            return maxUploadSizeExceededExceptionHandler((MaxUploadSizeExceededException) ex);
         }
         return defaultExceptionHandler(request, ex);
     }
@@ -112,8 +126,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public CommonResult<?> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.warn("[missingServletRequestParameterExceptionHandler]", ex);
-        return CommonResult.error(BAD_REQUEST.getCode(), String.format("请求参数类型错误:%s", ex.getMessage()));
+        log.warn("[methodArgumentTypeMismatchExceptionHandler]", ex);
+        String message = String.format("请求参数类型错误:%s, 参数名:%s, 期望类型:%s",
+                ex.getMessage(), ex.getName(), ex.getRequiredType().getSimpleName());
+        return CommonResult.error(BAD_REQUEST.getCode(), message);
     }
 
     /**
@@ -121,10 +137,24 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public CommonResult<?> methodArgumentNotValidExceptionExceptionHandler(MethodArgumentNotValidException ex) {
-        log.warn("[methodArgumentNotValidExceptionExceptionHandler]", ex);
         FieldError fieldError = ex.getBindingResult().getFieldError();
         assert fieldError != null; // 断言，避免告警
-        return CommonResult.error(BAD_REQUEST.getCode(), String.format("请求参数不正确:%s", fieldError.getDefaultMessage()));
+
+        // 获取错误详情，包括类、字段和位置
+        String className = fieldError.getObjectName();
+        String field = fieldError.getField();
+        String defaultMessage = fieldError.getDefaultMessage();
+        Object rejectedValue = fieldError.getRejectedValue();
+
+        String errorMessage = String.format("对象[%s], 字段[%s], 值[%s], 原因[%s]",
+                className, field, rejectedValue, defaultMessage);
+
+        // 记录日志，包含详细信息
+        log.warn("[参数校验失败] {}", errorMessage);
+
+        String resultErrorMessage = String.format("参数校验失败: %s", defaultMessage);
+
+        return CommonResult.error(BAD_REQUEST.getCode(), resultErrorMessage);
     }
 
     /**
@@ -132,10 +162,24 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public CommonResult<?> bindExceptionHandler(BindException ex) {
-        log.warn("[handleBindException]", ex);
         FieldError fieldError = ex.getFieldError();
         assert fieldError != null; // 断言，避免告警
-        return CommonResult.error(BAD_REQUEST.getCode(), String.format("请求参数不正确:%s", fieldError.getDefaultMessage()));
+
+        // 获取错误详情，包括类、字段和位置
+        String className = fieldError.getObjectName();
+        String field = fieldError.getField();
+        String defaultMessage = fieldError.getDefaultMessage();
+        Object rejectedValue = fieldError.getRejectedValue();
+
+        String errorMessage = String.format("对象[%s], 字段[%s], 值[%s], 原因[%s]",
+                className, field, rejectedValue, defaultMessage);
+
+        // 记录日志，包含详细信息
+        log.warn("[参数绑定失败] {}", errorMessage);
+
+        String resultErrorMessage = String.format("参数绑定失败: %s", defaultMessage);
+
+        return CommonResult.error(BAD_REQUEST.getCode(), resultErrorMessage);
     }
 
     /**
@@ -143,9 +187,24 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = ConstraintViolationException.class)
     public CommonResult<?> constraintViolationExceptionHandler(ConstraintViolationException ex) {
-        log.warn("[constraintViolationExceptionHandler]", ex);
+        // 只处理第一个错误
         ConstraintViolation<?> constraintViolation = ex.getConstraintViolations().iterator().next();
-        return CommonResult.error(BAD_REQUEST.getCode(), String.format("请求参数不正确:%s", constraintViolation.getMessage()));
+
+        // 获取错误详情
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        String message = constraintViolation.getMessage();
+        Object invalidValue = constraintViolation.getInvalidValue();
+        String rootBeanClass = constraintViolation.getRootBeanClass().getSimpleName();
+
+        String errorMessage = String.format("对象[%s], 属性[%s], 值[%s], 原因[%s]",
+                rootBeanClass, propertyPath, invalidValue, message);
+
+        // 记录日志
+        log.warn("[参数校验失败] {}", errorMessage);
+
+        String resultErrorMessage = String.format("参数校验失败: %s", message);
+
+        return CommonResult.error(BAD_REQUEST.getCode(), resultErrorMessage);
     }
 
     /**
@@ -153,9 +212,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = ValidationException.class)
     public CommonResult<?> validationException(ValidationException ex) {
-        log.warn("[constraintViolationExceptionHandler]", ex);
+        log.warn("[validationException] {}", ex.getMessage(), ex);
+
         // 无法拼接明细的错误信息，因为 Dubbo Consumer 抛出 ValidationException 异常时，是直接的字符串信息，且人类不可读
-        return CommonResult.error(BAD_REQUEST);
+        String resultErrorMessage = String.format("参数校验失败: %s", ex.getMessage());
+
+        return CommonResult.error(BAD_REQUEST.getCode(), resultErrorMessage);
     }
 
     /**
@@ -183,15 +245,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理 Resilience4j 限流抛出的异常
-     */
-    @ExceptionHandler(value = RequestNotPermitted.class)
-    public CommonResult<?> requestNotPermittedExceptionHandler(HttpServletRequest req, RequestNotPermitted ex) {
-        log.warn("[requestNotPermittedExceptionHandler][url({}) 访问过于频繁]", req.getRequestURL(), ex);
-        return CommonResult.error(TOO_MANY_REQUESTS);
-    }
-
-    /**
      * 处理 Spring Security 权限不足的异常
      *
      * 来源是，使用 @PreAuthorize 注解，AOP 进行权限拦截
@@ -210,8 +263,76 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = ServiceException.class)
     public CommonResult<?> serviceExceptionHandler(ServiceException ex) {
-        log.info("[serviceExceptionHandler]", ex);
+        if (!IGNORE_ERROR_MESSAGES.contains(ex.getMessage())) {
+            // 不包含的时候，才进行打印，避免 ex 堆栈过多
+            log.info("[serviceExceptionHandler]", ex);
+        }
         return CommonResult.error(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 处理文件上传大小超过限制的异常
+     */
+    @ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    public CommonResult<?> maxUploadSizeExceededExceptionHandler(MaxUploadSizeExceededException ex) {
+        log.warn("上传文件大小超出限制");
+        return CommonResult.error(BAD_REQUEST.getCode(), "上传文件大小超出限制");
+    }
+
+    /**
+     * 处理数据库异常
+     */
+    @ExceptionHandler(value = {DataIntegrityViolationException.class, BadSqlGrammarException.class, InvalidDataAccessResourceUsageException.class})
+    public CommonResult<?> databaseExceptionHandler(Exception ex) {
+        // 获取根因错误信息
+        String rootMessage = ExceptionUtil.getRootCauseMessage(ex);
+
+        // 获取错误发生的位置，找到第一个业务代码的位置
+        String location = "";
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        if (stackTrace != null) {
+            for (StackTraceElement element : stackTrace) {
+                if (element.getClassName().startsWith("module.") ||
+                        element.getClassName().startsWith("cn.iocoder.yudao") ||
+                        element.getClassName().contains("$$FastClassBySpringCGLIB$$") ||
+                        element.getClassName().contains("$$EnhancerBySpringCGLIB$$")) {
+                    location = String.format(" at %s.%s(%s:%d)",
+                            element.getClassName(),
+                            element.getMethodName(),
+                            element.getFileName() != null ? element.getFileName() : "<generated>",
+                            element.getLineNumber());
+                    break;
+                }
+            }
+        }
+
+        // 记录详细的错误信息
+        log.warn("数据库错误: {}{}", rootMessage, location);
+
+        // 返回更详细的错误信息给前端
+        return CommonResult.error(BAD_REQUEST.getCode(),
+                String.format("数据库错误: %s%s", rootMessage, location));
+    }
+
+    /**
+     * 处理 JPA 数据库异常
+     */
+    @ExceptionHandler(value = JpaSystemException.class)
+    public CommonResult<?> jpaSystemExceptionHandler(JpaSystemException ex) {
+        String message = ExceptionUtil.getRootCauseMessage(ex);
+        // 获取错误发生的位置，找到第一个业务代码的位置
+        String location = "";
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        if (stackTrace != null) {
+            for (StackTraceElement element : stackTrace) {
+                if (element.getClassName().startsWith("module.") || element.getClassName().startsWith("cn.iocoder.yudao")) {
+                    location = String.format(" at %s.%s", element.getClassName(), element.getMethodName());
+                    break;
+                }
+            }
+        }
+        log.warn("数据库错误: {}{}", message, location);
+        return CommonResult.error(BAD_REQUEST.getCode(), message);
     }
 
     /**
@@ -219,27 +340,76 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     public CommonResult<?> defaultExceptionHandler(HttpServletRequest req, Throwable ex) {
-        log.error("[defaultExceptionHandler]", ex);
+        // 情况一：处理表不存在的异常
+        CommonResult<?> tableNotExistsResult = handleTableNotExists(ex);
+        if (tableNotExistsResult != null) {
+            return tableNotExistsResult;
+        }
+
+        // 情况二：处理异常
+        String errorMessage = getRelevantStackTrace(ex);
+        log.error("[defaultExceptionHandler] {}", errorMessage);
+
         // 插入异常日志
         this.createExceptionLog(req, ex);
-        // 返回 ERROR CommonResult
-        return CommonResult.error(INTERNAL_SERVER_ERROR.getCode(), INTERNAL_SERVER_ERROR.getMsg());
+
+        // 返回简短的错误信息
+
+        // 先截取 at 之前的部分
+        String shortMessage = ExceptionUtil.getRootCauseMessage(ex);
+        int atIndex = shortMessage.indexOf(" at ");
+        if (atIndex > 0) {
+            shortMessage = shortMessage.substring(0, atIndex);
+        }
+
+        // 如果错误信息太长，截取关键部分
+        if (shortMessage.length() > 100) {
+            shortMessage = shortMessage.substring(0, 100) + "...";
+        }
+
+        return CommonResult.error(INTERNAL_SERVER_ERROR.getCode(), shortMessage);
+    }
+
+    /**
+     * 获取相关的业务代码堆栈信息
+     */
+    private String getRelevantStackTrace(Throwable ex) {
+        StringBuilder sb = new StringBuilder();
+        // 添加完整的错误信息
+        sb.append(ExceptionUtil.getRootCauseMessage(ex)).append("\n");
+
+        // 只获取业务相关的堆栈信息
+        for (StackTraceElement element : ex.getStackTrace()) {
+            String className = element.getClassName();
+            // 显示业务代码和Spring代理类的堆栈信息
+            if (className.startsWith("module.") ||
+                    className.startsWith("cn.iocoder.yudao") ||
+                    className.contains("$$FastClassBySpringCGLIB$$") ||
+                    className.contains("$$EnhancerBySpringCGLIB$$")) {
+                String location = element.getFileName() != null ?
+                        String.format("(%s:%d)", element.getFileName(), element.getLineNumber()) :
+                        "(<generated>:-1)";
+                sb.append("    at ").append(className).append(".").append(element.getMethodName())
+                        .append(location).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     private void createExceptionLog(HttpServletRequest req, Throwable e) {
         // 插入错误日志
-        ApiErrorLog errorLog = new ApiErrorLog();
+        ApiErrorLogCreateReqDTO errorLog = new ApiErrorLogCreateReqDTO();
         try {
             // 初始化 errorLog
-            initExceptionLog(errorLog, req, e);
+            buildExceptionLog(errorLog, req, e);
             // 执行插入 errorLog
-            apiErrorLogFrameworkService.createApiErrorLog(errorLog);
+//            apiErrorLogFrameworkService.createApiErrorLog(errorLog);
         } catch (Throwable th) {
             log.error("[createExceptionLog][url({}) log({}) 发生异常]", req.getRequestURI(),  JsonUtils.toJsonString(errorLog), th);
         }
     }
 
-    private void initExceptionLog(ApiErrorLog errorLog, HttpServletRequest request, Throwable e) {
+    private void buildExceptionLog(ApiErrorLogCreateReqDTO errorLog, HttpServletRequest request, Throwable e) {
         // 处理用户信息
         errorLog.setUserId(WebFrameworkUtils.getLoginUserId(request));
         errorLog.setUserType(WebFrameworkUtils.getLoginUserType(request));
@@ -267,6 +437,62 @@ public class GlobalExceptionHandler {
         errorLog.setUserAgent(ServletUtils.getUserAgent(request));
         errorLog.setUserIp(ServletUtils.getClientIP(request));
         errorLog.setExceptionTime(LocalDateTime.now());
+    }
+
+    /**
+     * 处理 Table 不存在的异常情况
+     *
+     * @param ex 异常
+     * @return 如果是 Table 不存在的异常，则返回对应的 CommonResult
+     */
+    private CommonResult<?> handleTableNotExists(Throwable ex) {
+        String message = ExceptionUtil.getRootCauseMessage(ex);
+        if (!message.contains("doesn't exist")) {
+            return null;
+        }
+        // 1. 数据报表
+        if (message.contains("report_")) {
+            log.error("[报表模块 yudao-module-report - 表结构未导入][参考 https://doc.iocoder.cn/report/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[报表模块 yudao-module-report - 表结构未导入][参考 https://doc.iocoder.cn/report/ 开启]");
+        }
+        // 2. 工作流
+        if (message.contains("bpm_")) {
+            log.error("[工作流模块 yudao-module-bpm - 表结构未导入][参考 https://doc.iocoder.cn/bpm/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[工作流模块 yudao-module-bpm - 表结构未导入][参考 https://doc.iocoder.cn/bpm/ 开启]");
+        }
+        // 3. 微信公众号
+        if (message.contains("mp_")) {
+            log.error("[微信公众号 yudao-module-mp - 表结构未导入][参考 https://doc.iocoder.cn/mp/build/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[微信公众号 yudao-module-mp - 表结构未导入][参考 https://doc.iocoder.cn/mp/build/ 开启]");
+        }
+        // 4. 商城系统
+        if (StrUtil.containsAny(message, "product_", "promotion_", "trade_")) {
+            log.error("[商城系统 yudao-module-mall - 已禁用][参考 https://doc.iocoder.cn/mall/build/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[商城系统 yudao-module-mall - 已禁用][参考 https://doc.iocoder.cn/mall/build/ 开启]");
+        }
+        // 5. ERP 系统
+        if (message.contains("erp_")) {
+            log.error("[ERP 系统 yudao-module-erp - 表结构未导入][参考 https://doc.iocoder.cn/erp/build/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[ERP 系统 yudao-module-erp - 表结构未导入][参考 https://doc.iocoder.cn/erp/build/ 开启]");
+        }
+        // 6. CRM 系统
+        if (message.contains("crm_")) {
+            log.error("[CRM 系统 yudao-module-crm - 表结构未导入][参考 https://doc.iocoder.cn/crm/build/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[CRM 系统 yudao-module-crm - 表结构未导入][参考 https://doc.iocoder.cn/crm/build/ 开启]");
+        }
+        // 7. 支付平台
+        if (message.contains("pay_")) {
+            log.error("[支付模块 yudao-module-pay - 表结构未导入][参考 https://doc.iocoder.cn/pay/build/ 开启]");
+            return CommonResult.error(NOT_IMPLEMENTED.getCode(),
+                    "[支付模块 yudao-module-pay - 表结构未导入][参考 https://doc.iocoder.cn/pay/build/ 开启]");
+        }
+        return null;
     }
 
 }
