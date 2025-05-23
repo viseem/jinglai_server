@@ -96,7 +96,7 @@ public class ProjectReimburse extends BaseEntity {
     /**
      * 查询款项列表
      */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @Where(clause = "type = '2'")

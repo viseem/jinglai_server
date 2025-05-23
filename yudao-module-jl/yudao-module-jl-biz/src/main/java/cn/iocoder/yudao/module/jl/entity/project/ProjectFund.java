@@ -171,7 +171,7 @@ public class ProjectFund extends BaseEntity {
     /**
      * 查询款项列表
      */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "fund_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)

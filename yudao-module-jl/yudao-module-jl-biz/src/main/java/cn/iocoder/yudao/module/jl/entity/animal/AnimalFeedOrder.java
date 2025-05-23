@@ -267,7 +267,7 @@ public class AnimalFeedOrder extends BaseEntity {
     /**
      * 查询鼠牌
      */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "feed_order_id",insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)

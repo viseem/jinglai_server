@@ -84,7 +84,7 @@ public class CellBase extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'CELL_BASE'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)

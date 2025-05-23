@@ -60,7 +60,7 @@ public class ProjectDevice extends BaseEntity {
     /**
      * 查询日志
      */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "project_device_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)

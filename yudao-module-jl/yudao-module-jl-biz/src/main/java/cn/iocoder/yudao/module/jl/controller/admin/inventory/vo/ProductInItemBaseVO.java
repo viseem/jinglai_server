@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
@@ -67,5 +68,7 @@ public class ProductInItemBaseVO {
     private String temperature;
 
     private Integer inQuantity = 0;
+
+    private List<CommonAttachment> attachmentList;
 
 }

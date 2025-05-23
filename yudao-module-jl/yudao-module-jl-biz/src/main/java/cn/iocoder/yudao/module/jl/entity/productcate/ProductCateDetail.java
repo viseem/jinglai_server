@@ -81,7 +81,7 @@ public class ProductCateDetail extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'PRODUCT_CATE'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)

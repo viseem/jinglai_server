@@ -365,7 +365,7 @@ public class ContractInvoiceLog extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'CONTRACT_INVOICE_LOG'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
@@ -375,7 +375,7 @@ public class ContractInvoiceLog extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'CONTRACT_INVOICE_LOG_FINANCE'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)

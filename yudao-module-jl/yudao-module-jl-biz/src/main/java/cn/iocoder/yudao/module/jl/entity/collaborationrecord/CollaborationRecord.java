@@ -71,7 +71,7 @@ public class CollaborationRecord extends BaseEntity {
     /*
      * 级联附件
      * */
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'COLLABORATION_RECORD'")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
@@ -81,7 +81,7 @@ public class CollaborationRecord extends BaseEntity {
     /*
     * 级联创建者
     * */
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "creator", referencedColumnName = "id", insertable = false, updatable = false)

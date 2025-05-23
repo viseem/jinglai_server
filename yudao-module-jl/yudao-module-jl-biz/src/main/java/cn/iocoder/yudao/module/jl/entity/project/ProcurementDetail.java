@@ -181,7 +181,7 @@ public class ProcurementDetail extends BaseEntity {
     @Column(name = "accept_time")
     private LocalDateTime acceptTime;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)
     @JoinColumn(name = "procurement_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -203,13 +203,13 @@ public class ProcurementDetail extends BaseEntity {
     private User checkUser;*/
 
 
-/*    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
     @Fetch(FetchMode.SUBSELECT)
     private List<ProcurementShipment> shipments = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "procurement_id")
     @Fetch(FetchMode.SUBSELECT)

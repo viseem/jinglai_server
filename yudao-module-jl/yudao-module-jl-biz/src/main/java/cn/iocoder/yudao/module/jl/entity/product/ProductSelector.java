@@ -202,7 +202,7 @@ public class ProductSelector extends BaseEntity {
     /*
      * 级联附件
      * */
-/*    @OneToMany(fetch = FetchType.EAGER)
+/*    @OneToMany(fetch = FetchType.LAZY)
     @Where(clause = "type = 'JL_PRODUCT'")
     @JoinColumn(name = "ref_id", insertable = false, updatable = false)
     @NotFound(action = NotFoundAction.IGNORE)

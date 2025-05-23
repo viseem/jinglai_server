@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.inventory.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * 实验产品入库 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -34,4 +34,5 @@ public class ProductInBaseVO {
 
     @Schema(description = "库管的备注")
     private String replyMark;
+
 }
