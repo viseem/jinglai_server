@@ -88,6 +88,41 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
         CommonAttachment updateObj = commonAttachmentMapper.toEntity(updateReqVO);
         commonAttachmentRepository.save(updateObj);
     }
+    public void updateCommonAttachmentMark(CommonAttachmentUpdateMarkReqVO updateReqVO) {
+        if(updateReqVO.getMark()!=null){
+            // 校验存在
+            validateCommonAttachmentExists(updateReqVO.getId());
+            commonAttachmentRepository.updateMarkById(updateReqVO.getMark(),updateReqVO.getId());
+        }
+
+    }
+    @Override
+    public void updateCommonAttachmentSort(CommonAttachmentUpdateSortReqVO updateReqVO) {
+        // 获取所有需要更新的附件ID
+        List<Long> ids = updateReqVO.getItems().stream()
+                .map(CommonAttachmentUpdateSortReqVO.AttachmentSortItem::getId)
+                .collect(Collectors.toList());
+        
+        // 验证所有附件是否存在
+        List<CommonAttachment> attachments = getCommonAttachmentList(ids);
+        if (attachments.size() != ids.size()) {
+            throw exception(COMMON_ATTACHMENT_NOT_EXISTS);
+        }
+        
+        // 更新每个附件的排序值
+        Map<Long, Integer> idToSortMap = updateReqVO.getItems().stream()
+                .collect(Collectors.toMap(
+                        CommonAttachmentUpdateSortReqVO.AttachmentSortItem::getId,
+                        CommonAttachmentUpdateSortReqVO.AttachmentSortItem::getSort
+                ));
+        
+        attachments.forEach(attachment -> {
+            attachment.setSort(idToSortMap.get(attachment.getId()));
+        });
+        
+        // 保存更新后的附件
+        commonAttachmentRepository.saveAll(attachments);
+    }
 
     @Override
     public void deleteCommonAttachment(Long id) {
@@ -195,7 +230,8 @@ public class CommonAttachmentServiceImpl implements CommonAttachmentService {
         // 根据 order 中的每个属性创建一个排序规则
         // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
         // 如果实际情况不同，你可能需要对这部分代码进行调整
-
+        orders.add(new Sort.Order(Sort.Direction.ASC,"sort"));
+        orders.add(new Sort.Order(Sort.Direction.DESC,"id"));
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
         }

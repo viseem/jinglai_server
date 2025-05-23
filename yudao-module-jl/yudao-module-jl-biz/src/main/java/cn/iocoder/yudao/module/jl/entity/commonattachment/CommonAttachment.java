@@ -67,4 +67,7 @@ public class CommonAttachment extends BaseEntity {
     @Column(name = "mark")
     private String mark;
 
+    @Column(name = "sort")
+    private Integer sort;
+
 }

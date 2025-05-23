@@ -1,34 +1,31 @@
 package cn.iocoder.yudao.module.jl.controller.admin.commonattachment;
 
-import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.security.access.prepost.PreAuthorize;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Operation;
-
-import javax.validation.constraints.*;
-import javax.validation.*;
-import javax.servlet.http.*;
-import java.util.*;
-import java.io.IOException;
-
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
-
 import cn.iocoder.yudao.module.jl.controller.admin.commonattachment.vo.*;
 import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.mapper.commonattachment.CommonAttachmentMapper;
-import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentService;
+import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.COMMON_ATTACHMENT_NOT_EXISTS;
 
 @Tag(name = "管理后台 - 通用附件")
 @RestController
@@ -37,7 +34,7 @@ import cn.iocoder.yudao.module.jl.service.commonattachment.CommonAttachmentServi
 public class CommonAttachmentController {
 
     @Resource
-    private CommonAttachmentService commonAttachmentService;
+    private CommonAttachmentServiceImpl commonAttachmentService;
 
     @Resource
     private CommonAttachmentMapper commonAttachmentMapper;
@@ -54,6 +51,22 @@ public class CommonAttachmentController {
     @PreAuthorize("@ss.hasPermission('jl:common-attachment:update')")
     public CommonResult<Boolean> updateCommonAttachment(@Valid @RequestBody CommonAttachmentUpdateReqVO updateReqVO) {
         commonAttachmentService.updateCommonAttachment(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-mark")
+    @Operation(summary = "更新通用附件")
+    @PreAuthorize("@ss.hasPermission('jl:common-attachment:update')")
+    public CommonResult<Boolean> updateCommonAttachmentMark(@Valid @RequestBody CommonAttachmentUpdateMarkReqVO updateReqVO) {
+        commonAttachmentService.updateCommonAttachmentMark(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-sort")
+    @Operation(summary = "更新通用附件")
+    @PreAuthorize("@ss.hasPermission('jl:common-attachment:update')")
+    public CommonResult<Boolean> updateCommonAttachmentSort(@Valid @RequestBody CommonAttachmentUpdateSortReqVO updateReqVO) {
+        commonAttachmentService.updateCommonAttachmentSort(updateReqVO);
         return success(true);
     }
 

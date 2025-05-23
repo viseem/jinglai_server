@@ -28,6 +28,13 @@ public interface CommonAttachmentService {
     void updateCommonAttachment(@Valid CommonAttachmentUpdateReqVO updateReqVO);
 
     /**
+     * 更新通用附件排序
+     *
+     * @param updateReqVO 排序更新信息
+     */
+    void updateCommonAttachmentSort(@Valid CommonAttachmentUpdateSortReqVO updateReqVO);
+
+    /**
      * 删除通用附件
      *
      * @param id 编号

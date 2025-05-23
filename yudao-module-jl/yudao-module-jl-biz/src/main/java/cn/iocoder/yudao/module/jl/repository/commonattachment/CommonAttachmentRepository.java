@@ -11,6 +11,10 @@ import java.util.List;
 *
 */
 public interface CommonAttachmentRepository extends JpaRepository<CommonAttachment, Long>, JpaSpecificationExecutor<CommonAttachment> {
+    @Transactional
+    @Modifying
+    @Query("update CommonAttachment c set c.mark = ?1 where c.id = ?2")
+    int updateMarkById(String mark, Long id);
     @Query("select c from CommonAttachment c where c.type = ?1 and c.refId = ?2")
     List<CommonAttachment> findByTypeAndRefId(String type, Long refId);
     @Transactional

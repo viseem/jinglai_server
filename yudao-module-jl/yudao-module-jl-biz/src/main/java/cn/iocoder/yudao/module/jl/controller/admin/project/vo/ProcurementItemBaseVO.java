@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo;
 
+import cn.iocoder.yudao.module.jl.entity.commonattachment.CommonAttachment;
 import cn.iocoder.yudao.module.jl.enums.ProcurementItemStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProcurementTypeEnums;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -143,7 +144,7 @@ public class ProcurementItemBaseVO {
     @Schema(description = "购销合同同意时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime contractAcceptTime;
-
+    private List<CommonAttachment> attachmentList;
     private Long roomId;
     private Long receiveRoomId;
     private String receiveRoomName;

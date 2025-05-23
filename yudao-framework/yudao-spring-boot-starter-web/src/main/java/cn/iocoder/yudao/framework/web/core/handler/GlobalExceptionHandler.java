@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +116,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public CommonResult<?> missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException ex) {
-        log.warn("[missingServletRequestParameterExceptionHandler]", ex);
+        log.warn("[missingServletRequestParameterExceptionHandler] {}", ex.getMessage());
         return CommonResult.error(BAD_REQUEST.getCode(), String.format("请求参数缺失:%s", ex.getParameterName()));
     }
 
@@ -126,7 +127,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public CommonResult<?> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.warn("[methodArgumentTypeMismatchExceptionHandler]", ex);
+        log.warn("[methodArgumentTypeMismatchExceptionHandler] {}{}", ex.getMessage(), getBusinessLocationInfo(ex));
         String message = String.format("请求参数类型错误:%s, 参数名:%s, 期望类型:%s",
                 ex.getMessage(), ex.getName(), ex.getRequiredType().getSimpleName());
         return CommonResult.error(BAD_REQUEST.getCode(), message);
@@ -212,7 +213,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = ValidationException.class)
     public CommonResult<?> validationException(ValidationException ex) {
-        log.warn("[validationException] {}", ex.getMessage(), ex);
+        log.warn("[validationException] {}{}", ex.getMessage(), getBusinessLocationInfo(ex));
 
         // 无法拼接明细的错误信息，因为 Dubbo Consumer 抛出 ValidationException 异常时，是直接的字符串信息，且人类不可读
         String resultErrorMessage = String.format("参数校验失败: %s", ex.getMessage());
@@ -229,7 +230,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     public CommonResult<?> noHandlerFoundExceptionHandler(HttpServletRequest req, NoHandlerFoundException ex) {
-        log.warn("[noHandlerFoundExceptionHandler]", ex);
+        log.warn("[noHandlerFoundExceptionHandler] {}", ex.getRequestURL());
         return CommonResult.error(NOT_FOUND.getCode(), String.format("请求地址不存在:%s", ex.getRequestURL()));
     }
 
@@ -240,7 +241,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public CommonResult<?> httpRequestMethodNotSupportedExceptionHandler(HttpRequestMethodNotSupportedException ex) {
-        log.warn("[httpRequestMethodNotSupportedExceptionHandler]", ex);
+        log.warn("[httpRequestMethodNotSupportedExceptionHandler] {}", ex.getMessage());
         return CommonResult.error(METHOD_NOT_ALLOWED.getCode(), String.format("请求方法不正确:%s", ex.getMessage()));
     }
 
@@ -251,8 +252,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = AccessDeniedException.class)
     public CommonResult<?> accessDeniedExceptionHandler(HttpServletRequest req, AccessDeniedException ex) {
-        log.warn("[accessDeniedExceptionHandler][userId({}) 无法访问 url({})]", WebFrameworkUtils.getLoginUserId(req),
-                req.getRequestURL(), ex);
+        log.warn("[accessDeniedExceptionHandler][userId({}) 无法访问 url({})] {}",
+                WebFrameworkUtils.getLoginUserId(req), req.getRequestURL(), ex.getMessage());
         return CommonResult.error(FORBIDDEN);
     }
 
@@ -265,9 +266,59 @@ public class GlobalExceptionHandler {
     public CommonResult<?> serviceExceptionHandler(ServiceException ex) {
         if (!IGNORE_ERROR_MESSAGES.contains(ex.getMessage())) {
             // 不包含的时候，才进行打印，避免 ex 堆栈过多
-            log.info("[serviceExceptionHandler]", ex);
+            log.info("[serviceExceptionHandler] {}{}", ex.getMessage(), getBusinessLocationInfo(ex));
         }
         return CommonResult.error(ex.getCode(), ex.getMessage());
+    }
+
+    /**
+     * 获取业务代码的位置信息
+     */
+    private String getBusinessLocationInfo(Throwable ex) {
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        if (stackTrace == null || stackTrace.length == 0) {
+            return "";
+        }
+
+        // 查找第一个业务代码的位置，排除框架代码
+        for (StackTraceElement element : stackTrace) {
+            String className = element.getClassName();
+
+            // 排除框架代码、工具类和handler包
+            if (className.contains("ExceptionUtil") ||
+                    className.contains("framework.web.core") ||
+                    className.contains("framework.common.exception") ||
+                    className.contains("springframework") ||
+                    className.contains("apache.catalina") ||
+                    className.contains("apache.coyote") ||
+                    className.contains("undertow") ||
+                    className.contains("tomcat") ||
+                    className.contains("netty") ||
+                    className.contains("java.") ||
+                    className.contains("javax.") ||
+                    className.contains("com.fasterxml") ||
+                    className.contains("framework.apilog") ||
+                    className.contains("sun.reflect")) {
+                continue;
+            }
+
+            // 仅包含模块代码或业务代码
+            if (className.startsWith("cn.iocoder.yudao.module") ||
+                    className.contains(".controller") ||
+                    className.contains(".service.impl") ||
+                    className.contains(".biz") ||
+                    className.contains(".dao") ||
+                    className.contains(".repository") ||
+                    className.startsWith("module.")) {
+
+                return String.format(" at %s.%s(%s:%d)",
+                        className,
+                        element.getMethodName(),
+                        element.getFileName() != null ? element.getFileName() : "<generated>",
+                        element.getLineNumber());
+            }
+        }
+        return "";
     }
 
     /**
@@ -275,7 +326,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = MaxUploadSizeExceededException.class)
     public CommonResult<?> maxUploadSizeExceededExceptionHandler(MaxUploadSizeExceededException ex) {
-        log.warn("上传文件大小超出限制");
+        log.warn("[maxUploadSizeExceededExceptionHandler] {}", ex.getMessage());
         return CommonResult.error(BAD_REQUEST.getCode(), "上传文件大小超出限制");
     }
 
@@ -287,31 +338,31 @@ public class GlobalExceptionHandler {
         // 获取根因错误信息
         String rootMessage = ExceptionUtil.getRootCauseMessage(ex);
 
-        // 获取错误发生的位置，找到第一个业务代码的位置
-        String location = "";
-        StackTraceElement[] stackTrace = ex.getStackTrace();
-        if (stackTrace != null) {
-            for (StackTraceElement element : stackTrace) {
-                if (element.getClassName().startsWith("module.") ||
-                        element.getClassName().startsWith("cn.iocoder.yudao") ||
-                        element.getClassName().contains("$$FastClassBySpringCGLIB$$") ||
-                        element.getClassName().contains("$$EnhancerBySpringCGLIB$$")) {
-                    location = String.format(" at %s.%s(%s:%d)",
-                            element.getClassName(),
-                            element.getMethodName(),
-                            element.getFileName() != null ? element.getFileName() : "<generated>",
-                            element.getLineNumber());
-                    break;
-                }
+        // 获取业务代码位置信息
+        String location = getBusinessLocationInfo(ex);
+
+        // 构建用户友好的错误消息
+        String userMessage = "数据库错误";
+        if (ex instanceof DataIntegrityViolationException) {
+            // 数据完整性违规，通常是外键约束或唯一约束
+            if (rootMessage.contains("foreign key constraint")) {
+                userMessage = "数据关联错误，存在关联数据";
+            } else if (rootMessage.contains("Duplicate entry")) {
+                userMessage = "数据已存在，请勿重复添加";
+            } else {
+                userMessage = "数据完整性错误";
             }
+        } else if (ex instanceof BadSqlGrammarException) {
+            userMessage = "SQL语法错误";
+        } else if (ex instanceof InvalidDataAccessResourceUsageException) {
+            userMessage = "数据访问资源使用无效";
         }
 
-        // 记录详细的错误信息
-        log.warn("数据库错误: {}{}", rootMessage, location);
+        // 记录详细的错误信息，包含原始错误和位置
+        log.warn("[databaseExceptionHandler] {}: {}{}", userMessage, rootMessage, location);
 
-        // 返回更详细的错误信息给前端
-        return CommonResult.error(BAD_REQUEST.getCode(),
-                String.format("数据库错误: %s%s", rootMessage, location));
+        // 返回更友好的错误信息给前端
+        return CommonResult.error(BAD_REQUEST.getCode(), userMessage);
     }
 
     /**
@@ -320,19 +371,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = JpaSystemException.class)
     public CommonResult<?> jpaSystemExceptionHandler(JpaSystemException ex) {
         String message = ExceptionUtil.getRootCauseMessage(ex);
-        // 获取错误发生的位置，找到第一个业务代码的位置
-        String location = "";
-        StackTraceElement[] stackTrace = ex.getStackTrace();
-        if (stackTrace != null) {
-            for (StackTraceElement element : stackTrace) {
-                if (element.getClassName().startsWith("module.") || element.getClassName().startsWith("cn.iocoder.yudao")) {
-                    location = String.format(" at %s.%s", element.getClassName(), element.getMethodName());
-                    break;
-                }
-            }
+        String location = getBusinessLocationInfo(ex);
+
+        // 构建用户友好的错误消息
+        String userMessage = "数据库操作异常";
+        if (message.contains("constraint")) {
+            userMessage = "数据约束冲突，请检查输入";
+        } else if (message.contains("Duplicate")) {
+            userMessage = "数据已存在，请勿重复添加";
+        } else if (message.contains("could not execute statement")) {
+            userMessage = "数据库执行失败，请检查输入";
         }
-        log.warn("数据库错误: {}{}", message, location);
-        return CommonResult.error(BAD_REQUEST.getCode(), message);
+
+        log.warn("[jpaSystemExceptionHandler] {}: {}{}", userMessage, message, location);
+        return CommonResult.error(BAD_REQUEST.getCode(), userMessage);
     }
 
     /**
@@ -346,28 +398,27 @@ public class GlobalExceptionHandler {
             return tableNotExistsResult;
         }
 
-        // 情况二：处理异常
-        String errorMessage = getRelevantStackTrace(ex);
-        log.error("[defaultExceptionHandler] {}", errorMessage);
+        // 提取根本原因的错误消息和用户友好消息
+        String rootCauseMessage = ExceptionUtil.getRootCauseMessage(ex);
+        String userFriendlyMessage = getUserFriendlyMessage(ex);
+
+        // 获取业务代码位置
+        String location = getBusinessLocationInfo(ex);
+
+        // 日志记录根本原因和业务代码位置
+        log.error("[defaultExceptionHandler] 原因: {}{}", rootCauseMessage, location);
+
+        // 更详细的堆栈信息记录到debug级别
+        if (log.isDebugEnabled()) {
+            String detailedStackTrace = getRelevantStackTrace(ex);
+            log.debug("[defaultExceptionHandler] 详细堆栈: \n{}", detailedStackTrace);
+        }
 
         // 插入异常日志
         this.createExceptionLog(req, ex);
 
-        // 返回简短的错误信息
-
-        // 先截取 at 之前的部分
-        String shortMessage = ExceptionUtil.getRootCauseMessage(ex);
-        int atIndex = shortMessage.indexOf(" at ");
-        if (atIndex > 0) {
-            shortMessage = shortMessage.substring(0, atIndex);
-        }
-
-        // 如果错误信息太长，截取关键部分
-        if (shortMessage.length() > 100) {
-            shortMessage = shortMessage.substring(0, 100) + "...";
-        }
-
-        return CommonResult.error(INTERNAL_SERVER_ERROR.getCode(), shortMessage);
+        // 返回对用户友好的错误信息
+        return CommonResult.error(INTERNAL_SERVER_ERROR.getCode(), userFriendlyMessage);
     }
 
     /**
@@ -375,22 +426,57 @@ public class GlobalExceptionHandler {
      */
     private String getRelevantStackTrace(Throwable ex) {
         StringBuilder sb = new StringBuilder();
-        // 添加完整的错误信息
+        // 添加根本原因错误信息
         sb.append(ExceptionUtil.getRootCauseMessage(ex)).append("\n");
+
+        // 最多显示10行堆栈
+        int count = 0;
+        int maxLines = 10;
 
         // 只获取业务相关的堆栈信息
         for (StackTraceElement element : ex.getStackTrace()) {
             String className = element.getClassName();
-            // 显示业务代码和Spring代理类的堆栈信息
-            if (className.startsWith("module.") ||
-                    className.startsWith("cn.iocoder.yudao") ||
+
+            // 排除框架代码、工具类和handler包
+            if (className.contains("ExceptionUtil") ||
+                    className.contains("framework.web.core") ||
+                    className.contains("framework.common.exception") ||
+                    className.contains("springframework") ||
+                    className.contains("apache.catalina") ||
+                    className.contains("apache.coyote") ||
+                    className.contains("undertow") ||
+                    className.contains("tomcat") ||
+                    className.contains("netty") ||
+                    className.contains("java.") ||
+                    className.contains("javax.") ||
+                    className.contains("com.fasterxml") ||
+                    className.contains("framework.apilog") ||
+                    className.contains("sun.reflect")) {
+                continue;
+            }
+
+            // 仅包含模块代码或业务代码
+            if (className.startsWith("cn.iocoder.yudao.module") ||
+                    className.contains(".controller") ||
+                    className.contains(".service.impl") ||
+                    className.contains(".biz") ||
+                    className.contains(".dao") ||
+                    className.contains(".repository") ||
+                    className.startsWith("module.") ||
                     className.contains("$$FastClassBySpringCGLIB$$") ||
                     className.contains("$$EnhancerBySpringCGLIB$$")) {
+
                 String location = element.getFileName() != null ?
                         String.format("(%s:%d)", element.getFileName(), element.getLineNumber()) :
                         "(<generated>:-1)";
+
                 sb.append("    at ").append(className).append(".").append(element.getMethodName())
                         .append(location).append("\n");
+
+                if (++count >= maxLines) {
+                    sb.append("    ... ").append(ex.getStackTrace().length - count).append(" more\n");
+                    break;
+                }
             }
         }
         return sb.toString();
@@ -403,7 +489,6 @@ public class GlobalExceptionHandler {
             // 初始化 errorLog
             buildExceptionLog(errorLog, req, e);
             // 执行插入 errorLog
-//            apiErrorLogFrameworkService.createApiErrorLog(errorLog);
         } catch (Throwable th) {
             log.error("[createExceptionLog][url({}) log({}) 发生异常]", req.getRequestURI(),  JsonUtils.toJsonString(errorLog), th);
         }
@@ -493,6 +578,47 @@ public class GlobalExceptionHandler {
                     "[支付模块 yudao-module-pay - 表结构未导入][参考 https://doc.iocoder.cn/pay/build/ 开启]");
         }
         return null;
+    }
+
+    /**
+     * 获取对用户友好的错误消息
+     */
+    private String getUserFriendlyMessage(Throwable ex) {
+        String rootMessage = ExceptionUtil.getRootCauseMessage(ex);
+
+        // 先截取 at 之前的部分
+        int atIndex = rootMessage.indexOf(" at ");
+        if (atIndex > 0) {
+            rootMessage = rootMessage.substring(0, atIndex);
+        }
+
+        // 常见运行时异常的友好提示
+        if (ex instanceof NullPointerException) {
+            return "系统处理数据时发生错误: 空指针异常";
+        } else if (ex instanceof IllegalArgumentException) {
+            return "非法参数: " + rootMessage;
+        } else if (ex instanceof IllegalStateException) {
+            return "系统状态异常: " + rootMessage;
+        } else if (ex instanceof IndexOutOfBoundsException) {
+            return "系统处理数据时发生错误: 索引越界";
+        } else if (ex instanceof ClassCastException) {
+            return "系统处理数据时发生错误: 类型转换异常";
+        } else if (ex instanceof NumberFormatException) {
+            return "数据格式错误: 无法解析为数字";
+        } else if (ex instanceof ArithmeticException) {
+            return "系统计算错误";
+        } else if (ex instanceof UnsupportedOperationException) {
+            return "不支持的操作";
+        } else if (ex instanceof IOException) {
+            return "IO操作异常";
+        }
+
+        // 如果错误信息太长，截取关键部分
+        if (rootMessage.length() > 100) {
+            rootMessage = rootMessage.substring(0, 100) + "...";
+        }
+
+        return rootMessage;
     }
 
 }
