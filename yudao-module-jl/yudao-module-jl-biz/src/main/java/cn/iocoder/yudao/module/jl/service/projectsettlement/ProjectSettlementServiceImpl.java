@@ -208,7 +208,7 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
         });
 
         // 查询收费项列表，并按照projectCategoryId排序
-        List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationId(exportReqVO.getQuotationId());
+        List<ProjectChargeitem> byQuotationId1 = projectChargeitemRepository.findByQuotationIdAndDeletedStatusNotTrue(exportReqVO.getQuotationId());
         resp.setChargeCount(byQuotationId1.size());
         //byQuotationId1按照projectCategoryId排序 升序
         byQuotationId1.sort(Comparator.comparing(ProjectChargeitem::getProjectCategoryId));

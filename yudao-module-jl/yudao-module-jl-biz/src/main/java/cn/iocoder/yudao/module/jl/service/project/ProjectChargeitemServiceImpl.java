@@ -146,6 +146,9 @@ public class ProjectChargeitemServiceImpl implements ProjectChargeitemService {
         Specification<ProjectChargeitem> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 查询a字段不是true
+            predicates.add(cb.notEqual(root.get("deletedStatus"),true));
+
             if (pageReqVO.getQuotationId() != null) {
                 predicates.add(cb.equal(root.get("quotationId"), pageReqVO.getQuotationId()));
             }
