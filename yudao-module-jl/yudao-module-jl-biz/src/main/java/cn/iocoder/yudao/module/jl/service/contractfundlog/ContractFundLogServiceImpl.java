@@ -136,7 +136,7 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
     public void updateContractFundLog(ContractFundLogUpdateReqVO updateReqVO) {
         // 校验存在
         ContractFundLog contractFundLog = validateContractFundLogExists(updateReqVO.getId());
-
+        Long originContractId = contractFundLog.getContractId();
 
         // 如果status不为空，则记录auditId为当前登录用户
         if(Objects.equals(updateReqVO.getStatus(), ContractFundStatusEnums.AUDITED.getStatus())){
@@ -165,6 +165,9 @@ public class ContractFundLogServiceImpl implements ContractFundLogService {
         contractFundLogRepository.save(updateObj);
 
         projectConstractService.processContractReceivedPrice2(updateReqVO.getContractId());
+        if(originContractId!=null&& !originContractId.equals(updateReqVO.getContractId())){
+            projectConstractService.processContractReceivedPrice2(originContractId);
+        }
 
         commonAttachmentService.saveAttachmentList(updateReqVO.getId(),"CONTRACT_FUND_LOG",updateReqVO.getAttachmentList());
     }
