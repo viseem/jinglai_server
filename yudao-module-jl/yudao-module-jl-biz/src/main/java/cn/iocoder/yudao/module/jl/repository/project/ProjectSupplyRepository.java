@@ -14,6 +14,8 @@ import java.util.List;
 *
 */
 public interface ProjectSupplyRepository extends JpaRepository<ProjectSupply, Long>, JpaSpecificationExecutor<ProjectSupply> {
+    @Query("select p from ProjectSupply p where p.quotationId = ?1 and ( p.deletedStatus=false or p.deletedStatus is NULL )")
+    List<ProjectSupply> findByQuotationIdAndDeletedStatusNotTrue(Long quotationId);
     @Transactional
     @Modifying
     @Query("update ProjectSupply p set p.currentBrand = p.brand, p.currentCatalogNumber = p.catalogNumber, p.currentPrice = p.unitFee, p.currentSpec = p.spec, p.currentQuantity = p.quantity,p.deletedStatus=false " +

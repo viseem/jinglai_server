@@ -183,7 +183,7 @@ public class ProjectSettlementServiceImpl implements ProjectSettlementService {
         ProjectSettlementExportRespVO resp = new ProjectSettlementExportRespVO();
         List<ProjectQuotationItemVO> quotationList = new ArrayList<>();
         //查询物资列表
-        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationId(exportReqVO.getQuotationId());
+        List<ProjectSupply> byQuotationId = projectSupplyRepository.findByQuotationIdAndDeletedStatusNotTrue(exportReqVO.getQuotationId());
         resp.setSupplyCount(byQuotationId.size());
         //遍历物资列表赋值到resp的itemList
         for (ProjectSupply projectSupply : byQuotationId) {
