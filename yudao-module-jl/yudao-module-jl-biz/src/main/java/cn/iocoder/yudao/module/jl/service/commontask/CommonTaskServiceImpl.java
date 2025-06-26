@@ -258,8 +258,6 @@ public class CommonTaskServiceImpl implements CommonTaskService {
             taskArrangeRelationRepository.save(relation);
         }
 
-        System.out.println("---==---==" + reqVO.getQuotationId());
-
         // 如果是管理任务
         if (Objects.equals(reqVO.getCreateType(), CommonTaskCreateTypeEnums.MANAGE.getStatus())) {
             if (reqVO.getChargeList() != null && !reqVO.getChargeList().isEmpty()) {
@@ -333,6 +331,8 @@ public class CommonTaskServiceImpl implements CommonTaskService {
         if (vo.getProjectId() != null) {
             ProjectSimple projectSimple = projectService.validateProjectExists(vo.getProjectId());
             vo.setProjectSimple(projectSimple);
+            vo.setCustomerId(projectSimple.getCustomerId());
+            vo.setCustomerName(projectSimple.getCustomer()!=null?projectSimple.getCustomer().getName():"");
             //如果项目的开展前审批是同意的，并且客户已经签字确认
             if (Objects.equals(projectSimple.getDoApplyResult(), BpmTaskStatustEnum.APPROVE.getStatus().toString()) && projectSimple.getCustomerSignImgUrl() != null && projectSimple.getCustomerSignImgUrl().contains("http")) {
                 vo.setNeedSendMsg(true);
