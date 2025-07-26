@@ -631,10 +631,15 @@ public class SalesleadServiceImpl implements SalesleadService {
                         // creatorIds添加一个元素
                         collect.add(getLoginUserId());
                     }
-                    List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
+                    // 确保collect不为空，避免参数占位符问题
+                    if(!collect.isEmpty()) {
+                        List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
 //                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
-                    Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
-                    predicates.add(root.get("id").in(array));
+                        Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
+                        if(array.length > 0) {
+                            predicates.add(root.get("id").in(array));
+                        }
+                    }
                 }
 
                 // 疾病类型
@@ -677,9 +682,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                                 }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())&& pageReqVO.getPiGroupId() == null){
                                     Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                                     pageReqVO.setCreators(users);
-                                    Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
-                                    // 或者条件
-                                    predicates.add(cb.or(root.get("creator").in(ids),root.get("managerId").in(ids)));
+                                    if(pageReqVO.getCreators() != null && pageReqVO.getCreators().length > 0) {
+                                        Object[] ids = Arrays.stream(pageReqVO.getCreators()).toArray();
+                                        // 或者条件
+                                        predicates.add(cb.or(root.get("creator").in(ids),root.get("managerId").in(ids)));
+                                    }
                                 }
                             }
                         }else{
@@ -690,11 +697,14 @@ public class SalesleadServiceImpl implements SalesleadService {
                     }
                 }else{
                     if(pageReqVO.getQuotationTime()==null){
-                        predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                        if(pageReqVO.getCreatorIds() != null && pageReqVO.getCreatorIds().length > 0) {
+                            predicates.add(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
+                        }
                     }else{
                         // 为了兼容PI组看板的查询，如果按照报价查询的话，可能这个商机是别的组创建的
-                        predicates.add(cb.or(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()),root.get("managerId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray())));
-
+                        if(pageReqVO.getCreatorIds() != null && pageReqVO.getCreatorIds().length > 0) {
+                            predicates.add(cb.or(root.get("creator").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()),root.get("managerId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray())));
+                        }
                     }
                 }
 
@@ -709,10 +719,12 @@ public class SalesleadServiceImpl implements SalesleadService {
                 if (pageReqVO.getPiGroupId() != null) {
                     Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
 //                predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
-                    predicates.add(cb.or(
-                            root.get("creator").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
-                            root.get("managerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
-                    ));
+                    if(membersUserIdsByGroupId != null && membersUserIdsByGroupId.length > 0) {
+                        predicates.add(cb.or(
+                                root.get("creator").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
+                                root.get("managerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
+                        ));
+                    }
                 }
 
                 if(pageReqVO.getTimeRange()!=null){
@@ -732,7 +744,7 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
 
                 //如果statusArr不为空，则查询statusArr中的状态
-                if(pageReqVO.getStatusArr() != null) {
+                if(pageReqVO.getStatusArr() != null && pageReqVO.getStatusArr().length > 0) {
                     predicates.add(root.get("status").in(Arrays.stream(pageReqVO.getStatusArr()).toArray()));
 
                     //判断statusArr是否包含未转项目的状态
