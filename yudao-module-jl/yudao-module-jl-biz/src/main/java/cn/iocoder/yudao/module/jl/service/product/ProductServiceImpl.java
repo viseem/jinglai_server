@@ -1,6 +1,11 @@
 package cn.iocoder.yudao.module.jl.service.product;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerImportVO;
 import cn.iocoder.yudao.module.jl.controller.admin.productuser.vo.ProductUserUpdateReqVO;
+import cn.iocoder.yudao.module.jl.entity.crm.Customer;
+import cn.iocoder.yudao.module.jl.entity.crm.CustomerSimple;
 import cn.iocoder.yudao.module.jl.entity.product.ProductDetail;
 import cn.iocoder.yudao.module.jl.entity.product.ProductSelector;
 import cn.iocoder.yudao.module.jl.entity.productuser.ProductUserOnly;
@@ -38,7 +43,9 @@ import cn.iocoder.yudao.module.jl.mapper.product.ProductMapper;
 import cn.iocoder.yudao.module.jl.repository.product.ProductRepository;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 
 /**
  * 产品库 Service 实现类
@@ -345,7 +352,25 @@ public class ProductServiceImpl implements ProductService {
         // 执行查询
         return productRepository.findAll(spec);
     }
+    @Override
+    @Transactional(rollbackFor = Exception.class) // 添加事务，异常则回滚所有导入
+    public ProductImportRespVO importList(List<ProductImportVO> importUsers, boolean isUpdateSupport) {
+        if (CollUtil.isEmpty(importUsers)) {
+            throw exception(USER_IMPORT_LIST_IS_EMPTY);
+        }
+        ProductImportRespVO respVO = ProductImportRespVO.builder().createNames(new ArrayList<>())
+                .updateNames(new ArrayList<>()).failureNames(new ArrayList<>()).build();
 
+        importUsers.forEach(item -> {
+                Product product = productMapper.toEntity(item);
+                product.setSort(100);
+                product.setStatus("上线");
+                productRepository.save(product);
+                respVO.getCreateNames().add(item.getName());
+        });
+
+        return respVO;
+    }
     private Sort createSort(ProductPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 

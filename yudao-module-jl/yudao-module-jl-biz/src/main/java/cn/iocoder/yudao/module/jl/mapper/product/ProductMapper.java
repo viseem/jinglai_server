@@ -12,6 +12,7 @@ import org.mapstruct.*;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
     Product toEntity(ProductCreateReqVO dto);
+    Product toEntity(ProductImportVO dto);
 
     Product toEntity(ProductUpdateReqVO dto);
     ProductDetail toEntityDetail(ProductUpdateReqVO dto);

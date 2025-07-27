@@ -2,6 +2,9 @@ package cn.iocoder.yudao.module.jl.service.product;
 
 import java.util.*;
 import javax.validation.*;
+
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerImportRespVO;
+import cn.iocoder.yudao.module.jl.controller.admin.crm.vo.CustomerImportVO;
 import cn.iocoder.yudao.module.jl.controller.admin.product.vo.*;
 import cn.iocoder.yudao.module.jl.entity.product.Product;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -77,5 +80,7 @@ public interface ProductService {
      * @return 产品库列表
      */
     List<Product> getProductList(ProductExportReqVO exportReqVO);
+
+    ProductImportRespVO importList(List<ProductImportVO> importUsers, boolean isUpdateSupport);
 
 }
