@@ -9,4 +9,10 @@ import org.springframework.data.jpa.repository.*;
 */
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
+    /**
+     * 查询最大的sort值
+     */
+    @Query("SELECT MAX(p.sort) FROM Product p WHERE p.sort IS NOT NULL")
+    Integer findMaxSort();
+
 }

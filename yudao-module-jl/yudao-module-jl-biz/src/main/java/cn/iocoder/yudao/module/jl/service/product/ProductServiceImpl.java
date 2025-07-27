@@ -361,13 +361,29 @@ public class ProductServiceImpl implements ProductService {
         ProductImportRespVO respVO = ProductImportRespVO.builder().createNames(new ArrayList<>())
                 .updateNames(new ArrayList<>()).failureNames(new ArrayList<>()).build();
 
-        importUsers.forEach(item -> {
-                Product product = productMapper.toEntity(item);
-                product.setSort(100);
-                product.setStatus("上线");
-                productRepository.save(product);
-                respVO.getCreateNames().add(item.getName());
-        });
+        // 先组装所有数据，设置递增的sort值以维护Excel顺序
+        List<Product> productsToSave = new ArrayList<>();
+        
+        // 获取当前最大的sort值，确保新导入的数据不会与现有数据冲突
+        Integer maxSort = productRepository.findMaxSort();
+        if (maxSort == null) {
+            maxSort = 0;
+        }
+        
+        for (int i = 0; i < importUsers.size(); i++) {
+            ProductImportVO item = importUsers.get(i);
+            Product product = productMapper.toEntity(item);
+            
+            // 设置递增的sort值，保证Excel导入顺序
+            product.setSort(maxSort + i + 1);
+            product.setStatus("上线");
+            
+            productsToSave.add(product);
+            respVO.getCreateNames().add(item.getName());
+        }
+
+        // 批量保存，保证顺序和性能
+        productRepository.saveAll(productsToSave);
 
         return respVO;
     }
