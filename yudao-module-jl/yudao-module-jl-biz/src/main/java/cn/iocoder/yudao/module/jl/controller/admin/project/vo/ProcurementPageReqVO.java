@@ -31,6 +31,7 @@ public class ProcurementPageReqVO extends PageParam {
     @Schema(description = "采购类型", example = "8583")
     private Integer procurementType;
 
+    private Long labId;
     @Schema(description = "项目 id", example = "8583")
     private Long projectId;
 

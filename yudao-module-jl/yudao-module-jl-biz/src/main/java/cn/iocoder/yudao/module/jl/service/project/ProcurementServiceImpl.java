@@ -413,7 +413,9 @@ public class ProcurementServiceImpl implements ProcurementService {
             if (pageReqVO.getMyApply() != null&&pageReqVO.getMyApply()) {
                 predicates.add(cb.equal(root.get("creator"), getLoginUserId()));
             }
-
+            if (pageReqVO.getLabId() != null) {
+                predicates.add(cb.equal(root.get("labId"), pageReqVO.getLabId()));
+            }
             if (pageReqVO.getProcurementType() != null) {
                 predicates.add(cb.equal(root.get("procurementType"), pageReqVO.getProcurementType()));
             }
