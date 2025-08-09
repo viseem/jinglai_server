@@ -39,8 +39,8 @@ public class AnimalFeedOrderExcelVO {
     @ExcelProperty("品种品系")
     private String breedAndStrain;
 
-    @ExcelProperty("饲养位置")
-    private String location;
+//    @ExcelProperty("饲养位置")
+//    private String location;
 
 /*    @ExcelProperty("位置代码")
     private String locationCode;*/

@@ -1,16 +1,21 @@
 package cn.iocoder.yudao.module.infra.controller.admin.file;
 
+import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
+import cn.iocoder.yudao.module.infra.controller.admin.file.vo.file.word.Html2WordReqVO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @Tag(name = "管理后台 - word")
 @RestController
@@ -21,17 +26,13 @@ public class WordController {
 
 
 
-/*    @GetMapping("/html2word")
+    @PostMapping("/html2word")
     @Operation(summary = "html转word")
     @OperateLog(logArgs = false) // 上传文件，没有记录操作日志的必要
-    public void html2Word(Html2WordReqVO reqVO, HttpServletResponse response) throws Exception {
+    public void html2Word(@RequestBody Html2WordReqVO reqVO, HttpServletResponse response) throws Exception {
         String outputFilePath = "output.docx";
 
-        if(reqVO.getQuotationId()!=null){
-            Optional<ProjectQuotation> byId = projectQuotationRepository.findById(reqVO.getQuotationId());
-            reqVO.setHtml(byId.get().getPlanText());
-        }
-        System.out.println("-=-=-=-=-=-=");
+        System.out.println("-=-=-=-=-=-="+reqVO.getHtml());
         byte[] bytes = convertAndSave(reqVO.getHtml());
         // Set response headers
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -40,7 +41,7 @@ public class WordController {
         // Write the document bytes to the response
         response.getOutputStream().write(bytes);
         response.flushBuffer();
-    }*/
+    }
 
     private byte[] convertAndSave(String htmlContent) {
         try {

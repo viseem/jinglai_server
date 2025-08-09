@@ -113,7 +113,7 @@ public class SupplierController {
         List<Supplier> list = supplierService.getSupplierList(exportReqVO);
         // 导出 Excel
         List<SupplierExcelVO> excelData = supplierMapper.toExcelList(list);
-        ExcelUtils.write(response, "项目采购单物流信息.xlsx", "数据", SupplierExcelVO.class, excelData);
+        ExcelUtils.write(response, "供应商.xlsx", "数据", SupplierExcelVO.class, excelData);
     }
 
     //excel导入
