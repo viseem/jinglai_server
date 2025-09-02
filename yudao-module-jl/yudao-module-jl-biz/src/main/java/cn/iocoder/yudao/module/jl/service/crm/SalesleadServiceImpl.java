@@ -623,6 +623,12 @@ public class SalesleadServiceImpl implements SalesleadService {
                 }
 
                 if(pageReqVO.getQuotationTime() != null) {
+                    // quotationCreateTime or quotationUpdateTime
+                    // or
+                    predicates.add(cb.or(
+                            cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]),
+                            cb.between(root.get("quotationUpdateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1])
+                    ));
                     List<Long> collect = new ArrayList<>();
                     if(pageReqVO.getCreatorIds()!=null){
                         collect = Arrays.stream(pageReqVO.getCreatorIds()).collect(Collectors.toList());
@@ -633,12 +639,11 @@ public class SalesleadServiceImpl implements SalesleadService {
                     }
                     // 确保collect不为空，避免参数占位符问题
                     if(!collect.isEmpty()) {
-                        List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
-//                predicates.add(cb.between(root.get("quotationCreateTime"), pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1]));
+/*                        List<ProjectQuotationOnly> quotations = projectQuotationOnlyRepository.findByUpdateTimeBetweenAndUpdaterInAndResultPriceGreaterThan(pageReqVO.getQuotationTime()[0], pageReqVO.getQuotationTime()[1], collect.toArray(new Long[collect.size()]), BigDecimal.ZERO);
                         Object[] array = quotations.stream().map(ProjectQuotationOnly::getSalesleadId).toArray();
                         if(array.length > 0) {
                             predicates.add(root.get("id").in(array));
-                        }
+                        }*/
                     }
                 }
 
