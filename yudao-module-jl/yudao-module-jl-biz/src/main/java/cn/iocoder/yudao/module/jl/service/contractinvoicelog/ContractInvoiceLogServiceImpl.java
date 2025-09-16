@@ -122,6 +122,11 @@ public class ContractInvoiceLogServiceImpl implements ContractInvoiceLogService 
 
         // 更新
         ContractInvoiceLog updateObj = contractInvoiceLogMapper.toEntity(updateReqVO);
+
+        if(updateObj.getFinanceAttachmentList()!=null&& !updateObj.getFinanceAttachmentList().isEmpty()&&updateObj.getDate()==null){
+            updateObj.setDate(LocalDateTime.now());
+        }
+
         contractInvoiceLogRepository.save(updateObj);
 
         projectConstractService.processContractInvoicedPrice2(contractInvoiceLog.getContractId());
