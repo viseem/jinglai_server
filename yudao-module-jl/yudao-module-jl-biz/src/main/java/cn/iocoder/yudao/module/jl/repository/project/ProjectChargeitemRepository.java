@@ -53,4 +53,6 @@ public interface ProjectChargeitemRepository extends JpaRepository<ProjectCharge
     @Query("delete from ProjectChargeitem p where p.projectCategoryId in ?1")
     int deleteByProjectCategoryIdIn(Collection<Long> projectCategoryIds);
 
+    List<ProjectChargeitem> findByIdIn(Collection<Long> ids);
+
 }

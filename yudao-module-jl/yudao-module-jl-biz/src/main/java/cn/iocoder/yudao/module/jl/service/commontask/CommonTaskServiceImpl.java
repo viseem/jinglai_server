@@ -697,6 +697,27 @@ public class CommonTaskServiceImpl implements CommonTaskService {
 
         }
 
+        // 查询ProjectChargeitem
+        if(pageReqVO.getHasChargeItem()!=null&&pageReqVO.getHasChargeItem()){
+            List<Long> chargeItemIds = content.stream()
+                    .map(CommonTask::getChargeitemId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if(!chargeItemIds.isEmpty()){
+                List<ProjectChargeitem> chargeItems = projectChargeitemRepository.findByIdIn(chargeItemIds);
+
+                if(chargeItems!=null){
+                    content.forEach(commonTask ->
+                            commonTask.setChargeItem(chargeItems.stream()
+                                    .filter(chargeItem -> chargeItem.getId().equals(commonTask.getChargeitemId()))
+                                    .findFirst()
+                                    .orElse(null))
+                    );
+                }
+            }
+        }
+
         // 转换为 PageResult 并返回
         return new PageResult<>(content, page.getTotalElements());
     }

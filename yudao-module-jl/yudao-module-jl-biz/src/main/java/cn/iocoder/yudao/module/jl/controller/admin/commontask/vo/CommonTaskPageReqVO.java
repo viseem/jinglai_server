@@ -27,6 +27,8 @@ public class CommonTaskPageReqVO extends UtilStoreGetReqVO {
 
     private Boolean hasProject = true;
 
+    private Boolean hasChargeItem = true;
+
     @Schema(description = "创建类型")
     private Integer createType;
 
