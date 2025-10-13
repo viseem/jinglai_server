@@ -199,6 +199,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public RoleDO getRoleByCode(String code) {
+        return roleMapper.selectByCode(code);
+    }
+
+    @Override
     public PageResult<RoleDO> getRolePage(RolePageReqVO reqVO) {
         return roleMapper.selectPage(reqVO);
     }

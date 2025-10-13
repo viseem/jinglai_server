@@ -47,6 +47,14 @@ public interface AdminUserApi {
     List<AdminUserRespDTO> getUsersByPostIds(Collection<Long> postIds);
 
     /**
+     * 获得拥有指定角色的用户数组
+     *
+     * @param roleCode 角色标识
+     * @return 用户数组
+     */
+    List<AdminUserRespDTO> getUserListByRoleCode(String roleCode);
+
+    /**
      * 获得用户 Map
      *
      * @param ids 用户编号数组

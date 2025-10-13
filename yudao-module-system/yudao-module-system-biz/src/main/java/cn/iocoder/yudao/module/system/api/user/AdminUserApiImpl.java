@@ -46,6 +46,12 @@ public class AdminUserApiImpl implements AdminUserApi {
     }
 
     @Override
+    public List<AdminUserRespDTO> getUserListByRoleCode(String roleCode) {
+        List<AdminUserDO> users = userService.getUserListByRoleCode(roleCode);
+        return UserConvert.INSTANCE.convertList4(users);
+    }
+
+    @Override
     public void validateUserList(Collection<Long> ids) {
         userService.validateUserList(ids);
     }

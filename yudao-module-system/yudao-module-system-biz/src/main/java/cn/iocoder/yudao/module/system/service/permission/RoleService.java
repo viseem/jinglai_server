@@ -116,6 +116,14 @@ public interface RoleService {
     RoleDO getRole(Long id);
 
     /**
+     * 通过角色标识获得角色
+     *
+     * @param code 角色标识
+     * @return 角色
+     */
+    RoleDO getRoleByCode(String code);
+
+    /**
      * 获得角色分页
      *
      * @param reqVO 角色分页查询

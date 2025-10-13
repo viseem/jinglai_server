@@ -17,14 +17,18 @@ import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.UserPostDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.permission.UserRoleDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dept.UserPostMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.oauth2.OAuth2AccessTokenMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.permission.UserRoleMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.dept.PostService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
+import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +70,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Resource
     private PermissionService permissionService;
     @Resource
+    private RoleService roleService;
+    @Resource
     private PasswordEncoder passwordEncoder;
     @Resource
     @Lazy // 延迟，避免循环依赖报错
@@ -73,6 +79,8 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Resource
     private UserPostMapper userPostMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     @Resource
     private FileApi fileApi;
@@ -230,6 +238,26 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public PageResult<AdminUserDO> getUserPage(UserPageReqVO reqVO) {
+        // 如果指定了角色Code，先通过角色查询用户ID列表，然后添加到查询条件
+        if (StrUtil.isNotEmpty(reqVO.getRoleCode())) {
+            // 1. 通过角色code查询角色
+            RoleDO role = roleService.getRoleByCode(reqVO.getRoleCode());
+            if (role != null) {
+                // 2. 通过角色ID查询用户角色关联表，获取用户ID列表
+                Set<Long> userIds = convertSet(userRoleMapper.selectListByRoleId(role.getId()), UserRoleDO::getUserId);
+                if (CollUtil.isNotEmpty(userIds)) {
+                    // 3. 将用户ID列表添加到查询条件
+                    reqVO.setIds(new ArrayList<>(userIds));
+                } else {
+                    // 如果没有用户，设置一个不存在的ID，确保返回空结果
+                    reqVO.setIds(Collections.singletonList(-1L));
+                }
+            } else {
+                // 角色不存在，返回空结果
+                reqVO.setIds(Collections.singletonList(-1L));
+            }
+        }
+        
         return userMapper.selectPage(reqVO, reqVO.getDeptIds()!=null?getDeptCondition(reqVO.getDeptIds()):getDeptCondition(reqVO.getDeptId()));
     }
 
@@ -255,6 +283,25 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (CollUtil.isEmpty(userIds)) {
             return Collections.emptyList();
         }
+        return userMapper.selectBatchIds(userIds);
+    }
+
+    @Override
+    public List<AdminUserDO> getUserListByRoleCode(String roleCode) {
+        if (StrUtil.isEmpty(roleCode)) {
+            return Collections.emptyList();
+        }
+        // 1. 通过角色code查询角色
+        RoleDO role = roleService.getRoleByCode(roleCode);
+        if (role == null) {
+            return Collections.emptyList();
+        }
+        // 2. 通过角色ID查询用户角色关联表，获取用户ID列表
+        Set<Long> userIds = convertSet(userRoleMapper.selectListByRoleId(role.getId()), UserRoleDO::getUserId);
+        if (CollUtil.isEmpty(userIds)) {
+            return Collections.emptyList();
+        }
+        // 3. 通过用户ID查询用户列表
         return userMapper.selectBatchIds(userIds);
     }
 

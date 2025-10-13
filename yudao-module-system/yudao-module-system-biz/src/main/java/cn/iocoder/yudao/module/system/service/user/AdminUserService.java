@@ -138,6 +138,14 @@ public interface AdminUserService {
     List<AdminUserDO> getUserListByPostIds(Collection<Long> postIds);
 
     /**
+     * 获得拥有指定角色的用户数组
+     *
+     * @param roleCode 角色标识
+     * @return 用户数组
+     */
+    List<AdminUserDO> getUserListByRoleCode(String roleCode);
+
+    /**
      * 获得用户列表
      *
      * @param ids 用户编号数组

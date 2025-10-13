@@ -99,12 +99,35 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
             }
         }
         
+        // 如果缓存为空，自动触发刷新
+        if (cacheList == null || cacheList.isEmpty()) {
+            System.out.println("【提示】缓存数据为空，自动触发数据刷新");
+            
+            // 检查是否正在更新，如果正在更新则不重复刷新
+            if (!isUpdating) {
+                try {
+                    // 自动刷新缓存
+                    updateSalesDataStatisticCache();
+                    
+                    // 刷新后重新查询缓存
+                    cacheList = salesDataStatisticCacheRepository.findByStatisticDate(now);
+                    System.out.println("刷新后从缓存中查询到 " + (cacheList != null ? cacheList.size() : 0) + " 条数据");
+                } catch (Exception e) {
+                    System.out.println("【错误】自动刷新失败: " + e.getMessage());
+                    // 刷新失败也返回空列表
+                    return new ArrayList<>();
+                }
+            } else {
+                System.out.println("【提示】数据正在刷新中，稍后请重新查询");
+                return new ArrayList<>();
+            }
+        }
+        
         // 转换为响应对象
         List<SalesDataItem> respList = new ArrayList<>();
         
         if (cacheList == null || cacheList.isEmpty()) {
-            // 缓存为空，返回空列表
-            System.out.println("【警告】缓存数据为空，请检查定时任务是否执行");
+            System.out.println("【警告】缓存数据仍为空");
             return respList;
         }
         
@@ -159,10 +182,10 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
             isUpdating = true;
             System.out.println("========== 开始更新销售数据统计缓存 ==========");
             
-            // 获取所有销售人员（部门ID为113）
-            List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByDeptIds(List.of(113L));
+            // 获取所有销售人员（拥有"销售"角色）
+            List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
             
-            System.out.println("从部门113获取到 " + (salesUsers != null ? salesUsers.size() : 0) + " 个销售人员");
+            System.out.println("从销售角色获取到 " + (salesUsers != null ? salesUsers.size() : 0) + " 个销售人员");
             
             if (salesUsers == null || salesUsers.isEmpty()) {
                 System.out.println("【警告】未找到销售人员，跳过更新");

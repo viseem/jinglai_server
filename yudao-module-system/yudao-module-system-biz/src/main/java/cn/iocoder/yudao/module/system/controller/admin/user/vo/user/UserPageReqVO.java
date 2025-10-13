@@ -46,6 +46,8 @@ public class UserPageReqVO extends PageParam {
     @Schema(description = "ids")
     private List<Long> ids;
 
+    @Schema(description = "角色标识，用于筛选拥有该角色的用户", example = "sales")
+    private String roleCode;
 
     private String attribute;
 
