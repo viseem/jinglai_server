@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.jl.controller.admin.statistic;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.*;
 import cn.iocoder.yudao.module.jl.service.statistic.sales.SalesStatisticService;
+import cn.iocoder.yudao.module.jl.service.statistic.sales.SalesDataStatisticService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -23,6 +25,9 @@ public class SalesStatisticController {
 
     @Resource
     private SalesStatisticService salesStatisticService;
+
+    @Resource
+    private SalesDataStatisticService salesDataStatisticService;
 
     @GetMapping("/followup-count")
     @Operation(summary = "获取跟进的统计数据")
@@ -70,5 +75,32 @@ public class SalesStatisticController {
     public CommonResult<SalesGroupStatisticResp> getSalesGroupStatsAllDate(@Valid SalesGroupStatisticReqVO reqVO) {
         SalesGroupStatisticResp salesGroupStatisticResp = salesStatisticService.groupStatsNotPay(reqVO);
         return success(salesGroupStatisticResp);
+    }
+
+    @GetMapping("/sales-data-statistic")
+    @Operation(summary = "获取销售数据统计")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<SalesDataStatisticResp> getSalesDataStatistic(@Valid SalesDataStatisticReqVO reqVO) {
+        // 获取数据（已经是SalesDataItem列表）
+        List<SalesDataStatisticResp.SalesDataItem> items = salesDataStatisticService.getSalesDataStatistic(reqVO);
+        
+        // 检查刷新状态
+        boolean isRefreshing = salesDataStatisticService.isRefreshing();
+        
+        // 构建响应（包含数据和刷新状态）
+        SalesDataStatisticResp resp = SalesDataStatisticResp.builder()
+            .isRefreshing(isRefreshing)
+            .data(items)
+            .build();
+        
+        return success(resp);
+    }
+
+    @GetMapping("/sales-data-statistic-refresh")
+    @Operation(summary = "手动刷新销售数据统计缓存")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<Boolean> refreshSalesDataStatistic() {
+        salesDataStatisticService.updateSalesDataStatisticCache();
+        return success(true);
     }
 }

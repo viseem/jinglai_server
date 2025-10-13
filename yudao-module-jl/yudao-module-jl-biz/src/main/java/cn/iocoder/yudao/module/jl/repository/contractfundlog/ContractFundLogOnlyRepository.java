@@ -26,4 +26,6 @@ public interface ContractFundLogOnlyRepository extends JpaRepository<ContractFun
 
     List<ContractFundLogOnly> findAllByContractId(@NotNull(message = "合同id不能为空") Long contractId);
 
+    @Query("select c from ContractFundLogOnly c where c.status = ?1 and c.salesId in ?2")
+    List<ContractFundLogOnly> findByStatusAndSalesIdIn(String status, List<Long> salesIds);
 }

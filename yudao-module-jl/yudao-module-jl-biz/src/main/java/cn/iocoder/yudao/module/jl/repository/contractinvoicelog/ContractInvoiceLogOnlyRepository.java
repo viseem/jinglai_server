@@ -31,4 +31,7 @@ public interface ContractInvoiceLogOnlyRepository extends JpaRepository<Contract
 
     @Query("select c from ContractInvoiceLogOnly c where  c.date between ?1 and ?2 and c.salesId in ?3")
     List<ContractInvoiceLogOnly> findPaidTimeBetweenAndSalesIdIn( LocalDateTime paidTimeStart, LocalDateTime paidTimeEnd, Long[] salesIds);
+
+    @Query("select c from ContractInvoiceLogOnly c where c.status <> ?1 and c.salesId in ?2")
+    List<ContractInvoiceLogOnly> findByStatusNotAndSalesIdIn(String status, List<Long> salesIds);
 }
