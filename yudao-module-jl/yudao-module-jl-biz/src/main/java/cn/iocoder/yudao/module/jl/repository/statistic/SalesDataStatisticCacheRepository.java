@@ -16,23 +16,49 @@ import java.util.List;
 public interface SalesDataStatisticCacheRepository extends JpaRepository<SalesDataStatisticCache, Long>, JpaSpecificationExecutor<SalesDataStatisticCache> {
 
     /**
-     * 根据统计时间查询（查询当天的所有记录）
+     * 根据时间范围类型查询缓存
      */
-    @Query(value = "select s from SalesDataStatisticCache s where FUNCTION('DATE', s.statisticDate) = FUNCTION('DATE', ?1) and s.deleted = false")
-    List<SalesDataStatisticCache> findByStatisticDate(LocalDateTime statisticDate);
+    @Query("select s from SalesDataStatisticCache s where s.timeRangeType = ?1 and s.deleted = false")
+    List<SalesDataStatisticCache> findByTimeRangeType(String timeRangeType);
 
     /**
-     * 根据统计时间和用户ID查询
+     * 根据时间范围类型和用户ID查询缓存
      */
-    @Query("select s from SalesDataStatisticCache s where FUNCTION('DATE', s.statisticDate) = FUNCTION('DATE', ?1) and s.userId = ?2 and s.deleted = false")
-    SalesDataStatisticCache findByStatisticDateAndUserId(LocalDateTime statisticDate, Long userId);
+    @Query("select s from SalesDataStatisticCache s where s.timeRangeType = ?1 and s.userId = ?2 and s.deleted = false")
+    SalesDataStatisticCache findByTimeRangeTypeAndUserId(String timeRangeType, Long userId);
 
     /**
-     * 删除指定日期的缓存数据（删除当天的所有记录）
+     * 根据精确时间范围查询缓存
+     */
+    @Query("select s from SalesDataStatisticCache s where s.startTime = ?1 and s.endTime = ?2 and s.deleted = false")
+    List<SalesDataStatisticCache> findByTimeRange(LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
+     * 根据精确时间范围和用户ID查询缓存
+     */
+    @Query("select s from SalesDataStatisticCache s where s.startTime = ?1 and s.endTime = ?2 and s.userId = ?3 and s.deleted = false")
+    SalesDataStatisticCache findByTimeRangeAndUserId(LocalDateTime startTime, LocalDateTime endTime, Long userId);
+
+    /**
+     * 删除指定时间范围类型的缓存数据
      */
     @Modifying
     @Transactional
-    @Query("update SalesDataStatisticCache s set s.deleted = true where FUNCTION('DATE', s.statisticDate) = FUNCTION('DATE', ?1)")
-    void deleteByStatisticDate(LocalDateTime statisticDate);
+    @Query("update SalesDataStatisticCache s set s.deleted = true where s.timeRangeType = ?1")
+    void deleteByTimeRangeType(String timeRangeType);
+
+    /**
+     * 删除指定精确时间范围的缓存数据
+     */
+    @Modifying
+    @Transactional
+    @Query("update SalesDataStatisticCache s set s.deleted = true where s.startTime = ?1 and s.endTime = ?2")
+    void deleteByTimeRange(LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
+     * 查询过期的缓存数据（缓存更新时间早于指定时间）
+     */
+    @Query("select s from SalesDataStatisticCache s where s.cacheUpdateTime < ?1 and s.deleted = false")
+    List<SalesDataStatisticCache> findExpiredCache(LocalDateTime expiredTime);
 }
 

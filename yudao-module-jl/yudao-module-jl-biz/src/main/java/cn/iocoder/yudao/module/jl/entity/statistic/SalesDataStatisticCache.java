@@ -66,9 +66,27 @@ public class SalesDataStatisticCache extends BaseEntity {
     private BigDecimal paymentAmount = BigDecimal.ZERO;
 
     /**
-     * 统计时间
+     * 统计开始时间
      */
-    @Column(name = "statistic_date")
-    private LocalDateTime statisticDate;
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    /**
+     * 统计结束时间
+     */
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
+
+    /**
+     * 时间范围类型（TODAY, YESTERDAY, THIS_WEEK, LAST_WEEK, THIS_MONTH, LAST_MONTH, THIS_YEAR, LAST_YEAR, CUSTOM）
+     */
+    @Column(name = "time_range_type", length = 20)
+    private String timeRangeType;
+
+    /**
+     * 缓存更新时间
+     */
+    @Column(name = "cache_update_time")
+    private LocalDateTime cacheUpdateTime;
 }
 

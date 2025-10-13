@@ -3,15 +3,19 @@ package cn.iocoder.yudao.module.jl.service.statistic.sales;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesDataStatisticReqVO;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesDataStatisticResp;
 import cn.iocoder.yudao.module.jl.controller.admin.statistic.vo.sales.SalesDataStatisticResp.SalesDataItem;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLog;
+import cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLogOnly;
 import cn.iocoder.yudao.module.jl.entity.project.ProjectConstractOnly;
 import cn.iocoder.yudao.module.jl.entity.statistic.SalesDataStatisticCache;
 import cn.iocoder.yudao.module.jl.enums.ContractFundStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ContractInvoiceStatusEnums;
 import cn.iocoder.yudao.module.jl.enums.ProjectContractStatusEnums;
+import cn.iocoder.yudao.module.jl.enums.TimeRangeTypeEnum;
 import cn.iocoder.yudao.module.jl.repository.contractfundlog.ContractFundLogOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.contractinvoicelog.ContractInvoiceLogOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.project.ProjectConstractOnlyRepository;
 import cn.iocoder.yudao.module.jl.repository.statistic.SalesDataStatisticCacheRepository;
+import cn.iocoder.yudao.module.jl.utils.TimeRangeUtil;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -56,238 +60,259 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     private AdminUserApi adminUserApi;
 
     /**
-     * 获取销售数据统计（从缓存读取）
+     * 获取销售数据统计（优先使用缓存，未命中时实时计算）
      */
     @Override
     public List<SalesDataItem> getSalesDataStatistic(SalesDataStatisticReqVO reqVO) {
-        // 获取当前时间
-        LocalDateTime now = LocalDateTime.now();
+        log.info("===== 开始查询销售数据统计 =====");
+        log.info("请求参数 - userIds: {}, startTime: {}, endTime: {}", 
+            reqVO.getUserIds() != null ? java.util.Arrays.toString(reqVO.getUserIds()) : "null", 
+            reqVO.getStartTime(), reqVO.getEndTime());
         
-        System.out.println("===== 开始查询销售数据统计 =====");
-        System.out.println("查询时间: " + now);
-        System.out.println("请求参数 - userIds: " + (reqVO.getUserIds() != null ? java.util.Arrays.toString(reqVO.getUserIds()) : "null") 
-            + ", startTime: " + reqVO.getStartTime() + ", endTime: " + reqVO.getEndTime());
+        // 获取时间范围
+        LocalDateTime startTime = reqVO.getStartTime();
+        LocalDateTime endTime = reqVO.getEndTime();
+        
+        // 判断时间范围类型
+        TimeRangeTypeEnum timeRangeType = TimeRangeUtil.matchTimeRangeType(startTime, endTime);
+        log.info("时间范围类型: {}", timeRangeType.getName());
         
         // 过滤掉无效的 userIds（0 或 null）
-        Long[] validUserIds = null;
-        if (reqVO.getUserIds() != null && reqVO.getUserIds().length > 0) {
-            validUserIds = java.util.Arrays.stream(reqVO.getUserIds())
-                .filter(userId -> userId != null && userId > 0) // 过滤掉 null 和 0
-                .toArray(Long[]::new);
-            
-            if (validUserIds.length == 0) {
-                validUserIds = null; // 如果过滤后为空，视为不筛选
-                System.out.println("【提示】过滤掉无效的 userIds，视为查询全部");
-            } else {
-                System.out.println("【提示】有效的 userIds: " + java.util.Arrays.toString(validUserIds));
-            }
+        List<Long> validUserIds = filterValidUserIds(reqVO.getUserIds());
+        
+        // 获取销售人员列表
+        List<AdminUserRespDTO> salesUsers = getSalesUsers(validUserIds);
+        if (salesUsers.isEmpty()) {
+            log.warn("未找到销售人员");
+            return new ArrayList<>();
         }
         
-        // 从缓存读取数据（查询今天的数据）
-        List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository.findByStatisticDate(now);
-        
-        System.out.println("从缓存中查询到 " + (cacheList != null ? cacheList.size() : 0) + " 条数据");
-        
-        if (cacheList != null && !cacheList.isEmpty()) {
-            System.out.println("缓存数据详情:");
-            for (SalesDataStatisticCache cache : cacheList) {
-                System.out.println("  - userId: " + cache.getUserId() 
-                    + ", userName: " + cache.getUserName() 
-                    + ", statisticDate: " + cache.getStatisticDate()
-                    + ", updateTime: " + cache.getUpdateTime()
-                    + ", deleted: " + cache.getDeleted());
-            }
+        // 优先尝试从缓存获取数据
+        List<SalesDataItem> cachedData = tryGetFromCache(salesUsers, timeRangeType, startTime, endTime);
+        if (!cachedData.isEmpty()) {
+            log.info("从缓存获取到 {} 条数据", cachedData.size());
+            return cachedData;
         }
         
-        // 如果缓存为空，自动触发刷新
-        if (cacheList == null || cacheList.isEmpty()) {
-            System.out.println("【提示】缓存数据为空，自动触发数据刷新");
-            
-            // 检查是否正在更新，如果正在更新则不重复刷新
-            if (!isUpdating) {
-                try {
-                    // 自动刷新缓存
-                    updateSalesDataStatisticCache();
-                    
-                    // 刷新后重新查询缓存
-                    cacheList = salesDataStatisticCacheRepository.findByStatisticDate(now);
-                    System.out.println("刷新后从缓存中查询到 " + (cacheList != null ? cacheList.size() : 0) + " 条数据");
-                } catch (Exception e) {
-                    System.out.println("【错误】自动刷新失败: " + e.getMessage());
-                    // 刷新失败也返回空列表
-                    return new ArrayList<>();
-                }
-            } else {
-                System.out.println("【提示】数据正在刷新中，稍后请重新查询");
-                return new ArrayList<>();
-            }
+        // 缓存未命中，实时计算
+        log.info("缓存未命中，开始实时计算");
+        List<SalesDataItem> calculatedData = calculateSalesDataInRealTime(salesUsers, startTime, endTime);
+        
+        // 如果是预设时间范围类型，异步更新缓存
+        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
+            asyncUpdateCache(calculatedData, timeRangeType, startTime, endTime);
         }
         
-        // 转换为响应对象
-        List<SalesDataItem> respList = new ArrayList<>();
+        log.info("返回 {} 条数据", calculatedData.size());
+        log.info("===== 查询销售数据统计结束 =====");
         
-        if (cacheList == null || cacheList.isEmpty()) {
-            System.out.println("【警告】缓存数据仍为空");
-            return respList;
-        }
-        
-        for (SalesDataStatisticCache cache : cacheList) {
-            // 如果指定了有效的userIds，进行过滤
-            if (validUserIds != null && validUserIds.length > 0) {
-                boolean found = false;
-                for (Long userId : validUserIds) {
-                    if (userId.equals(cache.getUserId())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    System.out.println("过滤掉 userId: " + cache.getUserId() + " (" + cache.getUserName() + ")");
-                    continue;
-                }
-            }
-            
-            SalesDataItem item = SalesDataItem.builder()
-                .userId(cache.getUserId())
-                .userName(cache.getUserName())
-                .orderAmount(cache.getOrderAmount())
-                .accountsReceivable(cache.getAccountsReceivable())
-                .invoiceAmount(cache.getInvoiceAmount())
-                .paymentAmount(cache.getPaymentAmount())
-                .updateTime(cache.getUpdateTime())
-                .build();
-            respList.add(item);
-        }
-        
-        System.out.println("过滤后返回 " + respList.size() + " 条数据");
-        System.out.println("===== 查询销售数据统计结束 =====");
-        
-        return respList;
+        return calculatedData;
     }
 
     /**
-     * 更新销售数据统计缓存（定时任务调用）
+     * 更新销售数据统计缓存（定时任务调用）- 更新常用时间范围的缓存
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateSalesDataStatisticCache() {
-        // 检查是否正在更新
         if (isUpdating) {
-            System.out.println("【警告】销售数据统计缓存正在更新中，跳过本次更新");
+            log.warn("销售数据统计缓存正在更新中，跳过本次更新");
             throw new RuntimeException("数据正在更新中，请稍后再试");
         }
         
         try {
-            // 设置更新状态
             isUpdating = true;
-            System.out.println("========== 开始更新销售数据统计缓存 ==========");
+            log.info("========== 开始更新销售数据统计缓存 ==========");
             
-            // 获取所有销售人员（拥有"销售"角色）
+            // 获取所有销售人员
             List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
-            
-            System.out.println("从销售角色获取到 " + (salesUsers != null ? salesUsers.size() : 0) + " 个销售人员");
-            
             if (salesUsers == null || salesUsers.isEmpty()) {
-                System.out.println("【警告】未找到销售人员，跳过更新");
+                log.warn("未找到销售人员，跳过更新");
                 return;
             }
             
-            // 打印销售人员列表
-            System.out.println("销售人员列表:");
-            for (AdminUserRespDTO user : salesUsers) {
-                System.out.println("  - userId: " + user.getId() + ", nickname: " + user.getNickname());
+            log.info("获取到 {} 个销售人员", salesUsers.size());
+            
+            // 更新常用时间范围的缓存
+            TimeRangeTypeEnum[] commonTypes = {
+                TimeRangeTypeEnum.TODAY,
+                TimeRangeTypeEnum.YESTERDAY,
+                TimeRangeTypeEnum.THIS_WEEK,
+                TimeRangeTypeEnum.LAST_WEEK,
+                TimeRangeTypeEnum.THIS_MONTH,
+                TimeRangeTypeEnum.LAST_MONTH
+            };
+            
+            for (TimeRangeTypeEnum type : commonTypes) {
+                updateCacheForTimeRangeType(salesUsers, type);
             }
             
-            // 获取当前时间（精确到秒）
-            LocalDateTime now = LocalDateTime.now();
-            System.out.println("统计时间: " + now);
-            
-            // 删除今天的旧缓存数据
-            System.out.println("删除今天的旧缓存数据...");
-            salesDataStatisticCacheRepository.deleteByStatisticDate(now);
-            
-            // 为每个销售人员计算统计数据
-            List<SalesDataStatisticCache> cacheList = new ArrayList<>();
-            
-            for (AdminUserRespDTO user : salesUsers) {
-                System.out.println("计算用户 " + user.getId() + " (" + user.getNickname() + ") 的统计数据...");
-                SalesDataStatisticCache cache = calculateSalesData(user.getId(), user.getNickname(), now);
-                System.out.println("  成交金额: " + cache.getOrderAmount() 
-                    + ", 应收金额: " + cache.getAccountsReceivable() 
-                    + ", 已开票金额: " + cache.getInvoiceAmount() 
-                    + ", 回款金额: " + cache.getPaymentAmount());
-                cacheList.add(cache);
-            }
-            
-            // 批量保存
-            System.out.println("批量保存 " + cacheList.size() + " 条缓存数据...");
-            List<SalesDataStatisticCache> savedList = salesDataStatisticCacheRepository.saveAll(cacheList);
-            System.out.println("实际保存成功 " + savedList.size() + " 条数据");
-            
-            // 验证保存结果
-            List<SalesDataStatisticCache> verifyList = salesDataStatisticCacheRepository.findByStatisticDate(now);
-            System.out.println("验证查询：数据库中现在有 " + (verifyList != null ? verifyList.size() : 0) + " 条今天的缓存数据");
-            
-            System.out.println("========== 销售数据统计缓存更新完成 ==========");
+            log.info("========== 销售数据统计缓存更新完成 ==========");
         } catch (Exception e) {
-            System.out.println("【错误】更新销售数据统计缓存失败: " + e.getMessage());
-            e.printStackTrace();
+            log.error("更新销售数据统计缓存失败", e);
             throw e;
         } finally {
-            // 无论成功失败，都要重置更新状态
             isUpdating = false;
         }
     }
 
+    // ===== 辅助方法 =====
+    
     /**
-     * 计算单个销售人员的数据
+     * 过滤有效的用户ID
      */
-    private SalesDataStatisticCache calculateSalesData(Long userId, String userName, LocalDateTime statisticDate) {
-        SalesDataStatisticCache cache = new SalesDataStatisticCache();
-        cache.setUserId(userId);
-        cache.setUserName(userName);
-        cache.setStatisticDate(statisticDate);
-        
-        // 计算成交金额和应收金额
-        // 查询该销售人员的所有已签订合同
-        List<ProjectConstractOnly> contractList = projectConstractOnlyRepository
-                .findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), new Long[]{userId});
-        
-        BigDecimal orderAmount = BigDecimal.ZERO;
-        BigDecimal contractPaymentAmount = BigDecimal.ZERO;
-        
-        for (ProjectConstractOnly contract : contractList) {
-            if (contract.getPrice() != null) {
-                orderAmount = orderAmount.add(contract.getPrice());
+    private List<Long> filterValidUserIds(Long[] userIds) {
+        List<Long> validUserIds = new ArrayList<>();
+        if (userIds != null && userIds.length > 0) {
+            for (Long userId : userIds) {
+                if (userId != null && userId > 0) {
+                    validUserIds.add(userId);
+                }
             }
-            if (contract.getReceivedPrice() != null) {
-                contractPaymentAmount = contractPaymentAmount.add(contract.getReceivedPrice());
+        }
+        log.info("有效的 userIds: {}", validUserIds);
+        return validUserIds;
+    }
+    
+    /**
+     * 获取销售人员列表
+     */
+    private List<AdminUserRespDTO> getSalesUsers(List<Long> validUserIds) {
+        List<AdminUserRespDTO> salesUsers;
+        if (validUserIds.isEmpty()) {
+            // 未指定销售人员，查询所有拥有销售角色的人员
+            salesUsers = adminUserApi.getUserListByRoleCode("sales");
+            log.info("查询所有销售人员，共 {} 人", salesUsers != null ? salesUsers.size() : 0);
+        } else {
+            // 指定了销售人员，只查询这些人员
+            salesUsers = adminUserApi.getUserList(validUserIds);
+            log.info("查询指定销售人员，共 {} 人", salesUsers != null ? salesUsers.size() : 0);
+        }
+        return salesUsers != null ? salesUsers : new ArrayList<>();
+    }
+    
+    /**
+     * 尝试从缓存获取数据
+     */
+    private List<SalesDataItem> tryGetFromCache(List<AdminUserRespDTO> salesUsers, 
+                                                TimeRangeTypeEnum timeRangeType, 
+                                                LocalDateTime startTime, 
+                                                LocalDateTime endTime) {
+        List<SalesDataItem> result = new ArrayList<>();
+        
+        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
+            // 预设时间范围，从缓存查询
+            List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
+                    .findByTimeRangeType(timeRangeType.getCode());
+            
+            if (!cacheList.isEmpty()) {
+                Map<Long, SalesDataStatisticCache> cacheMap = cacheList.stream()
+                        .collect(Collectors.toMap(SalesDataStatisticCache::getUserId, cache -> cache));
+                
+                for (AdminUserRespDTO user : salesUsers) {
+                    SalesDataStatisticCache cache = cacheMap.get(user.getId());
+                    if (cache != null) {
+                        SalesDataItem item = convertCacheToItem(cache);
+                        result.add(item);
+                    }
+                }
+            }
+        } else if (startTime != null && endTime != null) {
+            // 自定义时间范围，尝试查找精确匹配的缓存
+            List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
+                    .findByTimeRange(startTime, endTime);
+            
+            if (!cacheList.isEmpty()) {
+                Map<Long, SalesDataStatisticCache> cacheMap = cacheList.stream()
+                        .collect(Collectors.toMap(SalesDataStatisticCache::getUserId, cache -> cache));
+                
+                for (AdminUserRespDTO user : salesUsers) {
+                    SalesDataStatisticCache cache = cacheMap.get(user.getId());
+                    if (cache != null) {
+                        SalesDataItem item = convertCacheToItem(cache);
+                        result.add(item);
+                    }
+                }
             }
         }
         
-        cache.setOrderAmount(orderAmount);
-        // 应收金额 = 成交金额 - 合同已收金额
-        cache.setAccountsReceivable(orderAmount.subtract(contractPaymentAmount));
+        return result;
+    }
+    
+    /**
+     * 实时计算销售数据
+     */
+    private List<SalesDataItem> calculateSalesDataInRealTime(List<AdminUserRespDTO> salesUsers, 
+                                                            LocalDateTime startTime, 
+                                                            LocalDateTime endTime) {
+        List<SalesDataItem> result = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
         
-        // 计算已开票金额
-        contractInvoiceLogOnlyRepository
-                .findByStatusNotAndSalesIdIn(ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(), List.of(userId))
-                .forEach(invoiceLog -> {
-                    if (invoiceLog.getPrice() != null) {
-                        cache.setInvoiceAmount(cache.getInvoiceAmount().add(invoiceLog.getPrice()));
-                    }
-                });
+        for (AdminUserRespDTO user : salesUsers) {
+            log.info("计算用户 {} ({}) 在时间范围 [{} ~ {}] 的统计数据", 
+                user.getId(), user.getNickname(), startTime, endTime);
+            
+            SalesDataItem item = calculateSalesDataWithTimeRange(user.getId(), user.getNickname(), startTime, endTime);
+            item.setUpdateTime(now);
+            result.add(item);
+            
+            log.info("用户 {} - 成交金额: {}, 应收金额: {}, 已开票金额: {}, 回款金额: {}", 
+                user.getNickname(), item.getOrderAmount(), item.getAccountsReceivable(), 
+                item.getInvoiceAmount(), item.getPaymentAmount());
+        }
         
-        // 计算回款金额
-        contractFundLogOnlyRepository
-                .findByStatusAndSalesIdIn(ContractFundStatusEnums.AUDITED.getStatus(), List.of(userId))
-                .forEach(fundLog -> {
-                    if (fundLog.getReceivedPrice() != null) {
-                        cache.setPaymentAmount(cache.getPaymentAmount().add(fundLog.getReceivedPrice()));
-                    }
-                });
+        return result;
+    }
+    
+    /**
+     * 异步更新缓存
+     */
+    private void asyncUpdateCache(List<SalesDataItem> data, TimeRangeTypeEnum timeRangeType, 
+                                 LocalDateTime startTime, LocalDateTime endTime) {
+        // 这里可以使用 @Async 注解进行异步处理，为简化先同步执行
+        try {
+            updateCacheWithData(data, timeRangeType, startTime, endTime);
+        } catch (Exception e) {
+            log.error("更新缓存失败", e);
+        }
+    }
+    
+    /**
+     * 更新缓存数据
+     */
+    private void updateCacheWithData(List<SalesDataItem> data, TimeRangeTypeEnum timeRangeType, 
+                                    LocalDateTime startTime, LocalDateTime endTime) {
+        LocalDateTime now = LocalDateTime.now();
         
-        return cache;
+        // 删除旧缓存
+        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
+            salesDataStatisticCacheRepository.deleteByTimeRangeType(timeRangeType.getCode());
+        } else {
+            salesDataStatisticCacheRepository.deleteByTimeRange(startTime, endTime);
+        }
+        
+        // 保存新缓存
+        List<SalesDataStatisticCache> cacheList = new ArrayList<>();
+        for (SalesDataItem item : data) {
+            SalesDataStatisticCache cache = convertItemToCache(item, timeRangeType, startTime, endTime, now);
+            cacheList.add(cache);
+        }
+        
+        salesDataStatisticCacheRepository.saveAll(cacheList);
+        log.info("更新缓存成功，保存 {} 条记录", cacheList.size());
+    }
+    
+    /**
+     * 为指定时间范围类型更新缓存
+     */
+    private void updateCacheForTimeRangeType(List<AdminUserRespDTO> salesUsers, TimeRangeTypeEnum type) {
+        log.info("更新 {} 缓存", type.getName());
+        
+        TimeRangeUtil.TimeRange timeRange = TimeRangeUtil.calculateTimeRange(type);
+        List<SalesDataItem> data = calculateSalesDataInRealTime(salesUsers, 
+                timeRange.getStartTime(), timeRange.getEndTime());
+        
+        updateCacheWithData(data, type, timeRange.getStartTime(), timeRange.getEndTime());
     }
 
     /**
@@ -296,6 +321,150 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     @Override
     public boolean isRefreshing() {
         return isUpdating;
+    }
+    
+    /**
+     * 计算单个销售人员的数据（带时间范围）
+     */
+    private SalesDataItem calculateSalesDataWithTimeRange(Long userId, String userName, 
+                                                         LocalDateTime startTime, LocalDateTime endTime) {
+        SalesDataItem item = SalesDataItem.builder()
+            .userId(userId)
+            .userName(userName)
+            .orderAmount(BigDecimal.ZERO)
+            .accountsReceivable(BigDecimal.ZERO)
+            .invoiceAmount(BigDecimal.ZERO)
+            .paymentAmount(BigDecimal.ZERO)
+            .build();
+        
+        log.debug("解析后的时间范围: {} ~ {}", startTime, endTime);
+        
+        // 计算成交金额和应收金额
+        List<ProjectConstractOnly> contractList = projectConstractOnlyRepository
+                .findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), new Long[]{userId});
+        
+        BigDecimal orderAmount = BigDecimal.ZERO;
+        BigDecimal contractPaymentAmount = BigDecimal.ZERO;
+        int contractCount = 0;
+        
+        for (ProjectConstractOnly contract : contractList) {
+            // 判断合同签订时间是否在范围内
+            if (contract.getSignedTime() != null) {
+                if (startTime != null && contract.getSignedTime().isBefore(startTime)) {
+                    continue;
+                }
+                if (endTime != null && contract.getSignedTime().isAfter(endTime)) {
+                    continue;
+                }
+            }
+            
+            contractCount++;
+            if (contract.getPrice() != null) {
+                orderAmount = orderAmount.add(contract.getPrice());
+            }
+            if (contract.getReceivedPrice() != null) {
+                contractPaymentAmount = contractPaymentAmount.add(contract.getReceivedPrice());
+            }
+        }
+        
+        log.debug("时间范围内的合同数: {}", contractCount);
+        
+        item.setOrderAmount(orderAmount);
+        // 应收金额 = 成交金额 - 合同已收金额
+        item.setAccountsReceivable(orderAmount.subtract(contractPaymentAmount));
+        
+        // 计算已开票金额（根据开票时间过滤）
+        BigDecimal invoiceAmount = BigDecimal.ZERO;
+        int invoiceCount = 0;
+        
+        List<cn.iocoder.yudao.module.jl.entity.contractinvoicelog.ContractInvoiceLogOnly> invoiceList = 
+            contractInvoiceLogOnlyRepository.findByStatusNotAndSalesIdIn(
+                ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(), List.of(userId));
+        
+        for (ContractInvoiceLogOnly invoiceLog : invoiceList) {
+            // 判断开票时间是否在范围内
+            if (invoiceLog.getDate() != null) {
+                if (startTime != null && invoiceLog.getDate().isBefore(startTime)) {
+                    continue;
+                }
+                if (endTime != null && invoiceLog.getDate().isAfter(endTime)) {
+                    continue;
+                }
+            }
+            
+            invoiceCount++;
+            if (invoiceLog.getPrice() != null) {
+                invoiceAmount = invoiceAmount.add(invoiceLog.getPrice());
+            }
+        }
+        
+        log.debug("时间范围内的开票数: {}", invoiceCount);
+        item.setInvoiceAmount(invoiceAmount);
+        
+        // 计算回款金额（根据回款时间过滤）
+        BigDecimal paymentAmount = BigDecimal.ZERO;
+        int paymentCount = 0;
+        
+        List<cn.iocoder.yudao.module.jl.entity.contractfundlog.ContractFundLogOnly> fundList = 
+            contractFundLogOnlyRepository.findByStatusAndSalesIdIn(
+                ContractFundStatusEnums.AUDITED.getStatus(), List.of(userId));
+        
+        for (var fundLog : fundList) {
+            // 判断回款时间是否在范围内
+            if (fundLog.getPaidTime() != null) {
+                if (startTime != null && fundLog.getPaidTime().isBefore(startTime)) {
+                    continue;
+                }
+                if (endTime != null && fundLog.getPaidTime().isAfter(endTime)) {
+                    continue;
+                }
+            }
+            
+            paymentCount++;
+            if (fundLog.getReceivedPrice() != null) {
+                paymentAmount = paymentAmount.add(fundLog.getReceivedPrice());
+            }
+        }
+        
+        log.debug("时间范围内的回款数: {}", paymentCount);
+        item.setPaymentAmount(paymentAmount);
+        
+        return item;
+    }
+    
+    /**
+     * 将缓存对象转换为数据项
+     */
+    private SalesDataItem convertCacheToItem(SalesDataStatisticCache cache) {
+        return SalesDataItem.builder()
+            .userId(cache.getUserId())
+            .userName(cache.getUserName())
+            .orderAmount(cache.getOrderAmount())
+            .accountsReceivable(cache.getAccountsReceivable())
+            .invoiceAmount(cache.getInvoiceAmount())
+            .paymentAmount(cache.getPaymentAmount())
+            .updateTime(cache.getCacheUpdateTime())
+            .build();
+    }
+    
+    /**
+     * 将数据项转换为缓存对象
+     */
+    private SalesDataStatisticCache convertItemToCache(SalesDataItem item, TimeRangeTypeEnum timeRangeType,
+                                                      LocalDateTime startTime, LocalDateTime endTime,
+                                                      LocalDateTime cacheUpdateTime) {
+        SalesDataStatisticCache cache = new SalesDataStatisticCache();
+        cache.setUserId(item.getUserId());
+        cache.setUserName(item.getUserName());
+        cache.setOrderAmount(item.getOrderAmount());
+        cache.setAccountsReceivable(item.getAccountsReceivable());
+        cache.setInvoiceAmount(item.getInvoiceAmount());
+        cache.setPaymentAmount(item.getPaymentAmount());
+        cache.setStartTime(startTime);
+        cache.setEndTime(endTime);
+        cache.setTimeRangeType(timeRangeType.getCode());
+        cache.setCacheUpdateTime(cacheUpdateTime);
+        return cache;
     }
 }
 
