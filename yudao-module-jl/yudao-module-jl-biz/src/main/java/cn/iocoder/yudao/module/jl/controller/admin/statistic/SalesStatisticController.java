@@ -109,4 +109,13 @@ public class SalesStatisticController {
         salesDataStatisticService.updateSalesDataStatisticCacheAsync(reqVO);
         return success(true);
     }
+
+    @GetMapping("/sales-data-statistic-refresh-status")
+    @Operation(summary = "检查销售数据刷新状态（轻量级接口，仅返回状态）")
+    @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
+    public CommonResult<Boolean> getRefreshStatus(@Valid SalesDataStatisticReqVO reqVO) {
+        // 直接从内存读取刷新状态，不查询数据
+        boolean isRefreshing = salesDataStatisticService.isRefreshing(reqVO);
+        return success(isRefreshing);
+    }
 }
