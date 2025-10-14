@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -41,8 +42,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SalesDataStatisticServiceImpl implements SalesDataStatisticService {
 
-    // 更新状态标识（使用volatile保证可见性）
-    private volatile boolean isUpdating = false;
+    // 刷新状态管理（细粒度锁：按时间范围类型）
+    private final ConcurrentHashMap<String, Boolean> refreshingRanges = new ConcurrentHashMap<>();
+    
+    // 允许缓存的时间范围类型
+    private static final TimeRangeTypeEnum[] CACHEABLE_RANGES = {
+        TimeRangeTypeEnum.TODAY,
+        TimeRangeTypeEnum.YESTERDAY,
+        TimeRangeTypeEnum.THIS_WEEK,
+        TimeRangeTypeEnum.LAST_WEEK,
+        TimeRangeTypeEnum.THIS_MONTH,
+        TimeRangeTypeEnum.LAST_MONTH
+    };
 
     @Resource
     private SalesDataStatisticCacheRepository salesDataStatisticCacheRepository;
@@ -63,17 +74,22 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
      * 获取销售数据统计（优先使用缓存，未命中时实时计算）
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<SalesDataItem> getSalesDataStatistic(SalesDataStatisticReqVO reqVO) {
-        log.info("===== 开始查询销售数据统计 =====");
-        log.info("请求参数 - userIds: {}, startTime: {}, endTime: {}", 
-            reqVO.getUserIds() != null ? java.util.Arrays.toString(reqVO.getUserIds()) : "null", 
-            reqVO.getStartTime(), reqVO.getEndTime());
+        System.out.println("===== 开始查询销售数据统计 =====");
+        System.out.println("请求参数 - userIds: " + 
+            (reqVO.getUserIds() != null ? java.util.Arrays.toString(reqVO.getUserIds()) : "null") + 
+            ", startTime: " + reqVO.getStartTime() + ", endTime: " + reqVO.getEndTime());
         
         // 获取时间范围
         LocalDateTime startTime = reqVO.getStartTime();
         LocalDateTime endTime = reqVO.getEndTime();
         
-        log.info("查询时间范围: {} ~ {}", startTime, endTime);
+        System.out.println("查询时间范围: " + startTime + " ~ " + endTime);
+        
+        // 识别时间范围类型
+        TimeRangeTypeEnum rangeType = TimeRangeUtil.matchTimeRangeType(startTime, endTime);
+        System.out.println("时间范围类型: " + rangeType.name());
         
         // 过滤掉无效的 userIds（0 或 null）
         List<Long> validUserIds = filterValidUserIds(reqVO.getUserIds());
@@ -81,76 +97,160 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         // 获取销售人员列表
         List<AdminUserRespDTO> salesUsers = getSalesUsers(validUserIds);
         if (salesUsers.isEmpty()) {
-            log.warn("未找到销售人员");
+            System.out.println("未找到销售人员");
             return new ArrayList<>();
         }
         
-        // 优先尝试从缓存获取数据
-        List<SalesDataItem> cachedData = tryGetFromCache(salesUsers, startTime, endTime);
-        if (!cachedData.isEmpty()) {
-            log.info("从缓存获取到 {} 条数据", cachedData.size());
-            return cachedData;
+        // 只有预定义范围才尝试从缓存获取（排除CUSTOM类型）
+        if (rangeType != TimeRangeTypeEnum.CUSTOM && isCacheableRange(rangeType)) {
+            List<SalesDataItem> cachedData = tryGetFromCacheByType(salesUsers, rangeType);
+            if (!cachedData.isEmpty()) {
+                System.out.println("从缓存获取到 " + cachedData.size() + " 条数据");
+                return cachedData;
+            }
+            System.out.println("缓存未命中，开始实时计算");
+        } else {
+            System.out.println("自定义时间范围，不使用缓存，直接实时计算");
         }
         
-        // 缓存未命中，实时计算
-        log.info("缓存未命中，开始实时计算");
+        // 实时计算
         List<SalesDataItem> calculatedData = calculateSalesDataInRealTime(salesUsers, startTime, endTime);
         
-        // 异步更新缓存（只缓存有数据的结果）
-        if (!calculatedData.isEmpty()) {
-            asyncUpdateCache(calculatedData, startTime, endTime);
+        // 只缓存预定义范围的数据（同步保存，确保一致性）
+        if (rangeType != TimeRangeTypeEnum.CUSTOM && isCacheableRange(rangeType) && !calculatedData.isEmpty()) {
+            System.out.println("同步保存缓存数据...");
+            updateCacheWithData(calculatedData, startTime, endTime);
         }
         
-        log.info("返回 {} 条数据", calculatedData.size());
-        log.info("===== 查询销售数据统计结束 =====");
+        System.out.println("返回 " + calculatedData.size() + " 条数据");
+        System.out.println("===== 查询销售数据统计结束 =====");
         
         return calculatedData;
     }
+    
+    /**
+     * 判断时间范围类型是否允许缓存
+     */
+    private boolean isCacheableRange(TimeRangeTypeEnum rangeType) {
+        for (TimeRangeTypeEnum type : CACHEABLE_RANGES) {
+            if (type == rangeType) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
-     * 更新销售数据统计缓存（定时任务调用）- 更新常用时间范围的缓存
+     * 更新销售数据统计缓存（定时任务调用）- 更新预定义时间范围的缓存
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void updateSalesDataStatisticCache() {
-        if (isUpdating) {
-            log.warn("销售数据统计缓存正在更新中，跳过本次更新");
-            throw new RuntimeException("数据正在更新中，请稍后再试");
+        System.out.println("========== 开始更新销售数据统计缓存（定时任务） ==========");
+        
+        // 获取所有销售人员
+        List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
+        if (salesUsers == null || salesUsers.isEmpty()) {
+            System.out.println("未找到销售人员，跳过更新");
+            return;
+        }
+        
+        System.out.println("获取到 " + salesUsers.size() + " 个销售人员");
+        
+        // 遍历所有允许缓存的时间范围类型
+        for (TimeRangeTypeEnum type : CACHEABLE_RANGES) {
+            try {
+                updateCacheForTimeRangeType(salesUsers, type);
+            } catch (Exception e) {
+                System.err.println("更新" + getTimeRangeName(type) + "缓存失败: " + e.getMessage());
+                e.printStackTrace();
+                // 继续更新其他范围
+            }
+        }
+        
+        System.out.println("========== 销售数据统计缓存更新完成 ==========");
+    }
+    
+    /**
+     * 更新指定时间范围类型的缓存（使用细粒度锁）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    private void updateCacheForTimeRangeType(List<AdminUserRespDTO> salesUsers, TimeRangeTypeEnum type) {
+        String lockKey = type.name();
+        
+        // 尝试获取锁
+        if (refreshingRanges.putIfAbsent(lockKey, true) != null) {
+            System.out.println(getTimeRangeName(type) + " 正在刷新中，跳过");
+            return;
         }
         
         try {
-            isUpdating = true;
-            log.info("========== 开始更新销售数据统计缓存 ==========");
+            System.out.println("正在计算" + getTimeRangeName(type) + "数据...");
+            updateCacheForTimeRange(salesUsers, type);
+            System.out.println(getTimeRangeName(type) + "数据更新完成");
+        } finally {
+            // 释放锁
+            refreshingRanges.remove(lockKey);
+        }
+    }
+    
+    /**
+     * 异步更新销售数据统计缓存（手动刷新调用）
+     * 使用简单的内存标记 + 新线程方式，无需Spring异步配置
+     */
+    @Override
+    public void updateSalesDataStatisticCacheAsync(SalesDataStatisticReqVO reqVO) {
+        // 识别时间范围类型
+        LocalDateTime startTime = reqVO.getStartTime();
+        LocalDateTime endTime = reqVO.getEndTime();
+        TimeRangeTypeEnum rangeType = TimeRangeUtil.matchTimeRangeType(startTime, endTime);
+        
+        if (rangeType == TimeRangeTypeEnum.CUSTOM || !isCacheableRange(rangeType)) {
+            System.out.println("非预定义时间范围，不支持刷新缓存");
+            return;
+        }
+        
+        // 在新线程中执行刷新任务
+        Thread refreshThread = new Thread(() -> {
+            System.out.println("========== 开始异步更新销售数据统计缓存 ==========");
+            System.out.println("刷新线程: " + Thread.currentThread().getName());
+            System.out.println("刷新时间范围: " + startTime + " ~ " + endTime);
+            System.out.println("时间范围类型: " + rangeType.name());
             
             // 获取所有销售人员
             List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
             if (salesUsers == null || salesUsers.isEmpty()) {
-                log.warn("未找到销售人员，跳过更新");
+                System.out.println("未找到销售人员，跳过更新");
                 return;
             }
             
-            log.info("获取到 {} 个销售人员", salesUsers.size());
-            
-            // 更新常用时间范围的缓存
-            TimeRangeTypeEnum[] commonTypes = {
-                TimeRangeTypeEnum.TODAY,
-                TimeRangeTypeEnum.YESTERDAY,
-                TimeRangeTypeEnum.THIS_WEEK,
-                TimeRangeTypeEnum.LAST_WEEK,
-                TimeRangeTypeEnum.THIS_MONTH,
-                TimeRangeTypeEnum.LAST_MONTH
-            };
-            
-            for (TimeRangeTypeEnum type : commonTypes) {
-                updateCacheForTimeRange(salesUsers, type);
+            try {
+                // 使用细粒度锁更新指定时间范围
+                updateCacheForTimeRangeType(salesUsers, rangeType);
+            } catch (Exception e) {
+                System.err.println("异步更新销售数据统计缓存失败: " + e.getMessage());
+                e.printStackTrace();
             }
             
-            log.info("========== 销售数据统计缓存更新完成 ==========");
-        } catch (Exception e) {
-            log.error("更新销售数据统计缓存失败", e);
-            throw e;
-        } finally {
-            isUpdating = false;
+            System.out.println("========== 异步更新销售数据统计缓存完成 ==========");
+        }, "SalesDataRefresh-" + rangeType.name());
+        
+        // 启动线程
+        refreshThread.start();
+        System.out.println("刷新任务已提交到线程: " + refreshThread.getName());
+    }
+    
+    /**
+     * 获取时间范围的中文名称
+     */
+    private String getTimeRangeName(TimeRangeTypeEnum type) {
+        switch (type) {
+            case TODAY: return "今日";
+            case YESTERDAY: return "昨日";
+            case THIS_WEEK: return "本周";
+            case LAST_WEEK: return "上周";
+            case THIS_MONTH: return "本月";
+            case LAST_MONTH: return "上月";
+            default: return type.name();
         }
     }
 
@@ -168,7 +268,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
                 }
             }
         }
-        log.info("有效的 userIds: {}", validUserIds);
+        System.out.println("有效的 userIds: " + validUserIds);
         return validUserIds;
     }
     
@@ -180,40 +280,46 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         if (validUserIds.isEmpty()) {
             // 未指定销售人员，查询所有拥有销售角色的人员
             salesUsers = adminUserApi.getUserListByRoleCode("sales");
-            log.info("查询所有销售人员，共 {} 人", salesUsers != null ? salesUsers.size() : 0);
+            System.out.println("查询所有销售人员，共 " + (salesUsers != null ? salesUsers.size() : 0) + " 人");
         } else {
             // 指定了销售人员，只查询这些人员
             salesUsers = adminUserApi.getUserList(validUserIds);
-            log.info("查询指定销售人员，共 {} 人", salesUsers != null ? salesUsers.size() : 0);
+            System.out.println("查询指定销售人员，共 " + (salesUsers != null ? salesUsers.size() : 0) + " 人");
         }
         return salesUsers != null ? salesUsers : new ArrayList<>();
     }
     
     /**
-     * 尝试从缓存获取数据
+     * 按时间范围类型从缓存获取数据
      */
-    private List<SalesDataItem> tryGetFromCache(List<AdminUserRespDTO> salesUsers, 
-                                                LocalDateTime startTime, 
-                                                LocalDateTime endTime) {
+    private List<SalesDataItem> tryGetFromCacheByType(List<AdminUserRespDTO> salesUsers, TimeRangeTypeEnum rangeType) {
         List<SalesDataItem> result = new ArrayList<>();
         
-        if (startTime != null && endTime != null) {
-            // 根据精确时间范围查找缓存
-            List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
-                    .findByTimeRange(startTime, endTime);
+        // 获取当前时间范围类型对应的实际时间范围
+        TimeRangeUtil.TimeRange timeRange = TimeRangeUtil.calculateTimeRange(rangeType);
+        LocalDateTime startTime = timeRange.getStartTime();
+        LocalDateTime endTime = timeRange.getEndTime();
+        
+        System.out.println("从缓存查询 " + rangeType.name() + " 的数据，时间范围: " + startTime + " ~ " + endTime);
+        
+        // 根据时间范围查找缓存（由于是预定义范围，时间范围应该是固定的）
+        List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
+                .findByTimeRange(startTime, endTime);
+        
+        if (!cacheList.isEmpty()) {
+            Map<Long, SalesDataStatisticCache> cacheMap = cacheList.stream()
+                    .collect(Collectors.toMap(SalesDataStatisticCache::getUserId, cache -> cache));
             
-            if (!cacheList.isEmpty()) {
-                Map<Long, SalesDataStatisticCache> cacheMap = cacheList.stream()
-                        .collect(Collectors.toMap(SalesDataStatisticCache::getUserId, cache -> cache));
-                
-                for (AdminUserRespDTO user : salesUsers) {
-                    SalesDataStatisticCache cache = cacheMap.get(user.getId());
-                    if (cache != null) {
-                        SalesDataItem item = convertCacheToItem(cache);
-                        result.add(item);
-                    }
+            for (AdminUserRespDTO user : salesUsers) {
+                SalesDataStatisticCache cache = cacheMap.get(user.getId());
+                if (cache != null) {
+                    SalesDataItem item = convertCacheToItem(cache);
+                    result.add(item);
                 }
             }
+            System.out.println("缓存命中，获取到 " + result.size() + " 条数据");
+        } else {
+            System.out.println("缓存未命中");
         }
         
         return result;
@@ -229,31 +335,19 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         LocalDateTime now = LocalDateTime.now();
         
         for (AdminUserRespDTO user : salesUsers) {
-            log.info("计算用户 {} ({}) 在时间范围 [{} ~ {}] 的统计数据", 
-                user.getId(), user.getNickname(), startTime, endTime);
+            System.out.println("计算用户 " + user.getId() + " (" + user.getNickname() + 
+                ") 在时间范围 [" + startTime + " ~ " + endTime + "] 的统计数据");
             
             SalesDataItem item = calculateSalesDataWithTimeRange(user.getId(), user.getNickname(), startTime, endTime);
             item.setUpdateTime(now);
             result.add(item);
             
-            log.info("用户 {} - 成交金额: {}, 应收金额: {}, 已开票金额: {}, 回款金额: {}", 
-                user.getNickname(), item.getOrderAmount(), item.getAccountsReceivable(), 
-                item.getInvoiceAmount(), item.getPaymentAmount());
+            System.out.println("用户 " + user.getNickname() + " - 成交金额: " + item.getOrderAmount() + 
+                ", 应收金额: " + item.getAccountsReceivable() + ", 已开票金额: " + item.getInvoiceAmount() + 
+                ", 回款金额: " + item.getPaymentAmount());
         }
         
         return result;
-    }
-    
-    /**
-     * 异步更新缓存
-     */
-    private void asyncUpdateCache(List<SalesDataItem> data, LocalDateTime startTime, LocalDateTime endTime) {
-        // 这里可以使用 @Async 注解进行异步处理，为简化先同步执行
-        try {
-            updateCacheWithData(data, startTime, endTime);
-        } catch (Exception e) {
-            log.error("更新缓存失败", e);
-        }
     }
     
     /**
@@ -292,11 +386,21 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     }
 
     /**
-     * 检查是否正在刷新
+     * 检查指定时间范围是否正在刷新
      */
     @Override
-    public boolean isRefreshing() {
-        return isUpdating;
+    public boolean isRefreshing(SalesDataStatisticReqVO reqVO) {
+        // 识别时间范围类型
+        TimeRangeTypeEnum rangeType = TimeRangeUtil.matchTimeRangeType(reqVO.getStartTime(), reqVO.getEndTime());
+        
+        if (rangeType == TimeRangeTypeEnum.CUSTOM || !isCacheableRange(rangeType)) {
+            // 非预定义范围，不涉及刷新
+            return false;
+        }
+        
+        // 检查该时间范围类型是否正在刷新
+        String lockKey = rangeType.name();
+        return refreshingRanges.containsKey(lockKey);
     }
     
     /**

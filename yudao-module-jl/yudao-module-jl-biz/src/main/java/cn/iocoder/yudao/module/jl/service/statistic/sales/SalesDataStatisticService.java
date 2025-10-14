@@ -20,10 +20,15 @@ public interface SalesDataStatisticService {
      * 更新销售数据统计缓存（定时任务调用）
      */
     void updateSalesDataStatisticCache();
+    
+    /**
+     * 异步更新销售数据统计缓存（手动刷新调用）
+     */
+    void updateSalesDataStatisticCacheAsync(SalesDataStatisticReqVO reqVO);
 
     /**
-     * 检查是否正在刷新
+     * 检查指定时间范围是否正在刷新
      */
-    boolean isRefreshing();
+    boolean isRefreshing(SalesDataStatisticReqVO reqVO);
 }
 

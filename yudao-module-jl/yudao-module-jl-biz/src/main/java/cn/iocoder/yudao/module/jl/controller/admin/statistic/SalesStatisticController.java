@@ -84,8 +84,8 @@ public class SalesStatisticController {
         // 获取数据（已经是SalesDataItem列表）
         List<SalesDataStatisticResp.SalesDataItem> items = salesDataStatisticService.getSalesDataStatistic(reqVO);
         
-        // 检查刷新状态
-        boolean isRefreshing = salesDataStatisticService.isRefreshing();
+        // 检查该时间范围是否正在刷新
+        boolean isRefreshing = salesDataStatisticService.isRefreshing(reqVO);
         
         // 构建响应（包含数据和刷新状态）
         SalesDataStatisticResp resp = SalesDataStatisticResp.builder()
@@ -99,8 +99,14 @@ public class SalesStatisticController {
     @GetMapping("/sales-data-statistic-refresh")
     @Operation(summary = "手动刷新销售数据统计缓存")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
-    public CommonResult<Boolean> refreshSalesDataStatistic() {
-        salesDataStatisticService.updateSalesDataStatisticCache();
+    public CommonResult<Boolean> refreshSalesDataStatistic(@Valid SalesDataStatisticReqVO reqVO) {
+        // 检查该时间范围是否已经有任务在执行
+        if (salesDataStatisticService.isRefreshing(reqVO)) {
+            throw new RuntimeException("该时间范围数据正在更新中，请稍后再试");
+        }
+        
+        // 异步执行刷新任务（传入时间范围）
+        salesDataStatisticService.updateSalesDataStatisticCacheAsync(reqVO);
         return success(true);
     }
 }
