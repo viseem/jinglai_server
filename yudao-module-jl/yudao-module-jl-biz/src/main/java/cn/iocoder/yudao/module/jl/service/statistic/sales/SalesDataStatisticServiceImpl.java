@@ -18,6 +18,7 @@ import cn.iocoder.yudao.module.jl.repository.statistic.SalesDataStatisticCacheRe
 import cn.iocoder.yudao.module.jl.utils.TimeRangeUtil;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -78,7 +76,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     public List<SalesDataItem> getSalesDataStatistic(SalesDataStatisticReqVO reqVO) {
         System.out.println("===== 开始查询销售数据统计 =====");
         System.out.println("请求参数 - userIds: " + 
-            (reqVO.getUserIds() != null ? java.util.Arrays.toString(reqVO.getUserIds()) : "null") + 
+            (reqVO.getUserIds() != null ? Arrays.toString(reqVO.getUserIds()) : "null") +
             ", startTime: " + reqVO.getStartTime() + ", endTime: " + reqVO.getEndTime());
         
         // 获取时间范围
@@ -417,6 +415,12 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     
     /**
      * 计算单个销售人员的数据（带时间范围）
+     * 
+     * 业务逻辑说明：
+     * 1. 成交金额：时间范围内签订的合同总金额
+     * 2. 应收金额：时间范围内签订的合同，到目前为止还欠多少钱（合同总金额 - 合同累计已收金额，不限时间）
+     * 3. 已开票金额：时间范围内开票的总金额
+     * 4. 回款金额：时间范围内回款的总金额
      */
     private SalesDataItem calculateSalesDataWithTimeRange(Long userId, String userName, 
                                                          LocalDateTime startTime, LocalDateTime endTime) {
@@ -431,41 +435,53 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         
         log.debug("解析后的时间范围: {} ~ {}", startTime, endTime);
         
-        // 计算成交金额和应收金额
+        // ========== 1. 计算成交金额和应收金额 ==========
+        // 查询该销售的所有已签订合同
         List<ProjectConstractOnly> contractList = projectConstractOnlyRepository
                 .findByStatusAndSalesIdIn(ProjectContractStatusEnums.SIGNED.getStatus(), new Long[]{userId});
-        
-        BigDecimal orderAmount = BigDecimal.ZERO;
-        BigDecimal contractPaymentAmount = BigDecimal.ZERO;
+
+        BigDecimal orderAmount = BigDecimal.ZERO; // 时间范围内签订的合同总金额
+        BigDecimal contractTotalReceivedAmount = BigDecimal.ZERO; // 这些合同的累计已收金额（不限时间）
         int contractCount = 0;
         
         for (ProjectConstractOnly contract : contractList) {
-            // 判断合同签订时间是否在范围内
-            if (contract.getSignedTime() != null) {
-                if (startTime != null && contract.getSignedTime().isBefore(startTime)) {
-                    continue;
-                }
-                if (endTime != null && contract.getSignedTime().isAfter(endTime)) {
-                    continue;
-                }
+            // 必须有签订时间才能参与统计
+            if (contract.getSignedTime() == null) {
+                log.warn("合同ID {} 没有签订时间，跳过统计", contract.getId());
+                continue;
             }
             
+            // 判断合同签订时间是否在指定范围内
+            if (startTime != null && contract.getSignedTime().isBefore(startTime)) {
+                continue; // 签订时间早于开始时间
+            }
+            if (endTime != null && contract.getSignedTime().isAfter(endTime)) {
+                continue; // 签订时间晚于结束时间
+            }
+            
+            // 该合同在时间范围内签订，计入统计
             contractCount++;
             if (contract.getPrice() != null) {
                 orderAmount = orderAmount.add(contract.getPrice());
             }
+            // 累加该合同到目前为止的累计已收金额（不限时间范围）
             if (contract.getReceivedPrice() != null) {
-                contractPaymentAmount = contractPaymentAmount.add(contract.getReceivedPrice());
+                contractTotalReceivedAmount = contractTotalReceivedAmount.add(contract.getReceivedPrice());
             }
+            log.debug("合同: {} (ID: {}) - 金额: {}, 已收: {}", 
+                contract.getName(), contract.getId(), contract.getPrice(), contract.getReceivedPrice());
         }
         
-        log.debug("时间范围内的合同数: {}", contractCount);
+        log.debug("时间范围内签订的合同数: {}, 成交金额: {}, 累计已收: {}", 
+            contractCount, orderAmount, contractTotalReceivedAmount);
         
         item.setOrderAmount(orderAmount);
-        // 应收金额 = 成交金额 - 合同已收金额
-        item.setAccountsReceivable(orderAmount.subtract(contractPaymentAmount));
+        // 应收金额 = 这些合同的总金额 - 这些合同的累计已收金额
+        // 含义：这些合同到目前为止还欠多少钱
+        item.setAccountsReceivable(orderAmount.subtract(contractTotalReceivedAmount));
         
-        // 计算已开票金额（根据开票时间过滤）
+        // ========== 2. 计算已开票金额 ==========
+        // 统计时间范围内开票的总金额（与合同签订时间无关）
         BigDecimal invoiceAmount = BigDecimal.ZERO;
         int invoiceCount = 0;
         
@@ -474,26 +490,32 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
                 ContractInvoiceStatusEnums.NOT_INVOICE.getStatus(), List.of(userId));
         
         for (ContractInvoiceLogOnly invoiceLog : invoiceList) {
-            // 判断开票时间是否在范围内
-            if (invoiceLog.getDate() != null) {
-                if (startTime != null && invoiceLog.getDate().isBefore(startTime)) {
-                    continue;
-                }
-                if (endTime != null && invoiceLog.getDate().isAfter(endTime)) {
-                    continue;
-                }
+            // 必须有开票时间才能参与统计
+            if (invoiceLog.getDate() == null) {
+                log.warn("开票记录ID {} 没有开票时间，跳过统计", invoiceLog.getId());
+                continue;
             }
             
+            // 判断开票时间是否在指定范围内
+            if (startTime != null && invoiceLog.getDate().isBefore(startTime)) {
+                continue; // 开票时间早于开始时间
+            }
+            if (endTime != null && invoiceLog.getDate().isAfter(endTime)) {
+                continue; // 开票时间晚于结束时间
+            }
+            
+            // 该开票记录在时间范围内，计入统计
             invoiceCount++;
             if (invoiceLog.getPrice() != null) {
                 invoiceAmount = invoiceAmount.add(invoiceLog.getPrice());
             }
         }
         
-        log.debug("时间范围内的开票数: {}", invoiceCount);
+        log.debug("时间范围内的开票数: {}, 开票金额: {}", invoiceCount, invoiceAmount);
         item.setInvoiceAmount(invoiceAmount);
         
-        // 计算回款金额（根据回款时间过滤）
+        // ========== 3. 计算回款金额 ==========
+        // 统计时间范围内回款的总金额（与合同签订时间无关）
         BigDecimal paymentAmount = BigDecimal.ZERO;
         int paymentCount = 0;
         
@@ -502,23 +524,28 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
                 ContractFundStatusEnums.AUDITED.getStatus(), List.of(userId));
         
         for (var fundLog : fundList) {
-            // 判断回款时间是否在范围内
-            if (fundLog.getPaidTime() != null) {
-                if (startTime != null && fundLog.getPaidTime().isBefore(startTime)) {
-                    continue;
-                }
-                if (endTime != null && fundLog.getPaidTime().isAfter(endTime)) {
-                    continue;
-                }
+            // 必须有回款时间才能参与统计
+            if (fundLog.getPaidTime() == null) {
+                log.warn("回款记录ID {} 没有回款时间，跳过统计", fundLog.getId());
+                continue;
             }
             
+            // 判断回款时间是否在指定范围内
+            if (startTime != null && fundLog.getPaidTime().isBefore(startTime)) {
+                continue; // 回款时间早于开始时间
+            }
+            if (endTime != null && fundLog.getPaidTime().isAfter(endTime)) {
+                continue; // 回款时间晚于结束时间
+            }
+            
+            // 该回款记录在时间范围内，计入统计
             paymentCount++;
             if (fundLog.getReceivedPrice() != null) {
                 paymentAmount = paymentAmount.add(fundLog.getReceivedPrice());
             }
         }
         
-        log.debug("时间范围内的回款数: {}", paymentCount);
+        log.debug("时间范围内的回款数: {}, 回款金额: {}", paymentCount, paymentAmount);
         item.setPaymentAmount(paymentAmount);
         
         return item;
