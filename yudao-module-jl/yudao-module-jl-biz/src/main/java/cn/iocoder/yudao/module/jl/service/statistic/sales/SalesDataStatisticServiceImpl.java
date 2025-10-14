@@ -73,9 +73,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         LocalDateTime startTime = reqVO.getStartTime();
         LocalDateTime endTime = reqVO.getEndTime();
         
-        // 判断时间范围类型
-        TimeRangeTypeEnum timeRangeType = TimeRangeUtil.matchTimeRangeType(startTime, endTime);
-        log.info("时间范围类型: {}", timeRangeType.getName());
+        log.info("查询时间范围: {} ~ {}", startTime, endTime);
         
         // 过滤掉无效的 userIds（0 或 null）
         List<Long> validUserIds = filterValidUserIds(reqVO.getUserIds());
@@ -88,7 +86,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         }
         
         // 优先尝试从缓存获取数据
-        List<SalesDataItem> cachedData = tryGetFromCache(salesUsers, timeRangeType, startTime, endTime);
+        List<SalesDataItem> cachedData = tryGetFromCache(salesUsers, startTime, endTime);
         if (!cachedData.isEmpty()) {
             log.info("从缓存获取到 {} 条数据", cachedData.size());
             return cachedData;
@@ -98,9 +96,9 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         log.info("缓存未命中，开始实时计算");
         List<SalesDataItem> calculatedData = calculateSalesDataInRealTime(salesUsers, startTime, endTime);
         
-        // 如果是预设时间范围类型，异步更新缓存
-        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
-            asyncUpdateCache(calculatedData, timeRangeType, startTime, endTime);
+        // 异步更新缓存（只缓存有数据的结果）
+        if (!calculatedData.isEmpty()) {
+            asyncUpdateCache(calculatedData, startTime, endTime);
         }
         
         log.info("返回 {} 条数据", calculatedData.size());
@@ -144,7 +142,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
             };
             
             for (TimeRangeTypeEnum type : commonTypes) {
-                updateCacheForTimeRangeType(salesUsers, type);
+                updateCacheForTimeRange(salesUsers, type);
             }
             
             log.info("========== 销售数据统计缓存更新完成 ==========");
@@ -195,30 +193,12 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
      * 尝试从缓存获取数据
      */
     private List<SalesDataItem> tryGetFromCache(List<AdminUserRespDTO> salesUsers, 
-                                                TimeRangeTypeEnum timeRangeType, 
                                                 LocalDateTime startTime, 
                                                 LocalDateTime endTime) {
         List<SalesDataItem> result = new ArrayList<>();
         
-        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
-            // 预设时间范围，从缓存查询
-            List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
-                    .findByTimeRangeType(timeRangeType.getCode());
-            
-            if (!cacheList.isEmpty()) {
-                Map<Long, SalesDataStatisticCache> cacheMap = cacheList.stream()
-                        .collect(Collectors.toMap(SalesDataStatisticCache::getUserId, cache -> cache));
-                
-                for (AdminUserRespDTO user : salesUsers) {
-                    SalesDataStatisticCache cache = cacheMap.get(user.getId());
-                    if (cache != null) {
-                        SalesDataItem item = convertCacheToItem(cache);
-                        result.add(item);
-                    }
-                }
-            }
-        } else if (startTime != null && endTime != null) {
-            // 自定义时间范围，尝试查找精确匹配的缓存
+        if (startTime != null && endTime != null) {
+            // 根据精确时间范围查找缓存
             List<SalesDataStatisticCache> cacheList = salesDataStatisticCacheRepository
                     .findByTimeRange(startTime, endTime);
             
@@ -267,11 +247,10 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     /**
      * 异步更新缓存
      */
-    private void asyncUpdateCache(List<SalesDataItem> data, TimeRangeTypeEnum timeRangeType, 
-                                 LocalDateTime startTime, LocalDateTime endTime) {
+    private void asyncUpdateCache(List<SalesDataItem> data, LocalDateTime startTime, LocalDateTime endTime) {
         // 这里可以使用 @Async 注解进行异步处理，为简化先同步执行
         try {
-            updateCacheWithData(data, timeRangeType, startTime, endTime);
+            updateCacheWithData(data, startTime, endTime);
         } catch (Exception e) {
             log.error("更新缓存失败", e);
         }
@@ -280,21 +259,16 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     /**
      * 更新缓存数据
      */
-    private void updateCacheWithData(List<SalesDataItem> data, TimeRangeTypeEnum timeRangeType, 
-                                    LocalDateTime startTime, LocalDateTime endTime) {
+    private void updateCacheWithData(List<SalesDataItem> data, LocalDateTime startTime, LocalDateTime endTime) {
         LocalDateTime now = LocalDateTime.now();
         
         // 删除旧缓存
-        if (timeRangeType != TimeRangeTypeEnum.CUSTOM) {
-            salesDataStatisticCacheRepository.deleteByTimeRangeType(timeRangeType.getCode());
-        } else {
-            salesDataStatisticCacheRepository.deleteByTimeRange(startTime, endTime);
-        }
+        salesDataStatisticCacheRepository.deleteByTimeRange(startTime, endTime);
         
         // 保存新缓存
         List<SalesDataStatisticCache> cacheList = new ArrayList<>();
         for (SalesDataItem item : data) {
-            SalesDataStatisticCache cache = convertItemToCache(item, timeRangeType, startTime, endTime, now);
+            SalesDataStatisticCache cache = convertItemToCache(item, startTime, endTime, now);
             cacheList.add(cache);
         }
         
@@ -305,14 +279,16 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     /**
      * 为指定时间范围类型更新缓存
      */
-    private void updateCacheForTimeRangeType(List<AdminUserRespDTO> salesUsers, TimeRangeTypeEnum type) {
+    private void updateCacheForTimeRange(List<AdminUserRespDTO> salesUsers, TimeRangeTypeEnum type) {
         log.info("更新 {} 缓存", type.getName());
         
         TimeRangeUtil.TimeRange timeRange = TimeRangeUtil.calculateTimeRange(type);
         List<SalesDataItem> data = calculateSalesDataInRealTime(salesUsers, 
                 timeRange.getStartTime(), timeRange.getEndTime());
         
-        updateCacheWithData(data, type, timeRange.getStartTime(), timeRange.getEndTime());
+        if (!data.isEmpty()) {
+            updateCacheWithData(data, timeRange.getStartTime(), timeRange.getEndTime());
+        }
     }
 
     /**
@@ -450,9 +426,8 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     /**
      * 将数据项转换为缓存对象
      */
-    private SalesDataStatisticCache convertItemToCache(SalesDataItem item, TimeRangeTypeEnum timeRangeType,
-                                                      LocalDateTime startTime, LocalDateTime endTime,
-                                                      LocalDateTime cacheUpdateTime) {
+    private SalesDataStatisticCache convertItemToCache(SalesDataItem item, LocalDateTime startTime, 
+                                                      LocalDateTime endTime, LocalDateTime cacheUpdateTime) {
         SalesDataStatisticCache cache = new SalesDataStatisticCache();
         cache.setUserId(item.getUserId());
         cache.setUserName(item.getUserName());
@@ -462,7 +437,6 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         cache.setPaymentAmount(item.getPaymentAmount());
         cache.setStartTime(startTime);
         cache.setEndTime(endTime);
-        cache.setTimeRangeType(timeRangeType.getCode());
         cache.setCacheUpdateTime(cacheUpdateTime);
         return cache;
     }

@@ -8,8 +8,7 @@ SELECT * FROM `jl_sales_data_statistic_cache`;
 ALTER TABLE `jl_sales_data_statistic_cache` 
 ADD COLUMN `start_time` DATETIME DEFAULT NULL COMMENT '统计开始时间' AFTER `payment_amount`,
 ADD COLUMN `end_time` DATETIME DEFAULT NULL COMMENT '统计结束时间' AFTER `start_time`,
-ADD COLUMN `time_range_type` VARCHAR(20) DEFAULT NULL COMMENT '时间范围类型' AFTER `end_time`,
-ADD COLUMN `cache_update_time` DATETIME DEFAULT NULL COMMENT '缓存更新时间' AFTER `time_range_type`;
+ADD COLUMN `cache_update_time` DATETIME DEFAULT NULL COMMENT '缓存更新时间' AFTER `end_time`;
 
 -- 3. 删除旧字段
 ALTER TABLE `jl_sales_data_statistic_cache` DROP COLUMN `statistic_date`;
@@ -17,8 +16,7 @@ ALTER TABLE `jl_sales_data_statistic_cache` DROP COLUMN `statistic_date`;
 -- 4. 添加新索引
 ALTER TABLE `jl_sales_data_statistic_cache` 
 ADD KEY `idx_time_range` (`start_time`, `end_time`),
-ADD KEY `idx_time_range_type` (`time_range_type`),
-ADD UNIQUE KEY `uk_user_time_range` (`user_id`, `time_range_type`, `start_time`, `end_time`, `deleted`);
+ADD UNIQUE KEY `uk_user_time_range` (`user_id`, `start_time`, `end_time`, `deleted`);
 
 -- 5. 删除旧索引
 ALTER TABLE `jl_sales_data_statistic_cache` DROP KEY IF EXISTS `idx_statistic_date`;

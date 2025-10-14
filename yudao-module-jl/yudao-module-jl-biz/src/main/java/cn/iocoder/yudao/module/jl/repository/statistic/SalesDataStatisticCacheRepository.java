@@ -15,17 +15,6 @@ import java.util.List;
  */
 public interface SalesDataStatisticCacheRepository extends JpaRepository<SalesDataStatisticCache, Long>, JpaSpecificationExecutor<SalesDataStatisticCache> {
 
-    /**
-     * 根据时间范围类型查询缓存
-     */
-    @Query("select s from SalesDataStatisticCache s where s.timeRangeType = ?1 and s.deleted = false")
-    List<SalesDataStatisticCache> findByTimeRangeType(String timeRangeType);
-
-    /**
-     * 根据时间范围类型和用户ID查询缓存
-     */
-    @Query("select s from SalesDataStatisticCache s where s.timeRangeType = ?1 and s.userId = ?2 and s.deleted = false")
-    SalesDataStatisticCache findByTimeRangeTypeAndUserId(String timeRangeType, Long userId);
 
     /**
      * 根据精确时间范围查询缓存
@@ -39,13 +28,6 @@ public interface SalesDataStatisticCacheRepository extends JpaRepository<SalesDa
     @Query("select s from SalesDataStatisticCache s where s.startTime = ?1 and s.endTime = ?2 and s.userId = ?3 and s.deleted = false")
     SalesDataStatisticCache findByTimeRangeAndUserId(LocalDateTime startTime, LocalDateTime endTime, Long userId);
 
-    /**
-     * 删除指定时间范围类型的缓存数据
-     */
-    @Modifying
-    @Transactional
-    @Query("update SalesDataStatisticCache s set s.deleted = true where s.timeRangeType = ?1")
-    void deleteByTimeRangeType(String timeRangeType);
 
     /**
      * 删除指定精确时间范围的缓存数据
