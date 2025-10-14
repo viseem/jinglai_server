@@ -147,9 +147,9 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     public void updateSalesDataStatisticCache() {
         System.out.println("========== 开始更新销售数据统计缓存（定时任务） ==========");
         
-        // 获取所有销售人员
-        List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
-        if (salesUsers == null || salesUsers.isEmpty()) {
+        // 获取所有销售人员（sales + sale_manager）
+        List<AdminUserRespDTO> salesUsers = getSalesUsers(new ArrayList<>());
+        if (salesUsers.isEmpty()) {
             System.out.println("未找到销售人员，跳过更新");
             return;
         }
@@ -216,9 +216,9 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
             System.out.println("刷新时间范围: " + startTime + " ~ " + endTime);
             System.out.println("时间范围类型: " + rangeType.name());
             
-            // 获取所有销售人员
-            List<AdminUserRespDTO> salesUsers = adminUserApi.getUserListByRoleCode("sales");
-            if (salesUsers == null || salesUsers.isEmpty()) {
+            // 获取所有销售人员（sales + sale_manager）
+            List<AdminUserRespDTO> salesUsers = getSalesUsers(new ArrayList<>());
+            if (salesUsers.isEmpty()) {
                 System.out.println("未找到销售人员，跳过更新");
                 return;
             }
@@ -273,14 +273,26 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     }
     
     /**
-     * 获取销售人员列表
+     * 获取销售人员列表（包含 sales 和 sale_manager 角色）
      */
     private List<AdminUserRespDTO> getSalesUsers(List<Long> validUserIds) {
         List<AdminUserRespDTO> salesUsers;
         if (validUserIds.isEmpty()) {
-            // 未指定销售人员，查询所有拥有销售角色的人员
-            salesUsers = adminUserApi.getUserListByRoleCode("sales");
-            System.out.println("查询所有销售人员，共 " + (salesUsers != null ? salesUsers.size() : 0) + " 人");
+            // 未指定销售人员，查询所有拥有销售角色的人员（sales + sale_manager）
+            List<AdminUserRespDTO> salesList = adminUserApi.getUserListByRoleCode("sales");
+            List<AdminUserRespDTO> managerList = adminUserApi.getUserListByRoleCode("sale_manager");
+            
+            // 合并两个列表并去重（按userId）
+            Map<Long, AdminUserRespDTO> userMap = new HashMap<>();
+            if (salesList != null) {
+                salesList.forEach(user -> userMap.put(user.getId(), user));
+            }
+            if (managerList != null) {
+                managerList.forEach(user -> userMap.put(user.getId(), user));
+            }
+            
+            salesUsers = new ArrayList<>(userMap.values());
+            System.out.println("查询所有销售人员（sales + sale_manager），共 " + salesUsers.size() + " 人");
         } else {
             // 指定了销售人员，只查询这些人员
             salesUsers = adminUserApi.getUserList(validUserIds);
