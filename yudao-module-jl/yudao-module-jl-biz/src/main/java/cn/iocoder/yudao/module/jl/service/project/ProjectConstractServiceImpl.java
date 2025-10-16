@@ -386,14 +386,7 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                     predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                 } else {
 
-                    if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus()) && pageReqVO.getPiGroupId() == null) {
-                        Long[] users = pageReqVO.getSalesId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
-//                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
-                        predicates.add(cb.or(
-                                root.get("salesId").in(Arrays.asList(users)),
-                                root.get("projectManagerId").in(Arrays.asList(users))
-                        ));
-                    }
+
                 }
             }
 
@@ -401,23 +394,26 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
             if (pageReqVO.getCreatorIds() != null) {
                 // 都是用salesId查询，但是前端这里之前传的是getCreatorIds，先不改，创建者其实没有意义
                 predicates.add(root.get("salesId").in(Arrays.stream(pageReqVO.getCreatorIds()).toArray()));
-//                predicates.add(cb.or(
-//                        root.get("salesId").in(Arrays.asList(pageReqVO.getCreatorIds())),
-//                        root.get("projectManagerId").in(Arrays.asList(pageReqVO.getCreatorIds()))
-//                ));
             }
 
-            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
-//                predicates.add(root.get("salesId").in(Collections.singletonList(getLoginUserId())));
+/*            if (Objects.equals(pageReqVO.getAttribute(), DataAttributeTypeEnums.MY.getStatus())) {
                 predicates.add(cb.or(
                         root.get("salesId").in(Collections.singletonList(getLoginUserId())),
                         root.get("projectManagerId").in(Collections.singletonList(getLoginUserId()))
+                ));
+            }*/
+
+            if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus()) && pageReqVO.getPiGroupId() == null) {
+                Long[] users = pageReqVO.getSalesId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
+//                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
+                predicates.add(cb.or(
+                        root.get("salesId").in(Arrays.asList(users)),
+                        root.get("projectManagerId").in(Arrays.asList(users))
                 ));
             }
 
             if (pageReqVO.getPiGroupId() != null) {
                 Long[] membersUserIdsByGroupId = subjectGroupMemberService.findMembersUserIdsByGroupId(pageReqVO.getPiGroupId());
-//                predicates.add(root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()));
                 predicates.add(cb.or(
                         root.get("salesId").in(Arrays.stream(membersUserIdsByGroupId).toArray()),
                         root.get("projectManagerId").in(Arrays.stream(membersUserIdsByGroupId).toArray())
