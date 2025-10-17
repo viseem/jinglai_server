@@ -33,6 +33,8 @@ import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -94,6 +96,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
     public Long createUser(UserCreateReqVO reqVO) {
         // 校验账户配合
         tenantService.handleTenantInfo(tenant -> {
@@ -120,6 +123,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
     public void updateUser(UserUpdateReqVO reqVO) {
         // 校验正确性
         validateUserForCreateOrUpdate(reqVO.getId(), reqVO.getUsername(), reqVO.getMobile(), reqVO.getEmail(),
@@ -215,6 +219,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
     public void deleteUser(Long id) {
         // 校验用户存在
         validateUserExists(id);
@@ -531,11 +536,22 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.encode(password);
     }
 
+    /**
+     * 获取用户列表（根据角色代码和权限控制）
+     * 使用 Redis 缓存，永久缓存，仅在用户变更或角色分配时主动清除
+     * 
+     * @param roleCode 角色代码（支持逗号分隔的多个角色，如 "sales,sale_manager"）
+     * @param loginUserId 当前登录用户ID（null 表示不进行权限控制）
+     * @return 用户列表
+     */
     @Override
+    @Cacheable(cacheNames = "salesUsers", key = "#roleCode + '_' + (#loginUserId != null ? #loginUserId : 'null')")
     public List<AdminUserDO> getUserListByRoleCodeWithPermission(String roleCode, Long loginUserId) {
         if (StrUtil.isEmpty(roleCode)) {
             return Collections.emptyList();
         }
+        
+        log.debug("从数据库查询销售人员列表，roleCode: {}, loginUserId: {}", roleCode, loginUserId);
         
         // 支持逗号分隔的多个角色代码
         String[] roleCodes = roleCode.split(",");
@@ -560,6 +576,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         
         // 如果没有登录用户ID，直接返回所有用户
         if (loginUserId == null) {
+            log.debug("无权限控制，返回所有 {} 角色用户，共 {} 人", roleCode, allRoleUsers.size());
             return allRoleUsers;
         }
         

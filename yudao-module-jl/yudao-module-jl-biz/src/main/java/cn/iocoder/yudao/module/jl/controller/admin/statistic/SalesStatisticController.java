@@ -81,15 +81,19 @@ public class SalesStatisticController {
     @Operation(summary = "获取销售数据统计")
     @PreAuthorize("@ss.hasPermission('jl:subject-group:query')")
     public CommonResult<SalesDataStatisticResp> getSalesDataStatistic(@Valid SalesDataStatisticReqVO reqVO) {
-        // 获取数据（已经是SalesDataItem列表）
-        List<SalesDataStatisticResp.SalesDataItem> items = salesDataStatisticService.getSalesDataStatistic(reqVO);
-        
         // 检查该时间范围是否正在刷新
         boolean isRefreshing = salesDataStatisticService.isRefreshing(reqVO);
         
-        // 构建响应（包含数据和刷新状态）
+        // 检查该时间范围是否正在查询中
+        boolean isQuerying = salesDataStatisticService.isQuerying(reqVO);
+        
+        // 获取数据（已经是SalesDataItem列表）
+        List<SalesDataStatisticResp.SalesDataItem> items = salesDataStatisticService.getSalesDataStatistic(reqVO);
+        
+        // 构建响应（包含数据、刷新状态和查询状态）
         SalesDataStatisticResp resp = SalesDataStatisticResp.builder()
             .isRefreshing(isRefreshing)
+            .isQuerying(isQuerying)
             .data(items)
             .build();
         

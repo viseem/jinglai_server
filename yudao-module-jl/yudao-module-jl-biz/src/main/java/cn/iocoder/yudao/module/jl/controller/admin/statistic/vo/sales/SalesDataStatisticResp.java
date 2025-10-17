@@ -23,6 +23,9 @@ public class SalesDataStatisticResp {
     @Schema(description = "是否正在刷新")
     private Boolean isRefreshing;
     
+    @Schema(description = "是否正在查询中（实时计算）")
+    private Boolean isQuerying;
+    
     @Schema(description = "统计数据列表")
     private List<SalesDataItem> data;
     

@@ -30,5 +30,10 @@ public interface SalesDataStatisticService {
      * 检查指定时间范围是否正在刷新
      */
     boolean isRefreshing(SalesDataStatisticReqVO reqVO);
+    
+    /**
+     * 检查指定时间范围是否正在查询中（实时计算）
+     */
+    boolean isQuerying(SalesDataStatisticReqVO reqVO);
 }
 

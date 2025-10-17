@@ -78,6 +78,13 @@ public class SalesDataStatisticCache extends BaseEntity {
     private LocalDateTime endTime;
 
     /**
+     * 时间范围类型（TODAY, YESTERDAY, THIS_WEEK, LAST_WEEK, THIS_MONTH, LAST_MONTH）
+     * 用于快速匹配缓存，避免动态时间范围（如本月）因结束时间变化导致无法命中缓存
+     */
+    @Column(name = "time_range_type", length = 20)
+    private String timeRangeType;
+
+    /**
      * 缓存更新时间
      */
     @Column(name = "cache_update_time")
