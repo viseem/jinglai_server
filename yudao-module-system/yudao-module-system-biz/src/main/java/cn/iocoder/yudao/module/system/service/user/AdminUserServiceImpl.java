@@ -239,7 +239,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public PageResult<AdminUserDO> getUserPage(UserPageReqVO reqVO) {
         // 如果指定了角色Code，先通过角色查询用户ID列表，然后添加到查询条件
-        if (StrUtil.isNotEmpty(reqVO.getRoleCode())) {
+        // 但如果IDs已经被设置（说明在Controller层已经进行了权限过滤），则不应该覆盖
+        if (StrUtil.isNotEmpty(reqVO.getRoleCode()) && CollUtil.isEmpty(reqVO.getIds())) {
             // 1. 通过角色code查询角色
             RoleDO role = roleService.getRoleByCode(reqVO.getRoleCode());
             if (role != null) {
