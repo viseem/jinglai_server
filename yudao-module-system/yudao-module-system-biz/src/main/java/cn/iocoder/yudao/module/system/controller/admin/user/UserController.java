@@ -20,6 +20,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
+import com.alibaba.fastjson.JSON;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -157,20 +158,24 @@ public class UserController {
     //不记录日志
     @OperateLog(enable = false)
     public CommonResult<PageResult<UserPageItemRespVO>> getUserPageSimple(@Valid UserPageReqVO reqVO) {
+        Long loginUserId = getLoginUserId();
 
-        if(reqVO.getAttribute()!=null){
-            if(reqVO.getAttribute().equals("ALL")){
-                //查询自己负责的部门id
-                DeptByReqVO dept = new DeptByReqVO();
-                dept.setLeaderUserId(getLoginUserId());
-                DeptDO deptBy = deptService.getDeptBy(dept);
-                if(deptBy!=null){
-                    reqVO.setDeptId(deptBy.getId());
-                }else{
-                    reqVO.setDeptId(-1L);
-                }
+        // 只要有 roleCode，就使用统一的权限控制逻辑
+        if (reqVO.getRoleCode() != null && !reqVO.getRoleCode().isEmpty()) {
+            // 调用 service 层方法，根据角色和当前用户权限自动过滤
+            List<AdminUserDO> filteredUsers = userService.getUserListByRoleCodeWithPermission(
+                reqVO.getRoleCode(), loginUserId);
+            System.out.println("filteredUsers"+ JSON.toJSONString(filteredUsers));
+            // 将过滤后的用户ID设置到查询条件中
+            if (CollUtil.isEmpty(filteredUsers)) {
+                // 没有权限查看任何用户，返回空列表
+                return success(new PageResult<>(0L));
             }
+
+            List<Long> userIds = convertList(filteredUsers, AdminUserDO::getId);
+            reqVO.setIds(userIds);
         }
+
 
         // 获得用户分页列表
         PageResult<AdminUserDO> pageResult = userService.getUserPage(reqVO);

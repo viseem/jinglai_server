@@ -18,6 +18,8 @@ import cn.iocoder.yudao.module.jl.repository.statistic.SalesDataStatisticCacheRe
 import cn.iocoder.yudao.module.jl.utils.TimeRangeUtil;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
+
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -89,11 +91,8 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         TimeRangeTypeEnum rangeType = TimeRangeUtil.matchTimeRangeType(startTime, endTime);
         System.out.println("时间范围类型: " + rangeType.name());
         
-        // 过滤掉无效的 userIds（0 或 null）
-        List<Long> validUserIds = filterValidUserIds(reqVO.getUserIds());
-        
-        // 获取销售人员列表
-        List<AdminUserRespDTO> salesUsers = getSalesUsers(validUserIds);
+        // 获取销售人员列表（权限控制在 UserController.page-simple 中已实现）
+        List<AdminUserRespDTO> salesUsers = getSalesUsers(reqVO.getUserIds());
         if (salesUsers.isEmpty()) {
             System.out.println("未找到销售人员");
             return new ArrayList<>();
@@ -146,7 +145,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
         System.out.println("========== 开始更新销售数据统计缓存（定时任务） ==========");
         
         // 获取所有销售人员（sales + sale_manager）
-        List<AdminUserRespDTO> salesUsers = getSalesUsers(new ArrayList<>());
+        List<AdminUserRespDTO> salesUsers = getSalesUsers(null);
         if (salesUsers.isEmpty()) {
             System.out.println("未找到销售人员，跳过更新");
             return;
@@ -215,7 +214,7 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
             System.out.println("时间范围类型: " + rangeType.name());
             
             // 获取所有销售人员（sales + sale_manager）
-            List<AdminUserRespDTO> salesUsers = getSalesUsers(new ArrayList<>());
+            List<AdminUserRespDTO> salesUsers = getSalesUsers(null);
             if (salesUsers.isEmpty()) {
                 System.out.println("未找到销售人员，跳过更新");
                 return;
@@ -255,9 +254,11 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
     // ===== 辅助方法 =====
     
     /**
-     * 过滤有效的用户ID
+     * 获取销售人员列表
+     * 权限控制已在 AdminUserService.getUserListByRoleCodeWithPermission 中实现
      */
-    private List<Long> filterValidUserIds(Long[] userIds) {
+    private List<AdminUserRespDTO> getSalesUsers(Long[] userIds) {
+        // 过滤有效的用户ID（过滤掉 null 和 <=0 的ID）
         List<Long> validUserIds = new ArrayList<>();
         if (userIds != null && userIds.length > 0) {
             for (Long userId : userIds) {
@@ -266,37 +267,25 @@ public class SalesDataStatisticServiceImpl implements SalesDataStatisticService 
                 }
             }
         }
-        System.out.println("有效的 userIds: " + validUserIds);
-        return validUserIds;
-    }
-    
-    /**
-     * 获取销售人员列表（包含 sales 和 sale_manager 角色）
-     */
-    private List<AdminUserRespDTO> getSalesUsers(List<Long> validUserIds) {
-        List<AdminUserRespDTO> salesUsers;
-        if (validUserIds.isEmpty()) {
-            // 未指定销售人员，查询所有拥有销售角色的人员（sales + sale_manager）
-            List<AdminUserRespDTO> salesList = adminUserApi.getUserListByRoleCode("sales");
-            List<AdminUserRespDTO> managerList = adminUserApi.getUserListByRoleCode("sale_manager");
-            
-            // 合并两个列表并去重（按userId）
-            Map<Long, AdminUserRespDTO> userMap = new HashMap<>();
-            if (salesList != null) {
-                salesList.forEach(user -> userMap.put(user.getId(), user));
-            }
-            if (managerList != null) {
-                managerList.forEach(user -> userMap.put(user.getId(), user));
-            }
-            
-            salesUsers = new ArrayList<>(userMap.values());
-            System.out.println("查询所有销售人员（sales + sale_manager），共 " + salesUsers.size() + " 人");
+        
+        if (!validUserIds.isEmpty()) {
+            // 指定了有效的销售人员ID，直接查询这些人员
+            List<AdminUserRespDTO> users = adminUserApi.getUserList(validUserIds);
+            log.info("查询指定销售人员，共 {} 人", users != null ? users.size() : 0);
+            return users != null ? users : new ArrayList<>();
         } else {
-            // 指定了销售人员，只查询这些人员
-            salesUsers = adminUserApi.getUserList(validUserIds);
-            System.out.println("查询指定销售人员，共 " + (salesUsers != null ? salesUsers.size() : 0) + " 人");
+            // 未指定有效的销售人员ID，使用带权限控制的查询方法
+            // 支持逗号分隔的多个角色，一次性查询 sales 和 sale_manager
+            // 自动根据当前登录用户的角色过滤：
+            // - finance/manager 角色：返回所有销售人员
+            // - 其他角色：只返回下属销售人员
+            Long loginUserId = getLoginUserId();
+            List<AdminUserRespDTO> users = adminUserApi.getUserListByRoleCodeWithPermission(
+                "sales,sale_manager", loginUserId);
+            
+            log.info("查询销售人员（带权限控制），共 {} 人", users != null ? users.size() : 0);
+            return users != null ? users : new ArrayList<>();
         }
-        return salesUsers != null ? salesUsers : new ArrayList<>();
     }
     
     /**

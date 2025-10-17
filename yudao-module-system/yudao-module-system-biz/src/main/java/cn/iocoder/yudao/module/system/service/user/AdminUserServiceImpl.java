@@ -530,4 +530,97 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.encode(password);
     }
 
+    @Override
+    public List<AdminUserDO> getUserListByRoleCodeWithPermission(String roleCode, Long loginUserId) {
+        if (StrUtil.isEmpty(roleCode)) {
+            return Collections.emptyList();
+        }
+        
+        // 支持逗号分隔的多个角色代码
+        String[] roleCodes = roleCode.split(",");
+        Map<Long, AdminUserDO> allRoleUsersMap = new HashMap<>();
+        
+        // 查询所有角色的用户并去重
+        for (String code : roleCodes) {
+            String trimmedCode = code.trim();
+            if (StrUtil.isNotEmpty(trimmedCode)) {
+                List<AdminUserDO> users = getUserListByRoleCode(trimmedCode);
+                if (CollUtil.isNotEmpty(users)) {
+                    users.forEach(user -> allRoleUsersMap.put(user.getId(), user));
+                }
+            }
+        }
+        
+        if (allRoleUsersMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        List<AdminUserDO> allRoleUsers = new ArrayList<>(allRoleUsersMap.values());
+        
+        // 如果没有登录用户ID，直接返回所有用户
+        if (loginUserId == null) {
+            return allRoleUsers;
+        }
+        
+        // 检查当前用户是否有 finance 或 manager 角色
+        boolean hasFullAccess = permissionService.hasAnyRoles(loginUserId, "finance", "manager");
+        
+        if (hasFullAccess) {
+            // 有完整权限，返回所有拥有该角色的用户
+            log.debug("用户 {} 拥有完整权限，返回所有 {} 角色用户，共 {} 人", 
+                loginUserId, roleCode, allRoleUsers.size());
+            return allRoleUsers;
+        }
+        
+        // 没有完整权限，处理普通用户的权限
+        List<AdminUserDO> result = new ArrayList<>();
+        
+        // 1. 首先检查当前用户自己是否拥有该角色，如果是，至少返回自己
+        boolean isSelfInRole = allRoleUsers.stream()
+                .anyMatch(user -> user.getId().equals(loginUserId));
+        
+        if (isSelfInRole) {
+            // 当前用户自己就拥有该角色，添加自己
+            allRoleUsers.stream()
+                    .filter(user -> user.getId().equals(loginUserId))
+                    .findFirst()
+                    .ifPresent(result::add);
+            log.debug("用户 {} 自己拥有 {} 角色，添加自己到结果中", loginUserId, roleCode);
+        }
+        
+        // 2. 如果用户是部门负责人，还要添加下属部门的用户
+        DeptDO userDept = deptService.getDept(getUserDeptId(loginUserId));
+        if (userDept != null && loginUserId.equals(userDept.getLeaderUserId())) {
+            // 是部门负责人，获取该部门及其子部门
+            List<DeptDO> deptList = deptService.getDeptListByParentIdFromCache(userDept.getId(), true);
+            final Set<Long> deptIds = new HashSet<>();
+            if (CollUtil.isNotEmpty(deptList)) {
+                deptIds.addAll(convertSet(deptList, DeptDO::getId));
+            }
+            deptIds.add(userDept.getId()); // 包含自己负责的部门
+            
+            // 过滤出下属部门的用户（排除已经添加的自己）
+            List<AdminUserDO> subordinateUsers = allRoleUsers.stream()
+                    .filter(user -> user.getDeptId() != null && deptIds.contains(user.getDeptId()))
+                    .filter(user -> !user.getId().equals(loginUserId)) // 排除自己，避免重复
+                    .collect(java.util.stream.Collectors.toList());
+            
+            result.addAll(subordinateUsers);
+            log.debug("用户 {} 是部门负责人，添加下属部门用户 {} 人", loginUserId, subordinateUsers.size());
+        }
+        
+        log.debug("用户 {} 最终可查看的 {} 角色用户，共 {} 人", 
+            loginUserId, roleCode, result.size());
+        
+        return result;
+    }
+    
+    /**
+     * 获取用户的部门ID
+     */
+    private Long getUserDeptId(Long userId) {
+        AdminUserDO user = getUser(userId);
+        return user != null ? user.getDeptId() : null;
+    }
+
 }

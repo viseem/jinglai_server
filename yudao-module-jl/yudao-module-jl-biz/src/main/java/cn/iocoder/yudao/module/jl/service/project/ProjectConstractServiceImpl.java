@@ -23,6 +23,7 @@ import cn.iocoder.yudao.module.jl.utils.DateAttributeGenerator;
 import cn.iocoder.yudao.module.jl.utils.UniqCodeGenerator;
 import cn.iocoder.yudao.module.system.api.notify.NotifyMessageSendApi;
 import cn.iocoder.yudao.module.system.api.notify.dto.NotifySendSingleToUserReqDTO;
+import cn.iocoder.yudao.module.system.api.permission.PermissionApi;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -99,6 +100,9 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
 
     @Resource
     private UserServiceImpl userService;
+
+    @Resource
+    private PermissionApi permissionApi;
 
     public String generateCode() {
         String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
@@ -403,7 +407,18 @@ public class ProjectConstractServiceImpl implements ProjectConstractService {
                 ));
             }*/
 
-            if (!pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus()) && pageReqVO.getPiGroupId() == null) {
+            // 检查当前登录用户是否有特定角色（如财务），如果有则不进行getAttribute的条件查询
+            boolean skipAttributeFilter = false;
+            try {
+                Long loginUserId = getLoginUserId();
+                if (loginUserId != null) {
+                    skipAttributeFilter = permissionApi.hasAnyRoles(loginUserId, "finance", "finance_cashier");
+                }
+            } catch (Exception e) {
+                // 如果获取用户角色失败，继续执行后续逻辑
+            }
+
+            if (!skipAttributeFilter && !pageReqVO.getAttribute().equals(DataAttributeTypeEnums.ANY.getStatus()) && pageReqVO.getPiGroupId() == null) {
                 Long[] users = pageReqVO.getSalesId() != null ? dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()) : dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
 //                        predicates.add(root.get("salesId").in(Arrays.stream(users).toArray()));
                 predicates.add(cb.or(

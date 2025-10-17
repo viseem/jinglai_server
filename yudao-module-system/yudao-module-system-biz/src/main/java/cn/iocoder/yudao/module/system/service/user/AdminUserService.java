@@ -217,4 +217,16 @@ public interface AdminUserService {
      */
     boolean isPasswordMatch(String rawPassword, String encodedPassword);
 
+    /**
+     * 根据角色代码获取用户列表（带权限控制）
+     * 权限规则：
+     * - 如果当前用户拥有 finance 或 manager 角色，返回所有拥有指定角色的用户
+     * - 否则只返回当前用户下属部门中拥有指定角色的用户
+     *
+     * @param roleCode 角色代码，支持逗号分隔多个角色，如 "sales,sale_manager"
+     * @param loginUserId 当前登录用户ID
+     * @return 用户列表
+     */
+    List<AdminUserDO> getUserListByRoleCodeWithPermission(String roleCode, Long loginUserId);
+
 }
