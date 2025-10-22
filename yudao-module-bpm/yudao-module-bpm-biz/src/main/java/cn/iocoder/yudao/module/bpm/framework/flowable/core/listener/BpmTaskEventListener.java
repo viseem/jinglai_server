@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.bpm.framework.flowable.core.listener;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.task.BpmTaskExtDO;
+import cn.iocoder.yudao.module.bpm.dal.mysql.task.BpmTaskExtMapper;
 import cn.iocoder.yudao.module.bpm.service.task.BpmActivityService;
 import cn.iocoder.yudao.module.bpm.service.task.BpmTaskService;
 import com.google.common.collect.ImmutableSet;
@@ -44,6 +45,9 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
     @Lazy // 解决循环依赖
     private TaskService flowableTaskService;
 
+    @Resource
+    private BpmTaskExtMapper taskExtMapper;
+
     public static final Set<FlowableEngineEventType> TASK_EVENTS = ImmutableSet.<FlowableEngineEventType>builder()
             .add(FlowableEngineEventType.TASK_CREATED)
             .add(FlowableEngineEventType.TASK_ASSIGNED)
@@ -84,6 +88,11 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
             
             // 自动完成任务
             flowableTaskService.complete(task.getId(), variables);
+            
+            // 更新任务扩展表，设置 reason 字段（异步更新，等待任务完成事件触发后更新）
+            // 注意：这里不能立即更新，因为 complete 后会触发 taskCompleted 事件
+            // 我们在那里统一更新 reason
+            
             return;
         }
         
@@ -111,7 +120,33 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
 
     @Override
     protected void taskCompleted(FlowableEngineEntityEvent event) {
-        taskService.updateTaskExtComplete((Task)event.getEntity());
+        Task task = (Task) event.getEntity();
+        taskService.updateTaskExtComplete(task);
+        
+        // 检查是否是自动完成的任务，如果是，则更新 reason 字段
+        Object autoSkipped = flowableTaskService.getVariable(task.getId(), "autoSkipped");
+        Object autoApproved = flowableTaskService.getVariable(task.getId(), "autoApproved");
+        
+        String reason = null;
+        if (autoSkipped != null && Boolean.TRUE.equals(autoSkipped)) {
+            // 自动跳过
+            String originalReason = (String) flowableTaskService.getVariable(task.getId(), "autoSkipReason");
+            reason = "系统自动跳过：" + originalReason;
+        } else if (autoApproved != null && Boolean.TRUE.equals(autoApproved)) {
+            // 自动通过
+            String originalReason = (String) flowableTaskService.getVariable(task.getId(), "autoApproveReason");
+            reason = "系统自动通过：" + originalReason;
+        }
+        
+        // 如果有 reason，更新到扩展表
+        if (reason != null) {
+            taskExtMapper.updateByTaskId(
+                new BpmTaskExtDO()
+                    .setTaskId(task.getId())
+                    .setReason(reason)
+            );
+            log.info("[taskCompleted][任务{}已自动完成，reason已更新：{}]", task.getName(), reason);
+        }
     }
 
     @Override
