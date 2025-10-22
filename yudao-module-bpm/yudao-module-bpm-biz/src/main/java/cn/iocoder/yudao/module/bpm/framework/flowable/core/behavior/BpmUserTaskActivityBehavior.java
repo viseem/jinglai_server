@@ -1,9 +1,12 @@
 package cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.module.bpm.service.definition.BpmTaskAssignRuleService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.UserTask;
@@ -40,10 +43,78 @@ public class BpmUserTaskActivityBehavior extends UserTaskActivityBehavior {
         List<String> candidateUsers, List<String> candidateGroups, TaskEntity task, ExpressionManager expressionManager,
         DelegateExecution execution, ProcessEngineConfigurationImpl processEngineConfiguration) {
         // 第一步，获得任务的候选用户
-        Long assigneeUserId = calculateTaskCandidateUsers(execution);
-        Assert.notNull(assigneeUserId, "任务处理人不能为空");
-        // 第二步，设置作为负责人
+        Long assigneeUserId = null;
+        try {
+            assigneeUserId = calculateTaskCandidateUsers(execution);
+        } catch (Exception e) {
+            // 找不到候选人，自动跳过该节点
+            log.warn("[handleAssignments][任务{}找不到候选人，系统自动跳过。异常：{}]", 
+                    task.getName(), e.getMessage());
+            // 设置一个临时的审批人（0表示系统），让任务能够正常创建
+            TaskHelper.changeTaskAssignee(task, "0");
+            // 使用 execution 设置流程变量，确保监听器能获取到
+            execution.setVariable("_approverNotFound_" + task.getTaskDefinitionKey(), true);
+            execution.setVariable("_autoSkipReason_" + task.getTaskDefinitionKey(), "找不到任务的审批人");
+            return;
+        }
+        
+        // 第二步，检查候选人是否为空
+        if (assigneeUserId == null) {
+            log.warn("[handleAssignments][任务{}的候选人为null，系统自动跳过]", task.getName());
+            // 设置一个临时的审批人（0表示系统），让任务能够正常创建
+            TaskHelper.changeTaskAssignee(task, "0");
+            execution.setVariable("_approverNotFound_" + task.getTaskDefinitionKey(), true);
+            execution.setVariable("_autoSkipReason_" + task.getTaskDefinitionKey(), "找不到任务的审批人");
+            return;
+        }
+        
+        // 第三步，检查审批人是否有效（在职且存在）
+        if (!isApproverValid(assigneeUserId)) {
+            // 审批人离职或不存在，设置标记，由后续的监听器自动完成任务
+            log.warn("[handleAssignments][审批人{}离职或不存在，标记为自动通过]", assigneeUserId);
+            // 设置为处理人（仅用于记录）
+            TaskHelper.changeTaskAssignee(task, String.valueOf(assigneeUserId));
+            // 使用 execution 设置流程变量
+            execution.setVariable("_approverInvalid_" + task.getTaskDefinitionKey(), true);
+            execution.setVariable("_autoApproveReason_" + task.getTaskDefinitionKey(), "审批人已离职或不存在");
+            return;
+        }
+        
+        // 第四步，审批人有效，设置作为负责人
         TaskHelper.changeTaskAssignee(task, String.valueOf(assigneeUserId));
+    }
+    
+    /**
+     * 验证审批人是否有效（在职且存在）
+     * 
+     * @param userId 审批人ID
+     * @return true-有效，false-无效（离职或不存在）
+     */
+    private boolean isApproverValid(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        
+        try {
+            AdminUserApi adminUserApi = SpringUtil.getBean(AdminUserApi.class);
+            AdminUserRespDTO user = adminUserApi.getUser(userId);
+            if (user == null) {
+                log.warn("[isApproverValid][用户不存在，userId={}]", userId);
+                return false;
+            }
+            
+            // 检查用户状态，DISABLE(1) 表示离职或禁用
+            boolean isValid = CommonStatusEnum.ENABLE.getStatus().equals(user.getStatus());
+            if (!isValid) {
+                log.info("[isApproverValid][用户已离职或禁用，userId={}, status={}]", 
+                        userId, user.getStatus());
+            }
+            return isValid;
+        } catch (Exception e) {
+            // 查询异常时认为用户无效，自动通过
+            log.error("[isApproverValid][查询用户异常，userId={}]", userId, e);
+            return false;
+        }
     }
 
     private Long calculateTaskCandidateUsers(DelegateExecution execution) {
