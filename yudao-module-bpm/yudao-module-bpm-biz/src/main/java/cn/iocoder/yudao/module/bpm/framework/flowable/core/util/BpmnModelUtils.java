@@ -27,6 +27,42 @@ public class BpmnModelUtils {
     }
 
     /**
+     * 从 BPMN 模型中获取指定任务的参数值（类似前端的 parseXML）
+     *
+     * @param model             BPMN 模型
+     * @param taskDefinitionKey 任务定义 Key
+     * @param paramKey          参数名称（默认 nextStatus）
+     * @return 参数值
+     */
+    public static String getTaskParamValue(BpmnModel model, String taskDefinitionKey, String paramKey) {
+        if (model == null || taskDefinitionKey == null) {
+            return null;
+        }
+        if (paramKey == null) {
+            paramKey = "nextStatus";
+        }
+        
+        FlowElement flowElement = getFlowElementById(model, taskDefinitionKey);
+        if (flowElement == null) {
+            return null;
+        }
+        
+        // 从扩展属性中获取参数值
+        return flowElement.getAttributeValue(BpmnModelConstants.NAMESPACE, paramKey);
+    }
+
+    /**
+     * 从 BPMN 模型中获取指定任务的 nextStatus 值
+     *
+     * @param model             BPMN 模型
+     * @param taskDefinitionKey 任务定义 Key
+     * @return nextStatus 值
+     */
+    public static String getTaskNextStatus(BpmnModel model, String taskDefinitionKey) {
+        return getTaskParamValue(model, taskDefinitionKey, "nextStatus");
+    }
+
+    /**
      * 根据节点，获取入口连线
      *
      * @param source 起始节点

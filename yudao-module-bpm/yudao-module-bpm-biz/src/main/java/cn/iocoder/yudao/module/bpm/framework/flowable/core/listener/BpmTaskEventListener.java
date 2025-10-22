@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.bpm.framework.flowable.core.listener;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.task.BpmTaskExtDO;
 import cn.iocoder.yudao.module.bpm.dal.mysql.task.BpmTaskExtMapper;
 import cn.iocoder.yudao.module.bpm.service.task.BpmActivityService;
@@ -17,6 +18,10 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.task.api.Task;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -73,26 +78,25 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         Object approverNotFound = flowableTaskService.getVariable(task.getId(), "_approverNotFound_" + taskDefKey);
         if (approverNotFound != null && Boolean.TRUE.equals(approverNotFound)) {
             String reason = (String) flowableTaskService.getVariable(task.getId(), "_autoSkipReason_" + taskDefKey);
-            log.warn("[taskCreated][任务{}找不到审批人，系统自动跳过。原因：{}]", 
+            log.warn("[taskCreated][任务{}找不到审批人，将在事务提交后自动跳过。原因：{}]", 
                     task.getName(), reason);
             
-            // 设置审批意见变量
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("autoSkipped", true);
-            variables.put("autoSkipReason", reason);
-            variables.put("comment", "系统自动跳过：" + reason);
-            
-            // 清理临时变量
-            variables.put("_approverNotFound_" + taskDefKey, null);
-            variables.put("_autoSkipReason_" + taskDefKey, null);
-            
-            // 自动完成任务
-            flowableTaskService.complete(task.getId(), variables);
-            
-            // 更新任务扩展表，设置 reason 字段（异步更新，等待任务完成事件触发后更新）
-            // 注意：这里不能立即更新，因为 complete 后会触发 taskCompleted 事件
-            // 我们在那里统一更新 reason
-            
+            // 在事务提交后执行自动完成操作，避免事务冲突
+            String taskId = task.getId();
+            String taskName = task.getName();
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        log.info("[taskCreated][事务已提交，开始自动跳过任务{}]", taskName);
+                        // 获取自身的代理对象，以便事务生效
+                        BpmTaskEventListener self = SpringUtil.getBean(BpmTaskEventListener.class);
+                        self.autoCompleteTaskInNewTransaction(taskId, taskName, reason, true);
+                    } catch (Exception e) {
+                        log.error("[taskCreated][自动跳过任务{}失败：{}]", taskName, e.getMessage(), e);
+                    }
+                }
+            });
             return;
         }
         
@@ -100,22 +104,313 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         Object approverInvalid = flowableTaskService.getVariable(task.getId(), "_approverInvalid_" + taskDefKey);
         if (approverInvalid != null && Boolean.TRUE.equals(approverInvalid)) {
             String reason = (String) flowableTaskService.getVariable(task.getId(), "_autoApproveReason_" + taskDefKey);
-            log.warn("[taskCreated][任务{}的审批人离职，自动通过任务。原因：{}]", 
+            log.warn("[taskCreated][任务{}的审批人离职，将在事务提交后自动通过。原因：{}]", 
                     task.getName(), reason);
             
-            // 设置审批意见变量
-            Map<String, Object> variables = new HashMap<>();
+            // 在事务提交后执行自动完成操作，避免事务冲突
+            String taskId = task.getId();
+            String taskName = task.getName();
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        log.info("[taskCreated][事务已提交，开始自动通过任务{}]", taskName);
+                        // 获取自身的代理对象，以便事务生效
+                        BpmTaskEventListener self = SpringUtil.getBean(BpmTaskEventListener.class);
+                        self.autoCompleteTaskInNewTransaction(taskId, taskName, reason, false);
+                    } catch (Exception e) {
+                        log.error("[taskCreated][自动通过任务{}失败：{}]", taskName, e.getMessage(), e);
+                    }
+                }
+            });
+        }
+    }
+    
+    /**
+     * 在新事务中自动完成任务
+     * 该方法会被事务提交后的回调调用，需要开启新事务
+     * 
+     * @param taskId 任务ID
+     * @param taskName 任务名称
+     * @param reason 自动完成原因
+     * @param isSkip 是否为跳过（true为跳过，false为通过）
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void autoCompleteTaskInNewTransaction(String taskId, String taskName, String reason, boolean isSkip) {
+        log.info("[autoCompleteTaskInNewTransaction][在新事务中处理任务{}，taskId：{}，isSkip：{}]", 
+                taskName, taskId, isSkip);
+        try {
+            autoCompleteTask(taskId, taskName, reason, isSkip);
+            log.info("[autoCompleteTaskInNewTransaction][任务{}处理成功]", taskName);
+        } catch (Exception e) {
+            log.error("[autoCompleteTaskInNewTransaction][任务{}处理失败]", taskName, e);
+            throw e;
+        }
+    }
+    
+    /**
+     * 自动完成任务
+     * 优先尝试调用业务层的 JLBpmService.approveTask（如果存在）
+     * 如果不存在，则直接调用 Flowable API 完成任务
+     * 
+     * @param taskId 任务ID
+     * @param taskName 任务名称
+     * @param reason 自动完成原因
+     * @param isSkip 是否为跳过（true为跳过，false为通过）
+     */
+    private void autoCompleteTask(String taskId, String taskName, String reason, boolean isSkip) {
+        log.info("[autoCompleteTask][开始处理，taskId：{}，taskName：{}，isSkip：{}]", taskId, taskName, isSkip);
+        
+        try {
+            // 获取任务信息
+            Task task = flowableTaskService.createTaskQuery().taskId(taskId).singleResult();
+            if (task == null) {
+                log.error("[autoCompleteTask][任务{}不存在]", taskId);
+                return;
+            }
+            
+            // 获取流程实例
+            org.flowable.engine.RuntimeService runtimeService = SpringUtil.getBean(org.flowable.engine.RuntimeService.class);
+            org.flowable.engine.runtime.ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .singleResult();
+            
+            if (instance == null) {
+                log.error("[autoCompleteTask][流程实例不存在]");
+                completeTaskDirectly(taskId, taskName, reason, isSkip);
+                return;
+            }
+            
+            String processDefinitionKey = instance.getProcessDefinitionKey();
+            Long refId = null;
+            
+            // 从 businessKey 获取 refId
+            if (instance.getBusinessKey() != null) {
+                try {
+                    refId = Long.parseLong(instance.getBusinessKey());
+                    log.info("[autoCompleteTask][从businessKey获取refId：{}]", refId);
+                } catch (NumberFormatException e) {
+                    log.warn("[autoCompleteTask][businessKey不是数字：{}]", instance.getBusinessKey());
+                }
+            }
+            
+            // 从 BPMN 定义中获取 taskStatus
+            String taskStatus = null;
+            try {
+                org.flowable.engine.RepositoryService repositoryService = SpringUtil.getBean(org.flowable.engine.RepositoryService.class);
+                org.flowable.bpmn.model.BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
+                if (bpmnModel != null) {
+                    log.info("[autoCompleteTask][成功获取BPMN模型]");
+                    org.flowable.bpmn.model.FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(task.getTaskDefinitionKey());
+                    
+                    if (flowElement == null) {
+                        log.warn("[autoCompleteTask][任务节点{}不存在]", task.getTaskDefinitionKey());
+                    } else {
+                        log.info("[autoCompleteTask][找到任务节点，类型：{}，名称：{}]", 
+                                flowElement.getClass().getSimpleName(), flowElement.getName());
+                        
+                        if (flowElement instanceof org.flowable.bpmn.model.UserTask) {
+                            org.flowable.bpmn.model.UserTask userTask = (org.flowable.bpmn.model.UserTask) flowElement;
+                            
+                            // 1. 先检查 ExtensionElements（最常见的存储位置）
+                            log.info("[autoCompleteTask][检查ExtensionElements]");
+                            if (userTask.getExtensionElements() != null && !userTask.getExtensionElements().isEmpty()) {
+                                log.info("[autoCompleteTask][ExtensionElements存在，数量：{}]", userTask.getExtensionElements().size());
+                                
+                                // 遍历所有 extension elements
+                                for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> entry : 
+                                        userTask.getExtensionElements().entrySet()) {
+                                    String key = entry.getKey();
+                                    java.util.List<org.flowable.bpmn.model.ExtensionElement> elements = entry.getValue();
+                                    
+                                    log.info("[autoCompleteTask][ExtensionElement key：{}，数量：{}]", key, elements.size());
+                                    
+                                    for (org.flowable.bpmn.model.ExtensionElement element : elements) {
+                                        log.info("[autoCompleteTask][  Element name：{}，namespace：{}，value：{}]", 
+                                                element.getName(), element.getNamespace(), element.getElementText());
+                                        
+                                        // 检查子元素
+                                        if (element.getChildElements() != null && !element.getChildElements().isEmpty()) {
+                                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> childEntry : 
+                                                    element.getChildElements().entrySet()) {
+                                                log.info("[autoCompleteTask][    子元素 key：{}]", childEntry.getKey());
+                                                for (org.flowable.bpmn.model.ExtensionElement child : childEntry.getValue()) {
+                                                    log.info("[autoCompleteTask][      name：{}，value：{}]", 
+                                                            child.getName(), child.getElementText());
+                                                    
+                                                    // 检查子元素的属性（重要：property元素的信息在属性中）
+                                                    if (child.getAttributes() != null && !child.getAttributes().isEmpty()) {
+                                                        String propertyName = null;
+                                                        String propertyValue = null;
+                                                        
+                                                        for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> childAttrEntry : 
+                                                                child.getAttributes().entrySet()) {
+                                                            for (org.flowable.bpmn.model.ExtensionAttribute childAttr : childAttrEntry.getValue()) {
+                                                                log.info("[autoCompleteTask][        子元素属性 {}：{}]", 
+                                                                        childAttr.getName(), childAttr.getValue());
+                                                                
+                                                                if ("name".equals(childAttr.getName())) {
+                                                                    propertyName = childAttr.getValue();
+                                                                } else if ("value".equals(childAttr.getName())) {
+                                                                    propertyValue = childAttr.getValue();
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                        // 如果找到 nextStatus 属性
+                                                        if ("nextStatus".equals(propertyName) && propertyValue != null && taskStatus == null) {
+                                                            taskStatus = propertyValue;
+                                                            log.info("[autoCompleteTask][★★★ 在property子元素中找到nextStatus：{}]", taskStatus);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        // 检查属性
+                                        if (element.getAttributes() != null && !element.getAttributes().isEmpty()) {
+                                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> attrEntry : 
+                                                    element.getAttributes().entrySet()) {
+                                                for (org.flowable.bpmn.model.ExtensionAttribute attr : attrEntry.getValue()) {
+                                                    log.info("[autoCompleteTask][    属性 {}：{}]", attr.getName(), attr.getValue());
+                                                    // 检查是否是 nextStatus
+                                                    if ("nextStatus".equals(attr.getName()) && taskStatus == null) {
+                                                        taskStatus = attr.getValue();
+                                                        log.info("[autoCompleteTask][★★★ 在ExtensionElements的属性中找到nextStatus：{}]", taskStatus);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                log.warn("[autoCompleteTask][ExtensionElements为空]");
+                            }
+                            
+                            // 2. 如果还没找到，检查 Attributes
+                            if (taskStatus == null) {
+                                log.info("[autoCompleteTask][检查UserTask的Attributes]");
+                                if (userTask.getAttributes() != null && !userTask.getAttributes().isEmpty()) {
+                                    for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> entry : 
+                                            userTask.getAttributes().entrySet()) {
+                                        log.info("[autoCompleteTask][Attributes命名空间：{}]", entry.getKey());
+                                        for (org.flowable.bpmn.model.ExtensionAttribute attr : entry.getValue()) {
+                                            log.info("[autoCompleteTask][  属性名：{}，值：{}]", attr.getName(), attr.getValue());
+                                            if ("nextStatus".equals(attr.getName()) && taskStatus == null) {
+                                                taskStatus = attr.getValue();
+                                                log.info("[autoCompleteTask][★★★ 在Attributes中找到nextStatus：{}]", taskStatus);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    log.warn("[autoCompleteTask][UserTask没有任何Attributes]");
+                                }
+                            }
+                            
+                            // 3. 如果还没找到，尝试通过命名空间查找
+                            if (taskStatus == null) {
+                                String[] namespaces = {
+                                    "http://flowable.org/bpmn",
+                                    "http://activiti.org/bpmn", 
+                                    "http://camunda.org/schema/1.0/bpmn",
+                                    "flowable",
+                                    "activiti"
+                                };
+                                
+                                for (String namespace : namespaces) {
+                                    String value = userTask.getAttributeValue(namespace, "nextStatus");
+                                    if (value != null) {
+                                        taskStatus = value;
+                                        log.info("[autoCompleteTask][★★★ 在命名空间{}找到nextStatus：{}]", namespace, taskStatus);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (taskStatus == null) {
+                                log.warn("[autoCompleteTask][在所有位置都未找到nextStatus属性]");
+                            }
+                        } else {
+                            log.warn("[autoCompleteTask][节点不是UserTask类型，实际类型：{}]", 
+                                    flowElement.getClass().getName());
+                        }
+                    }
+                } else {
+                    log.warn("[autoCompleteTask][BPMN模型为null]");
+                }
+            } catch (Exception e) {
+                log.error("[autoCompleteTask][获取taskStatus失败]", e);
+            }
+            
+            // 如果没有获取到，使用默认值"3"（已批准）
+            if (taskStatus == null) {
+                taskStatus = "3";
+                log.info("[autoCompleteTask][使用默认taskStatus：{}]", taskStatus);
+            }
+            
+            // 尝试调用业务逻辑
+            try {
+                Object jlBpmService = SpringUtil.getBean("JLBpmServiceImpl");
+                if (jlBpmService != null) {
+                    log.info("[autoCompleteTask][调用JLBpmService.executeApproveBusinessLogic]");
+                    jlBpmService.getClass()
+                            .getMethod("executeApproveBusinessLogic", String.class, Long.class, String.class, String.class)
+                            .invoke(jlBpmService, processDefinitionKey, refId, taskStatus, reason);
+                    log.info("[autoCompleteTask][业务逻辑执行完成]");
+                }
+            } catch (Exception e) {
+                log.warn("[autoCompleteTask][调用业务逻辑失败，继续完成任务。错误：{}]", e.getMessage());
+            }
+            
+            // 完成任务
+            completeTaskDirectly(taskId, taskName, reason, isSkip);
+            
+        } catch (Exception e) {
+            log.error("[autoCompleteTask][自动完成任务失败]", e);
+            // 发生异常，尝试直接完成任务
+            completeTaskDirectly(taskId, taskName, reason, isSkip);
+        }
+    }
+    
+    /**
+     * 直接完成任务（不经过业务层）
+     * 
+     * @param taskId 任务ID
+     * @param taskName 任务名称
+     * @param reason 完成原因
+     * @param isSkip 是否为跳过（true为跳过，false为通过）
+     */
+    private void completeTaskDirectly(String taskId, String taskName, String reason, boolean isSkip) {
+        // 获取任务对象以便获取 taskDefinitionKey
+        Task task = flowableTaskService.createTaskQuery().taskId(taskId).singleResult();
+        if (task == null) {
+            log.error("[completeTaskDirectly][任务{}不存在，无法完成]", taskId);
+            return;
+        }
+        
+        String taskDefKey = task.getTaskDefinitionKey();
+        
+        // 设置审批意见变量
+        Map<String, Object> variables = new HashMap<>();
+        if (isSkip) {
+            variables.put("autoSkipped", true);
+            variables.put("autoSkipReason", reason);
+            variables.put("comment", "系统自动跳过：" + reason);
+            // 清理临时变量
+            variables.put("_approverNotFound_" + taskDefKey, null);
+            variables.put("_autoSkipReason_" + taskDefKey, null);
+        } else {
             variables.put("autoApproved", true);
             variables.put("autoApproveReason", reason);
             variables.put("comment", "系统自动通过：" + reason);
-            
             // 清理临时变量
             variables.put("_approverInvalid_" + taskDefKey, null);
             variables.put("_autoApproveReason_" + taskDefKey, null);
-            
-            // 自动完成任务
-            flowableTaskService.complete(task.getId(), variables);
         }
+        
+        // 自动完成任务
+        flowableTaskService.complete(taskId, variables);
+        log.info("[completeTaskDirectly][任务{}已直接完成]", taskName);
     }
 
     @Override
@@ -131,11 +426,21 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         if (autoSkipped != null && Boolean.TRUE.equals(autoSkipped)) {
             // 自动跳过
             String originalReason = (String) flowableTaskService.getVariable(task.getId(), "autoSkipReason");
-            reason = "系统自动跳过：" + originalReason;
+            // 如果 originalReason 已经包含前缀，直接使用；否则添加前缀
+            if (originalReason != null && originalReason.startsWith("系统自动跳过：")) {
+                reason = originalReason;
+            } else {
+                reason = "系统自动跳过：" + originalReason;
+            }
         } else if (autoApproved != null && Boolean.TRUE.equals(autoApproved)) {
             // 自动通过
             String originalReason = (String) flowableTaskService.getVariable(task.getId(), "autoApproveReason");
-            reason = "系统自动通过：" + originalReason;
+            // 如果 originalReason 已经包含前缀，直接使用；否则添加前缀
+            if (originalReason != null && originalReason.startsWith("系统自动通过：")) {
+                reason = originalReason;
+            } else {
+                reason = "系统自动通过：" + originalReason;
+            }
         }
         
         // 如果有 reason，更新到扩展表
