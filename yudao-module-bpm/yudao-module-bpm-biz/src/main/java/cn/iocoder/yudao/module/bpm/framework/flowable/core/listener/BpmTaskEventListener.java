@@ -88,12 +88,10 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
                 @Override
                 public void afterCommit() {
                     try {
-                        log.info("[taskCreated][事务已提交，开始自动跳过任务{}]", taskName);
-                        // 获取自身的代理对象，以便事务生效
                         BpmTaskEventListener self = SpringUtil.getBean(BpmTaskEventListener.class);
                         self.autoCompleteTaskInNewTransaction(taskId, taskName, reason, true);
                     } catch (Exception e) {
-                        log.error("[taskCreated][自动跳过任务{}失败：{}]", taskName, e.getMessage(), e);
+                        log.error("[taskCreated][自动跳过任务{}失败]", taskName, e);
                     }
                 }
             });
@@ -114,12 +112,10 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
                 @Override
                 public void afterCommit() {
                     try {
-                        log.info("[taskCreated][事务已提交，开始自动通过任务{}]", taskName);
-                        // 获取自身的代理对象，以便事务生效
                         BpmTaskEventListener self = SpringUtil.getBean(BpmTaskEventListener.class);
                         self.autoCompleteTaskInNewTransaction(taskId, taskName, reason, false);
                     } catch (Exception e) {
-                        log.error("[taskCreated][自动通过任务{}失败：{}]", taskName, e.getMessage(), e);
+                        log.error("[taskCreated][自动通过任务{}失败]", taskName, e);
                     }
                 }
             });
@@ -137,11 +133,8 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void autoCompleteTaskInNewTransaction(String taskId, String taskName, String reason, boolean isSkip) {
-        log.info("[autoCompleteTaskInNewTransaction][在新事务中处理任务{}，taskId：{}，isSkip：{}]", 
-                taskName, taskId, isSkip);
         try {
             autoCompleteTask(taskId, taskName, reason, isSkip);
-            log.info("[autoCompleteTaskInNewTransaction][任务{}处理成功]", taskName);
         } catch (Exception e) {
             log.error("[autoCompleteTaskInNewTransaction][任务{}处理失败]", taskName, e);
             throw e;
@@ -159,8 +152,6 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
      * @param isSkip 是否为跳过（true为跳过，false为通过）
      */
     private void autoCompleteTask(String taskId, String taskName, String reason, boolean isSkip) {
-        log.info("[autoCompleteTask][开始处理，taskId：{}，taskName：{}，isSkip：{}]", taskId, taskName, isSkip);
-        
         try {
             // 获取任务信息
             Task task = flowableTaskService.createTaskQuery().taskId(taskId).singleResult();
@@ -188,7 +179,6 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
             if (instance.getBusinessKey() != null) {
                 try {
                     refId = Long.parseLong(instance.getBusinessKey());
-                    log.info("[autoCompleteTask][从businessKey获取refId：{}]", refId);
                 } catch (NumberFormatException e) {
                     log.warn("[autoCompleteTask][businessKey不是数字：{}]", instance.getBusinessKey());
                 }
@@ -200,143 +190,101 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
                 org.flowable.engine.RepositoryService repositoryService = SpringUtil.getBean(org.flowable.engine.RepositoryService.class);
                 org.flowable.bpmn.model.BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
                 if (bpmnModel != null) {
-                    log.info("[autoCompleteTask][成功获取BPMN模型]");
                     org.flowable.bpmn.model.FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(task.getTaskDefinitionKey());
                     
-                    if (flowElement == null) {
-                        log.warn("[autoCompleteTask][任务节点{}不存在]", task.getTaskDefinitionKey());
-                    } else {
-                        log.info("[autoCompleteTask][找到任务节点，类型：{}，名称：{}]", 
-                                flowElement.getClass().getSimpleName(), flowElement.getName());
+                    if (flowElement instanceof org.flowable.bpmn.model.UserTask) {
+                        org.flowable.bpmn.model.UserTask userTask = (org.flowable.bpmn.model.UserTask) flowElement;
                         
-                        if (flowElement instanceof org.flowable.bpmn.model.UserTask) {
-                            org.flowable.bpmn.model.UserTask userTask = (org.flowable.bpmn.model.UserTask) flowElement;
-                            
-                            // 1. 先检查 ExtensionElements（最常见的存储位置）
-                            log.info("[autoCompleteTask][检查ExtensionElements]");
-                            if (userTask.getExtensionElements() != null && !userTask.getExtensionElements().isEmpty()) {
-                                log.info("[autoCompleteTask][ExtensionElements存在，数量：{}]", userTask.getExtensionElements().size());
-                                
-                                // 遍历所有 extension elements
-                                for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> entry : 
-                                        userTask.getExtensionElements().entrySet()) {
-                                    String key = entry.getKey();
-                                    java.util.List<org.flowable.bpmn.model.ExtensionElement> elements = entry.getValue();
-                                    
-                                    log.info("[autoCompleteTask][ExtensionElement key：{}，数量：{}]", key, elements.size());
-                                    
-                                    for (org.flowable.bpmn.model.ExtensionElement element : elements) {
-                                        log.info("[autoCompleteTask][  Element name：{}，namespace：{}，value：{}]", 
-                                                element.getName(), element.getNamespace(), element.getElementText());
-                                        
-                                        // 检查子元素
-                                        if (element.getChildElements() != null && !element.getChildElements().isEmpty()) {
-                                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> childEntry : 
-                                                    element.getChildElements().entrySet()) {
-                                                log.info("[autoCompleteTask][    子元素 key：{}]", childEntry.getKey());
-                                                for (org.flowable.bpmn.model.ExtensionElement child : childEntry.getValue()) {
-                                                    log.info("[autoCompleteTask][      name：{}，value：{}]", 
-                                                            child.getName(), child.getElementText());
+                        // 1. 先检查 ExtensionElements 中的 property 子元素
+                        if (userTask.getExtensionElements() != null && !userTask.getExtensionElements().isEmpty()) {
+                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> entry : 
+                                    userTask.getExtensionElements().entrySet()) {
+                                for (org.flowable.bpmn.model.ExtensionElement element : entry.getValue()) {
+                                    // 检查子元素
+                                    if (element.getChildElements() != null && !element.getChildElements().isEmpty()) {
+                                        for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionElement>> childEntry : 
+                                                element.getChildElements().entrySet()) {
+                                            for (org.flowable.bpmn.model.ExtensionElement child : childEntry.getValue()) {
+                                                // 检查子元素的属性（property元素的信息在属性中）
+                                                if (child.getAttributes() != null && !child.getAttributes().isEmpty()) {
+                                                    String propertyName = null;
+                                                    String propertyValue = null;
                                                     
-                                                    // 检查子元素的属性（重要：property元素的信息在属性中）
-                                                    if (child.getAttributes() != null && !child.getAttributes().isEmpty()) {
-                                                        String propertyName = null;
-                                                        String propertyValue = null;
-                                                        
-                                                        for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> childAttrEntry : 
-                                                                child.getAttributes().entrySet()) {
-                                                            for (org.flowable.bpmn.model.ExtensionAttribute childAttr : childAttrEntry.getValue()) {
-                                                                log.info("[autoCompleteTask][        子元素属性 {}：{}]", 
-                                                                        childAttr.getName(), childAttr.getValue());
-                                                                
-                                                                if ("name".equals(childAttr.getName())) {
-                                                                    propertyName = childAttr.getValue();
-                                                                } else if ("value".equals(childAttr.getName())) {
-                                                                    propertyValue = childAttr.getValue();
-                                                                }
+                                                    for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> childAttrEntry : 
+                                                            child.getAttributes().entrySet()) {
+                                                        for (org.flowable.bpmn.model.ExtensionAttribute childAttr : childAttrEntry.getValue()) {
+                                                            if ("name".equals(childAttr.getName())) {
+                                                                propertyName = childAttr.getValue();
+                                                            } else if ("value".equals(childAttr.getName())) {
+                                                                propertyValue = childAttr.getValue();
                                                             }
                                                         }
-                                                        
-                                                        // 如果找到 nextStatus 属性
-                                                        if ("nextStatus".equals(propertyName) && propertyValue != null && taskStatus == null) {
-                                                            taskStatus = propertyValue;
-                                                            log.info("[autoCompleteTask][★★★ 在property子元素中找到nextStatus：{}]", taskStatus);
-                                                        }
                                                     }
-                                                }
-                                            }
-                                        }
-                                        
-                                        // 检查属性
-                                        if (element.getAttributes() != null && !element.getAttributes().isEmpty()) {
-                                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> attrEntry : 
-                                                    element.getAttributes().entrySet()) {
-                                                for (org.flowable.bpmn.model.ExtensionAttribute attr : attrEntry.getValue()) {
-                                                    log.info("[autoCompleteTask][    属性 {}：{}]", attr.getName(), attr.getValue());
-                                                    // 检查是否是 nextStatus
-                                                    if ("nextStatus".equals(attr.getName()) && taskStatus == null) {
-                                                        taskStatus = attr.getValue();
-                                                        log.info("[autoCompleteTask][★★★ 在ExtensionElements的属性中找到nextStatus：{}]", taskStatus);
+                                                    
+                                                    // 如果找到 nextStatus 属性
+                                                    if ("nextStatus".equals(propertyName) && propertyValue != null && taskStatus == null) {
+                                                        taskStatus = propertyValue;
+                                                        log.info("[autoCompleteTask][找到nextStatus：{}]", taskStatus);
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            } else {
-                                log.warn("[autoCompleteTask][ExtensionElements为空]");
-                            }
-                            
-                            // 2. 如果还没找到，检查 Attributes
-                            if (taskStatus == null) {
-                                log.info("[autoCompleteTask][检查UserTask的Attributes]");
-                                if (userTask.getAttributes() != null && !userTask.getAttributes().isEmpty()) {
-                                    for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> entry : 
-                                            userTask.getAttributes().entrySet()) {
-                                        log.info("[autoCompleteTask][Attributes命名空间：{}]", entry.getKey());
-                                        for (org.flowable.bpmn.model.ExtensionAttribute attr : entry.getValue()) {
-                                            log.info("[autoCompleteTask][  属性名：{}，值：{}]", attr.getName(), attr.getValue());
-                                            if ("nextStatus".equals(attr.getName()) && taskStatus == null) {
-                                                taskStatus = attr.getValue();
-                                                log.info("[autoCompleteTask][★★★ 在Attributes中找到nextStatus：{}]", taskStatus);
+                                    
+                                    // 检查元素本身的属性
+                                    if (taskStatus == null && element.getAttributes() != null && !element.getAttributes().isEmpty()) {
+                                        for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> attrEntry : 
+                                                element.getAttributes().entrySet()) {
+                                            for (org.flowable.bpmn.model.ExtensionAttribute attr : attrEntry.getValue()) {
+                                                if ("nextStatus".equals(attr.getName()) && taskStatus == null) {
+                                                    taskStatus = attr.getValue();
+                                                    log.info("[autoCompleteTask][找到nextStatus：{}]", taskStatus);
+                                                }
                                             }
                                         }
                                     }
-                                } else {
-                                    log.warn("[autoCompleteTask][UserTask没有任何Attributes]");
                                 }
                             }
-                            
-                            // 3. 如果还没找到，尝试通过命名空间查找
-                            if (taskStatus == null) {
-                                String[] namespaces = {
-                                    "http://flowable.org/bpmn",
-                                    "http://activiti.org/bpmn", 
-                                    "http://camunda.org/schema/1.0/bpmn",
-                                    "flowable",
-                                    "activiti"
-                                };
-                                
-                                for (String namespace : namespaces) {
-                                    String value = userTask.getAttributeValue(namespace, "nextStatus");
-                                    if (value != null) {
-                                        taskStatus = value;
-                                        log.info("[autoCompleteTask][★★★ 在命名空间{}找到nextStatus：{}]", namespace, taskStatus);
+                        }
+                        
+                        // 2. 如果还没找到，检查 UserTask 的 Attributes
+                        if (taskStatus == null && userTask.getAttributes() != null && !userTask.getAttributes().isEmpty()) {
+                            for (java.util.Map.Entry<String, java.util.List<org.flowable.bpmn.model.ExtensionAttribute>> entry : 
+                                    userTask.getAttributes().entrySet()) {
+                                for (org.flowable.bpmn.model.ExtensionAttribute attr : entry.getValue()) {
+                                    if ("nextStatus".equals(attr.getName())) {
+                                        taskStatus = attr.getValue();
+                                        log.info("[autoCompleteTask][找到nextStatus：{}]", taskStatus);
                                         break;
                                     }
                                 }
                             }
+                        }
+                        
+                        // 3. 如果还没找到，尝试通过命名空间查找
+                        if (taskStatus == null) {
+                            String[] namespaces = {
+                                "http://flowable.org/bpmn",
+                                "http://activiti.org/bpmn", 
+                                "http://camunda.org/schema/1.0/bpmn",
+                                "flowable",
+                                "activiti"
+                            };
                             
-                            if (taskStatus == null) {
-                                log.warn("[autoCompleteTask][在所有位置都未找到nextStatus属性]");
+                            for (String namespace : namespaces) {
+                                String value = userTask.getAttributeValue(namespace, "nextStatus");
+                                if (value != null) {
+                                    taskStatus = value;
+                                    log.info("[autoCompleteTask][找到nextStatus：{}]", taskStatus);
+                                    break;
+                                }
                             }
-                        } else {
-                            log.warn("[autoCompleteTask][节点不是UserTask类型，实际类型：{}]", 
-                                    flowElement.getClass().getName());
+                        }
+                        
+                        if (taskStatus == null) {
+                            log.warn("[autoCompleteTask][未找到nextStatus属性，将使用默认值]");
                         }
                     }
-                } else {
-                    log.warn("[autoCompleteTask][BPMN模型为null]");
                 }
             } catch (Exception e) {
                 log.error("[autoCompleteTask][获取taskStatus失败]", e);
@@ -352,11 +300,9 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
             try {
                 Object jlBpmService = SpringUtil.getBean("JLBpmServiceImpl");
                 if (jlBpmService != null) {
-                    log.info("[autoCompleteTask][调用JLBpmService.executeApproveBusinessLogic]");
                     jlBpmService.getClass()
                             .getMethod("executeApproveBusinessLogic", String.class, Long.class, String.class, String.class)
                             .invoke(jlBpmService, processDefinitionKey, refId, taskStatus, reason);
-                    log.info("[autoCompleteTask][业务逻辑执行完成]");
                 }
             } catch (Exception e) {
                 log.warn("[autoCompleteTask][调用业务逻辑失败，继续完成任务。错误：{}]", e.getMessage());
@@ -410,7 +356,6 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         
         // 自动完成任务
         flowableTaskService.complete(taskId, variables);
-        log.info("[completeTaskDirectly][任务{}已直接完成]", taskName);
     }
 
     @Override
@@ -450,7 +395,6 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
                     .setTaskId(task.getId())
                     .setReason(reason)
             );
-            log.info("[taskCompleted][任务{}已自动完成，reason已更新：{}]", task.getName(), reason);
         }
     }
 
