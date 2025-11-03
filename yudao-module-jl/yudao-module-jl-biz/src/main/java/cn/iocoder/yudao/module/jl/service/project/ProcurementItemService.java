@@ -29,6 +29,14 @@ public interface ProcurementItemService {
     void updateProcurementItem(@Valid ProcurementItemUpdateReqVO updateReqVO);
 
     /**
+     * 更新项目采购单申请明细关注状态
+     *
+     * @param id 编号
+     * @param focusStatus 关注状态 1-关注 0-不关注
+     */
+    void updateProcurementItemFocusStatus(Long id, Integer focusStatus);
+
+    /**
      * 删除项目采购单申请明细
      *
      * @param id 编号

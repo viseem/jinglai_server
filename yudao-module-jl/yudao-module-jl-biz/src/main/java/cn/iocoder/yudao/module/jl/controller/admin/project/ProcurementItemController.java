@@ -58,6 +58,14 @@ public class ProcurementItemController {
         return success(true);
     }
 
+    @PutMapping("/update-focus-status")
+    @Operation(summary = "更新项目采购单申请明细关注状态")
+    @PreAuthorize("@ss.hasPermission('jl:procurement-item:update')")
+    public CommonResult<Boolean> updateProcurementItemFocusStatus(@RequestParam("id") Long id, @RequestParam("focusStatus") Integer focusStatus) {
+        procurementItemService.updateProcurementItemFocusStatus(id, focusStatus);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "通过 ID 删除项目采购单申请明细")
     @Parameter(name = "id", description = "编号", required = true)

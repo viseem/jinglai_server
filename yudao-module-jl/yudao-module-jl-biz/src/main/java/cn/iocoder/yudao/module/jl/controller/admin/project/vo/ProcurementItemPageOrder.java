@@ -56,6 +56,9 @@ public class ProcurementItemPageOrder {
     private String validDate;
 
     @Schema(allowableValues = {"desc", "asc"})
+    private String focusStatus;
+
+    @Schema(allowableValues = {"desc", "asc"})
     private String brand;
 
     @Schema(allowableValues = {"desc", "asc"})

@@ -191,6 +191,18 @@ public class ProcurementItem extends BaseEntity {
     private String mark;
 
     /**
+     * 库管备注
+     */
+    @Column(name = "warehouse_remark")
+    private String warehouseRemark;
+
+    /**
+     * 关注状态 1-关注 0-不关注
+     */
+    @Column(name = "focus_status")
+    private Integer focusStatus = 1;
+
+    /**
      * 付款周期
      */
     @Column(name = "payment_cycle")

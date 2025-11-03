@@ -12,6 +12,12 @@ scp yudao-server/target/yudao-server.jar vxzs:/home/ubuntu/jinglai/new.jar
 ```bash
 bash deploy.sh
 ``` 
+
+``` 
+mvn clean
+mvn compile -DskipTests
+``` 
+
 # 注意事项
 ## 文件上传
 这个是在管理后台页面上可以设置阿里云的key，内部已经封装好对应函数，只需配置即可

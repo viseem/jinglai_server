@@ -80,6 +80,16 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
     }
 
     @Override
+    public void updateProcurementItemFocusStatus(Long id, Integer focusStatus) {
+        // 校验存在
+        ProcurementItem procurementItem = procurementItemRepository.findById(id)
+                .orElseThrow(() -> exception(PROCUREMENT_ITEM_NOT_EXISTS));
+        // 更新关注状态
+        procurementItem.setFocusStatus(focusStatus);
+        procurementItemRepository.save(procurementItem);
+    }
+
+    @Override
     public void deleteProcurementItem(Long id) {
         // 校验存在
         validateProcurementItemExists(id);
@@ -104,27 +114,88 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
 
     @Override
     public PageResult<ProcurementItem> getProcurementItemPage(ProcurementItemPageReqVO pageReqVO, ProcurementItemPageOrder orderV0) {
-        // 创建 Sort 对象
-        Sort sort = createSort(orderV0);
-
-        // 创建 Specification
         Specification<ProcurementItem> spec = getSpecification(pageReqVO);
-
         List<ProcurementItem> content = null;
         long totalElements = 0;
-        // 执行查询
-        // 创建 Pageable 对象
-        if(pageReqVO.getPageNo()!=-1){
-            Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
-            Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
-            totalElements = page.getTotalElements();
-            content = page.getContent();
-        }else{
-            content = procurementItemRepository.findAll(spec);
+        
+        // 如果有validDate排序，需要特殊处理空字符串
+        if (orderV0.getValidDate() != null) {
+            // 先查询所有符合条件的数据
+            List<ProcurementItem> allContent = procurementItemRepository.findAll(spec);
+            totalElements = allContent.size();
+            
+            // 手动排序（将空字符串和NULL都视为最后）
+            allContent = sortWithNullsAndEmptyLast(allContent, orderV0);
+            
+            // 手动分页
+            if(pageReqVO.getPageNo() != -1){
+                int start = (pageReqVO.getPageNo() - 1) * pageReqVO.getPageSize();
+                int end = Math.min(start + pageReqVO.getPageSize(), allContent.size());
+                content = start < allContent.size() ? allContent.subList(start, end) : new ArrayList<>();
+            } else {
+                content = allContent;
+            }
+        } else {
+            // 没有validDate排序，使用标准的JPA排序
+            Sort sort = createSort(orderV0);
+            
+            if(pageReqVO.getPageNo() != -1){
+                Pageable pageable = PageRequest.of(pageReqVO.getPageNo() - 1, pageReqVO.getPageSize(), sort);
+                Page<ProcurementItem> page = procurementItemRepository.findAll(spec, pageable);
+                totalElements = page.getTotalElements();
+                content = page.getContent();
+            }else{
+                content = procurementItemRepository.findAll(spec, sort);
+                totalElements = content.size();
+            }
         }
 
         // 转换为 PageResult 并返回
         return new PageResult<>(content, totalElements);
+    }
+    
+    /**
+     * 自定义排序：将NULL和空字符串都排在最后
+     */
+    private List<ProcurementItem> sortWithNullsAndEmptyLast(List<ProcurementItem> list, ProcurementItemPageOrder order) {
+        return list.stream()
+            .sorted((a, b) -> {
+                // 1. 先按关注状态排序
+                if (order.getFocusStatus() != null) {
+                    int focusCompare = compareFocusStatus(a.getFocusStatus(), b.getFocusStatus(), order.getFocusStatus());
+                    if (focusCompare != 0) return focusCompare;
+                }
+                
+                // 2. 再按有效期排序（空字符串和NULL都排最后）
+                if (order.getValidDate() != null) {
+                    int dateCompare = compareValidDate(a.getValidDate(), b.getValidDate(), order.getValidDate());
+                    if (dateCompare != 0) return dateCompare;
+                }
+                
+                // 3. 最后按创建时间排序
+                return b.getCreateTime().compareTo(a.getCreateTime());
+            })
+            .collect(Collectors.toList());
+    }
+    
+    private int compareFocusStatus(Integer a, Integer b, String direction) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return "asc".equals(direction) ? a.compareTo(b) : b.compareTo(a);
+    }
+    
+    private int compareValidDate(String a, String b, String direction) {
+        // 空字符串和NULL都视为"无值"，排在最后
+        boolean aIsEmpty = (a == null || a.trim().isEmpty());
+        boolean bIsEmpty = (b == null || b.trim().isEmpty());
+        
+        if (aIsEmpty && bIsEmpty) return 0;
+        if (aIsEmpty) return 1;  // a是空值，排在后面
+        if (bIsEmpty) return -1; // b是空值，排在后面
+        
+        // 都有值，按字符串比较（日期字符串可以直接比较）
+        return "asc".equals(direction) ? a.compareTo(b) : b.compareTo(a);
     }
 
     @Override
@@ -228,7 +299,8 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
                 predicates.add(cb.equal(root.get("mark"), pageReqVO.getMark()));
             }
 
-            if (pageReqVO.getValidDate() != null) {
+            // 只有当 validDate 是有效的日期范围数组时才添加查询条件
+            if (pageReqVO.getValidDate() != null && pageReqVO.getValidDate().length == 2) {
                 predicates.add(cb.between(root.get("validDate"), pageReqVO.getValidDate()[0], pageReqVO.getValidDate()[1]));
             }
             if (pageReqVO.getBrand() != null) {
@@ -315,10 +387,38 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
     private Sort createSort(ProcurementItemPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 
-        // 根据 order 中的每个属性创建一个排序规则
-        // 注意，这里假设 order 中的每个属性都是 String 类型，代表排序的方向（"asc" 或 "desc"）
-        // 如果实际情况不同，你可能需要对这部分代码进行调整
-        orders.add(new Sort.Order("asc".equals(order.getCreateTime()) ? Sort.Direction.ASC : Sort.Direction.DESC, "createTime"));
+        // 1. 优先按关注状态排序（关注的在前）
+        if (order.getFocusStatus() != null) {
+            orders.add(new Sort.Order(
+                order.getFocusStatus().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, 
+                "focusStatus"
+            ));
+        }
+
+        // 2. 有效期排序（NULL和空字符串都排在最后）
+        // 注意：validDate是String类型，需要同时处理NULL和空字符串
+        if (order.getValidDate() != null) {
+            Sort.Direction direction = order.getValidDate().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+            // 先对NULL和空值进行排序，然后对有值的进行正常排序
+            // JPA的nullsLast()只处理NULL，不处理空字符串
+            // 因此我们需要确保数据库中空字符串也被视为NULL
+            orders.add(new Sort.Order(direction, "validDate")
+                .nullsLast()  // NULL值在最后
+                .ignoreCase() // 忽略大小写（对字符串排序有效）
+            );
+        }
+
+        // 3. 最后按创建时间排序（作为兜底排序，保证结果稳定）
+        // 注意：只有在没有指定其他排序时，createTime才会起作用
+        if (order.getCreateTime() != null) {
+            orders.add(new Sort.Order(
+                order.getCreateTime().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, 
+                "createTime"
+            ));
+        } else {
+            // 默认按创建时间降序
+            orders.add(new Sort.Order(Sort.Direction.DESC, "createTime"));
+        }
 
         if (order.getId() != null) {
             orders.add(new Sort.Order(order.getId().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "id"));
@@ -368,9 +468,7 @@ public class ProcurementItemServiceImpl implements ProcurementItemService {
             orders.add(new Sort.Order(order.getMark().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "mark"));
         }
 
-        if (order.getValidDate() != null) {
-            orders.add(new Sort.Order(order.getValidDate().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "validDate"));
-        }
+        // validDate 已在上面处理，这里不再重复添加
 
         if (order.getBrand() != null) {
             orders.add(new Sort.Order(order.getBrand().equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "brand"));

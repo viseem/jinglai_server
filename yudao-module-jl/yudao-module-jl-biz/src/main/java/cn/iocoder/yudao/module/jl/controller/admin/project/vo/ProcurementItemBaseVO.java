@@ -116,6 +116,12 @@ public class ProcurementItemBaseVO {
     @Schema(description = "备注")
     private String mark;
 
+    @Schema(description = "库管备注")
+    private String warehouseRemark;
+
+    @Schema(description = "关注状态 1-关注 0-不关注")
+    private Integer focusStatus = 1;
+
     @Schema(description = "付款周期")
     private String paymentCycle;
 
