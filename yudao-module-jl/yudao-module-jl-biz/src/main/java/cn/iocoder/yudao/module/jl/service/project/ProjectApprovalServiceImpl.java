@@ -130,8 +130,14 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
                 //更新一下合同上面的项目进度
                 projectConstractSimpleRepository.updateProjectStageByProjectId(createReqVO.getStage(), save.getProjectId());
 
-                //直接更新项目状态
-                projectRepository.updateStageById(createReqVO.getStage(), save.getProjectId());
+                //直接更新项目状态和变更说明
+                // 只有不需要审批的情况才更新stageMark，开展前审批特殊情况不更新stageMark
+                if (!createReqVO.getNeedAudit()) {
+                    projectRepository.updateStageAndStageMarkById(createReqVO.getStage(), createReqVO.getStageMark(), save.getProjectId());
+                } else {
+                    // 开展前审批虽然直接变更状态，但不更新stageMark
+                    projectRepository.updateStageById(createReqVO.getStage(), save.getProjectId());
+                }
 
                 // 发送系统消息
                 sendChangeStageMsg(createReqVO, save.getProjectId());

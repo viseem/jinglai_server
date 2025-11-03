@@ -59,6 +59,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     int updateStageById(String stage, Long id);
     @Transactional
     @Modifying
+    @Query("update Project p set p.stage = ?1, p.stageMark = ?2 where p.id = ?3")
+    int updateStageAndStageMarkById(String stage, String stageMark, Long id);
+    @Transactional
+    @Modifying
     @Query("update Project p set p.stage = ?2,p.processInstanceId=?3,p.outboundUserId=?4 where p.id = ?1")
     int updateStageAndProcessInstanceIdAndApplyUserById(Long id,String stage,String processInstanceId,Long applyUserId);
     @Query("select count(p) from Project p where p.managerId = ?1 and (p.stage <> ?2 or p.stage is null) and p.code is not null")

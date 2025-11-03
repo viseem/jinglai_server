@@ -113,6 +113,12 @@ public class Project extends BaseEntity{
     private String stage;
 
     /**
+     * 最近状态变更说明（仅不需审批的直接变更才更新此字段）
+     */
+    @Column(name = "stage_mark")
+    private String stageMark;
+
+    /**
      * 项目状态
      */
     @Column(name = "status")
