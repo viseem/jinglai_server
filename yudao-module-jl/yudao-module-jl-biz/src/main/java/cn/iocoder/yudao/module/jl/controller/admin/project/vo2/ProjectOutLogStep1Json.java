@@ -1,11 +1,9 @@
 package cn.iocoder.yudao.module.jl.controller.admin.project.vo2;
 
-import com.alibaba.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -48,4 +46,31 @@ public class ProjectOutLogStep1Json {
 
     @Schema(description ="税")
     private String taxCost;
+
+    @Schema(description ="合同金额（纸质）")
+    private String contractPaperAmount;
+
+    @Schema(description ="合同应收金额（默认结算）")
+    private String contractAmount;
+
+    @Schema(description ="毛利润")
+    private String projectOutProfit;
+
+    @Schema(description ="毛利润率")
+    private String projectOutProfitRate;
+
+    @Schema(description ="原始出库金额")
+    private String projectOutOriginAmount;
+
+    @Schema(description ="备注")
+    private String outMark;
+
+    @Schema(description ="附件列表")
+    private List<AttachmentItem> attachmentList;
+
+    @Data
+    public static class AttachmentItem {
+        private String fileName;
+        private String fileUrl;
+    }
 }
