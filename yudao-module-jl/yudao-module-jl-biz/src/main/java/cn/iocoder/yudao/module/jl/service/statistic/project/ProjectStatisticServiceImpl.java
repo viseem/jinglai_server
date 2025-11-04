@@ -62,6 +62,11 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
             projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
         }
 
+        // 过滤掉已关闭的项目 (stage == 200)
+        projectList = projectList.stream()
+                .filter(project -> !"200".equals(project.getStage()))
+                .collect(Collectors.toList());
+
         ProjectStatisticProjectResp resp = new ProjectStatisticProjectResp();
 
         resp.setManagerIds( managerIds);
@@ -144,6 +149,12 @@ public class ProjectStatisticServiceImpl implements ProjectStatisticService {
         }
 
         List<ProjectOnly> projectList = projectOnlyRepository.findByInManagerIdAndCodeNotNull(reqVO.getUserIds());
+        
+        // 过滤掉已关闭的项目 (stage == 200)
+        projectList = projectList.stream()
+                .filter(project -> !"200".equals(project.getStage()))
+                .collect(Collectors.toList());
+        
         ProjectStatisticProjectTagResp resp = new ProjectStatisticProjectTagResp();
 
         long firstFundNotCount = projectList.stream()
