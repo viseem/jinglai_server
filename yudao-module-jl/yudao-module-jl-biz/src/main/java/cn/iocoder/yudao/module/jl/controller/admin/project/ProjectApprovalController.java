@@ -99,4 +99,12 @@ public class ProjectApprovalController {
         ExcelUtils.write(response, "项目的状态变更记录.xls", "数据", ProjectApprovalExcelVO.class, excelData);
     }
 
+    @PutMapping("/update-stage-mark")
+    @Operation(summary = "更新项目的状态变更记录的申请说明")
+    @PreAuthorize("@ss.hasPermission('jl:project-approval:update')")
+    public CommonResult<Boolean> updateProjectApprovalStageMark(@RequestParam("id") Long id, @RequestParam("stageMark") String stageMark) {
+        projectApprovalService.updateProjectApprovalStageMark(id, stageMark);
+        return success(true);
+    }
+
 }

@@ -374,6 +374,33 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         return projectApprovalRepository.findAll(spec);
     }
 
+    @Override
+    @Transactional
+    public void updateProjectApprovalStageMark(Long id, String stageMark) {
+        // 校验存在
+        ProjectApproval projectApproval = validateProjectApprovalExists(id);
+        
+        // 更新申请说明
+        projectApprovalRepository.updateStageMarkById(stageMark, id);
+        
+        // 判断是否是最新的一条记录
+        // 查询该项目的所有记录，按创建时间降序排序
+        Specification<ProjectApproval> spec = (root, query, cb) -> {
+            return cb.equal(root.get("projectId"), projectApproval.getProjectId());
+        };
+        
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        List<ProjectApproval> approvalList = projectApprovalRepository.findAll(spec, sort);
+        
+        // 如果当前这条是最新的记录，则同步更新项目的 stageMark
+        if (!approvalList.isEmpty() && approvalList.get(0).getId().equals(id)) {
+            projectRepository.findById(projectApproval.getProjectId()).ifPresent(project -> {
+                project.setStageMark(stageMark);
+                projectRepository.save(project);
+            });
+        }
+    }
+
     private Sort createSort(ProjectApprovalPageOrder order) {
         List<Sort.Order> orders = new ArrayList<>();
 

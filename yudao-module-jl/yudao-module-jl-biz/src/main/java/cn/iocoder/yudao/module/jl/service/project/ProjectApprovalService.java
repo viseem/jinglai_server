@@ -66,4 +66,13 @@ public interface ProjectApprovalService {
      */
     List<ProjectApproval> getProjectApprovalList(ProjectApprovalExportReqVO exportReqVO);
 
+    /**
+     * 更新项目的状态变更记录的申请说明
+     * 如果这是最后一条状态记录，则同步更新项目的 stageMark 字段
+     *
+     * @param id 编号
+     * @param stageMark 申请说明
+     */
+    void updateProjectApprovalStageMark(Long id, String stageMark);
+
 }
