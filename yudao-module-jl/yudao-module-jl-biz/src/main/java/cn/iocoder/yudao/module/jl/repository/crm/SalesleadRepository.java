@@ -118,6 +118,10 @@ public interface SalesleadRepository extends JpaRepository<Saleslead, Long>, Jpa
     @Query("update Saleslead s set s.quotation = ?2 where s.id = ?1")
     void updateQuotationById(Long id, Long quotationId);
 
+    @Transactional
+    @Modifying
+    @Query("update Saleslead s set s.quotation = ?2 where s.id = ?1")
+    void updateQuotationBySalesleadId(Long salesleadId, BigDecimal quotation);
 
     @Transactional
     @Modifying

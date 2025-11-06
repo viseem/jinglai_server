@@ -231,7 +231,8 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         projectRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getProjectId());
         projectQuotationRepository.updateDiscountById(updateReqVO.getQuotationDiscount(), updateReqVO.getQuotationId());
         projectQuotationRepository.updateOriginPriceById(updateReqVO.getOriginPrice(), updateReqVO.getQuotationId());
-        salesleadRepository.updateQuotationByProjectId(updateReqVO.getProjectId(), updateReqVO.getQuotationAmount());
+        // 修改：直接使用 salesleadId 更新报价金额，避免 projectId 为 null 时更新失败
+        salesleadRepository.updateQuotationBySalesleadId(updateReqVO.getSalesleadId(), updateReqVO.getQuotationAmount());
         salesleadRepository.updateCurrentQuotationIdById(updateReqVO.getQuotationId(), updateReqVO.getSalesleadId());
         // 这里涉及到切换版本 所有要更新商机的报价审批状态
         salesleadRepository.updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(quotation.getAuditProcessId(), quotation.getAuditMark(), quotation.getAuditStatus(), updateReqVO.getSalesleadId());
