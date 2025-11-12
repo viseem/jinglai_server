@@ -82,6 +82,9 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
 
     @Resource
     private ProjectScheduleServiceImpl projectScheduleService;
+    
+    @Resource
+    private cn.iocoder.yudao.module.jl.service.crm.SalesleadServiceImpl salesleadServiceImpl;
 
     @Resource
     private ProjectServiceImpl projectService;
@@ -237,17 +240,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         // 这里涉及到切换版本 所有要更新商机的报价审批状态
         salesleadRepository.updateQuotationProcessIdAndQuotationAuditMarkAndQuotationAuditStatusById(quotation.getAuditProcessId(), quotation.getAuditMark(), quotation.getAuditStatus(), updateReqVO.getSalesleadId());
 
+        // 发送完成报价通知给商机的创建人（销售）
+        salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(updateReqVO.getSalesleadId());
 
         // todo 如果是切换了版本 则发送一个切换版本的通知
 
-        //完成报价 发给商机的销售
-
-        /*Map<String, Object> templateParams = new HashMap<>();
-        templateParams.put("id", updateReqVO.getSalesleadId());
-        notifyMessageSendApi.sendSingleMessageToAdmin(new NotifySendSingleToUserReqDTO(
-                updateReqVO.getSalesId(),
-                BpmMessageEnum.NOTIFY_WHEN_QUOTATIONED.getTemplateCode(), templateParams
-        ));*/
         return null;
     }
 

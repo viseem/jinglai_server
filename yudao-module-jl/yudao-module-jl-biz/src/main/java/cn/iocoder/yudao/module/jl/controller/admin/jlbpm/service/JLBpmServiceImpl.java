@@ -323,7 +323,7 @@ public class JLBpmServiceImpl implements JLBpmService {
 
                         // 如果都审核通过了，则发送商机报价消息
                         if(Objects.equals(taskStatus,QuotationAuditStatusEnums.ACCEPT.getStatus())){
-                            salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(salesleadOnly.getId());
+//                            salesleadServiceImpl.sendNotifyWhenQuotationedBySalesleadId(salesleadOnly.getId());
                         }
                     }
 
