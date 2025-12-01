@@ -43,4 +43,7 @@ public class ProjectQuotationPageReqVO extends PageParam {
     @Schema(description = "报价人", example = "22455")
     private Long updater;
 
+
+    private Long id;
+
 }

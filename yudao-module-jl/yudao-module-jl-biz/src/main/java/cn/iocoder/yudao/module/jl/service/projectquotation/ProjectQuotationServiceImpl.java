@@ -418,6 +418,10 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
                 }
             }
 
+            if (pageReqVO.getId() != null) {
+                predicates.add(cb.equal(root.get("id"), pageReqVO.getId()));
+            }
+
             if (pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
             }
