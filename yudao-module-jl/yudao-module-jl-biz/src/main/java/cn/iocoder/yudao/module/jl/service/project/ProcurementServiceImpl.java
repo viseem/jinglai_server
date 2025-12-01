@@ -181,6 +181,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
+            if (saveReqVO.getNode1AuditUserId() != null) {
+                processInstanceVariables.put("node1AuditUserId", saveReqVO.getNode1AuditUserId());
+            }
             String processInstanceId = processInstanceApi.createProcessInstance(updateObj.getCreator(),
                     new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(procurementId)));
@@ -223,6 +226,9 @@ public class ProcurementServiceImpl implements ProcurementService {
         //审批流程的key
         String processKey=getProcurementProcessKeyByType(saveReqVO.getProcurementType());
         Map<String, Object> processInstanceVariables = new HashMap<>();
+        if (saveReqVO.getNode1AuditUserId() != null) {
+            processInstanceVariables.put("node1AuditUserId", saveReqVO.getNode1AuditUserId());
+        }
 
         if(saveReqVO.getProcurementType()==null){
             throw exception(BPM_PARAMS_ERROR);
@@ -315,6 +321,9 @@ public class ProcurementServiceImpl implements ProcurementService {
 
         // 发起 BPM 流程
         Map<String, Object> processInstanceVariables = new HashMap<>();
+        if (procurementOnly.getNode1AuditUserId() != null) {
+            processInstanceVariables.put("node1AuditUserId", procurementOnly.getNode1AuditUserId());
+        }
 
         if(procurementOnly.getProcurementType().equals(ProcurementTypeEnums.LAB.getStatus())){
             procurementOnly.setStatus(ProcurementStatusEnums.LAB_AUDIT.getStatus());

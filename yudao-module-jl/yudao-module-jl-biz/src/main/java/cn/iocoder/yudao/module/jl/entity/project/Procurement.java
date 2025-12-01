@@ -181,6 +181,9 @@ public class Procurement extends BaseEntity {
     @Column(name = "accept_time")
     private LocalDateTime acceptTime;
 
+    @Column(name = "node1_audit_user_id")
+    private Long node1AuditUserId;
+
 /*    @OneToMany(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @Fetch(FetchMode.SUBSELECT)

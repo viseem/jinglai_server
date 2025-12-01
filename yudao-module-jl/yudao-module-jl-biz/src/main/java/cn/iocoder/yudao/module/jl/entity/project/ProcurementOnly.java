@@ -173,4 +173,7 @@ public class ProcurementOnly extends BaseEntity {
     @Column(name = "process_instance_id")
     private String processInstanceId;
 
+    @Column(name = "node1_audit_user_id")
+    private Long node1AuditUserId;
+
 }

@@ -70,6 +70,9 @@ public class ProcurementBaseVO {
     @Schema(description = "签收陪审人")
     private Long checkUserId;
 
+    @Schema(description = "第一个审批节点的审批人")
+    private Long node1AuditUserId;
+
     @Schema(description = "收货地址")
     private String address;
 

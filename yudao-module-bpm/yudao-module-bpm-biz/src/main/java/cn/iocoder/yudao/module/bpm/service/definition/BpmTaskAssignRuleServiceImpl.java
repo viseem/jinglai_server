@@ -226,6 +226,12 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
         } else if (Objects.equals(type, BpmTaskAssignRuleTypeEnum.SCRIPT.getType())) {
             dictDataApi.validateDictDataList(DictTypeConstants.TASK_ASSIGN_SCRIPT,
                 CollectionUtils.convertSet(options, String::valueOf));
+        } else if (Objects.equals(type, BpmTaskAssignRuleTypeEnum.PROCESS_VARIABLE.getType())) {
+            // 流程变量类型，options 中存储的是变量名（转换为字符串后存为 Long），这里不需要特别校验
+            // 变量名的有效性在流程执行时才能确定
+            if (CollUtil.isEmpty(options)) {
+                throw new IllegalArgumentException("流程变量名不能为空");
+            }
         } else {
             throw new IllegalArgumentException(format("未知的规则类型({})", type));
         }
@@ -270,6 +276,8 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
             assigneeUserIds = calculateTaskCandidateUsersByUserGroup(rule);
         } else if (Objects.equals(BpmTaskAssignRuleTypeEnum.SCRIPT.getType(), rule.getType())) {
             assigneeUserIds = calculateTaskCandidateUsersByScript(execution, rule);
+        } else if (Objects.equals(BpmTaskAssignRuleTypeEnum.PROCESS_VARIABLE.getType(), rule.getType())) {
+            assigneeUserIds = calculateTaskCandidateUsersByProcessVariable(execution, rule);
         }
 
         // 移除被禁用的用户
@@ -327,6 +335,71 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
         Set<Long> userIds = new HashSet<>();
         scripts.forEach(script -> CollUtil.addAll(userIds, script.calculateTaskCandidateUsers(execution)));
         return userIds;
+    }
+
+    private Set<Long> calculateTaskCandidateUsersByProcessVariable(DelegateExecution execution, BpmTaskAssignRuleDO rule) {
+        // 尝试多种方式获取流程变量中的用户ID
+        // 1. 首先尝试使用 taskDefinitionKey + "UserId" 模式，例如：node1UserId
+        // 2. 然后尝试常用的变量名，如：node1AuditUserId, checkUserId 等
+        
+        String taskDefKey = execution.getCurrentActivityId();
+        String[] possibleVariableNames = {
+            taskDefKey + "UserId",          // 例如：node1UserId
+            taskDefKey + "AuditUserId",     // 例如：node1AuditUserId  
+            "node1AuditUserId",             // 约定的第一个节点审批人
+            "node2AuditUserId",             // 约定的第二个节点审批人
+            "node3AuditUserId",             // 约定的第三个节点审批人
+            "auditUserId",                  // 通用审批人
+            "checkUserId"                   // 检查/审核人
+        };
+        
+        // 遍历可能的变量名，尝试获取用户ID
+        for (String variableName : possibleVariableNames) {
+            Object userIdObj = execution.getVariable(variableName);
+            if (userIdObj != null) {
+                try {
+                    Long userId = parseUserId(userIdObj);
+                    if (userId != null) {
+                        Set<Long> userIds = new HashSet<>();
+                        userIds.add(userId);
+                        log.info("[calculateTaskCandidateUsersByProcessVariable][流程任务({}/{}/{}) 通过流程变量({})获取到审批人({})]",
+                                execution.getId(), execution.getProcessDefinitionId(), execution.getCurrentActivityId(), 
+                                variableName, userId);
+                        return userIds;
+                    }
+                } catch (Exception e) {
+                    log.warn("[calculateTaskCandidateUsersByProcessVariable][流程变量({})解析失败，尝试下一个]", variableName);
+                    continue;
+                }
+            }
+        }
+        
+        // 如果所有尝试都失败，记录警告并返回空集合
+        log.warn("[calculateTaskCandidateUsersByProcessVariable][流程任务({}/{}/{}) 未找到有效的流程变量，尝试的变量名：{}]",
+                execution.getId(), execution.getProcessDefinitionId(), execution.getCurrentActivityId(),
+                String.join(", ", possibleVariableNames));
+        return new HashSet<>();
+    }
+    
+    /**
+     * 解析用户ID
+     */
+    private Long parseUserId(Object userIdObj) {
+        if (userIdObj == null) {
+            return null;
+        }
+        try {
+            if (userIdObj instanceof Long) {
+                return (Long) userIdObj;
+            } else if (userIdObj instanceof Integer) {
+                return ((Integer) userIdObj).longValue();
+            } else {
+                return Long.parseLong(userIdObj.toString());
+            }
+        } catch (Exception e) {
+            log.error("[parseUserId][无法解析用户ID: {}]", userIdObj, e);
+            return null;
+        }
     }
 
     @VisibleForTesting
