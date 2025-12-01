@@ -403,6 +403,11 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
         Specification<ProjectQuotation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (pageReqVO.getId() != null) {
+                predicates.add(cb.equal(root.get("id"), pageReqVO.getId()));
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+
             // 默认查报价金额大于0的
             predicates.add(cb.greaterThan(root.get("resultPrice"),BigDecimal.ZERO));
 
@@ -418,9 +423,7 @@ public class ProjectQuotationServiceImpl implements ProjectQuotationService {
                 }
             }
 
-            if (pageReqVO.getId() != null) {
-                predicates.add(cb.equal(root.get("id"), pageReqVO.getId()));
-            }
+
 
             if (pageReqVO.getCode() != null) {
                 predicates.add(cb.equal(root.get("code"), pageReqVO.getCode()));
