@@ -296,6 +296,7 @@ public interface ErrorCodeConstants {
     ErrorCode PROCUREMENT_AUDIT_TYPE_NOT_EXIST = new ErrorCode(1005003007, "采购审批类型不存在");
 
     ErrorCode BPM_CAN_NOT_CANCEL = new ErrorCode(1005003008, "该流程不可取消");
+    ErrorCode AUDIT_USER_ID_REQUIRED = new ErrorCode(1005003009, "审批人未配置，请刷新后重试");
 
 
 

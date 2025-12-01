@@ -162,9 +162,13 @@ public class UserController {
 
         // 只要有 roleCode，就使用统一的权限控制逻辑
         if (reqVO.getRoleCode() != null && !reqVO.getRoleCode().isEmpty()) {
+            // 如果 skipPermission 为 true，则传递 null 作为 loginUserId 来绕过权限检查
+            Long effectiveLoginUserId = (reqVO.getSkipPermission() != null && reqVO.getSkipPermission()) 
+                ? null : loginUserId;
+            
             // 调用 service 层方法，根据角色和当前用户权限自动过滤
             List<AdminUserDO> filteredUsers = userService.getUserListByRoleCodeWithPermission(
-                reqVO.getRoleCode(), loginUserId);
+                reqVO.getRoleCode(), effectiveLoginUserId);
             // 将过滤后的用户ID设置到查询条件中
             if (CollUtil.isEmpty(filteredUsers)) {
                 // 没有权限查看任何用户，返回空列表

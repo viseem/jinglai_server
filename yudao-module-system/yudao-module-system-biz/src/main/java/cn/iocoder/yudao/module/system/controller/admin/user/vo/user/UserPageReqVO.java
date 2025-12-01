@@ -49,6 +49,9 @@ public class UserPageReqVO extends PageParam {
     @Schema(description = "角色标识，用于筛选拥有该角色的用户", example = "sales")
     private String roleCode;
 
+    @Schema(description = "是否绕过权限检查，默认为 false", example = "false")
+    private Boolean skipPermission;
+
     private String attribute;
 
 }

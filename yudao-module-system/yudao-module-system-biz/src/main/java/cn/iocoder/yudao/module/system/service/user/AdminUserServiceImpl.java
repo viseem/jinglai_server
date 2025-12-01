@@ -96,7 +96,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
+    @CacheEvict(cacheNames = "usersByRoleCode", allEntries = true)
     public Long createUser(UserCreateReqVO reqVO) {
         // 校验账户配合
         tenantService.handleTenantInfo(tenant -> {
@@ -123,7 +123,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
+    @CacheEvict(cacheNames = "usersByRoleCode", allEntries = true)
     public void updateUser(UserUpdateReqVO reqVO) {
         // 校验正确性
         validateUserForCreateOrUpdate(reqVO.getId(), reqVO.getUsername(), reqVO.getMobile(), reqVO.getEmail(),
@@ -219,7 +219,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "salesUsers", allEntries = true)
+    @CacheEvict(cacheNames = "usersByRoleCode", allEntries = true)
     public void deleteUser(Long id) {
         // 校验用户存在
         validateUserExists(id);
@@ -545,7 +545,7 @@ public class AdminUserServiceImpl implements AdminUserService {
      * @return 用户列表
      */
     @Override
-    @Cacheable(cacheNames = "salesUsers", key = "#roleCode + '_' + (#loginUserId != null ? #loginUserId : 'null')")
+    @Cacheable(cacheNames = "usersByRoleCode", key = "#roleCode + '_' + (#loginUserId != null ? #loginUserId : 'null')")
     public List<AdminUserDO> getUserListByRoleCodeWithPermission(String roleCode, Long loginUserId) {
         if (StrUtil.isEmpty(roleCode)) {
             return Collections.emptyList();

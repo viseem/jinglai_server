@@ -161,6 +161,9 @@ public class ProcurementServiceImpl implements ProcurementService {
     @Override
     @Transactional
     public void saveProcurement(ProcurementSaveReqVO saveReqVO) {
+        if (saveReqVO.getNode1AuditUserId() == null) {
+            throw exception(AUDIT_USER_ID_REQUIRED);
+        }
         ProjectSimple projectSimple = projectService.validateProjectExists(saveReqVO.getProjectId());
         if (saveReqVO.getId() != null) {
             // 存在 id，更新操作
@@ -226,9 +229,11 @@ public class ProcurementServiceImpl implements ProcurementService {
         //审批流程的key
         String processKey=getProcurementProcessKeyByType(saveReqVO.getProcurementType());
         Map<String, Object> processInstanceVariables = new HashMap<>();
+/*
         if (saveReqVO.getNode1AuditUserId() != null) {
             processInstanceVariables.put("node1AuditUserId", saveReqVO.getNode1AuditUserId());
         }
+*/
 
         if(saveReqVO.getProcurementType()==null){
             throw exception(BPM_PARAMS_ERROR);
