@@ -174,7 +174,7 @@ public class ProcurementServiceImpl implements ProcurementService {
             saveReqVO.setCode(generateCode());
         }
 
-        saveReqVO.setStatus(ProcurementStatusEnums.CONFIRM_INFO.getStatus());
+        saveReqVO.setStatus(ProcurementStatusEnums.LEADER_APPROVAL.getStatus());
         saveReqVO.setCustomerId(projectSimple.getCustomerId());
 
         // 更新或者创建
