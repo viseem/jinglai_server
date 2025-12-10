@@ -15,4 +15,7 @@ import javax.validation.constraints.*;
 @Data
 public class UserBaseVO {
     private Long id;
+
+    @Schema(description = "签字图片URL")
+    private String signImgUrl;
 }

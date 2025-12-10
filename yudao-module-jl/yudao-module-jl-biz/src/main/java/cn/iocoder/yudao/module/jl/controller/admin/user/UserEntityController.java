@@ -29,6 +29,7 @@ import cn.iocoder.yudao.module.jl.controller.admin.user.vo.*;
 import cn.iocoder.yudao.module.jl.entity.user.User;
 import cn.iocoder.yudao.module.jl.mapper.user.UserMapper;
 import cn.iocoder.yudao.module.jl.service.user.UserService;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 
 @Tag(name = "管理后台 - 用户信息")
 @RestController
@@ -92,6 +93,28 @@ public class UserEntityController {
         // 导出 Excel
         List<UserExcelVO> excelData = userMapper.toExcelList(list);
         ExcelUtils.write(response, "用户信息.xls", "数据", UserExcelVO.class, excelData);
+    }
+
+    @GetMapping("/get-sign-img-url")
+    @Operation(summary = "获取当前登录用户的签字图片URL")
+    public CommonResult<String> getSignImgUrl() {
+        Long userId = getLoginUserId();
+        if (userId == null) {
+            return success(null);
+        }
+        String signImgUrl = userService.getSignImgUrl(userId);
+        return success(signImgUrl);
+    }
+
+    @PutMapping("/update-sign-img-url")
+    @Operation(summary = "更新当前登录用户的签字图片URL")
+    public CommonResult<Boolean> updateSignImgUrl(@RequestParam("signImgUrl") String signImgUrl) {
+        Long userId = getLoginUserId();
+        if (userId == null) {
+            throw exception(USER_NOT_EXISTS);
+        }
+        userService.updateSignImgUrl(userId, signImgUrl);
+        return success(true);
     }
 
 }

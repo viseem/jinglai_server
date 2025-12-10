@@ -66,4 +66,20 @@ public interface UserService {
      */
     List<User> getUserList(UserExportReqVO exportReqVO);
 
+    /**
+     * 获取当前登录用户的签字图片URL
+     *
+     * @param userId 用户ID
+     * @return 签字图片URL
+     */
+    String getSignImgUrl(Long userId);
+
+    /**
+     * 更新用户的签字图片URL
+     *
+     * @param userId 用户ID
+     * @param signImgUrl 签字图片URL
+     */
+    void updateSignImgUrl(Long userId, String signImgUrl);
+
 }

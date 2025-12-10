@@ -113,4 +113,10 @@ public class User extends BaseEntity {
     @Column(name = "wx_cp_id")
     private String wxCpId;
 
+    /**
+     * 签字图片URL
+     */
+    @Column(name = "sign_img_url")
+    private String signImgUrl;
+
 }

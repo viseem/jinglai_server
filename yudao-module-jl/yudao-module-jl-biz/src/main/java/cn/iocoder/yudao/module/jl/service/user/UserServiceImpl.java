@@ -290,4 +290,25 @@ public class UserServiceImpl implements UserService {
     public Long[] getInvoiceApplyVoidUserIds(){
         return new Long[]{171L};
     }
+
+    @Override
+    public String getSignImgUrl(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            return userOptional.get().getSignImgUrl();
+        }
+        return null;
+    }
+
+    @Override
+    public void updateSignImgUrl(Long userId, String signImgUrl) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setSignImgUrl(signImgUrl);
+            userRepository.save(user);
+        } else {
+            throw exception(USER_NOT_EXISTS);
+        }
+    }
 }
