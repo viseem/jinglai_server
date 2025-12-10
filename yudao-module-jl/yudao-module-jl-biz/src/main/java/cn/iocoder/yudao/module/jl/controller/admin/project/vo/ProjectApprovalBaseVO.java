@@ -42,4 +42,8 @@ public class ProjectApprovalBaseVO {
 
 
     private String approvalStage;
+
+    @Schema(description = "第一个审批节点的审批人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "一级审批人不能为空")
+    private Long node1AuditUserId;
 }

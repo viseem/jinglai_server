@@ -101,6 +101,9 @@ public class ProjectApprovalServiceImpl implements ProjectApprovalService {
         if (createReqVO.getNeedAudit()) {
             // 发起 BPM 流程
             Map<String, Object> processInstanceVariables = new HashMap<>();
+            if (createReqVO.getNode1AuditUserId() != null) {
+                processInstanceVariables.put("node1AuditUserId", createReqVO.getNode1AuditUserId());
+            }
             String processInstanceId = processInstanceApi.createProcessInstance(getLoginUserId(),
                     new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(PROCESS_KEY)
                             .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(save.getId())));

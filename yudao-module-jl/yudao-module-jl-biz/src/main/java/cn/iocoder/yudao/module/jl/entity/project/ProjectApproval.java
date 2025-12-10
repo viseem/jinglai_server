@@ -87,7 +87,11 @@ public class ProjectApproval extends BaseEntity {
     @Column(name = "schedule_id", nullable = false )
     private Long scheduleId;
 
-
+    /**
+     * 第一个审批节点的审批人
+     */
+    @Column(name = "node1_audit_user_id", nullable = false )
+    private Long node1AuditUserId;
 
     /**
      * JPA 级联出 user
