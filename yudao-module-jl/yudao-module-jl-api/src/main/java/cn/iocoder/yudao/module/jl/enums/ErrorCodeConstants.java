@@ -297,6 +297,7 @@ public interface ErrorCodeConstants {
 
     ErrorCode BPM_CAN_NOT_CANCEL = new ErrorCode(1005003008, "该流程不可取消");
     ErrorCode AUDIT_USER_ID_REQUIRED = new ErrorCode(1005003009, "审批人未配置，请刷新后重试");
+    ErrorCode BPM_INSTANCE_CANCEL_FAIL_APPROVED = new ErrorCode(1005003010, "流程已有人审批，无法取消");
 
 
 

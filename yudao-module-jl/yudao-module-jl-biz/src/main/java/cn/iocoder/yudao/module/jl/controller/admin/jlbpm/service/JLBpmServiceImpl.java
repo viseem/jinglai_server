@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.UserTask;
+import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
@@ -50,8 +51,7 @@ import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getLogi
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.PROCESS_INSTANCE_NOT_EXISTS;
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.TASK_NOT_EXISTS;
 import static cn.iocoder.yudao.module.bpm.service.utils.ProcessInstanceKeyConstants.*;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.BPM_CAN_NOT_CANCEL;
-import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.BPM_PARAMS_ERROR;
+import static cn.iocoder.yudao.module.jl.enums.ErrorCodeConstants.*;
 
 /**
  * 项目的实验名目 Service 实现类
@@ -75,6 +75,9 @@ public class JLBpmServiceImpl implements JLBpmService {
     
     @Resource
     private RepositoryService repositoryService;
+
+    @Resource
+    private HistoryService historyService;
 
     @Resource
     private ProcurementRepository procurementRepository;
@@ -400,6 +403,15 @@ public class JLBpmServiceImpl implements JLBpmService {
     @Override
     @Transactional
     public void cancelInstance(BpmProcessInstanceCancelReqVO reqVO) {
+        // 校验是否有人审批过
+        long count = historyService.createHistoricTaskInstanceQuery()
+                .processInstanceId(reqVO.getId())
+                .finished()
+                .count();
+        if (count > 0) {
+            throw exception(BPM_INSTANCE_CANCEL_FAIL_APPROVED);
+        }
+
         ProcessInstance processInstance = processInstanceService.getProcessInstance(reqVO.getId());
         String processDefinitionKey = processInstance.getProcessDefinitionKey();
         boolean canCancel = (processDefinitionKey.contains("PROCUREMENT")&&!processDefinitionKey.contains("PURCHASE_CONTRACT")) || processDefinitionKey.contains(PROJECT_OUTBOUND_APPLY) || processDefinitionKey.contains(QUOTATION_AUDIT);
