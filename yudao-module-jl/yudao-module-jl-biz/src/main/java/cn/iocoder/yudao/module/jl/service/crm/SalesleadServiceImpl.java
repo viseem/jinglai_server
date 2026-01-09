@@ -676,15 +676,21 @@ public class SalesleadServiceImpl implements SalesleadService {
                     predicates.add(cb.equal(root.get("creator"), pageReqVO.getSalesId()));
                 }
 
+                // 公海判断：无论是否传了managerId，只要attribute=SEAS，都要加上creator IS NULL条件
+                if(pageReqVO.getAttribute()!=null && Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
+                    predicates.add(root.get("creator").isNull());
+                }
+
                 if(pageReqVO.getCreatorIds()==null){
                     if(pageReqVO.getCustomerId() != null) {
                         predicates.add(cb.equal(root.get("customerId"), pageReqVO.getCustomerId()));
                     }else{
                         if (pageReqVO.getManagerId() == null) {
                             if(pageReqVO.getAttribute()!=null){
-                                if(Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus())){
-                                    predicates.add(root.get("creator").isNull());
-                                }else if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus())&& pageReqVO.getPiGroupId() == null){
+                                // 公海判断已在上方独立处理，这里不再重复
+                                if(!Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.SEAS.getStatus()) 
+                                    && !Objects.equals(pageReqVO.getAttribute(),DataAttributeTypeEnums.ANY.getStatus()) 
+                                    && pageReqVO.getPiGroupId() == null){
                                     Long[] users = pageReqVO.getSalesId()!=null?dateAttributeGenerator.processAttributeUsersWithUserId(pageReqVO.getAttribute(), pageReqVO.getSalesId()):dateAttributeGenerator.processAttributeUsers(pageReqVO.getAttribute());
                                     pageReqVO.setCreators(users);
                                     if(pageReqVO.getCreators() != null && pageReqVO.getCreators().length > 0) {
